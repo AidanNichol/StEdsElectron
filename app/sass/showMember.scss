@@ -1,0 +1,143 @@
+/* scss-lint:disable QualifyingElement Comment SelectorFormat */
+.show-member-details {
+  // display: table-cell;
+  // margin-right: 10px;
+  width: 500px;
+  position: relative;
+
+  .form-line {
+    display: table-row;
+    height: 30px;
+    margin-top: 5px;
+
+    span:nth-child(1) {
+      /* padding-top: 5px;
+      vertical-align: top; */
+      background-color: #ccc;
+      color: #444;
+      display: table-cell;
+      padding-right: 10px;
+      text-align: right;
+      vertical-align: top;
+      width: 85px;
+    }
+
+    span:nth-child(2) {
+      display: table-cell;
+      font-size: 1.2em;
+      padding-left: 10px;
+      /* margin-bottom: 5px;
+      margin-top: 10px; */
+      /* width: 300px; */
+      /* border: inset 2px rgb(238, 238, 238); */
+    }
+
+    .item-value {
+      &.due {
+        background-color: #ff6;
+      }
+
+      &.late {
+        background-color: #f66;
+      }
+    }
+
+  }
+}
+
+.member-list {
+  button, a[type='button'] {
+    img {
+      height: 40px;
+    }
+
+    padding: 5px 8px;
+  }
+}
+
+.addNewMember {
+  float: right;
+}
+
+.pagination {
+    margin-bottom: 10px;
+    margin-right: 20px;
+    margin-top: 15px;
+}
+
+.pagination > li > span {
+    padding: 3px 0px;
+    line-height: 1;
+    text-align: center;
+    min-height: 36px;
+    display: inline-block;
+}
+
+.by-name {
+    >li >span {width: 25px;}
+    >li:first-child >span,
+    >li:last-child >span {width: 20.5px;}
+}
+
+.by-id {
+    >li >span {width: 29px;}
+    >li:first-child >span,
+    >li:last-child >span {width: 20.5px;}
+}
+
+.clue {
+  font-size: 0.6em;
+  line-height: 0.8;
+}
+.member-list {
+  // display: table-row;
+
+  .list-line {
+    margin-right: 20px;
+
+    .member-status {
+      float: right;
+      font-size: 70%;
+    }
+
+    &.current {
+      background-color: #66CCFF;
+      color: white;
+      border: thin solid black;
+    }
+
+    &.suspended {
+      background-color: #999;
+      text-decoration: line-through;
+    }
+
+    &.due {
+      background-color: #ff6;
+    }
+
+    &.late {
+      background-color: #f66;
+    }
+  }
+
+  .list-index {
+    // display: table-cell;
+    margin-right: 20px;
+
+    .id {
+      display: inline-block;
+      margin-right: 5px;
+      text-align: right;
+      width: 40px;
+    }
+
+    .name {
+      width: 100px;
+    }
+  }
+
+  .list-details {
+    display: table-cell;
+  }
+
+}

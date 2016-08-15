@@ -1,0 +1,16 @@
+node_modules
+server
+bookings
+pouch__all_dbs__
+_replicator
+_users
+public/font-awesome-4.6.3
+public/images/DD*
+public/images/reserve
+-C-actions
+*.log
+app/services/creds.js
+config.js
+config.json
+app/lockit-config.js
+public/lockit-config.js
