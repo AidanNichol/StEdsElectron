@@ -20,8 +20,8 @@ var proxy = httpProxy.createProxyServer({
 var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
 
-var config = require('./config.js');
-var Lockit = require('lockit');
+// var config = require('./config.js');
+// var Lockit = require('lockit');
 
 var app = express();
 var isProduction = process.env.NODE_ENV === 'production';
@@ -35,9 +35,9 @@ app.use(cookieSession({
   secret: 'your secret here'
 }));
 
-var lockit = new Lockit(config);
+// var lockit = new Lockit(config);
 
-app.use(lockit.router);
+// app.use(lockit.router);
 // var Signup = require('lockit-signup');
 // var lockitUtils = require('lockit-utils');
 

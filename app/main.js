@@ -1,9 +1,10 @@
 import 'babel-polyfill'
 import 'longjohn';
-// import 'font-awesome/css/font-awesome.css'
 import React from 'react';
 import ReactDom from 'react-dom';
-// import {Container} from 'cerebral-react';
+
+// import {loginUser} from '_users'
+// loginUser()
 
 import { Provider } from 'react-redux';
 import store, {sagaMiddleware} from './store';
@@ -29,20 +30,20 @@ import BusListsContainer from 'containers/buslists-container';
 import PaymentsContainer from 'containers/Payments-container';
 
 
-import MemoryStats from 'memory-stats';
-
-export var stats = new MemoryStats();
-
-    stats.domElement.style.position = 'fixed';
-    stats.domElement.style.right        = '0px';
-    stats.domElement.style.bottom       = '0px';
-
-    document.body.appendChild( stats.domElement );
-
-    requestAnimationFrame(function rAFloop(){
-        stats.update();
-        requestAnimationFrame(rAFloop);
-    });
+// import MemoryStats from 'memory-stats';
+//
+// export var stats = new MemoryStats();
+//
+//     stats.domElement.style.position = 'fixed';
+//     stats.domElement.style.right        = '0px';
+//     stats.domElement.style.bottom       = '0px';
+//
+//     document.body.appendChild( stats.domElement );
+//
+//     requestAnimationFrame(function rAFloop(){
+//         stats.update();
+//         requestAnimationFrame(rAFloop);
+//     });
 
 // Provider is a top-level component that wrapps our entire application, including
 // the Router. We pass it a reference to the store so we can use react-redux's

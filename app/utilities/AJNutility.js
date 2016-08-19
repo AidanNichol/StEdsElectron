@@ -1,5 +1,4 @@
 /* jshint quotmark: false, jquery: true */
-/* global window, R */
 // var indexBy = require('lodash').indexBy;
 // var R = require('./ramda/ramda');
 // // var printStackTrace = require('stacktrace-js');

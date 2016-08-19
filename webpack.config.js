@@ -4,10 +4,10 @@ var nested = require('postcss-nested');
 var mixins = require('postcss-mixins');
 var simpleVars = require('postcss-simple-vars');
 var cssVars = require('postcss-css-variables');
-var cssScss = require('postcss-scss');
+// var cssScss = require('postcss-scss');
 var cssImport = require('postcss-easy-import');
-var cssFontAwesome = require('postcss-font-awesome');
-var precss = require('precss');
+// var cssFontAwesome = require('postcss-font-awesome');
+// var precss = require('precss');
 var path = require('path');
 var appPath = path.resolve(__dirname, 'app');
 var nodeModulesPath = path.resolve(__dirname, 'node_modules');
@@ -35,6 +35,7 @@ var config = {
     }
   },
   module: {
+    noParse: [/lie\/dist\/lie.js/],
     loaders: [{
       test: /\.js$/,
       loader: 'babel?optional=es7.decorators',
@@ -50,7 +51,7 @@ var config = {
     }]
   },
   // postcss: [cssImport, mixins, precss, cssScss, cssFontAwesome, autoprefixer],
-  postcss: [cssImport, mixins, nested, cssVars, simpleVars, cssFontAwesome, autoprefixer],
+  postcss: [cssImport, mixins, nested, cssVars, simpleVars, autoprefixer],
   plugins: [new Webpack.HotModuleReplacementPlugin()]
 };
 
