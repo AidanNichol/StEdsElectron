@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="432.179" height="398.457" viewBox="0, 0, 432.179, 398.457">
+  <g id="user-add" transform="translate(-37.821, -22.543)">
+    <g>
+      <path d="M387.5,123 L387.5,213" fill-opacity="0" stroke="#000000" stroke-width="20" stroke-linecap="round"/>
+      <path d="M429,168 L346,168" fill-opacity="0" stroke="#000000" stroke-width="20" stroke-linecap="round"/>
+    </g>
+    <g>
+      <path d="M318.072,122.335 C318.072,177.449 273.394,222.127 218.28,222.127 C163.166,222.127 118.488,177.449 118.488,122.335 C118.488,67.221 163.166,22.543 218.28,22.543 C273.394,22.543 318.072,67.221 318.072,122.335 z" fill="#000000"/>
+      <path d="M395,398 C374.725,249.328 345.955,226.522 313.186,200.696 C290.61,228.006 256.479,245.412 218.28,245.412 C180.082,245.412 145.947,228.006 123.372,200.696 C72.028,241.16 37.821,313.459 37.821,395.931 C37.821,395.931 110,418 216,421 C321,420 395,398 395,398 z" fill="#000000"/>
+    </g>
+  </g>
+</svg>
