@@ -1,18 +1,11 @@
 /* jshint quotmark: false, jquery: true */
 var React = require('react');
+import 'hint.css/hint.css';
+import classnames from 'classnames'
 
-// var Reflux = require('reflux');
-// var R = require('ramda');
-// var S = require('sanctuary');
-
-// var ButtonGroup = require('react-bootstrap').ButtonGroup;
-var Button = require('react-bootstrap').Button;
-var Tooltip = require('react-bootstrap').Tooltip;
-var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
-
+// var Button = require('react-bootstrap').Button;
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'TooltipButton.jsx');
-var counter = 0;
 var TooltipButton = React.createClass({
   propTypes: {
     // You can declare that a prop is a specific JS primitive. By default, these
@@ -21,7 +14,7 @@ var TooltipButton = React.createClass({
     img: React.PropTypes.string,
     label: React.PropTypes.string,
     lable: React.PropTypes.string,
-    onClick: React.PropTypes.func.isRequired,
+    onClick: React.PropTypes.func,
     placement: React.PropTypes.string,
     tiptext: React.PropTypes.string,
     visible: React.PropTypes.bool,
@@ -29,27 +22,36 @@ var TooltipButton = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      active: true,
       visible: true,
-      placement: 'top',
     };
   },
   render: function() {
-    var {active, img, lable, label, onClick, placement, tiptext, visible, className} = this.props;
+    var {img, lable, label, placement, tiptext, visible, className, style, ...other} = this.props;
     if (typeof visible != 'boolean') logit('props', this.props);
     if (lable)label = lable;
     if (!visible) return null;
-    if (!tiptext) return (
-      <Button onClick={onClick} active={active} className={className + ' ttbtn' }>
-        {img ? <img src={img} /> : null }{label ? label : null}
-      </Button>
-    );
+    // if (!tiptext) return (
+    //   <button onClick={onClick} active={active} className={className + ' ttbtn' }>
+    //     {img ? <img src={img} /> : null }{label ? label : null}
+    //   </button>
+    // );
+    const clnm = classnames({[className]: className, ttbtn:false, ['hint--'+(placement||'top')]: tiptext, [' hint--rounded hint--medium']:tiptext})
+    style = {color: '#333',
+                   backgroundColor: '#e6e6e6',
+                   border: '1px solid #adadad',
+                   padding: '5px 8px',
+                   borderRadius: 4,
+                   boxShadow: 'inset 0 3px 5px rgb(0,0,0,.125)',
+                   marginLeft: 5,
+                   ...style,
+                  }
     return (
-      <OverlayTrigger placement={placement} overlay={<Tooltip id={'ttp'+(counter++)}>{tiptext}</Tooltip>}>
-        <Button onClick={onClick} active={active} className={className + ' ttbtn' }>
-          {img ? <img src={img} /> : null }{label ? label : null}
-        </Button>
-      </OverlayTrigger>
+      <button className={clnm }
+          aria-label={tiptext} style={style}
+           {...other}>
+        {img ? <img src={img} /> : null }{label ? label : this.props.children}
+      </button>
+
     );
   },
 });

@@ -7,6 +7,7 @@ _users
 public/font-awesome-4.6.3
 public/images/DD*
 public/images/reserve
+public/build
 -C-actions
 *.log
 app/services/creds.js
@@ -14,3 +15,11 @@ config.js
 config.json
 app/lockit-config.js
 public/lockit-config.js
+public/bootstrap*
+.DS_Store
+/_test
+/_test2
+test.js
+/test
+/testx
+/build

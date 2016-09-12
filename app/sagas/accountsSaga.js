@@ -4,7 +4,6 @@ import docUpdateSaga from 'sagas/docUpdateSaga';
 import {request} from 'ducks/walksDuck'
 import {pushLog} from 'utilities/docLogging';
 import Logit from 'factories/logit.js';
-// import Immutable from 'seamless-immutable';
 
 var logit = Logit('color:white; background:blue;', 'AccountsSaga');
 

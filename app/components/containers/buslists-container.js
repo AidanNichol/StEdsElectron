@@ -6,7 +6,7 @@ import {getBookingsSummary} from 'ducks/walksDuck'
 
 import BusLists from 'views/BusLists';
 // import {accountSelected} from 'actions/accounts-actions';
-import {isUserAuthorized} from 'utilities/AJNutility';
+import {isUserAuthorized} from 'ducks/login-duck';
 import { createSelector } from 'reselect'
 import {changeWalkDoc, request} from 'ducks/walksDuck'
 import Logit from 'factories/logit.js';
@@ -103,7 +103,7 @@ const mapStateToProps = function(state, prps) {
             waitingList,
             status: getBookingsSummary(state.walks.list[walkId]),
             amount: state.walks.list[walkId].fee,
-            bookingsAdmin: isUserAuthorized(state.logon.role, ['bookings']),
+            bookingsAdmin: isUserAuthorized(['bookings']),
             addToWaitList: state.controller.addToWaitList ? true : false,
       };
       logit('props', props);

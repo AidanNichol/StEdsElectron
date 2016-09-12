@@ -2,6 +2,7 @@ import db from 'services/bookingsDB';
 import { call, put } from 'redux-saga/effects';
 import * as actions from 'actions/controller-actions';
 import {walksDocsLoaded} from 'ducks/walksDuck'
+import {logonRequested} from 'ducks/login-duck'
 import {getLastAvailableDate, getTodaysDate} from 'utilities/DateUtilities';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'InitialSaga');
@@ -58,7 +59,7 @@ export default function* (){
       call(loadWalks),
     ]
     // yield put({type: 'INITIAL_LOAD_COMPLETED'});
-    yield put({type:'LOGON_SUCCESS', payload:{name: 'Sandy', memId: 'M1108', role: 'bookings', provider: 'shortcut', email: 'sandysandy48@hotmail.co.uk', thumbnail: ''}});
+    // yield put(logonRequested('sandy', 'sandy'));
     yield put({type: 'ACCOUNT_SELECTED', value: 'A992', label: 'Mary Johnson'});
     yield call(actions.initialLoadCompleted);
 

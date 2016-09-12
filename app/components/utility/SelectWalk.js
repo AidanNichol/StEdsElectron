@@ -2,7 +2,7 @@
 import XDate from 'xdate';
 var React = require('react');
 
-import { ButtonGroup, Button, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { ButtonGroup, Button} from 'react-bootstrap';
 
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'WalkOptionList.js');
@@ -26,9 +26,7 @@ var SelectWalk = React.createClass({
           let dispDate = new XDate(walk.walkDate).toString('dd MMM');
           let venue = walk.venue.replace(/\(.*\)/, '')
           return (
-              // <OverlayTrigger key={'OTY' + walk.walkId}placement="top" overlay={<Tooltip id={'wstt'+walk.walkId}>{walk.venue}</Tooltip>}>
                 <Button  style={{width:100}} key={'Y' + walk.walkId} onClick={()=>{setCurrentWalk(walk.walkId)}} active={currentWalk === walk.walkId}>{dispDate}<br/>{venue}</Button>
-              // </OverlayTrigger>
           );
           })
         }

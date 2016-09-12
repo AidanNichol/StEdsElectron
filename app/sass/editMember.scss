@@ -15,6 +15,7 @@
 }
 
 .user-details {
+
   .form-line {
     display: table-row;
     width: 90%;
@@ -35,16 +36,13 @@
     margin-top: 5px;
     width: 300px;
 
-    &.due {
+    &.Due input{
       background-color: #ff6;
       margin-right: 6px;
-      width: 240px;
     }
 
-    &.late {
-      margin-right: 6px;
+    &.Late input{
       background-color: #f66;
-      width: 240px;
     }
   }
 
@@ -67,7 +65,7 @@
     padding: 5px 8px;
   }
 }
-
+.closeWindow{float:right}
 
 .user-details.suspended:not(.deleted) {
   @mixin watermark 'Member Suspended' {

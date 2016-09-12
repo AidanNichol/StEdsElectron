@@ -2,16 +2,9 @@
 require('sass/showMember.scss');
 
 import React from 'react';
-// import {Decorator as Cerebral} from 'cerebral-react';
-// import Component from 'cerebral-react';
-
-// import EditMemberData from 'views/members/EditMemberData';
-
-// var ButtonGroup = require('react-bootstrap').ButtonGroup;
-// var Tooltip = require('react-bootstrap').Tooltip;
-// var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
-import {Button, Panel} from 'react-bootstrap';
-// var Glyphicon = require('react-bootstrap').Glyphicon;
+import {Button} from 'react-bootstrap';
+// import {Panel} from 'react-bootstrap';
+import {Panel, PanelHeader} from 'rebass';
 
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'ShowMemberData.js');
@@ -29,17 +22,15 @@ const ShowMemberDetails = React.createClass({
 
     if (!member || !member.memberId || showEditMemberModal)return null;
     logit('props', this.props);
-    // var jointWithList = this.showSurogate(jointWith);
-    // // var actsForList = this.showSurogate(actsFor);
-    // var actsForMeList = this.showSurogate(actsForMe);
     var title = (<h2>{ member.firstName } { member.lastName }</h2>);
     // var memberAdmin = LogonStore.isAuthorized(['admin', 'members']);
     let clss = (member.suspended ? 'suspended' : member.subsStatus) + ' ' + (member.memberStatus || '').toLowerCase();
    // var cellDebug = R.pipe(R.pick(['newBooking', 'book', 'cancel', 'waitlist', 'paidByCredit', 'paidCash', 'creditIssued', 'owing']), JSON.stringify);
     return (
-      <Panel bsStyle='info' className="show-member-details" header={title}  >
-          <Button bsSize='small' bsStyle='primary' className={memberAdmin ? 'edit-member' : 'edit-member hidden' }onClick={()=>setShowEditMemberModal(true)}>Edit</Button>
-          {/*<EditMemberData {...{member, jointWith, actsFor, showEditMemberModal, actions }} onRequestHide={()=>setShowEditMemberModal(false)}/>*/}
+      // <Panel bsStyle='info' className="show-member-details" header={title}  >
+      <Panel theme='info' className="show-member-details" >
+        <PanelHeader  >{title} </PanelHeader>
+        <Button bsSize='small' bsStyle='primary' className={memberAdmin ? 'edit-member' : 'edit-member hidden' }onClick={()=>setShowEditMemberModal(true)}>Edit</Button>
         <section className={'user-details ' + clss}>
         <div className="form-line">
             <span className="item-label">firstName</span>
@@ -91,18 +82,6 @@ const ShowMemberDetails = React.createClass({
               <span className="item-value">{member.memberStatus}</span>
           </div>
         }
-        {/*{jointWithList.length > 0 &&
-          <div className="form-line">
-              <span className="item-label">Joint with</span>
-              <div className="item-display">{jointWithList}</div>
-          </div>
-        }
-        {actsForMeList.length > 0 &&
-          <div className="form-line">
-              <span className="item-label">Acts for Me</span>
-              <div className="item-display">{actsForMeList}</div>
-          </div>
-        }*/}
         </section>
 
       </Panel>

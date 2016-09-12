@@ -7,7 +7,26 @@ import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:red;', 'DBbookings');
 
 
-console.log('PouchDB creating');
+console.log('PouchDB creating', PouchDB);
+
+// import {uuid} from 'PouchDB-utils';
+var test = new PouchDB('test', {});
+test.destroy();
+// var uuidx = uuid(32, 16).toLowerCase();console.log('XYZW', uuidx);
+// var id = 'test6';
+// test.put({_id: id, value: 1}).then(function(){
+//     return test.get(id);
+//   }) .then(function(doc) {
+//   console.log('XYZW version 1', doc);
+//   var rev = parseInt(doc._rev.split('-')[0]);
+//   doc._rev=(rev+1)+'-'+uuid(32,16).toLowerCase();
+//   doc.value += 1;
+//   return test.bulkDocs([doc], {new_edits: false});
+// }).then(function() {
+//   return test.get(id);
+// }).then(function(doc) {
+//   console.log('XYZW version 2', doc);
+// }).catch(function(error){console.error('XYZW error', error)});
 
 
 
@@ -19,6 +38,7 @@ logit('window', window);
 // sync();
 console.log('PouchDB created', db);
 db.info().then(function(info) {console.info('Bookings Info', info);});
+
 PouchDB.debug.disable();
 PouchDB.debug.enable('pouchdb:*');
 import pouchSeed from 'pouchdb-seed-design';

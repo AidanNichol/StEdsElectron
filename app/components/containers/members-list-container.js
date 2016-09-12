@@ -1,12 +1,16 @@
 // import React from 'react';
-import { bindActionCreators } from 'redux';
+// import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MembersList from 'views/members/MembersList';
 import * as actions from 'actions/membersList-actions';
-import {isUserAuthorized} from 'utilities/AJNutility';
+import {isUserAuthorized} from 'ducks/login-duck';
 import { createSelector } from 'reselect'
 
-const newMemberTemplate = {
+import Logit from 'factories/logit.js';
+var logit = Logit('color:white; background:navy;', 'MemberList.jsx');
+
+
+export const newMemberTemplate = {
   // _rev: null,
   _id: 0,
   type: 'member',
@@ -66,7 +70,8 @@ const mapStateToProps = function(store) {
   let allList = getSortedMembersList(store);
   var member;
   if (store.membersList.displayMember === 'new') member= newMember(store);
-  else member = members[store.membersList.displayMember];
+  if (store.membersList.displayMember) member = members[store.membersList.displayMember];
+  else member = store.membersList.displayMember;
 
   var props = {
             members: store.members,
@@ -77,11 +82,15 @@ const mapStateToProps = function(store) {
             newMemberTemplate,
             member,
             actions,
-            memberAdmin: isUserAuthorized(store.logon.role, ['members', 'bookings']),
+            memberAdmin: isUserAuthorized(['membership', 'bookings']),
             // listByName: ['membersList', 'listByName'],
             // membersList: store.membersList,
       };
-    if (allList.length > 0 && !props.displayMember) props.displayMember = allList[0].memberId;
+    if (allList.length > 0 && !props.displayMember) {
+      props.displayMember = allList[0].memberId;
+      props.member=allList[0];
+    }
+    logit('container', store, props);
     return props;
 
 }

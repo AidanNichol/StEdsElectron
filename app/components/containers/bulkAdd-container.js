@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import BulkAdd from 'views/BulkAdd';
 import { browserHistory } from 'react-router'
 // import {accountSelected} from 'actions/accounts-actions';
-import {isUserAuthorized} from 'utilities/AJNutility';
+import {isUserAuthorized} from 'ducks/login-duck';
 import { createSelector } from 'reselect'
 import {updateWalkBookings, request} from 'ducks/walksDuck'
 import Logit from 'factories/logit.js';
@@ -125,7 +125,7 @@ const mapStateToProps = function(state, prps) {
             waitingList,
             walkId: currentWalk,
             amount: state.walks.list[currentWalk].fee,
-            bookingsAdmin: isUserAuthorized(state.logon.role, ['bookings']),
+            bookingsAdmin: isUserAuthorized(['bookings']),
             addToWaitList: state.controller.addToWaitList ? true : false,
       };
       logit('props', props);

@@ -1,7 +1,4 @@
 import * as i from 'icepick';
-// import * as types from '../actions/action-types';
-// import _ from 'lodash';
-// import Immutable from 'seamless-immutable';
 
 const membersReducer = function(state = {}, action) {
 

@@ -1,7 +1,8 @@
 // import React from 'react';
 import { createSelector } from 'reselect'
 import {request} from 'ducks/walksDuck'
-import Immutable from 'seamless-immutable';
+// import Immutable from 'seamless-immutable';
+import * as i from 'icepick';
 import XDate from 'xdate';
 import {getTodaysDate} from 'utilities/DateUtilities';
 var _today = getTodaysDate();
@@ -9,7 +10,8 @@ import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'PaymentsFunctions');
 
 
-var membersNames = Immutable({});
+var membersNames = i.freeze({});
+// var membersNames = Immutable({});
 const getMemberNames = createSelector(
   (state)=>state.members,
   (state)=>state.accounts.list,
@@ -18,7 +20,7 @@ const getMemberNames = createSelector(
     Object.keys(members).forEach((memId)=>{
       let accId = members[memId].accountId;
       let name = accounts[accId].members.length > 1 ? members[memId].firstName : '';
-      membersNames = membersNames.set(memId, name);// setting to existing value is ignored
+      membersNames = i.set(membersNames, 'memId', name);// setting to existing value is ignored
     });
     logit('getMemberNames', oldResult === membersNames, {oldResult, membersNames});
     return membersNames;

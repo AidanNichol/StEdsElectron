@@ -9,13 +9,17 @@
     display: table-row;
     height: 30px;
     margin-top: 5px;
-
+    .item-label{
+      display:table-cell;
+    }
+    .item-input{
+      display: table-cell;
+    }
     span:nth-child(1) {
       /* padding-top: 5px;
       vertical-align: top; */
       background-color: #ccc;
       color: #444;
-      display: table-cell;
       padding-right: 10px;
       text-align: right;
       vertical-align: top;
@@ -23,7 +27,6 @@
     }
 
     span:nth-child(2) {
-      display: table-cell;
       font-size: 1.2em;
       padding-left: 10px;
       /* margin-bottom: 5px;
@@ -31,7 +34,9 @@
       /* width: 300px; */
       /* border: inset 2px rgb(238, 238, 238); */
     }
-
+    button{
+      font-size: 13px;
+    }
     .item-value {
       &.due {
         background-color: #ff6;

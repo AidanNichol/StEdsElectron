@@ -15,7 +15,6 @@
 // Reactotron.connect(options);
 
 import * as i from 'icepick';
-// import Immutable from 'seamless-immutable';
 import { createStore, applyMiddleware, compose } from 'redux'
 import { assignAll } from 'redux-act';
 import createSagaMiddleware from 'redux-saga'
@@ -31,14 +30,10 @@ const logger = createLogger();
 export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();
 const membersList = i.freeze({list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
-// const membersList = Immutable({list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
-// const messages = {};
 const logon = {};
 const walks = i.freeze({list: {}});
-// const walks = Immutable({list: {}});
 const accounts = i.freeze({list: {}});
 const controller = i.freeze({addToWaitList: false});
-// const controller = Immutable({addToWaitList: false});
 
 console.log({reducers, sagaMonitor});
 const store = createStore(
@@ -49,13 +44,11 @@ const store = createStore(
 );
 
 import * as ml_actions from 'actions/membersList-actions';
-import * as lg_actions from 'actions/logon-actions';
 import * as ct_actions from 'actions/controller-actions';
 import * as ac_actions from 'actions/accounts-actions';
 
 assignAll(ct_actions, store);
 assignAll(ml_actions, store);
-assignAll(lg_actions, store);
 assignAll(ac_actions, store);
 
 sagaMiddleware.run(rootSaga);

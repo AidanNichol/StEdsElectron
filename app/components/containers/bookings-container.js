@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { browserHistory } from 'react-router'
 import Bookings from 'views/bookings/Bookings';
-import * as actions from 'actions/walks-actions';
+// import * as actions from 'actions/walks-actions';
+var actions = {};
 import {updateWalkBookings, annotateOpenDialog, request} from 'ducks/walksDuck'
 // import {accountSelected} from 'actions/accounts-actions';
-import {isUserAuthorized} from 'utilities/AJNutility';
+import {isUserAuthorized} from 'ducks/login-duck';
 import { createSelector } from 'reselect'
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');
@@ -89,7 +90,7 @@ const mapStateToProps = function(store, props) {
             actions,
             options,
             // accountSelected,
-            bookingsAdmin: isUserAuthorized(store.logon.role, ['bookings']),
+            bookingsAdmin: isUserAuthorized(['bookings']),
             annotate: store.walks.annotate,
             // listByName: ['membersList', 'listByName'],
             // membersList: store.membersList,

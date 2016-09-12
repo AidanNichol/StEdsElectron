@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux'
-import {reducer as form} from 'redux-form';
+import {reducer as formReducer} from 'redux-form';
 // import {properCaseName, properCaseAddress, normalizePhone} from 'components/utility/normalizers';
 
 // Reducers
@@ -9,7 +9,7 @@ import walks from 'ducks/walksDuck';
 import accounts from 'reducers/accounts-reducer';
 import membersList from 'reducers/memberslist-reducers';
 import currentMember from 'reducers/currentMember-reducers';
-import logon from 'reducers/logon-reducers';
+import logon from 'ducks/login-duck';
 import controller from 'reducers/controller-reducers';
 import replicator from 'ducks/replication-duck';
 
@@ -25,7 +25,7 @@ var reducers = combineReducers({
     replicator,
     routing: routerReducer,
     // form: form,
-    form: form
+    form: formReducer
     // .normalize({
     //
     //   EditMemberData: {                                    // <--- name of the form

@@ -5,7 +5,8 @@ import React from 'react';
 import { Link } from 'react-router';
 import {connect} from 'react-redux';
 // import stats from 'main';
-import {Logon} from 'views/logon/Logon';
+// import {Logon} from 'views/logon/Logon';
+import {Login} from 'ducks/login-duck';
 // import {Shortcuts} from 'views/logon/Logon';
 import {ReplicationStatus} from 'views/header/ReplicationStatus'
 import store from 'store';
@@ -31,8 +32,8 @@ const comp = React.createClass( {
       <img src="/images/St.Edwards.col4.png" width="70px"/>
       <ReplicationStatus className="devlinks"/>
       {/*<DevLinks className="devlinks"/>*/}
-      <Logon />
-      {/*<button key="5" className="sc" onClick={window.$$LogSagas}>SagaLog</button>*/}
+      <Login />
+      <button key="5" className="sc" onClick={window.$$LogSagas}>SagaLog</button>
 
       {/*<Shortcuts className="shortcuts"/>*/}
         {/*<DisplayErrors />*/}

@@ -3,175 +3,245 @@ import 'sass/editMember.scss';
 
 import * as i from 'icepick';
 import React from 'react';
-import {reduxForm} from 'redux-form';
+import {Field, reduxForm, formValueSelector, getFormValues, isDirty} from 'redux-form';
+import {connect} from 'react-redux';
 
 import classnames from 'classnames';
 
 import TooltipButton from 'utility/TooltipButton';
-var belle = require('belle');
-var TextInput = belle.TextInput;
+// var belle = require('belle');
+// var TextInput = belle.TextInput;
+import TextInput from 'react-textarea-autosize';
 
-import { Panel, Button } from 'react-bootstrap';
-import {getSubsDue} from 'utilities/DateUtilities';
-import {properCaseName, properCaseAddress, normalizePhone, normalize} from 'components/utility/normalizers';
+// import {Panel, PanelHeader} from 'rebass';
+// import {Panel} from 'react-bootstrap';
+import {Panel} from 'utility/AJNPanel'
+import {getSubsDue, getSubsLate} from 'utilities/DateUtilities';
+import {properCaseName, properCaseAddress, normalizePhone} from 'components/utility/normalizers';
 
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'EditMemberData');
 
-export const fields= [ "address", "name", "phone", "email", "mobile", "nextOfKin", "medical",
-          "memberStatus", "lastName", "firstName" , "account" , "memberId" ,
-          "status" , "subscription" , "accountId"] // all the fields in your form
+// export const fields= [ "address", "name", "phone", "email", "mobile", "nextOfKin", "medical",
+//           "memberStatus", "lastName", "firstName" , "account" , "memberId" ,
+//           "status" , "subscription" , "accountId"] // all the fields in your form
 
 
 import 'sass/util.css';
+let renderField = (field) => {
+  console.log('renderField', field);
+  const {input, meta, children, size, name, className='', ...other} = field;
+  return (
+    <span className={"item-input "+name+' '+className}>
+      <input {...field.input} size={field.size? 1*field.size: 35} type="text" {...other}/>
+      {field.children||null}
+      {field.meta.touched && field.meta.error &&
+       <span className="error">{field.meta.error}</span>}
+    </span>
+  )
+}
+let renderTextArea = (field) => {
+  const {input, meta, children, size, name, className, ...other} = field;
+  return(
+    <span className={"item-input "+name+' '+className||''}>
+      <TextInput {...field.input} type="text" cols={field.cols||34} {...other}/>
+      {field.meta.touched && field.meta.error &&
+       <span className="error">{field.meta.error}</span>}
+    </span>
+  )
+}
+// renderField='input';
+const subscriptionButton = (props)=>{
+  const { input: {  value: subsCurrent, onChange}, _delete, editMode, subsDueForYear, meta, style={}, ...other } = props;
+  style.marginLeft = 225;
+  console.log('subscriptionButton',{ _delete, editMode, subsDueForYear, other})
+  return (
+    <TooltipButton label='Paid' onClick={()=>onChange(subsDueForYear)} {...other} style={style} tiptext={'subs paid for '+subsDueForYear} visible={editMode && !_delete && (subsCurrent !== subsDueForYear)} />
+  )
 
-class EditMemberData extends React.Component {
+}
+const suspendButtons = (props)=>{
+  const { input: { value:suspended, onChange}, _delete,  editMode } = props
+  return (
+    <span>
+    <TooltipButton img="/images/user-disable.svg" onClick={()=>onChange(true)} tiptext='Suspend this Member' visible={editMode && !suspended} />
+    <TooltipButton img="/images/user-enable.svg" onClick={()=>onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!_delete) && suspended} />
+    </span>
+  )
 
-  render() {
-    logit('props', this.props);
-    const { fields: { address, phone, email, mobile, nextOfKin, medical,
-              memberStatus, lastName, firstName , memberId, suspended,
-              _deleted , subscription , accountId},
-            dirty: changesMade,
-            showEditMemberModal: editMode, setShowEditMemberModal, membersEditSaveChanges, memberAdmin,
+}
+const deleteButtons = (props)=>{
+  const { input: { value: deleteMe, onChange}, editMode, suspended, remove } = props
+  if (!suspended) return null;
+  return (
+    <span>
+    <TooltipButton label="Delete Member" onClick={remove} tiptext="Permanently Delete Member" visible={editMode && deleteMe} />
+    <TooltipButton img="/images/user-undelete.svg" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
+    <TooltipButton img="/images/user-delete.svg" onClick={()=>onChange(true)} tiptext="Request Member Deletion" visible={editMode && (!deleteMe)} />
+    </span>
+  )
+
+}
+// const Panel = (props)=>(<div className={props.className} style={{boxSizing: 'border-box', padding: 10, marginBottom: 16, border: '1px solid #bce8f1', borderRadius: 2, backgroundColor: 'rgb(255, 255, 255)'}}>{props.children}</div>)
+// const PanelHeader = (props)=>(<div className={props.className} style={{boxSizing: 'border-box', fontSize: '2rem', display: 'flex', alignItems: 'center', fontWeight: 600, margin: '-11px -11px 10px', padding: 'inherit', borderRadius: '2px 2px 0 0', color:'#31708f', backgroundColor: '#d9edf7'}}>{props.children}</div>)
+
+let EditMemberData = (props)=>{
+
+    logit('props', props);
+    const {
+            // firstName, lastName, memberStatus, suspended, _delete,
+            showEditMemberModal: editMode,
+            dirty,
+            setShowEditMemberModal, membersEditSaveChanges, memberAdmin,
             handleSubmit,
-            resetForm,
-            initialValues,
+            reset,
+            formValues,
             subsDueForYear, __subsStatus,
-           } = this.props;
-    // const hideRequest = ()=>{
-    //   if (changesMade){
-    //     let ret = confirm('You have unsaved changes. OK to discard them'); // eslint-disable-line no-alert
-    //     if (!ret) return;
-    //   }
-    //   logit('hideRequest', this);
-    //   setShowEditMemberModal(false);
-    // };
-    const saveChanges = (values)=>{
-      logit('saveChanges', values);
-      membersEditSaveChanges({doc: values, origDoc: initialValues});
-    }
+           } = props;
+    const {firstName, lastName, memberStatus, suspended, _delete, } = formValues||{};
+
+    // const saveChanges = (values)=>{
+    //   logit('saveChanges', values);
+    //   membersEditSaveChanges({doc: values, origDoc: props.members});
+    // }
     const saveChangesX = (values)=>{
-      logit('saveChangesX', {values, props:this.props});
-      handleSubmit(saveChanges);
-      membersEditSaveChanges({doc: this.props.values, origDoc: this.props.member});
+      logit('saveChangesX', {values, props});
+      // handleSubmit(saveChanges);
+      let res = membersEditSaveChanges({doc: props.formValues, origDoc: props.member});
+      logit('save result', res)
     }
-    if (!memberId.value)return  (null);
+
+    if (!props.member.memberId)return  (null);
     var showMode = !editMode;
-    let isSuspended = suspended.value;
-    const deletePending = _deleted.value || false;
-    var remove = (values)=> {
-      // values._delete =  true;
-      this.saveChanges(values);
+    const deletePending = _delete || false;
+    var remove = ()=> {
+      const doc = {...props.formValues, _deleted: true}
+      membersEditSaveChanges({doc, origDoc: props.member});
+
     }
 
-    var title = (<h2>
-      { firstName.value } { lastName.value } {changesMade ? '(changed)' : ''}
-        <span style={{float: 'right', hidden:!(editMode && changesMade)}} onClick={()=>setShowEditMemberModal(false)} >{showMode || changesMade?"" :"X"}</span>
-    </h2>);
+    var title = (<div style={{width:'100%'}}>
+      { firstName } { lastName } {dirty ? '(changed)' : ''}
+        <span style={{float: 'right', hidden:!(editMode && dirty), cursor:'pointer'}} className='closeWindow' onClick={()=>setShowEditMemberModal(false)} >{showMode || dirty?"" :"X"}</span>
+    </div>);
 
-    let clss = classnames({suspended: isSuspended, deleted: deletePending},  memberStatus.value).toLowerCase();
+    let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
-      <Panel bsStyle='info' className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}  >
-        {/*<TooltipButton className={memberAdmin ? 'edit-member' : 'edit-member hidden' } label='Edit' onClick={()=>this.props.setShowEditMemberModal(true)} visible={showMode} />*/}
-        <Button bsSize='small' bsStyle='primary' className={memberAdmin ? 'edit-member' : 'edit-member hidden' } visible={showMode} onClick={()=>setShowEditMemberModal(true)} >Edit</Button>
-        <form className={'form-horizontal user-details modal-body ' + clss} name="user-details" autoComplete="off">
-          <fieldset disabled={showMode}>
+      <Panel bsStyle='info' className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
+        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} />
+        <div className={clss}>
+          {/* <form className={clss} name="user-details" autoComplete="off" onSubmit={onSubmit} > */}
+          <fieldset disabled={showMode} size={40}>
           <div className="form-line">
-              <span className="item-label">firstName</span>
-              <input className="item-input" name="firstName" type="text" {...normalize(firstName, properCaseName)} />
+              <label className="item-label">firstName</label>
+              <Field component={renderField} name="firstName" type="text" normalize={properCaseName} />
           </div>
           <div className="form-line">
-              <span className="item-label">lastName</span>
-              <input className="item-input" type="text" {...normalize(lastName, properCaseName)} />
+              <label className="item-label">lastName</label>
+              <Field component={renderField} name='lastName' type="text" normalize={properCaseName} />
           </div>
           <div className="form-line">
-              <span className="item-label">address</span>
-            <TextInput className="item-input" allowNewLine  onBlur={(e)=>this.properCaseAddress(e)} {...normalize(address, properCaseAddress)} />
+              <label className="item-label">address</label>
+            <Field component={renderTextArea} name="address" normalize={properCaseAddress} />
           </div>
           <div className="form-line">
-              <span className="item-label">phone</span>
-              <input className="item-input" type="text" {...normalize(phone, normalizePhone)} />
+              <label className="item-label">phone</label>
+              <Field component={renderField} name='phone' type="text" normalize={normalizePhone} />
           </div>
           <div className="form-line">
-              <span className="item-label">email</span>
-              <input className="item-input" type="email" {...email} />
+              <label className="item-label">email</label>
+              <Field component={renderField} name='email' type="email"  />
           </div>
           <div className="form-line">
-              <span className="item-label">mobile</span>
-              <input className="item-input" type="text" {...mobile} />
+              <label className="item-label">mobile</label>
+              <Field component={renderField} name='mobile' type="text"/>
           </div>
           <div className="form-line">
-              <span className="item-label">subscription</span>
-              <input className={'item-input ' + __subsStatus} type="text" {...subscription} />
-              <TooltipButton lable='Paid' onClick={()=>subscription.onChange(subsDueForYear)} visible={editMode && (__subsStatus !== 'OK')} />
+              <label className="item-label">subscription</label>
+              <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
+                <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} />
+
+              </Field>
           </div>
 
           <div className="form-line">
-              <span className="item-label">nextOfKin</span>
-              <TextInput className="item-input" allowNewLine {...nextOfKin} />
+              <label className="item-label">nextOfKin</label>
+              <Field component={renderTextArea} name="nextOfKin" />
           </div>
           <div className="form-line">
-              <span className="item-label">medical</span>
-              <input className="item-input" type="text" {...medical} />
+              <label className="item-label">medical</label>
+              <Field component={renderField} name="medical" type="text"  />
           </div>
           <div className="form-line">
-              <span className="item-label">Member Id</span>
-              <input className="item-input" disabled="true" type="text" {...memberId} />
+              <label className="item-label">Member Id</label>
+              <Field name="memberId" component={renderField} disabled="true" type="text"  />
           </div>
           <div className="form-line">
-              <span className="item-label">Account Id</span>
-              <input className="item-input" disabled="true" type="text" {...accountId} />
+              <label className="item-label">Account Id</label>
+              <Field component={renderField} name="accountId" disabled="true" type="text"  />
           </div>
           <div className="form-line">
-              <span className="item-label">Status</span>
-              <select className="item-input" disabled={!memberAdmin || showMode} {...memberStatus} >
+              <label className="item-label">Status</label>
+              <Field component='select' name='memberStatus' disabled={!memberAdmin || showMode} >
                   <option value="OK">Member</option>
                   <option value="Guest">Guest</option>
                   <option value="HLM">Honary Life Member</option>
-                </select>
+                </Field>
           </div>
           </fieldset>
-          {deletePending ?
+          <span>
+            delete id {_delete?'true':'false'}
+            {_delete ?
             <img className="stamp" src="/images/Deleted Member.svg" /> : null
-          }
-        </form>
+            }
+          </span>
+          <TooltipButton label='Close' onClick={()=>setShowEditMemberModal(false)} visible={editMode && !dirty} />
+          <TooltipButton label='Discard' onClick={reset} visible={editMode && dirty && !deletePending} />
+          {/* <button type="submit" disabled={pristine || submitting}>Submit</button> */}
+          <TooltipButton label="Save" onClick={saveChangesX} tiptext="Save All Changes to this Member" visible={editMode && !_delete && dirty} />
+          {/* <TooltipButton img="/images/user-undelete.svg" onClick={()=>_deleted.onchange(false)} tiptext='Clear the Delete Request' visible={editMode && deletePending}/>
+          <TooltipButton img="/images/user-delete.svg" onClick={()=>_deleted.onChange(true)} tiptext="Completely Delete Member" visible={editMode && (!deletePending) && isSuspended} />
+          <TooltipButton lable="Delete Member" onClick={()=>handleSubmit(remove)} tiptext="Permanently Delete Member" visible={editMode && deletePending} /> */}
+          <Field component={suspendButtons} name='suspended' {...{editMode, _delete, suspended}} />
+          <Field component={deleteButtons} name='_delete' {...{editMode, suspended, handleSubmit, remove}} />
+          {/* <TooltipButton img="/images/user-disable.svg" onClick={()=>suspended.onChange(true)} tiptext='Suspend this Member' visible={editMode && !isSuspended} />
+          <TooltipButton img="/images/user-enable.svg" onClick={()=>suspended.onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!deletePending) && isSuspended} /> */}
+        {/* </form> */}
+        </div>
 
-        <TooltipButton lable='Close' onClick={()=>setShowEditMemberModal(false)} visible={editMode && !changesMade} />
-        <TooltipButton lable='Discard' onClick={resetForm} visible={editMode && changesMade && !deletePending} />
-        <TooltipButton img="/images/user-undelete.svg" onClick={()=>_deleted.onchange(false)} tiptext='Clear the Delete Request' visible={editMode && deletePending}/>
-        <TooltipButton img="/images/user-disable.svg" onClick={()=>suspended.onChange(true)} tiptext='Suspend this Member' visible={editMode && !isSuspended} />
-        <TooltipButton img="/images/user-enable.svg" onClick={()=>suspended.onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!deletePending) && isSuspended} />
-        <TooltipButton img="/images/user-delete.svg" onClick={()=>_deleted.onChange(true)} tiptext="Completely Delete Member" visible={editMode && (!deletePending) && isSuspended} />
 
-        <TooltipButton lable="Delete Member" onClick={()=>handleSubmit(remove)} tiptext="Permanently Delete Member" visible={editMode && deletePending} />
-        <TooltipButton lable="Save" onClick={saveChangesX} tiptext="Save All Changes to this Member" visible={editMode && !deletePending && changesMade} />
         </Panel>
-      );}
+      );
 }
-
+const selector = formValueSelector('EditMemberData');
 const mapStateToProps = function mapStateToProps(state, props){
   let subsDue = getSubsDue();
+  let subsLate = getSubsLate();
   let  {member, other} = props;
+  const formValues = getFormValues('EditMemberData')(state);
+  const subs = ( formValues && formValues.subscription) || member.subscription;
   member = member ? i.thaw(member) : {};
   if (member && !('suspended' in member))member.suspended = false;
-  // {showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin} //other
-  return {
-    initialValues: member, // will pull state into form's initialValues
+  const newProps = {
+    initialValues: {_delete:false, ...member}, // will pull state into form's initialValues
     subsDueForYear: subsDue,
-    __subsStatus: member && member.subscription === subsDue ? 'OK': 'Due',
-    __subsDue: !(member && member.subscription === subsDue ),
+    __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
+    __subsDue: !(member && subs === subsDue ),
     ...other,
     member,
-
-  }
+    formValues,
+    dirty: isDirty('EditMemberData')(state),
+    ...selector(state, 'firstName', 'lastName', 'suspended', '_delete'),
+  };
+  logit('mapStateToProps', {state, props, newProps})
+  return newProps;
 }
-export default reduxForm({ // <----- THIS IS THE IMPORTANT PART!
+EditMemberData = reduxForm({ // <----- THIS IS THE IMPORTANT PART!
   form: 'EditMemberData',                           // a unique name for this form
-  fields: [ "address", "name", "phone", "email", "mobile", "nextOfKin", "medical",
-            "memberStatus", "lastName", "firstName" , "account" , "memberId" ,
-            '_id', '_rev', 'type',
-            "_deleted", "suspended" , "subscription" , "accountId"] // all the fields in your form
-},
-mapStateToProps,
+}
 )(EditMemberData);
+EditMemberData = connect(
+  mapStateToProps
+)(EditMemberData)
+
+export default EditMemberData

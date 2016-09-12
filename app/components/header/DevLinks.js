@@ -1,15 +1,9 @@
 /* jshint quotmark: false, jquery: true */
-'use strict';
 var React = require('react');
 
-// var Reflux = require('reflux');
-// var R = require('ramda');
-// var SelectMember = require('../components/SelectMember.jsx');
 
-import {Button, Panel} from 'react-bootstrap';
+import {Button} from 'react-bootstrap';
 
-// import {Logit} from 'AJNutilities';
-// var logit = Logit('color:yellow; background:cyan;', 'BusLists.jsx');
 var links = [
 	{
 		'react': 'http://facebook.github.io/react/docs/getting-started.html',
@@ -30,14 +24,12 @@ var links = [
 		'couchDB': 'http://docs.couchdb.org/en/latest/contents.html',
 		'glyphicons': 'http://glyphicons.com/',
 		'lodash': 'https://lodash.com/docs',
-		'ramda': 'http://ramdajs.com/docs/#',
 		'_String': 'http://epeli.github.io/underscore.string/#api',
 	// },{
 	}
 ];
 
 var DevLinks = React.createClass({
-	displayName: 'DevLinks',
     render() {
 		var i = 0;
 	return (
@@ -54,12 +46,6 @@ var DevLinks = React.createClass({
         </div>
     );
   },
-  // render: function() {
-  //   return(
-  //     <OverlayTrigger placement="top" overlay={<Tooltip>{this.props.venue}</Tooltip>}>
-  //       <Button key={this.props.walkDate} onClick={this.setWalk} active={this.props.active}>{this.props.walkDate}</Button>
-  //     </OverlayTrigger>
-  //   );
-  // },
+
 });
 module.exports = DevLinks;

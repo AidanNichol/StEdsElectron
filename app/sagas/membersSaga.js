@@ -14,18 +14,21 @@ export default function* membersSaga(){
   // try{
     while(true){ // eslint-disable-line no-constant-condition
       let action = yield take('MEMBER_EDIT_SAVE_CHANGES');
-      let {doc, origDoc} = action.payload;
-      if (!doc.account){ // new member - create account
-        doc.account = 'A'+doc.memberId.substr(1);
+      let {doc:{_delete, _deleted, ...doc}, origDoc} = action.payload;
+      logit('MEMBER_EDIT_SAVE_CHANGES', {_delete, _deleted, doc, origDoc})
+      if (!doc.accountId){ // new member - create account
+        doc.accountId = 'A'+doc.memberId.substr(1);
       }
+      if (_deleted || _delete)doc._deleted = true;
       doc = i.thaw(doc);
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
-      doc = {...doc};
-      doc.accountId = doc.account;
+      // doc = {...doc};
+      doc.account = doc.accountId;
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
       let accounts = yield select(state=>state.accounts.list);
       if (doc._rev === undefined)doc = i.unset(doc, '_rev');
       if (doc._deleted != true)doc = i.unset(doc, '_deleted');
+      // if (doc._delete === true)doc = i.unset(doc, '_deleted');
       logit('doc', doc);
       if (doc._deleted){
         let oldAccount = {...accounts[doc.accountId]};
@@ -56,10 +59,13 @@ export default function* membersSaga(){
       }
       // res = yield call([db, db.put], doc);
       yield call(docUpdateSaga, doc);
+      logit('update', 'done')
       // if (!res.ok) yield put({ type: 'MEMBER_SAGA_FAILED', res});
       // console.log('res', res);
       yield put({type: 'MEMBERS_EDIT_SETSHOWMODAL', payload: false});
-      yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: doc._delete ? undefined : doc.memberId});
+
+      yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: 'M9001'});
+      yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: doc._deleted ? undefined : doc.memberId});
     }
 
 
