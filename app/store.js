@@ -30,7 +30,7 @@ const logger = createLogger();
 export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();
 const membersList = i.freeze({list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
-const logon = {};
+const signin = i.freeze({name: null, roles: [], memberId: ''});
 const walks = i.freeze({list: {}});
 const accounts = i.freeze({list: {}});
 const controller = i.freeze({addToWaitList: false});
@@ -38,11 +38,11 @@ const controller = i.freeze({addToWaitList: false});
 console.log({reducers, sagaMonitor});
 const store = createStore(
   reducers,
-  {membersList, logon, walks, accounts, controller},
+  {membersList, signin, walks, accounts, controller},
   compose(applyMiddleware(sagaMiddleware, logger),
    window.devToolsExtension ? window.devToolsExtension() : f => f)
 );
-
+console.log('store', store.getState());
 import * as ml_actions from 'actions/membersList-actions';
 import * as ct_actions from 'actions/controller-actions';
 import * as ac_actions from 'actions/accounts-actions';

@@ -7,7 +7,7 @@ import Bookings from 'views/bookings/Bookings';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, request} from 'ducks/walksDuck'
 // import {accountSelected} from 'actions/accounts-actions';
-import {isUserAuthorized} from 'ducks/login-duck';
+import {isUserAuthorized} from 'services/auth';
 import { createSelector } from 'reselect'
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');

@@ -16,7 +16,7 @@ const validate = require('webpack-validator');
 const merge = require('webpack-merge');
 const parts = require('./libs/parts');
 const pkg = require('./package.json');
-
+const CircularDependencyPlugin = require('circular-dependency-plugin')
 var common = merge(
   {
     context: __dirname,
@@ -58,6 +58,13 @@ var common = merge(
     plugins: [
       // new Webpack.HotModuleReplacementPlugin(),
       new UnusedFilesWebpackPlugin({pattern: 'app/**/*', globOptions: {nodir:true}}),
+      new CircularDependencyPlugin({
+        // exclude detection of files based on a RegExp
+        exclude: /node_modules.*js/,
+        // add errors to webpack instead of warnings
+        failOnError: false
+      }),
+
       new HtmlWebpackPlugin(
         {
           template: __dirname + '/app/index.html',

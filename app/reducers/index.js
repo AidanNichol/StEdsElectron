@@ -9,10 +9,10 @@ import walks from 'ducks/walksDuck';
 import accounts from 'reducers/accounts-reducer';
 import membersList from 'reducers/memberslist-reducers';
 import currentMember from 'reducers/currentMember-reducers';
-import logon from 'ducks/login-duck';
+import {reducer as signinReducer } from 'ducks/signin-duck';
 import controller from 'reducers/controller-reducers';
 import replicator from 'ducks/replication-duck';
-
+console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
     controller,
@@ -21,7 +21,7 @@ var reducers = combineReducers({
     accounts,
     membersList,
     currentMember,
-    logon,
+    signin: signinReducer,
     replicator,
     routing: routerReducer,
     // form: form,

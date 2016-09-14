@@ -20,7 +20,7 @@ const getMemberNames = createSelector(
     Object.keys(members).forEach((memId)=>{
       let accId = members[memId].accountId;
       let name = accounts[accId].members.length > 1 ? members[memId].firstName : '';
-      membersNames = i.set(membersNames, 'memId', name);// setting to existing value is ignored
+      membersNames = i.set(membersNames, memId, name);// setting to existing value is ignored
     });
     logit('getMemberNames', oldResult === membersNames, {oldResult, membersNames});
     return membersNames;
@@ -32,9 +32,9 @@ var _acc = {};
 var _walkData = {};
 
 const tranformLogRec = (logObj, memNames)=>{
-  let venue = logObj.walkId ? _walkData[logObj.walkId].venue : '';
+  let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
   // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
-  logObj.amount = (logObj.amount || _walkData[logObj.walkId].fee) * request.chargeFactor(logObj.req);
+  logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
   // else logObj.amount *= -1;
   let name = logObj.memId ? memNames[logObj.memId] : '';
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');

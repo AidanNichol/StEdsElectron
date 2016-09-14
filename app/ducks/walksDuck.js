@@ -153,8 +153,8 @@ logit('loaded', null);
         return i.set(state, 'annotate', {dialogOpen: true, walkId: action.walkId, memId: action.memId})
       case WALK_ANNOTATE_CLOSE_DIALOG:
         return i.setIn(state, ['annotate', 'dialogOpen'], false)
-      default:
-        return state;
+      // default:
+      //   return state;
     }
     return state;
   }

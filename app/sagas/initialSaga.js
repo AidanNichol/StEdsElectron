@@ -2,7 +2,6 @@ import db from 'services/bookingsDB';
 import { call, put } from 'redux-saga/effects';
 import * as actions from 'actions/controller-actions';
 import {walksDocsLoaded} from 'ducks/walksDuck'
-import {logonRequested} from 'ducks/login-duck'
 import {getLastAvailableDate, getTodaysDate} from 'utilities/DateUtilities';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'InitialSaga');

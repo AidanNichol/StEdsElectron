@@ -3,7 +3,7 @@
 import { connect } from 'react-redux';
 import MembersList from 'views/members/MembersList';
 import * as actions from 'actions/membersList-actions';
-import {isUserAuthorized} from 'ducks/login-duck';
+import {isUserAuthorized} from 'services/auth';
 import { createSelector } from 'reselect'
 
 import Logit from 'factories/logit.js';

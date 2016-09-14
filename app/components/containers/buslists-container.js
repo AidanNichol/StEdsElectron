@@ -6,7 +6,7 @@ import {getBookingsSummary} from 'ducks/walksDuck'
 
 import BusLists from 'views/BusLists';
 // import {accountSelected} from 'actions/accounts-actions';
-import {isUserAuthorized} from 'ducks/login-duck';
+import {isUserAuthorized} from 'services/auth';
 import { createSelector } from 'reselect'
 import {changeWalkDoc, request} from 'ducks/walksDuck'
 import Logit from 'factories/logit.js';

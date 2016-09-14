@@ -2,6 +2,7 @@ import 'babel-polyfill'
 // import 'longjohn';
 import React from 'react';
 import ReactDom from 'react-dom';
+import {isUserAuthorized} from 'services/auth';
 
 // import {loginUser} from '_users'
 // loginUser()
@@ -14,9 +15,7 @@ import initialSaga from 'sagas/initialSaga';
 
 import MainLayout from 'layouts/main-layout';
 
-
-import Home from 'home';
-
+const Home = ()=>(<div> ?? </div>)
 import MembersListContainer from 'containers/members-list-container';
 import BookingsContainer from 'containers/bookings-container';
 import BulkAddContainer from 'containers/bulkAdd-container';
@@ -37,8 +36,14 @@ ReactDom.render(
 
        <Route path="membersList/:id" component={MembersListContainer} />
        <Route path="membersList" component={MembersListContainer} />
-       <Route path="bulkadd/:id" component={BulkAddContainer} />
-       <Route path="bulkadd" component={BulkAddContainer} />
+       {/* <Route path="bulkadd/:id" component={BulkAddContainer}></Route> */}
+       {isUserAuthorized([ 'bookings']) ?
+         <Route path="bulkadd" component={BulkAddContainer}>
+           <IndexRoute component={BulkAddContainer}/>
+           <Route path=":id" component={BulkAddContainer} />
+         </Route>
+          : null}
+       {/* <Route path="bulkadd" component={BulkAddContainer} /> */}
        <Route path="buslists/:id" component={BusListsContainer} />
        <Route path="payments" component={PaymentsContainer} />
        <Route path="bookings/:id"  component={BookingsContainer} />

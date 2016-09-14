@@ -3,18 +3,20 @@ import { spawn } from 'redux-saga/effects';
 
 import membersSaga from 'sagas/membersSaga';
 import {walksSaga} from 'ducks/walksDuck';
-import {loginSaga} from 'ducks/login-duck';
 import monitorChanges from 'sagas/dbChangeMonitoring';
 import accountsSaga from 'sagas/accountsSaga';
-// import logonSaga from 'sagas/logonSaga';
-
+import {signinSaga} from 'ducks/signin-duck';
+import * as sgnn from 'ducks/signin-duck';
+// import {signinSaga} from 'sagas/signinSaga';
+// import * as sgnn from 'sagas/signinSaga';
+console.log('signinSaga', signinSaga, sgnn, sgnn.signinSaga) ;
 export default function * rootSaga() {
   yield([
 
     spawn(membersSaga),
     spawn(monitorChanges),
     spawn(walksSaga),
-    spawn(loginSaga),
+    spawn(signinSaga),
     spawn(accountsSaga),
     // call(initialSaga),
   ]);
