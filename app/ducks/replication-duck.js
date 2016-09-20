@@ -52,6 +52,7 @@ import * as i from 'icepick'
 // Monitor replications is launched by store.js
 
 function createReplicationChannel (remoteCouch) {
+	logit('remoteCouch', remoteCouch);
   // every change event will call put on the channel
   let subscriber = (emitter)=>{
     let replicator = 	db.sync(remoteCouch, {

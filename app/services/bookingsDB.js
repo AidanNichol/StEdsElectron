@@ -1,7 +1,7 @@
 
 var PouchDB  = require('pouchdb');
 // var PouchDBa  = require('pouchdb-authentication');
-export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
+// export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
 var db;
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:red;', 'DBbookings');

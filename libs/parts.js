@@ -4,13 +4,14 @@ const webpack = require('webpack');
 exports.setupCSS = function(paths){
   return {
     module: {
-      noParse: [/lie\/dist\/lie.js/],
-      loaders: [{
-        test: /\.js$/,
-        loader: 'babel?optional=es7.decorators',
-        include: paths,
-        // exclude: [nodeModulesPath]
-      },
+      // noParse: [/lie\/dist\/lie.js/],
+      loaders: [
+      //   {
+      //   test: /\.js$/,
+      //   loader: 'babel?optional=es7.decorators',
+      //   include: paths,
+      //   // exclude: [nodeModulesPath]
+      // },
       {
         test: /\.(scss)$/,
         loader: 'style-loader!css-loader!postcss-loader',

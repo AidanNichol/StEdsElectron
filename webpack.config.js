@@ -1,4 +1,5 @@
-// var Webpack = require('webpack');
+var webpack = require('webpack');
+var webpackTargetElectronRenderer = require('webpack-target-electron-renderer');
 const path = require('path');
 const PATHS = {
   app: path.resolve(__dirname, 'app'),
@@ -15,7 +16,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const validate = require('webpack-validator');
 const merge = require('webpack-merge');
 const parts = require('./libs/parts');
-const pkg = require('./package.json');
+// const pkg = require('./package.json');
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 var common = merge(
   {
@@ -54,7 +55,6 @@ var common = merge(
       },
       ]
     },
-
     plugins: [
       // new Webpack.HotModuleReplacementPlugin(),
       new UnusedFilesWebpackPlugin({pattern: 'app/**/*', globOptions: {nodir:true}}),
@@ -79,26 +79,107 @@ var common = merge(
   // parts.extractBundle({name: 'vendor', entries: })
 );
 
+var common2 = merge(
+  {
+    context: __dirname,
+    resolve: {
+      root: [appPath + '/components', appPath + '/utilities', appPath + '/sass', appPath],
+      alias: {
+        'react': path.resolve(nodeModulesPath, 'react')
+      }
+    },
+    module: {
+      noParse: [/lie\/dist\/lie.js/],
+      loaders: [{
+        test: /\.jsx?$/,
+        loader: 'babel',
+        include: PATHS.app,
+        exclude: [nodeModulesPath]
+      },
+      ]
+    },
+    plugins: [
+      // new Webpack.HotModuleReplacementPlugin(),
+      new UnusedFilesWebpackPlugin({pattern: 'app/**/*', globOptions: {nodir:true}}),
+      new CircularDependencyPlugin({
+        // exclude detection of files based on a RegExp
+        exclude: /node_modules.*js/,
+        // add errors to webpack instead of warnings
+        failOnError: false
+      }),
+
+      // new HtmlWebpackPlugin(
+      //   {
+      //     template: __dirname + '/app/index.html',
+      //     filename: 'index.html',
+      //     inject: 'body',
+      //     title: 'St.Edwards Booking System',
+      //   }
+      // )
+    ]
+  },
+  parts.setupCSS(PATHS.app)
+  // parts.extractBundle({name: 'vendor', entries: })
+);
+var web = merge(
+  {
+    entry: {
+      app: path.resolve(appPath, 'main.js'),
+    },
+    output: {
+      path: PATHS.build,
+      filename: 'bundle.js',
+      publicPath: '/'
+    },
+  })
+
+var electron = merge(
+  {
+    entry: [
+      'webpack-hot-middleware/client?reload=true&path=http://localhost:9000/_webpack_hmr',
+      path.resolve(appPath, 'indexElectron.js')
+    ],
+    output: {
+      path: PATHS.build,
+      filename: 'bundle.js',
+      publicPath: 'http://localhost:9000/build/',
+      // publicPath: '/build/'
+    },
+    plugins: [
+      new webpack.HotModuleReplacementPlugin(),
+    ]
+  });
+
 var config;
 switch(process.env.npm_lifecycle_event){
   case 'build':
     config = merge(
-      common,
+      common2,
+      web,
       {devtool: 'source-map'}
     );
     break;
   case 'dev':
-  case 'start':
     config = merge(
-      common,
+      common2,
+      web,
       {devtool: 'eval-source-map'},
       parts.devServer({host: process.env.HOST, port: 3000})
       // parts.setupCSS(PATHS.app)
     );
     break;
+  case 'start':
+    config = merge(
+      common2,
+      electron
+      // {devtool: 'eval-source-map'},
+    );
+    config.target = webpackTargetElectronRenderer(config);
+    break;
   default:
     config = merge(
-      common,
+      common2,
+      electron,
       // parts.setupCSS(PATHS.app),
       {}
     );
