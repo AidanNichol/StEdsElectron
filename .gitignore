@@ -11,6 +11,7 @@ public/build
 -C-actions
 *.log
 app/services/creds.js
+app/services/remoteCouch.js
 config.js
 config.json
 app/lockit-config.js
