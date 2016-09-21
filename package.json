@@ -2,9 +2,12 @@
   "name": "webpack-StEds-Redux",
   "version": "0.1.0",
   "description": "A boilerplate for running a Webpack workflow in Node express",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "webpack",
+    "electron": "ENV=development electron app/elec.html",
+    "electronh": "ENV=development electron -h",
+    "electronServer": "babel-node electronServer.js",
+    "start": "concurrently -k 'npm run electronServer' 'npm run electron'",
     "dev": "webpack-dev-server",
     "build": "webpack",
     "postinstall": "node heroku",
@@ -26,28 +29,34 @@
     "startXXX": "parallelshell 'npm run server' 'npm run couchDB'",
     "devXXX": "parallelshell 'npm run server' 'npm run couchDB' 'npm run couchApp:watch'"
   },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-0",
+      "react"
+    ]
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/christianalfoni/webpack-express-boilerplate.git"
+    "url": "https://github.com/AidanNichol/stedwards-booking-system.git"
   },
   "keywords": [
     "express",
     "webpack",
     "node"
   ],
-  "author": "Christian Alfoni",
+  "author": "Aidan Nichol",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/christianalfoni/webpack-express-boilerplate/issues"
+    "url": "https://github.com/AidanNichol/stedwards-booking-system/issues"
   },
-  "homepage": "https://github.com/christianalfoni/webpack-express-boilerplate",
+  "homepage": "https://github.com/AidanNichol/stedwards-booking-system",
   "dependencies": {
-    "babel-polyfill": "^6.13.0",
-    "babel-runtime": "^6.11.6",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.1",
     "cookie-parser": "^1.4.0",
     "cookie-session": "^2.0.0-alpha.1",
+    "debounce": "^1.0.0",
     "es6-promise": "^3.0.2",
     "fs": "0.0.2",
     "hint.css": "^2.3.2",
@@ -94,21 +103,25 @@
     "autoprefixer-core": "^6.0.1",
     "autoprefixer-loader": "^3.1.0",
     "axios": "^0.14.0",
-    "babel-core": "^5.8.38",
+    "babel-cli": "^6.14.0",
     "babel-eslint": "^6.1.2",
-    "babel-loader": "^5.4.2",
+    "babel-loader": "^6.2.5",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-polyfill": "^6.2.0",
+    "babel-polyfill": "^6.13.0",
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-react": "^6.11.1",
     "babel-preset-react-hmre": "^1.1.1",
     "babel-preset-stage-0": "^6.5.0",
+    "babel-runtime": "^6.11.6",
     "circular-dependency-plugin": "^2.0.0",
+    "concurrently": "^2.2.0",
     "css-loader": "^0.24.0",
     "debug": "^2.2.0",
+    "electron": "^1.4.0",
+    "electron-prebuilt": "^1.4.0",
     "eslint": "^3.4.0",
     "eslint-plugin-react": "^6.2.0",
-    "express": "^4.12.3",
+    "express": "^4.14.0",
     "express-pouchdb": "^1.0.3",
     "html-webpack-plugin": "^2.22.0",
     "longjohn": "^0.2.11",
@@ -125,9 +138,12 @@
     "reactotron": "^0.9.0",
     "style-loader": "^0.13.1",
     "unused-files-webpack-plugin": "^2.0.4",
-    "webpack": "^1.8.5",
+    "webpack": "^1.13.2",
+    "webpack-dev-middleware": "^1.8.1",
     "webpack-dev-server": "^1.8.0",
+    "webpack-hot-middleware": "^2.12.2",
     "webpack-merge": "^0.14.1",
+    "webpack-target-electron-renderer": "^0.4.0",
     "webpack-validator": "^2.2.7"
   }
 }

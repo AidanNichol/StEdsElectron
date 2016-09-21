@@ -10,6 +10,7 @@ public/images/reserve
 public/build
 -C-actions
 *.log
+log.txt
 app/services/creds.js
 app/services/remoteCouch.js
 config.js

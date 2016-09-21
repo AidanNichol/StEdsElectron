@@ -23,38 +23,41 @@ import rootSaga from 'sagas/rootSaga'
 import createLogger from 'redux-logger';
 import sagaMonitor from 'sagas/sagaMonitor';
 import {monitorReplications} from 'ducks/replication-duck'
-import {remoteCouch} from 'services/bookingsDB'
-
-const logger = createLogger();
-
-export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
-// const sagaMiddleware = createSagaMiddleware();
-const membersList = i.freeze({list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
-const signin = i.freeze({name: null, roles: [], memberId: ''});
-const walks = i.freeze({list: {}});
-const accounts = i.freeze({list: {}});
-const controller = i.freeze({addToWaitList: false});
-
-console.log({reducers, sagaMonitor});
-const store = createStore(
-  reducers,
-  {membersList, signin, walks, accounts, controller},
-  compose(applyMiddleware(sagaMiddleware, logger),
-   window.devToolsExtension ? window.devToolsExtension() : f => f)
-);
-console.log('store', store.getState());
+import {remoteCouch} from 'services/remoteCouch'
 import * as ml_actions from 'actions/membersList-actions';
 import * as ct_actions from 'actions/controller-actions';
 import * as ac_actions from 'actions/accounts-actions';
 
-assignAll(ct_actions, store);
-assignAll(ml_actions, store);
-assignAll(ac_actions, store);
+const logger = createLogger();
+export var store;
+export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
+// const sagaMiddleware = createSagaMiddleware();
+const defaultState = i.freeze({
+  membersList: {list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false},
+  signin: {name: null, roles: [], memberId: ''},
+  walks: {list: {}},
+  accounts: {list: {}},
+  controller: {addToWaitList: false},
+});
+export const configureStore = (initalState = defaultState)=>{
+  console.log({reducers, sagaMonitor});
+  store = createStore(
+    reducers,
+    initalState,
+    compose(applyMiddleware(sagaMiddleware, logger),
+    window.devToolsExtension ? window.devToolsExtension() : f => f)
+  );
+  console.log('store', store.getState());
 
-sagaMiddleware.run(rootSaga);
-// var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
-// var remoteCouch = 'http://localhost:3000/db/bookings';
+  assignAll(ct_actions, store);
+  assignAll(ml_actions, store);
+  assignAll(ac_actions, store);
 
-sagaMiddleware.run(monitorReplications, remoteCouch);
+  sagaMiddleware.run(rootSaga);
+  // var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
+  // var remoteCouch = 'http://localhost:3000/db/bookings';
 
-export default store;
+  sagaMiddleware.run(monitorReplications, remoteCouch);
+  return store;
+
+};
