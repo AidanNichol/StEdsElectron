@@ -1,0 +1,101 @@
+/* scss-lint:disable QualifyingElement Comment SelectorFormat */
+@import 'watermark.scss';
+.panel-body{
+  position: relative;
+}
+.editmode{
+  .edit-member{
+    visibility: hidden;
+  }
+}
+.member-details {
+  display: table-cell;
+  margin-right: 10px;
+  width: 500px;
+}
+
+.user-details {
+
+  .form-line {
+    display: table-row;
+    width: 90%;
+    margin-top: 5px;
+  }
+
+  .item-label {
+    display: table-cell;
+    padding-right: 10px;
+    padding-top: 8px;
+    text-align: right;
+    vertical-align: top;
+    width: 100px;
+  }
+
+  .item-input {
+    display: table-cell;
+    margin-top: 5px;
+    width: 300px;
+
+    &.Due input{
+      background-color: #ff6;
+      margin-right: 6px;
+    }
+
+    &.Late input{
+      background-color: #f66;
+    }
+  }
+
+  div.item-input {
+    border: inset 2px rgb(238, 238, 238);
+    margin-bottom: 5px;
+    margin-top: 10px;
+   }
+}
+.modal-footer {
+  .ttbtn {
+    min-height: 58px;
+  }
+
+  button, a[type='button'] {
+    img {
+      height: 40px;
+    }
+
+    padding: 5px 8px;
+  }
+}
+.closeWindow{float:right}
+
+.user-details.suspended:not(.deleted) {
+  @mixin watermark 'Member Suspended' {
+  }
+}
+
+.user-details.guest:not(.suspended) {
+  @mixin watermark 'Guest', blue {
+    font-size: 600%;
+  }
+}
+.user-details .stamp {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  right: 0;
+  top: 0;
+  width: 80%;
+
+}
+
+
+.register-user {
+  display: table-cell;
+}
+
+.edit-member {
+  position: relative;
+  top:0;
+  right: 0;
+  z-index: 100;
+}

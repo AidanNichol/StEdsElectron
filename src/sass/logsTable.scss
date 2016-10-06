@@ -1,0 +1,77 @@
+.logsTable{
+  margin-left: 10px;
+
+  border: #bce8f1 solid thin;
+  .logHeader{
+    color: #31708f;
+    background-color: #d9edf7;
+    border-bottom: #bce8f1 solid thin;
+  }
+  .logRec.outstanding{
+    color: navy;
+    font-weight: bold;
+    .logText{
+      font-size: 1.1em;
+
+    }
+  }
+  .fa-stack {
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    vertical-align: middle;
+  }
+  .fa-stack-1x,
+  .fa-stack-2x {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+  }
+  .fa-stack-1x {
+    line-height: inherit;
+  }
+  .fa-stack-2x {
+    left: 0px;
+    top: -3px;
+    font-size: 1.3em;
+  }
+
+}
+.logHeader span{
+  text-align: center;
+}
+.logData {
+  .logAmount{
+    text-align: right;
+    padding-right: 1em;
+  }
+  .logBal{
+    text-align: right;
+    padding-right: 2em;
+  }
+  &.historic{
+    opacity: 0.3;
+  }
+}
+span.logDate{
+  padding-left: 5px;
+  display: inline-block;
+  min-width: 90px;
+
+}
+span.logText{
+  padding-left: 5px;
+  display: inline-block;
+  min-width: 200px;
+}
+span.logAmount{
+  display: inline-block;
+  min-width: 3em;
+}
+span.logBal{
+  display: inline-block;
+  min-width: 5em;
+  &.owing{color:red}
+}
