@@ -1,14 +1,12 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import url('watermark.scss');
-:root {
-  --primary-color: #428bca;
-  --success-color: #dff0d8;
-  --info-color: #d9edf7;
-  --warning-color: #fcf8e3;
-  --danger-color: #f2dede;
-  --warning-color: yellow;
+@import 'watermark.less';
+  @primary-color: #428bca;
+  @success-color: #dff0d8;
+  @info-color: #d9edf7;
+  @warning-color: #fcf8e3;
+  @danger-color: #f2dede;
+  @warning-color: yellow;
 
-}
 .bookings.mems1 .panel-body { grid-template-columns: 400px 450px;}
 .bookings.mems2 .panel-body { grid-template-columns: 500px 450px;}
 .bookings.mems3 .panel-body { grid-template-columns: 600px 450px;}
@@ -103,11 +101,11 @@
 /*
 .heading {
   .suspended  {
-    @mixin watermark 'Member Suspended' {
+    @rotate:  {
       opacity: 0.6;
       transform: rotate(-30deg);
-
     }
+    .watermark('Member Suspended',,@rotate)
   }
 }
 
@@ -139,15 +137,15 @@
 
 
   button.Later {
-    background-color: var(--warning-color);
+    background-color: @warning-color;
   }
 
   button.Paid {
-    background-color: var(--success-color);
+    background-color: @success-color;
   }
 
   button.Waitlist {
-    background-color: var(--info-color);
+    background-color: @info-color;
   }
 
 

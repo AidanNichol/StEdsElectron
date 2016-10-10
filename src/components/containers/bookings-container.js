@@ -24,7 +24,7 @@ const getSortedMemebersList = createSelector(
 const makeGetBookingsSummary = () => createSelector(
     (walk)=>walk,
     (walk)=>{
-       let totals = Object.keys(walk.booked).reduce((value, memId)=>{value[request.no[walk.booked[memId]]]++; return value}, [0,0,0,0]);
+       let totals = Object.keys(walk.booked||{}).reduce((value, memId)=>{value[request.no[walk.booked[memId]]]++; return value}, [0,0,0,0]);
        let available = walk.capacity - totals[0];
        let display = ''+available + (totals[1] > 0 ? ` (-${totals[1]})` : '');
        return {available:available-totals[1], display};

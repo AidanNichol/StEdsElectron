@@ -1,11 +1,11 @@
-@define-mixin watermark $text, $color : black {
+.watermarkx (@text, @color : black, @content) {
   &:before {
 
     /* common custom values */
     bottom: 0;
-    color: $color;
+    color: @color;
     content: 'Member Suspended';
-    content: $text;
+    content: @text;
     cursor: default;
     display: block;
     font-family: sans-serif;
@@ -23,6 +23,6 @@
     transform: rotate(-45deg);
     user-select: none;
     z-index: 9999;
-    @mixin-content;
+    @content();
   }
 }

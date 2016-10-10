@@ -8,6 +8,7 @@ import Paginator from './Paginator.js';
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
 import {Panel} from '../../utility/AJNPanel'
+import path from 'path';
 
 // import { Panel } from 'react-bootstrap';
 import { Button, OverlayTrigger, Tooltip, } from 'react-bootstrap';
@@ -84,13 +85,16 @@ class Memberslist extends React.Component {
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
           <span className="button1" hidden={showEditMemberModal}>
             <OverlayTrigger placement='right' showModal={showModal} toggleShowModal={membersListToggleShowModal} overlay={<Tooltip id='PrintMemberList'>Print Membership List <br/>(Sorted by {sortProp})</Tooltip>}>
-              <Button href={'http://steds.dev/server/memberListPDF.php?sort=' + sortProp} target='_blank' ><img src="/images/Printer.svg" /></Button>
+              <Button href={'http://steds.dev/server/memberListPDF.php?sort=' + sortProp} target='_blank' >
+              <img src={'file:///www/sites/StedsElectron/svgs/Printer.svg'} />
+                {/* <svg role="img"><use xlinkHref="#Printer"/></svg> */}
+              </Button>
             </OverlayTrigger>
 
           </span>
           {/*<TestModal />*/}
           <span className="button2" hidden={showEditMemberModal}>
-            <TooltipButton img="/images/user-add.svg" onClick={()=>this.props.createNewMember()} tiptext='Create a New Member' visible/>
+            <TooltipButton img="file:///www/sites/StEdsElectron/svgs/user-add.svg" onClick={()=>this.props.createNewMember()} tiptext='Create a New Member' visible/>
           </span>
 
       </Panel>

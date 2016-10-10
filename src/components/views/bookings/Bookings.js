@@ -61,7 +61,7 @@ var Bookings = React.createClass({
           {accNames.map((member, i)=>( <div className={'avail member'+i+(member.suspended ? ' suspended' : '')} key={member.memId}>{member.firstName }</div> ))}
         </div>
         {walks.map((walk)=>(
-          <div className="walk" key={walk.walkId}>
+          <div className="walk" key={'WWW'+walk.walkId}>
           <div className="date">{walk.walkDate}<br/>{walk.venue}</div>
           <div className="avail">{walk.status.display}</div>
           {
@@ -74,16 +74,6 @@ var Bookings = React.createClass({
 
         ))}
         <AnnotateBooking {...annotate}/>
-        {/*<img src="/images/icon-B.svg" />
-        <img src="/images/icon-BX.svg" />
-        <img src="/images/icon-BL.svg" />
-        <img src="/images/icon-C.svg" />
-        <img src="/images/icon-CX.svg" />
-        <img src="/images/icon-CL.svg" />
-        <img src="/images/icon-W.svg" />
-        <img src="/images/icon-WX.svg" />
-        <img src="/images/icon-A.svg" />
-        <img src="/images/icon-P.svg" />*/}
       </div>
 
       <ChangeLog accId={accId}/>

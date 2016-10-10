@@ -31,11 +31,11 @@ import PaymentsContainer from './Payments-container.js';
 
 export default class Root extends Component {
     render() {
-        const { store, history } = this.props;
+        const { store } = this.props;
         return (
             <Provider store={store}>
                 <div>
-                    <Router history={history}>
+                    <Router >
                       <Route path="/" component={MainLayout} onEnter={()=>{sagaMiddleware.run(initialSaga); }}>
                         <IndexRoute component={Home} />
 
@@ -63,5 +63,4 @@ export default class Root extends Component {
 
 Root.propTypes = {
     store: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired
 };

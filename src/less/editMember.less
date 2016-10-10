@@ -1,5 +1,5 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import 'watermark.scss';
+@import 'watermark.less';
 .panel-body{
   position: relative;
 }
@@ -68,14 +68,14 @@
 .closeWindow{float:right}
 
 .user-details.suspended:not(.deleted) {
-  @mixin watermark 'Member Suspended' {
-  }
+  .watermarkx('Member Suspended');
 }
 
+@fsize:{
+  font-size: 600%;
+}
 .user-details.guest:not(.suspended) {
-  @mixin watermark 'Guest', blue {
-    font-size: 600%;
-  }
+  .watermarkx('Guest', blue, @fsize);
 }
 .user-details .stamp {
   position: absolute;

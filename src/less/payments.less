@@ -1,13 +1,13 @@
-$primary-color: #428bca;
-$success-color: #dff0d8;
-$info-color: #d9edf7;
-$warning-color: #fcf8e3;
-$danger-color: #f2dede;
-$warning-color: yellow;
+@primary-color: #428bca;
+@success-color: #dff0d8;
+@info-color: #d9edf7;
+@warning-color: #fcf8e3;
+@danger-color: #f2dede;
+@warning-color: yellow;
 
-$border-color: #bce8f1;
-$header-text-color: #31708f;
-$background-color: #d9edf7;
+@border-color: #bce8f1;
+@header-text-color: #31708f;
+@background-color: #d9edf7;
 $radius: 5px;
 
 border: #bce8f1 solid thin;
@@ -31,9 +31,9 @@ border: #bce8f1 solid thin;
     }
   }
   .overview, .header{
-    background-color: $background-color;
+    background-color: @background-color;
     border-radius: $radius;
-    border-bottom: $border-color thin solid;
+    border-bottom: @border-color thin solid;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     padding: 2px 5px;
@@ -67,10 +67,10 @@ border: #bce8f1 solid thin;
     }
   }
   .debtor{
-    color: $header-text-color;
+    color: @header-text-color;
     margin-bottom: 5px;
     padding-bottom: 4px;
-    border: $border-color thin solid;
+    border: @border-color thin solid;
     border-radius: $radius;
     .owed{
       font-size: 0.85em;

@@ -11,7 +11,7 @@ import {Signin} from '../../ducks/signin-duck.js';
 import {ReplicationStatus} from '../views/header/ReplicationStatus'
 // import store from '../../store';
 import {isUserAuthorized} from '../../services/auth.js';
-
+import fs from 'fs';
 // import DevLinks from '../header/DevLinks.js';
 // import DisplayErrors from '../header/DisplayErrors.js';
 
@@ -26,7 +26,8 @@ import {isUserAuthorized} from '../../services/auth.js';
 const comp = ({memberAdmin, bookingsAdmin, loading, children})=>
      (
       <div className="mainPage" >
-      <link rel="stylesheet" href="folder-tabs.less" />
+      {window.steds_svg}
+      <link rel="stylesheet" href="less/folder-tabs.less" />
       <img src="/images/St.Edwards.col4.png" width="70px"/>
       <ReplicationStatus className="devlinks"/>
       {/*<DevLinks className="devlinks"/>*/}
@@ -53,6 +54,12 @@ const comp = ({memberAdmin, bookingsAdmin, loading, children})=>
 
 
 const mapStateToProps = (state) => {
+  // const svg = fs.readFileSync('file:///www/sites/StEdsElectron/sprites.svg');
+  // window.steds_svg = svg;
+  // console.log('steds_svg', svg)
+  // var svg2 = require('file:///www/sites/StEdsElectron/sprites.svg')
+  // console.log('steds_svg2', svg2)
+
   return {
     bookingsAdmin: isUserAuthorized(['bookings']),
     memberAdmin: isUserAuthorized(['membership', 'bookings']),
