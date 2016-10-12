@@ -5,6 +5,9 @@
         "presets": ["es2015", "stage-0", "react"],
         "plugins": ["transform-class-properties"],
         "sourceMaps": "inline"
+      },
+      "text/less": {
+        "dumpLineNumbers": "comments"
       }
     },
     "production": {

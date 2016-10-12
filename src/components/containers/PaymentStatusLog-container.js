@@ -1,7 +1,7 @@
 // import React from 'react';
 import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
-import PaymentStatusLog from '../views/bookings/PaymentStatusLog.js';
+import {changeLog, payment} from '../views/bookings/PaymentStatusLog.js';
 import {getAccDebt} from './PaymentsFunctions.js';
 // import { createSelector } from 'reselect'
 // import {request} from '../../sagas/walksSaga.js';
@@ -32,4 +32,7 @@ const mapStateToProps = function(state, {accId}) {
 
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentStatusLog);
+export  const Payment = connect(mapStateToProps, mapDispatchToProps)(payment);
+
+
+export  const ChangeLog = connect(mapStateToProps)(changeLog);

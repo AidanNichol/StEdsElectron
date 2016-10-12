@@ -1,41 +1,54 @@
 import * as i from 'icepick';
-import { createReducer } from 'redux-act';
-// import { createAction } from 'redux-act';
 
 	const OPENED = 'members/list/opened';
 	const SORT_BY = 'members/list/setSortBy';
 	const SET_PAGE = 'members/list/setPage';
-	const DISPLAYED_MEMBER = 'MEMBERS/LIST/SET_DISPLAYED_MEMBER';
-	const SET_EDIT_MODE = 'MEMBERS/EDIT/SETSHOWMODAL';
-	const SAVE_CHANGES = 'MEMBER/EDIT/SAVE_CHANGES';
+	const DISPLAYED_MEMBER = 'MEMBERS_LIST_SET_DISPLAYED_MEMBER';
+	const SET_EDIT_MODE = 'MEMBERS_EDIT_SETSHOWMODAL';
+	const TOGGLE_EDIT_MODE = 'MEMBERS/EDIT/TOGGLESHOWMODAL';
+	const SAVE_CHANGES = 'MEMBER_EDIT_SAVE_CHANGES';
 	const NEW_MEMBER = 'MEMBER/EDIT/CREATE_NEW';
 	const CHANGE_DOC = 'member/change/doc';
+	const PRINT_LIST = 'members/list/print';
 
-	export const membersListOpened = ()=>{type: OPENED};
-	export const membersListSetSortBy = (payload)=>{type: SORT_BY, payload};
-	export const membersListSetPage = (payload)=>{type: SET_PAGE, payload};
-	export const membersListSetDisplayedMember = (payload)=>{type: DISPLAYED_MEMBER, payload};
-	export const setShowEditMemberModal = (payload)=>{type: SET_EDIT_MODE, payload};
-	export const membersEditSaveChanges = (payload)=>{type: SAVE_CHANGES, payload};
-	export const changeMemberDoc = (payload)=>{type: CHANGE_DOC, payload};
-	export const createNewMember = (payload)=>{type: NEW_MEMBER, payload};
+	export const actions ={
+		OPENED, SORT_BY, SET_PAGE, DISPLAYED_MEMBER, SET_EDIT_MODE, TOGGLE_EDIT_MODE,
+		SAVE_CHANGES, NEW_MEMBER, CHANGE_DOC, PRINT_LIST
+	};
+	export const actionCreators = {
+		membersListOpened: ()=>({type: OPENED}),
+		membersListSetSortBy: (payload)=>({type: SORT_BY, payload}),
+		membersListSetPage: (payload)=>({type: SET_PAGE, payload}),
+		membersListSetDisplayedMember: (payload)=>({type: DISPLAYED_MEMBER, payload}),
+		setShowEditMemberModal: (payload)=>({type: SET_EDIT_MODE, payload}),
+		membersEditSaveChanges: (payload)=>({type: SAVE_CHANGES, payload}),
+		changeMemberDoc: (payload)=>({type: CHANGE_DOC, payload}),
+		createNewMember: (payload)=>({type: NEW_MEMBER, payload}),
+		membersListPrint: (payload)=>({type:PRINT_LIST, payload}),
+
+	}
 
   const defaultState = i.freeze({list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
   export default function reducer(state = defaultState, action = {}) {
-    switch (action.type) {
+		const {type, payload} = action;
+    switch (type) {
       // do reducer stuff
+			case OPENED:
+				return  i.assign(state, {list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false});
+			case SORT_BY:
+				return  i.assign(state, {sortProp: payload, currentPage: 1, displayMember: 0});
+			case SET_PAGE:
+				return  i.assign(state, { currentPage: payload.page, dispStart: payload.value});
+			case DISPLAYED_MEMBER:
+				return  i.assign(state, {memberId: payload, displayMember: payload});
+			case NEW_MEMBER:
+				return i.assign(state, {displayMember: 'new', showEditMemberModal: true, showModal: true});
+			case SET_EDIT_MODE:
+				return  i.assign(state, {showEditMemberModal: payload});
+			case TOGGLE_EDIT_MODE:
+				return  i.assign(state, {showEditMemberModal: !state.showEditMemberModal});
+			case SAVE_CHANGES:
+			return  i.assign(state, {showModal: !state.showModal});
       default: return state;
     }
   }
-export default createReducer({
-
-  [OPENED]: (state) => i.assign(state, {list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false}),
-
-  [SORT_BY]: (state, value) => i.assign(state, {sortProp: value, currentPage: 1, displayMember: 0}),
-  [SET_PAGE]: (state, action) => i.assign(state, { currentPage: action.page, dispStart: action.value}),
-  [DISPLAYED_MEMBER]: (state, action) => i.assign(state, {memberId: action, displayMember: action}),
-  [NEW_MEMBER]: (state)=>i.assign(state, {displayMember: 'new', showEditMemberModal: true}),
-  [SET_EDIT_MODE]: (state, action) => i.assign(state, {showEditMemberModal: action}),
-  [SAVE_CHANGES]: (state) => i.assign(state, {showModal: !state.showModal}),
-  // [action.changeMemberDoc]: (state, action) => i.assign(state, {doc._id: doc})
-},);

@@ -1,13 +1,14 @@
 // import React from 'react';
-// import { bindActionCreators } from 'redux';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MembersList from '../views/members/MembersList.js';
-import * as actions from '../../actions/membersList-actions.js';
+// import * as actions from '../../actions/membersList-actions.js';
+import {actionCreators} from '../../ducks/memberslist-duck';
 import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:white; background:navy;', 'MemberList.jsx');
+var logit = Logit('color:white; background:navy;', 'MemberList:Container');
 
 
 export const newMemberTemplate = {
@@ -40,7 +41,7 @@ const getSortedMembersList = createSelector(
     var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
     var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
     var cmp = (sortProp === 'name' ? compareNames : compareIds);
-    console.debug('members', members);
+    logit('members', members);
     return Object.keys(members).sort(cmp).map((id)=>members[id]);
   }
 )
@@ -55,9 +56,10 @@ const newMember = createSelector(
 );
 
 function mapDispatchToProps(dispatch) {
-  return {
-    createNewMember: ()=>(dispatch({type: 'MEMBERLIST_CREATE_NEW_MEMBER'})),
-  }
+  // return {
+  //   createNewMember: ()=>(dispatch({type: 'MEMBERLIST_CREATE_NEW_MEMBER'})),
+  // }
+  return bindActionCreators(actionCreators, dispatch);
 }
 const mapStateToProps = function(store) {
   var members = store.members;
@@ -65,12 +67,13 @@ const mapStateToProps = function(store) {
   // var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
   // var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
   // var cmp = (store.membersList.sortProp === 'name' ? compareNames : compareIds);
-  // console.debug('members', members);
+  // logit('members', members);
   // var allList = Object.keys(members).sort(cmp).map((id)=>members[id]);
   let allList = getSortedMembersList(store);
   var member;
   if (store.membersList.displayMember === 'new') member= newMember(store);
-  if (store.membersList.displayMember) member = members[store.membersList.displayMember];
+  // if (store.membersList.displayMember) member = members[store.membersList.displayMember];
+  else if (store.membersList.displayMember) member = members[store.membersList.displayMember];
   else member = store.membersList.displayMember;
 
   var props = {
@@ -81,7 +84,7 @@ const mapStateToProps = function(store) {
             allList,
             newMemberTemplate,
             member,
-            actions,
+            // actions,
             memberAdmin: isUserAuthorized(['membership', 'bookings']),
             // listByName: ['membersList', 'listByName'],
             // membersList: store.membersList,

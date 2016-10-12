@@ -1,8 +1,8 @@
-import db from '../services/bookingsDB.js';
+import db from '../services/bookingsDB';
 import { eventChannel, END, buffers } from 'redux-saga'
-import { call, put, take } from 'redux-saga/effects.js';
+import { call, put, take } from 'redux-saga/effects';
 
-import Logit from '../factories/logit.js';
+import Logit from '../factories/logit';
 var logit = Logit('color:white; background:red;', 'replicationDuck');
 import * as i from 'icepick'
 

@@ -3,13 +3,14 @@ import React from 'react';
 // import _ from 'lodash';
 import classnames from 'classnames';
 
-import { Panel} from 'react-bootstrap';
+// import { Panel} from 'react-bootstrap';
+import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
-import ChangeLog from '../../containers/PaymentStatusLog-container.js';
+import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
 import {AnnotateBooking} from './annotateBooking'
 // import ChangeLog from '..//utility/ChangeLog.js';
-
+import path from 'path'
 // var AJNLogging = require('../utilities/utility').AJNLogging;
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'bookings');
@@ -47,18 +48,21 @@ var Bookings = React.createClass({
     };
     var title = (<h4>Bookings</h4>);
     var bCl = classnames({bookings: true, ['mems'+accNames.length]: true});
+    const base = 'file://'+path.resolve(__dirname, '../../../less')
     return (
-      <Panel header={title} bsStyle='info'  className={bCl}>
-      <link rel="stylesheet" href="less/bookings.less" />
-      <div className="select">
+      <div style={{margin: "0 10px 0 10px"}} >
+        <link rel="stylesheet" href={base+"/bookings.less"} />
+        <link rel="stylesheet" href={base+"/logsTable.less"} />
+        <Panel header={title} bsStyle='info'  body={{className: bCl}} id="steds_bookings">
+        <div className="select">
         <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
         {accNames.map((member)=>( <h5 key={member.memId}>{ member.firstName } { member.lastName }</h5> ))}
-      </div>
-      <div className="bTable">
+        </div>
+        <div className="bTable">
         <div className="heading">
-          <div className="title date">Date<br/>Venue</div>
-          <div className="title avail">Available</div>
-          {accNames.map((member, i)=>( <div className={'avail member'+i+(member.suspended ? ' suspended' : '')} key={member.memId}>{member.firstName }</div> ))}
+        <div className="title date">Date<br/>Venue</div>
+        <div className="title avail">Available</div>
+        {accNames.map((member, i)=>( <div className={'avail member'+i+(member.suspended ? ' suspended' : '')} key={member.memId}>{member.firstName }</div> ))}
         </div>
         {walks.map((walk)=>(
           <div className="walk" key={'WWW'+walk.walkId}>
@@ -66,18 +70,21 @@ var Bookings = React.createClass({
           <div className="avail">{walk.status.display}</div>
           {
             walk.bookings.map((booking, i)=>
-              request.bookable(booking.status) ?
-                  newBooking(walk.walkId, booking.memId, walk.status.available > 0, i) :
-                  oldBooking(walk.walkId, booking.memId, booking.status, booking.annotation, i) )
+            request.bookable(booking.status) ?
+            newBooking(walk.walkId, booking.memId, walk.status.available > 0, i) :
+            oldBooking(walk.walkId, booking.memId, booking.status, booking.annotation, i) )
           }
           </div>
 
         ))}
         <AnnotateBooking {...annotate}/>
-      </div>
+        </div>
 
-      <ChangeLog accId={accId}/>
-      </Panel>
+        <ChangeLog accId={accId}/>
+        <Payment accId={accId}/>
+        </Panel>
+
+      </div>
       );
   },
 });

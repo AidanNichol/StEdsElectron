@@ -2,7 +2,7 @@
 
 
 
-export const subsStatus = (doc)=>{
+export const getSubsStatus = (doc)=>{
   let status = 'OK';
   if (doc.memberStatus === "HLM") return {due: false, status};
   if (doc.memberStatus === "Guest") return {due: false, status};
@@ -20,6 +20,7 @@ export const subsStatus = (doc)=>{
   let okSubsYear = _today < (new Date(`${thisYear}-02-01`)) ? thisYear-1 : thisYear;
 
   if (currentUserSubs >= year || currentUserSubs >= dueSubsYear) return {due: false, status};
+  status = 'due';
   if (currentUserSubs >= okSubsYear) fee = 13;
   else status = 'late';
   return {due:true, year, fee, status}

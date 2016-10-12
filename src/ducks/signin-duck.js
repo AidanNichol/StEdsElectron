@@ -139,14 +139,14 @@ const SigninForm = (props) => {
       {props.name?( <div className="right">
         Logged in: {props.name} ({(props.roles||[]).join(', ')})
         <button onClick={()=>{reset(); signoutRequested()}}>Sign Out</button>
-      </div>) : (<div>
-        <Field name="username" type="text" component={renderField} label="Username"/>
-        <Field name="password" type="password" component={renderField} label="Password"/>
-        <div>
-        <button type="submit" disabled={submitting}>Sign In</button>
+      </div>) : (<div><table><tbody><tr>
+        <td><Field name="username" type="text" component={renderField} label="Username" /></td>
+        <td><Field name="password" type="password" component={renderField} label="Password" /></td>
+        <td><button type="submit" disabled={submitting}>Sign In</button></td>
+        </tr></tbody></table>
         {/* <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values</button> */}
         {error && <span style={errorStyle} >!! {error}</span>}
-        </div>
+        {/* </div> */}
 
       </div>)
       }

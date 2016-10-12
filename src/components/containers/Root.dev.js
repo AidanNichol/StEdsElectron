@@ -14,13 +14,14 @@ import initialSaga from '../../sagas/initialSaga.js';
 import MainLayout from '../layouts/main-layout.js';
 
 const Home = ()=>{
-  let nodeV = process.versions.node;
-  let chromeV = process.versions.chrome;
-  let electronV = process.versions.electron;
-
-  return(<div> We are using node {nodeV},
-    Chrome {chromeV},
-    and Electron {electronV}. </div>);
+  return (<div/>);
+  // let nodeV = process.versions.node;
+  // let chromeV = process.versions.chrome;
+  // let electronV = process.versions.electron;
+  //
+  // return(<div> We are using node {nodeV},
+  //   Chrome {chromeV},
+  //   and Electron {electronV}. </div>);
 }
 import MembersListContainer from './members-list-container.js';
 import BookingsContainer from './bookings-container.js';
@@ -39,19 +40,13 @@ export default class Root extends Component {
                       <Route path="/" component={MainLayout} onEnter={()=>{sagaMiddleware.run(initialSaga); }}>
                         <IndexRoute component={Home} />
 
-                        <Route path="membersList/:id" component={MembersListContainer} />
-                        <Route path="membersList" component={MembersListContainer} />
-                        {/* <Route path="bulkadd/:id" component={BulkAddContainer}></Route> */}
+                        <Route path="membersList(/:id)" component={MembersListContainer} />
                         {isUserAuthorized([ 'bookings']) ?
-                          <Route path="bulkadd" component={BulkAddContainer}>
-                            <IndexRoute component={BulkAddContainer}/>
-                            <Route path=":id" component={BulkAddContainer} />
-                          </Route>
+                          <Route path="bulkadd(/:id)" component={BulkAddContainer} />
                            : null}
-                        {/* <Route path="bulkadd" component={BulkAddContainer} /> */}
-                        <Route path="buslists/:id" component={BusListsContainer} />
+                        <Route path="buslists(/:id)" component={BusListsContainer} />
                         <Route path="payments" component={PaymentsContainer} />
-                        <Route path="bookings/:id"  component={BookingsContainer} />
+                        <Route path="bookings(/:id)"  component={BookingsContainer} />
                       </Route>
                     </Router>
                     <Home/>

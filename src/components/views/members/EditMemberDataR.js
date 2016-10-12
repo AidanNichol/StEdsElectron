@@ -1,13 +1,13 @@
-// require('less/watermark.scss');
+// require('less/watermark.less');
 
 import * as i from 'icepick';
 import React from 'react';
 import {Field, reduxForm, formValueSelector, getFormValues, isDirty} from 'redux-form';
 import {connect} from 'react-redux';
-
+// import {Icon} from '../../Utility/Icon'
 import classnames from 'classnames';
 
-import TooltipButton from '../../utility/TooltipButton.js';
+import TooltipButton from '../../utility/TooltipButton';
 // var belle = require('belle');
 // var TextInput = belle.TextInput;
 import TextInput from 'react-textarea-autosize';
@@ -15,8 +15,9 @@ import TextInput from 'react-textarea-autosize';
 // import {Panel, PanelHeader} from 'rebass';
 // import {Panel} from 'react-bootstrap';
 import {Panel} from '../../utility/AJNPanel'
-import {getSubsDue, getSubsLate} from '../../../utilities/DateUtilities.js';
-import {properCaseName, properCaseAddress, normalizePhone} from '../../utility/normalizers.js';
+import {getSubsStatus} from '../../../utilities/subsStatus'
+// import {getSubsDue, getSubsLate} from '../../../utilities/DateUtilities';
+import {properCaseName, properCaseAddress, normalizePhone} from '../../utility/normalizers';
 
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'EditMemberData');
@@ -49,12 +50,22 @@ let renderTextArea = (field) => {
   )
 }
 // renderField='input';
+// const subscriptionButton = (props)=>{
+//   const { input: {  value: subsCurrent, onChange}, _delete, editMode, subsDueForYear, meta, style={}, ...other } = props;
+//   style.marginLeft = 225;
+//   console.log('subscriptionButton',{ _delete, editMode, subsDueForYear, other})
+//   return (
+//     <TooltipButton label='Paid' onClick={()=>onChange(subsDueForYear)} {...other} style={style} tiptext={'subs paid for '+subsDueForYear} visible={editMode && !_delete && (subsCurrent !== subsDueForYear)} />
+//   )
+//
+// }
 const subscriptionButton = (props)=>{
-  const { input: {  value: subsCurrent, onChange}, _delete, editMode, subsDueForYear, meta, style={}, ...other } = props;
-  style.marginLeft = 225;
-  console.log('subscriptionButton',{ _delete, editMode, subsDueForYear, other})
+  const { input: {  onChange}, _delete, editMode, subsStatus, meta, style={}, ...other } = props;
+  // if (!subsStatus.due) return null;
+  style.marginLeft = 140;
+  logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
   return (
-    <TooltipButton label='Paid' onClick={()=>onChange(subsDueForYear)} {...other} style={style} tiptext={'subs paid for '+subsDueForYear} visible={editMode && !_delete && (subsCurrent !== subsDueForYear)} />
+    <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`} onClick={()=>onChange(subsStatus.year)} {...other} style={style}  visible={editMode && !_delete && subsStatus.due} />
   )
 
 }
@@ -62,8 +73,8 @@ const suspendButtons = (props)=>{
   const { input: { value:suspended, onChange}, _delete,  editMode } = props
   return (
     <span>
-    <TooltipButton img="/images/user-disable.svg" onClick={()=>onChange(true)} tiptext='Suspend this Member' visible={editMode && !suspended} />
-    <TooltipButton img="/images/user-enable.svg" onClick={()=>onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!_delete) && suspended} />
+    <TooltipButton icon="user-disable" onClick={()=>onChange(true)} tiptext='Suspend this Member' visible={editMode && !suspended} />
+    <TooltipButton icon="user-enable" onClick={()=>onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!_delete) && suspended} />
     </span>
   )
 
@@ -74,8 +85,8 @@ const deleteButtons = (props)=>{
   return (
     <span>
     <TooltipButton label="Delete Member" onClick={remove} tiptext="Permanently Delete Member" visible={editMode && deleteMe} />
-    <TooltipButton img="/images/user-undelete.svg" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
-    <TooltipButton img="/images/user-delete.svg" onClick={()=>onChange(true)} tiptext="Request Member Deletion" visible={editMode && (!deleteMe)} />
+    <TooltipButton icon="user-undelete" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
+    <TooltipButton icon="user-delete" onClick={()=>onChange(true)} tiptext="Request Member Deletion" visible={editMode && (!deleteMe)} />
     </span>
   )
 
@@ -94,9 +105,9 @@ let EditMemberData = (props)=>{
             handleSubmit,
             reset,
             formValues,
-            subsDueForYear, __subsStatus,
+            // subsDueForYear, __subsStatus,
            } = props;
-    const {firstName, lastName, memberStatus, suspended, _delete, } = formValues||{};
+    const {firstName, lastName, subscription, memberStatus, suspended, _delete, } = formValues||{};
 
     // const saveChanges = (values)=>{
     //   logit('saveChanges', values);
@@ -117,7 +128,9 @@ let EditMemberData = (props)=>{
       membersEditSaveChanges({doc, origDoc: props.member});
 
     }
-
+    logit('subsStatus', 'pre')
+    const subsStatus = getSubsStatus({subscription, memberStatus}); // {due: true, year: 2016, fee: 15, status: 'late'}
+    logit('subsStatus', 'post')
     var title = (<div style={{width:'100%'}}>
       { firstName } { lastName } {dirty ? '(changed)' : ''}
         <span style={{float: 'right', hidden:!(editMode && dirty), cursor:'pointer'}} className='closeWindow' onClick={()=>setShowEditMemberModal(false)} >{showMode || dirty?"" :"X"}</span>
@@ -126,8 +139,9 @@ let EditMemberData = (props)=>{
     let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
       <Panel bsStyle='info' className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
-        <link rel="stylesheet" href="less/editMember.less" />;
-        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} />
+        <link rel="stylesheet" href="less/editMember.less" />
+        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode} />
+        {/* <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} /> */}
         <div className={clss}>
           {/* <form className={clss} name="user-details" autoComplete="off" onSubmit={onSubmit} > */}
           <fieldset disabled={showMode} size={40}>
@@ -157,8 +171,10 @@ let EditMemberData = (props)=>{
           </div>
           <div className="form-line">
               <label className="item-label">subscription</label>
-              <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
-                <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} />
+              {/* <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
+                <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} /> */}
+                <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
+                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsStatus}} />
 
               </Field>
           </div>
@@ -188,23 +204,11 @@ let EditMemberData = (props)=>{
                 </Field>
           </div>
           </fieldset>
-          <span>
-            delete id {_delete?'true':'false'}
-            {_delete ?
-            <img className="stamp" src="/images/Deleted Member.svg" /> : null
-            }
-          </span>
           <TooltipButton label='Close' onClick={()=>setShowEditMemberModal(false)} visible={editMode && !dirty} />
           <TooltipButton label='Discard' onClick={reset} visible={editMode && dirty && !deletePending} />
-          {/* <button type="submit" disabled={pristine || submitting}>Submit</button> */}
           <TooltipButton label="Save" onClick={saveChangesX} tiptext="Save All Changes to this Member" visible={editMode && !_delete && dirty} />
-          {/* <TooltipButton img="/images/user-undelete.svg" onClick={()=>_deleted.onchange(false)} tiptext='Clear the Delete Request' visible={editMode && deletePending}/>
-          <TooltipButton img="/images/user-delete.svg" onClick={()=>_deleted.onChange(true)} tiptext="Completely Delete Member" visible={editMode && (!deletePending) && isSuspended} />
-          <TooltipButton lable="Delete Member" onClick={()=>handleSubmit(remove)} tiptext="Permanently Delete Member" visible={editMode && deletePending} /> */}
           <Field component={suspendButtons} name='suspended' {...{editMode, _delete, suspended}} />
           <Field component={deleteButtons} name='_delete' {...{editMode, suspended, handleSubmit, remove}} />
-          {/* <TooltipButton img="/images/user-disable.svg" onClick={()=>suspended.onChange(true)} tiptext='Suspend this Member' visible={editMode && !isSuspended} />
-          <TooltipButton img="/images/user-enable.svg" onClick={()=>suspended.onChange(false)} tiptext="Unsuspend this Member" visible={editMode && (!deletePending) && isSuspended} /> */}
         {/* </form> */}
         </div>
 
@@ -214,18 +218,19 @@ let EditMemberData = (props)=>{
 }
 const selector = formValueSelector('EditMemberData');
 const mapStateToProps = function mapStateToProps(state, props){
-  let subsDue = getSubsDue();
-  let subsLate = getSubsLate();
+  // let subsDue = getSubsDue();
+  // let subsLate = getSubsLate();
   let  {member, other} = props;
   const formValues = getFormValues('EditMemberData')(state);
-  const subs = ( formValues && formValues.subscription) || member.subscription;
+  // const subs = ( formValues && formValues.subscription) || member.subscription;
   member = member ? i.thaw(member) : {};
   if (member && !('suspended' in member))member.suspended = false;
   const newProps = {
     initialValues: {_delete:false, ...member}, // will pull state into form's initialValues
-    subsDueForYear: subsDue,
-    __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
-    __subsDue: !(member && subs === subsDue ),
+    // subsDueForYear: subsDue,
+    // __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
+    // __subsDue: !(member && subs === subsDue ),
+    enableReinitialize: true,
     ...other,
     member,
     formValues,

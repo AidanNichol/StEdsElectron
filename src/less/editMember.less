@@ -1,13 +1,16 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import 'watermark.less';
-.panel-body{
+@import './watermark.less';
+
+.panel-body {
   position: relative;
 }
-.editmode{
-  .edit-member{
+
+.editmode {
+  .edit-member {
     visibility: hidden;
   }
 }
+
 .member-details {
   display: table-cell;
   margin-right: 10px;
@@ -15,11 +18,10 @@
 }
 
 .user-details {
-
   .form-line {
     display: table-row;
-    width: 90%;
     margin-top: 5px;
+    width: 90%;
   }
 
   .item-label {
@@ -36,12 +38,12 @@
     margin-top: 5px;
     width: 300px;
 
-    &.Due input{
+    &.due input {
       background-color: #ff6;
       margin-right: 6px;
     }
 
-    &.Late input{
+    &.late input {
       background-color: #f66;
     }
   }
@@ -50,14 +52,16 @@
     border: inset 2px rgb(238, 238, 238);
     margin-bottom: 5px;
     margin-top: 10px;
-   }
+  }
 }
+
 .modal-footer {
   .ttbtn {
     min-height: 58px;
   }
 
-  button, a[type='button'] {
+  button,
+  a[type='button'] {
     img {
       height: 40px;
     }
@@ -65,18 +69,19 @@
     padding: 5px 8px;
   }
 }
-.closeWindow{float:right}
+
+.closeWindow {
+  float: right;
+}
 
 .user-details.suspended:not(.deleted) {
-  .watermarkx('Member Suspended');
+  .watermark('Member Suspended');
 }
 
-@fsize:{
-  font-size: 600%;
-}
 .user-details.guest:not(.suspended) {
-  .watermarkx('Guest', blue, @fsize);
+  .watermark('Guest'; blue; 600%);
 }
+
 .user-details .stamp {
   position: absolute;
   bottom: 0;
@@ -85,9 +90,7 @@
   right: 0;
   top: 0;
   width: 80%;
-
 }
-
 
 .register-user {
   display: table-cell;
@@ -95,7 +98,7 @@
 
 .edit-member {
   position: relative;
-  top:0;
+  top: 0;
   right: 0;
   z-index: 100;
 }

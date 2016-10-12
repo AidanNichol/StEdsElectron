@@ -16,7 +16,7 @@ var doer;
 
 
 function* updatePaymentToAccount(action){
-    doer = yield select((state)=>state.logon.memId);
+    doer = yield select((state)=>state.signin.memId);
     var acc = yield select(getAccount, action.accId);
       // var funds = (acc.funds || 0) + action.amount;
     var log = pushLog(acc.log, false, doer, action.walkId, action.memId, 'P', action.amount, action.note);
@@ -34,7 +34,7 @@ function* addTaggedPayment(action){
 
 function* deleteTaggedPayment(action){
   logit('deleteTaggedPayment', action);
-    doer = yield select((state)=>state.logon.memId);
+    doer = yield select((state)=>state.signin.memId);
     var acc = yield select(getAccount, action.accId);
     var j = acc.log.findIndex((log)=>(log[4]==='P' && log[3]===action.memId && log[2]===action.walkId) );
     if (j === -1)return;

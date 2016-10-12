@@ -37,12 +37,13 @@ const headerStyle =
           backgroundColor: '#d9edf7',
         }
 export const Panel = (props)=>{
-  const { className='', header, style, children, bsStyle, ...other} = props;
+  const { className='', header, style, children, body={}, bsStyle, ...other} = props;
   console.log('Panel', {className, header, style, children, other, props})
+  const {className: clb, style: sty, ...bdy} = body;
   return (
     <div className={'panel '+className} style={panelStyle} {...other}>
       {header? (<PanelHeader>{header}</PanelHeader>) : null}
-      <div className='panel-body' style={{padding:0, margins:0}}>
+      <div className={'panel-body '+(clb||'')} style={{padding:0, margins:0, ...sty}} {...bdy}>
         {children}
 
       </div>

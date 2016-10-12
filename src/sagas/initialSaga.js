@@ -3,6 +3,8 @@ import { call, put } from 'redux-saga/effects.js';
 import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
 import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
+import {signinRequested} from '../ducks/signin-duck'
+
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'InitialSaga');
 
@@ -33,7 +35,12 @@ export default function* (){
     };
     logit('filterCurrentWalks', filterCurrentWalks);
     let data = yield call([db, db.allDocs], filterCurrentWalks);
-    let docs = data.rows.filter(row => row.doc.type === 'walk').map(row => row.doc);
+    let docs = data.rows
+                  .filter(row => row.doc.type === 'walk')
+                  .map(row => {
+                    if (!row.doc.booked)row.doc.booked = {};
+                    if (!row.doc.annotations)row.doc.annotations = {};
+                    return row.doc});
 
     const filterPrevWalks = {
       startkey: "W"+docs[0].firstBooking,
@@ -45,7 +52,7 @@ export default function* (){
     docs = data.rows.filter(row => row.doc.type === 'walk').map(row => row.doc).concat(docs);
 
     yield put(walksDocsLoaded(docs));
-    // yield put({ type: 'WALK_DOCS_LOADED', docs: docs });
+    yield put(signinRequested('sandy', 'sandy'));
   };
 
   // try{

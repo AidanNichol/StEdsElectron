@@ -10,7 +10,8 @@
   },
   // React
   "plugins": [
-    "react"
+    "react",
+    # "no-unused-vars-rest"
   ],
   "ecmaFeatures": {
     "jsx": true,
@@ -19,6 +20,8 @@
   "extends": "eslint:recommended",
   // To give you an idea how to override rule options:
   "rules": {
+    # "no-unused-vars": 0,
+    # "no-unused-vars-rest/no-unused-vars": [2, {"ignoreDestructuredVarsWithRest": true}],
     "quotes": [0, "single"],
     "eol-last": [0],
     "no-mixed-requires": [0],

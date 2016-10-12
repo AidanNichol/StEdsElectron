@@ -7,6 +7,7 @@ import { call, take, select, put } from 'redux-saga/effects.js';
 import docUpdateSaga from '../sagas/docUpdateSaga.js';
 import {pushLog} from '../utilities/docLogging.js';
 import Logit from '../factories/logit.js';
+import path from 'path'
 var logit = Logit('color:white; background:black;', 'WalksDuck');
 
 import {now, getTodaysDate} from '../utilities/DateUtilities.js';
@@ -100,7 +101,8 @@ const WALK_SELECTED = 'walks/selected'
 //         Icon Component
 //---------------------------------------------------------------------
  export function Icon({type, className, ...rest}){
-   return <img className={className||''} {...rest} src={`/images/icon-${type}.svg`} />
+   const loc = path.resolve(__dirname, '../../images')
+   return <img className={className||''} {...rest} src={`${loc}/icon-${type}.svg`} />
  }
 
 //---------------------------------------------------------------------
@@ -191,7 +193,7 @@ export function* walksSaga(args){
       logit('waiting for','WALK_UPDATE_BOOKING' );
       let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING]);
       logit('took', action)
-      doer = yield select((state)=>state.logon.memId || '???');
+      doer = yield select((state)=>state.signin.memId || '???');
       let walk = yield select((state, walkId)=>state.walks.list[walkId], action.walkId);
       let newWalk = yield call(action.type === WALK_UPDATE_BOOKING ? updateBooking : annotateBooking, walk, action);
       if (newWalk)yield call(docUpdateSaga, newWalk, action);

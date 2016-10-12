@@ -15,11 +15,11 @@ import initialSaga from './sagas/initialSaga.js';
 
 import MainLayout from '../layouts/main-layout.js';
 const Home = ()=>(<div> ?? </div>)
-import MembersListContainer from '../containers/members-list-container.js';
-import BookingsContainer from '../containers/bookings-container.js';
-import BulkAddContainer from '../containers/bulkAdd-container.js';
-import BusListsContainer from '../containers/buslists-container.js';
-import PaymentsContainer from '../containers/Payments-container.js';
+import MembersListContainer from './components/containers/members-list-container.js';
+import BookingsContainer from './components/containers/bookings-container.js';
+import BulkAddContainer from './components/containers/bulkAdd-container.js';
+import BusListsContainer from './components/containers/buslists-container.js';
+import PaymentsContainer from './components/containers/Payments-container.js';
 
 // Provider is a top-level component that wrapps our entire application, including
 // the Router. We pass it a reference to the store so we can use react-redux's
@@ -36,19 +36,14 @@ ReactDom.render(
      <Route path="/" component={MainLayout} onEnter={()=>{sagaMiddleware.run(initialSaga); }}>
        <IndexRoute component={Home} />
 
-       <Route path="membersList/:id" component={MembersListContainer} />
-       <Route path="membersList" component={MembersListContainer} />
-       {/* <Route path="bulkadd/:id" component={BulkAddContainer}></Route> */}
+       <Route path="membersList(/:id)" component={MembersListContainer} />
        {isUserAuthorized([ 'bookings']) ?
-         <Route path="bulkadd" component={BulkAddContainer}>
-           <IndexRoute component={BulkAddContainer}/>
-           <Route path=":id" component={BulkAddContainer} />
-         </Route>
+         <Route path="bulkadd(/:id)" component={BulkAddContainer} />
           : null}
        {/* <Route path="bulkadd" component={BulkAddContainer} /> */}
-       <Route path="buslists/:id" component={BusListsContainer} />
+       <Route path="buslists(/:id)" component={BusListsContainer} />
        <Route path="payments" component={PaymentsContainer} />
-       <Route path="bookings/:id"  component={BookingsContainer} />
+       <Route path="bookings(/:id)"  component={BookingsContainer} />
      </Route>
    </Router>
  </Provider>,

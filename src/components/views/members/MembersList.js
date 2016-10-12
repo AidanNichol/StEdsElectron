@@ -8,17 +8,17 @@ import Paginator from './Paginator.js';
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
 import {Panel} from '../../utility/AJNPanel'
-import path from 'path';
+// import path from 'path';
 
 // import { Panel } from 'react-bootstrap';
-import { Button, OverlayTrigger, Tooltip, } from 'react-bootstrap';
+// import { Button, OverlayTrigger, Tooltip, } from 'react-bootstrap';
 
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'MemberList.jsx');
-const saveChanges = (values)=>{
-  logit('saveChanges', values);
-  membersEditSaveChanges({doc: values, origDoc: members});
-}
+// const saveChanges = (values)=>{
+//   logit('saveChanges', values);
+//   membersEditSaveChanges({doc: values, origDoc: members});
+// }
 const showResults = values =>{
   logit('showResults', values)
   new Promise(resolve => {
@@ -34,8 +34,13 @@ class Memberslist extends React.Component {
 
   render() {
     logit ('props', this.props);
-    var {currentPage, dispStart, dispLength, member, displayMember, sortProp, showEditMemberModal, showModal, allList, memberAdmin} = this.props;
-    var {membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember, membersListToggleShowModal, setShowEditMemberModal, membersEditSaveChanges} = this.props.actions;
+    // var {currentPage, dispStart, dispLength, member, displayMember, sortProp, showEditMemberModal, showModal, allList, memberAdmin} = this.props;
+    // var {membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember, membersListToggleShowModal, setShowEditMemberModal, membersEditSaveChanges} = this.props.actions;
+    var {currentPage, dispStart, dispLength, member, displayMember, sortProp,
+        showEditMemberModal, showModal, allList, memberAdmin,
+        membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember,
+        membersListToggleShowModal, setShowEditMemberModal, membersListPrint,
+        createNewMember, membersEditSaveChanges} = this.props;
 
     dispStart = (currentPage - 1) * dispLength
 
@@ -62,11 +67,10 @@ class Memberslist extends React.Component {
 
     var title = (<h4>Membership Lists</h4>);
     return (
-      <div style={{margin: 20}} >
+      <div style={{margin: "0 10px 0 10px"}} >
       <link rel="stylesheet" href="less/memberlist-grid.less" />
       <link rel="stylesheet" href="less/showMember.less" />
-      <link rel="stylesheet" href="less/util.css" />
-      <Panel header={title} bsStyle="info" className="member-list">
+      <Panel header={title} className="member-list" id="steds_memberlist">
           <div className="list-index" hidden={showEditMemberModal}>
             {/* <ButtonGroup className='buttons'> */}
               <TooltipButton key="name"  className={sortProp === 'name' ? 'active' : ''} onClick={()=>membersListSetSortBy('name')}>sort by Name</TooltipButton>
@@ -84,17 +88,11 @@ class Memberslist extends React.Component {
           {/* } */}
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
           <span className="button1" hidden={showEditMemberModal}>
-            <OverlayTrigger placement='right' showModal={showModal} toggleShowModal={membersListToggleShowModal} overlay={<Tooltip id='PrintMemberList'>Print Membership List <br/>(Sorted by {sortProp})</Tooltip>}>
-              <Button href={'http://steds.dev/server/memberListPDF.php?sort=' + sortProp} target='_blank' >
-              <img src={'file:///www/sites/StedsElectron/svgs/Printer.svg'} />
-                {/* <svg role="img"><use xlinkHref="#Printer"/></svg> */}
-              </Button>
-            </OverlayTrigger>
-
+              <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
+                (Sorted by ${sortProp})`} icon="Printer" />
           </span>
-          {/*<TestModal />*/}
           <span className="button2" hidden={showEditMemberModal}>
-            <TooltipButton img="file:///www/sites/StEdsElectron/svgs/user-add.svg" onClick={()=>this.props.createNewMember()} tiptext='Create a New Member' visible/>
+            <TooltipButton icon="user-add" onClick={()=>createNewMember()} tiptext='Create a New Member' visible/>
           </span>
 
       </Panel>

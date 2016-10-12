@@ -1,101 +1,113 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-.show-member-details {
-  // display: table-cell;
-  // margin-right: 10px;
-  width: 500px;
-  position: relative;
+#steds_memberlist {
+  .show-member-details {
+    // display: table-cell;
+    // margin-right: 10px;
+    width: 500px;
+    position: relative;
 
-  .form-line {
-    display: table-row;
-    height: 30px;
-    margin-top: 5px;
-    .item-label{
-      display:table-cell;
-    }
-    .item-input{
-      display: table-cell;
-    }
-    span:nth-child(1) {
-      /* padding-top: 5px;
-      vertical-align: top; */
-      background-color: #ccc;
-      color: #444;
-      padding-right: 10px;
-      text-align: right;
-      vertical-align: top;
-      width: 85px;
-    }
+    .form-line {
+      display: table-row;
+      height: 30px;
+      margin-top: 5px;
 
-    span:nth-child(2) {
-      font-size: 1.2em;
-      padding-left: 10px;
-      /* margin-bottom: 5px;
-      margin-top: 10px; */
-      /* width: 300px; */
-      /* border: inset 2px rgb(238, 238, 238); */
-    }
-    button{
-      font-size: 13px;
-    }
-    .item-value {
-      &.due {
-        background-color: #ff6;
+      .item-label {
+        display: table-cell;
       }
 
-      &.late {
-        background-color: #f66;
+      .item-input {
+        display: table-cell;
+      }
+
+      span:nth-child(1) {
+        /* padding-top: 5px;
+        vertical-align: top; */
+        background-color: #ccc;
+        color: #444;
+        padding-right: 10px;
+        text-align: right;
+        vertical-align: top;
+        width: 85px;
+      }
+
+      span:nth-child(2) {
+        font-size: 1.2em;
+        padding-left: 10px;
+        // /* margin-bottom: 5px;
+        // margin-top: 10px; */
+        // /* width: 300px; */
+        // /* border: inset 2px rgb(238, 238, 238); */
+      }
+
+      button {
+        font-size: 13px;
+      }
+
+      .item-value {
+        &.due {
+          background-color: #ff6;
+        }
+
+        &.late {
+          background-color: #f66;
+        }
       }
     }
-
   }
-}
 
-.member-list {
-  button, a[type='button'] {
+  button,
+  a[type='button'] {
     img {
       height: 40px;
     }
 
     padding: 5px 8px;
   }
-}
 
-.addNewMember {
-  float: right;
-}
+  .addNewMember {
+    float: right;
+  }
 
-.pagination {
+  .pagination {
     margin-bottom: 10px;
     margin-right: 20px;
     margin-top: 15px;
-}
+  }
 
-.pagination > li > span {
-    padding: 3px 0px;
+  .pagination > li > span {
+    padding: 3px 0;
     line-height: 1;
     text-align: center;
     min-height: 36px;
     display: inline-block;
-}
+  }
 
-.by-name {
-    >li >span {width: 25px;}
-    >li:first-child >span,
-    >li:last-child >span {width: 20.5px;}
-}
+  .by-name {
+    > li > span {
+      width: 25px;
+    }
 
-.by-id {
-    >li >span {width: 29px;}
-    >li:first-child >span,
-    >li:last-child >span {width: 20.5px;}
-}
+    > li:first-child > span,
+    > li:last-child > span {
+      width: 20.5px;
+    }
+  }
 
-.clue {
-  font-size: 0.6em;
-  line-height: 0.8;
-}
-.member-list {
-  // display: table-row;
+  .by-id {
+    > li > span {
+      width: 29px;
+    }
+
+    > li:first-child > span,
+    > li:last-child > span {
+      width: 20.5px;
+    }
+  }
+
+  .clue {
+    font-size: 0.6em;
+    line-height: 0.8;
+  }
 
   .list-line {
     margin-right: 20px;
@@ -106,7 +118,7 @@
     }
 
     &.current {
-      background-color: #66CCFF;
+      background-color: #6cf;
       color: white;
       border: thin solid black;
     }
@@ -144,5 +156,4 @@
   .list-details {
     display: table-cell;
   }
-
 }

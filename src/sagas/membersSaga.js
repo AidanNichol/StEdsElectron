@@ -1,19 +1,21 @@
-import Logit from '../factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'EditMemberData.js');
+import Logit from '../factories/logit';
+var logit = Logit('color:yellow; background:cyan;', 'members:saga');
 import * as i from 'icepick';
 import {uniq} from 'ramda';
 
-// import db from '../services/bookingsDB.js';
-import docUpdateSaga from '../sagas/docUpdateSaga.js';
+// import db from '../services/bookingsDB';
+import docUpdateSaga from '../sagas/docUpdateSaga';
+import {actions} from '../ducks/memberslist-duck';
 
-import { call, put, take, select } from 'redux-saga/effects.js';
+import { call, put, take, select } from 'redux-saga/effects';
 
 export default function* membersSaga(){
 
 
   // try{
     while(true){ // eslint-disable-line no-constant-condition
-      let action = yield take('MEMBER_EDIT_SAVE_CHANGES');
+      // let action = yield take('MEMBER_EDIT_SAVE_CHANGES');
+      let action = yield take(actions.SAVE_CHANGES);
       let {doc:{_delete, _deleted, ...doc}, origDoc} = action.payload;
       logit('MEMBER_EDIT_SAVE_CHANGES', {_delete, _deleted, doc, origDoc})
       if (!doc.accountId){ // new member - create account
@@ -62,10 +64,13 @@ export default function* membersSaga(){
       logit('update', 'done')
       // if (!res.ok) yield put({ type: 'MEMBER_SAGA_FAILED', res});
       // console.log('res', res);
-      yield put({type: 'MEMBERS_EDIT_SETSHOWMODAL', payload: false});
+      // yield put({type: 'MEMBERS_EDIT_SETSHOWMODAL', payload: false});
+      yield put({type: actions.SET_EDIT_MODE, payload: false});
 
-      yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: 'M9001'});
-      yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: doc._deleted ? undefined : doc.memberId});
+      // yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: 'M9001'});
+      // yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: doc._deleted ? undefined : doc.memberId});
+      yield put({type: actions.DISPLAYED_MEMBER, payload: 'M9001'});
+      yield put({type: actions.DISPLAYED_MEMBER, payload: doc._deleted ? undefined : doc.memberId});
     }
 
 

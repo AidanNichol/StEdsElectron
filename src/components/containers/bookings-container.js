@@ -6,6 +6,7 @@ import Bookings from '../views/bookings/Bookings.js';
 // import * as actions from '../actions/walks-actions.js';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, request} from '../../ducks/walksDuck'
+import {actionCreators as mlActionCreators} from '../../ducks/memberslist-duck'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
@@ -44,7 +45,12 @@ function mapDispatchToProps(dispatch) {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
     walkCancelBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType+'X')),
     // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
-    accountSelected: (acc)=>{ logit('accountSelected', acc.value);browserHistory.push('/bookings/'+acc.value)},
+    // accountSelected: (acc)=>{ logit('accountSelected', acc.value);browserHistory.push('/bookings/'+acc.value)},
+    accountSelected: (acc)=>{
+            logit('accountSelected', acc);
+            dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
+            browserHistory.push('/bookings');
+          },
     accountUpdatePayment: bindActionCreators((accId, amount)=>({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount}), dispatch),
     annotateOpenDialog: (...args)=>dispatch(annotateOpenDialog(...args)),
   }
@@ -52,13 +58,16 @@ function mapDispatchToProps(dispatch) {
 
 
 const mapStateToProps = function(store, props) {
+  const getAccId = (id)=>id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
   // get the data for the select name component
   let members = getSortedMemebersList(store);
   logit('params', props)
-  const id = props.params.id;
-  let currentAccId = id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined);
+  // const id = props.params.id;
+  // let currentAccId = id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined);
+  // let currentAccId = id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
+  let currentAccId = getAccId(props.params.id) || getAccId(store.membersList.displayMember)
   // let currentAccId = (id && id[0]) === 'M' ? store.members[id].accountId : id;
-  let options = members.map(member=>({value: member.accountId, label: `${member.lastName}, ${member.firstName}`}));
+  let options = members.map(member=>({value: member.accountId, memId: member._id, label: `${member.lastName}, ${member.firstName}`}));
   let accountCurrent = currentAccId ? store.accounts.list[currentAccId] : {};
   let accountMembers = accountCurrent.members ? accountCurrent.members : [];
   // logit('acMem', accountMembers, store.accounts.current);
@@ -95,6 +104,7 @@ const mapStateToProps = function(store, props) {
             // listByName: ['membersList', 'listByName'],
             // membersList: store.membersList,
       };
+
 
 }
 
