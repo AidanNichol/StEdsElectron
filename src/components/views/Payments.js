@@ -68,7 +68,7 @@ export default function Payments(props){
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>
         </div>
         {
-          debts.map((data) => <MemberBill data={data} key={data.accId} {...{accountUpdatePayment}}/>)
+          debts.map((data) => {console.log('payment', data);return <MemberBill data={data} key={data.accId} {...{accountUpdatePayment}}/>})
         }
       </div>
     </Panel>
