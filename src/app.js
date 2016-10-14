@@ -30,7 +30,7 @@ app.on('ready', ()=>{
     // installExtension(POUCHDB_INSPECTOR)
     // .then((name) => console.log(`Added Extension:  ${name}`))
     // .catch((err) => console.log('An error occurred: ', err));
-    mainWindow.openDevTools();
+    // mainWindow.openDevTools();
   // }
 
   mainWindow.loadURL('file://'+__dirname+'/index.tpl.html');
