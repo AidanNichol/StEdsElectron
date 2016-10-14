@@ -4,6 +4,7 @@ import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
 import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
 import {signinRequested} from '../ducks/signin-duck'
+import {setPage} from '../ducks/router-duck.js';
 
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'InitialSaga');
@@ -64,9 +65,7 @@ export default function* (){
       put({type:'LOAD_WALKS_TABLE'}),
       call(loadWalks),
     ]
-    // yield put({type: 'INITIAL_LOAD_COMPLETED'});
-    // yield put(logonRequested('sandy', 'sandy'));
-    yield put({type: 'ACCOUNT_SELECTED', value: 'A992', label: 'Mary Johnson'});
+    // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
     yield call(actions.initialLoadCompleted);
 
   // } catch(error){

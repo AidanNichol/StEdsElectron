@@ -35,7 +35,6 @@ function MemberBill(props){
         <div className='walk-detail' key={bkng.dat}>{bkng.dispDate} {bkng.text} </div>
     );
     return (<div className="debtor" >
-              <link rel="stylesheet" href="less/payments.less" />;
               <div className="overview">
                 <span className="who"> {data.accName}</span>
                 {/*<span className="owed">£{(-data.balance).toFixed(2)}</span>*/}

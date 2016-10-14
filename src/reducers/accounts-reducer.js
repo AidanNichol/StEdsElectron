@@ -1,6 +1,6 @@
 import * as i from 'icepick';
 import Logit from '../factories/logit.js';
-import { browserHistory } from 'react-router'
+import {setPage} from '../ducks/router-duck.js';
 var logit = Logit('color:white; background:black;', 'AccountsReducer');
 
   export default function(state = {list: {}, current:{}}, action) {
@@ -24,11 +24,11 @@ var logit = Logit('color:white; background:black;', 'AccountsReducer');
       return i.set(state, 'current', action.value);
       // return state.set('current', action.value);
 
-    case 'ACCOUNT_SELECTED_SHOW_BOOKINGS':
-      logit('action', action, state.list);
-      browserHistory.push('/bookings')
-      return i.set(state, 'current', action.value);
-      // return state.set('current', action.value);
+    // case 'ACCOUNT_SELECTED_SHOW_BOOKINGS':
+    //   logit('action', action, state.list);
+    //   dispatch(setPage({page:'bookings', accountId: action.value}));
+    //   return i.set(state, 'current', action.value);
+    //   // return state.set('current', action.value);
 
     }
     return state;

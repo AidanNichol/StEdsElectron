@@ -105,6 +105,7 @@ let EditMemberData = (props)=>{
             handleSubmit,
             reset,
             formValues,
+            newMember,
             // subsDueForYear, __subsStatus,
            } = props;
     const {firstName, lastName, subscription, memberStatus, suspended, _delete, } = formValues||{};
@@ -189,11 +190,11 @@ let EditMemberData = (props)=>{
           </div>
           <div className="form-line">
               <label className="item-label">Member Id</label>
-              <Field name="memberId" component={renderField} disabled="true" type="text"  />
+              <Field name="memberId" component={renderField} disabled={!newMember} type="text"  />
           </div>
           <div className="form-line">
               <label className="item-label">Account Id</label>
-              <Field component={renderField} name="accountId" disabled="true" type="text"  />
+              <Field component={renderField} name="accountId" disabled={!newMember} type="text"  />
           </div>
           <div className="form-line">
               <label className="item-label">Status</label>
@@ -220,7 +221,7 @@ const selector = formValueSelector('EditMemberData');
 const mapStateToProps = function mapStateToProps(state, props){
   // let subsDue = getSubsDue();
   // let subsLate = getSubsLate();
-  let  {member, other} = props;
+  let  {member, other, newMember} = props;
   const formValues = getFormValues('EditMemberData')(state);
   // const subs = ( formValues && formValues.subscription) || member.subscription;
   member = member ? i.thaw(member) : {};
@@ -231,6 +232,7 @@ const mapStateToProps = function mapStateToProps(state, props){
     // __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
     // __subsDue: !(member && subs === subsDue ),
     enableReinitialize: true,
+    newMember,
     ...other,
     member,
     formValues,

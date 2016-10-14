@@ -8,27 +8,40 @@ const logit = Logit('color:white; background:blue;', 'Router');
 //---------------------------------------------------------------------
 export const SET_PAGE = 'SET_PAGE';
 export const SET_USER = 'SET_USER';
+export const ROUTER_INITIALIZED = 'ROUTER_INITIALIZED';
 
 //---------------------------------------------------------------------
 //          Action Creators
 //---------------------------------------------------------------------
 
-export const setPage = (page) => ({type: SET_PAGE, page});
-export const setUser = (user) => ({type: SET_USER, user});
+export const setPage = (payload) => ({type: SET_PAGE, ...payload});
+export const setUser = (user, account) => ({type: SET_USER, user, account});
+export const routerInitialized = () => ({type: SET_USER});
 
 
 //---------------------------------------------------------------------
 //          Reducers
 //---------------------------------------------------------------------
-
-const defaultState = i.freeze({page: null, memberId: null, accountId: null});
+export var defaultState = (localStorage.getItem('stEdsRouter') ? JSON.parse(localStorage.getItem('stEdsRouter'))
+        : {page: null, memberId: null, accountId: null, initialized: false, walkId: null});
+        
+const setAndSaveState = (state, payload)=>{
+  let newState = i.assign(state, payload);
+  localStorage.setItem('stEdsRouter', JSON.stringify(newState));
+  logit('toLocalStorage', newState)
+  return newState;
+}
 // export function reducer(state = {page: null, memberId: null, accountId: null}, action) {
 export function reducer(state = defaultState, action) {
-  switch(action.type) {
-    case SET_PAGE :
-      return i.set(state, 'page', action.page);
+  let {type, ...payload}  = action;
+  logit('action', {type,payload,action})
+  switch(type) {
+    case SET_PAGE:
+      return setAndSaveState(state, payload);
     case SET_USER:
-      return i.set(state, 'memberId', action.user);
+      return setAndSaveState(state, {memberId: action.user, accountId: action.account});
+    case ROUTER_INITIALIZED:
+      return i.set(state, 'initialized', true);
   }
   return state;
 }

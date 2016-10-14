@@ -46,7 +46,7 @@ console.log('PouchDB created', db);
 db.info().then(function(info) {console.info('Bookings Info', info);});
 
 PouchDB.debug.disable();
-PouchDB.debug.enable('pouchdb:*');
+// PouchDB.debug.enable('pouchdb:*');
 import pouchSeed from 'pouchdb-seed-design';
 import ddoc from '../services/designDocs'
 

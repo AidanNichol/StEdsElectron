@@ -1,8 +1,7 @@
 // import React from 'react';
 import { connect } from 'react-redux';
 import BulkAdd from '../views/BulkAdd.js';
-import { browserHistory } from 'react-router'
-// import {accountSelected} from '../actions/accounts-actions.js';
+import {setPage} from '../../ducks/router-duck.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
 import {updateWalkBookings, request} from '../../ducks/walksDuck'
@@ -83,7 +82,7 @@ const getWaitingList = createSelector(
 // );
 function mapDispatchToProps(dispatch) {
   return {
-    setCurrentWalk: (walkId)=>{ browserHistory.push('/bulkAdd/'+walkId)},
+    setCurrentWalk: (walkId)=>{ dispatch(setPage({page: 'bulkadd', walkId}))},
     // setCurrentWalk: (walkId)=>{dispatch({type: 'WALK_SELECTED', walkId});},
     // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
     memSelected: (datum)=>{
@@ -101,7 +100,7 @@ function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = function(state, prps) {
   // get the data for the select name component
-  const id = prps.params.id;
+  const id = state.router.walkId;
   let currentWalk = (id && id[0]) === 'W' ? id : state.walks.bookable[0];
   logit('prps', prps, id, currentWalk)
   // let currentWalk = state.walks.current;

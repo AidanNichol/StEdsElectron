@@ -4,7 +4,7 @@ import React from 'react';
 import SelectWalk from '../utility/SelectWalk.js';
 
 // import {Panel as MyPanel} from '../utility/Panel.js';
-import {Panel, Button, Glyphicon} from 'react-bootstrap';
+import {Panel } from 'react-bootstrap';
 
 
 import Logit from '../../factories/logit.js';
@@ -22,8 +22,8 @@ export default function BusLists(props){
         {
           props.cars.map((bkng)=>
           <div className="member" key={bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>
-          <span className="bName">{bkng.name}</span><span className='annotation'>{bkng.annotation}</span>
-          <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></Button>
+          <span className="bName">{bkng.name} <span className='annotation' style={{float: 'right'}}>{bkng.annotation} </span></span>
+          <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
           </div>
         )
       }
@@ -36,30 +36,32 @@ export default function BusLists(props){
         <h4>Waiting List</h4>
         <div header='Added Members' className="waiting-list">
           {
-            props.ist.map((bkng)=>{
-                return (<div key={bkng.memId} className="member">
-                  <span className="pos">{pos++}. </span><span className="wName">{bkng.name}</span>
-                  <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>convertToBooking(bkng.memId, walkId)} ><Glyphicon glyph="ok" /></Button>
-                  <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></Button>
+            props.list.map((bkng)=>{
+                return (<div key={bkng.memId} className="member"   onClick={()=>showMemberBookings(bkng.memId)}>
+                  <span className="pos">{pos++}. </span><span className="wName">{bkng.name} </span>
+                  <button type="button" style={{lineHeight: 0.9, fontSize: '80%'}} onClick={()=>convertToBooking(bkng.memId, walkId)} >✅ </button>
+                  <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
                 </div> )           })
           }
         </div>
 
       </section>)
+
+     // {/* Ballot box with check
+      //   Unicode: U+2611 U+FE0F, UTF-8: E2 98 91 EF B8 8F */}
     var title = (<h4>Bus List</h4>);
     var pos = 1;
     // const showMemberBookings = ()=>{};
     return (
       <Panel header={title} bsStyle="info" className="bus-list">
-        <link rel="stylesheet" href="less/busList.less" />;
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
         <div header='Added Members' className="booked-members">
           {
             bookings.map((bkng)=>
               <div className="member" key={bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>
-                <span className="bName">{bkng.name}</span><span className='annotation'>{bkng.annotation}</span>
-                <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></Button>
+                <span className="bName">{bkng.name} <span style={{float: 'right'}} className='annotation'>{bkng.annotation}</span></span>
+                <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
               </div>
             )
           }
@@ -73,7 +75,7 @@ export default function BusLists(props){
             cars.map((bkng)=>
               <div className="member" key={bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>
                 <span className="bName">{bkng.name}</span><span className='annotation'>{bkng.annotation}</span>
-                <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></Button>
+                <button type="button" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></button>
               </div>
             )
           }
@@ -84,8 +86,8 @@ export default function BusLists(props){
             waitingList.map((bkng)=>{
                 return (<div key={bkng.memId} className="member">
                   <span className="pos">{pos++}. </span><span className="wName">{bkng.name}</span>
-                  <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>convertToBooking(bkng.memId, walkId)} ><Glyphicon glyph="ok" /></Button>
-                  <Button type="button" bsSize="xsmall" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></Button>
+                  <button type="button" style={{lineHeight: 1}} onClick={()=>convertToBooking(bkng.memId, walkId)} ><Glyphicon glyph="ok" /></button>
+                  <button type="button" style={{lineHeight: 1}} onClick={()=>cancelBooking(bkng.memId, walkId)} ><Glyphicon glyph="remove" /></button>
                 </div> )           })
           }
         </div>*/}

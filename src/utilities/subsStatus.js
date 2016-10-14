@@ -3,9 +3,9 @@
 
 
 export const getSubsStatus = (doc)=>{
-  let status = 'OK';
+  let status = 'ok';
   if (doc.memberStatus === "HLM") return {due: false, status};
-  if (doc.memberStatus === "Guest") return {due: false, status};
+  if (doc.memberStatus === "Guest") return {due: false, status: 'guest'};
 
   const currentUserSubs = parseInt(doc.subscription || 0);
 

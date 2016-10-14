@@ -89,10 +89,6 @@
         padding-bottom: 20px;
       }
 
-      &.suspended {
-        background-color: red;
-      }
-
       &.bookingcell {
         font-size: 1.5em;
         padding-bottom: 0;
@@ -143,28 +139,10 @@
           span:hover {
             background-color: #eada88;
           }
-
-          // .fa-stack-1x {
-          //   top: 0;
-          // }
-          //
-          // .fa-stack-2x {
-          //   left: 0;
-          //   top: 5px;
-          //   font-size: 1.3em;
-          // }
         }
       }
     }
   }
-
-  // .fa-close {
-  //   color: red;
-  // }
-  //
-  // .fa-check {
-  //   color: green;
-  // }
 
   .bookings {
     h5 {
@@ -178,23 +156,35 @@
 
   .heading {
     .suspended {
-      .watermark('Member Suspended'; red; @opacity: 0.6; @transform: rotate(-30deg);)
+      .watermark('Suspended'; red; @opacity: 0.2; @fontSize: 250%; @transform: rotate(-70deg); @left: 2%)
+    }
+
+    .guest {
+      .watermark('Guest'; blue; @opacity: 0.2; @transform: rotate(-70deg); @left: -10%)
+    }
+
+    .due {
+      .watermark('Subs Due .'; green; @fontSize: 250%; @opacity: 0.2; @transform: rotate(-70deg); @left: 2%)
+    }
+
+    .late {
+      .watermark('Subs Late .'; blue; @fontSize: 250%; @opacity: 0.2; @transform: rotate(-70deg); @left: 2%;)
     }
   }
 
-  .bookingForm {
-    &.suspended tbody {
-      .watermark ('Member Suspended'; red; @opacity: 0.6; @transform: rotate(-30deg);)
-    }
-
-    &.guest:not(.suspended) tbody {
-      .watermark( 'Guest'; blue; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
-    }
-
-    &.late:not(.suspended):not(.guest) tbody {
-      .watermark ('Subs Late'; red; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
-    }
-  }
+  // .bookingForm {
+  //   &.suspended tbody {
+  //     .watermark ('Member Suspended'; red; @opacity: 0.6; @transform: rotate(-30deg);)
+  //   }
+  //
+  //   &.guest:not(.suspended) tbody {
+  //     .watermark( 'Guest'; blue; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
+  //   }
+  //
+  //   &.late:not(.suspended):not(.guest) tbody {
+  //     .watermark ('Subs Late'; red; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
+  //   }
+  // }
 }
 
 // label.cross::before {

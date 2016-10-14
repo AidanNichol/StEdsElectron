@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="24" height="24" viewBox="0, 0, 24, 24">
+  <g id="icon-WX" transform="translate(0, 0)">
+    <g>
+      <path d="M12.5,7 L11,7 L11,13 L16.25,16.15 L17,14.92 L12.5,12.25 z" fill="#000000"/>
+      <path d="M11.99,2 C6.47,2 2,6.48 2,12 C2,17.52 6.47,22 11.99,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 11.99,2 z M12,20 C7.58,20 4,16.42 4,12 C4,7.58 7.58,4 12,4 C16.42,4 20,7.58 20,12 C20,16.42 16.42,20 12,20 z" fill="#000000"/>
+      <g>
+        <path d="M5.375,3 L22.125,20.25" fill-opacity="0" stroke="#FFFFFF" stroke-width="1"/>
+        <path d="M3.5,3 L19.75,20.625" fill-opacity="0" stroke="#EF0303" stroke-width="3"/>
+      </g>
+    </g>
+  </g>
+</svg>

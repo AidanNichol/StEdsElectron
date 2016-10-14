@@ -1,7 +1,7 @@
 // import React from 'react';
 import * as i from 'icepick';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router'
+import {setPage} from '../../ducks/router-duck.js';
 import {getBookingsSummary} from '../../ducks/walksDuck'
 
 import BusLists from '../views/BusLists.js';
@@ -66,9 +66,9 @@ const getWaitingList = createSelector(
 function mapDispatchToProps(dispatch) {
   return {
     // setCurrentWalk: (walkId)=>{dispatch({type: 'WALK_SELECTED', walkId});},
-    setCurrentWalk: (walkId)=>{ browserHistory.push('/buslists/'+walkId)},
+    setCurrentWalk: (walkId)=>{ dispatch(setPage({page: 'buslists', walkId}))},
     // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
-    showMemberBookings: (memId)=>{browserHistory.push('/bookings/'+memId)},
+    showMemberBookings: (memId)=>{dispatch(setPage({page: 'bookings', memberId: memId, accountId: null}))},
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(changeWalkDoc(walkId, accId, memId, reqType)),
     cancelBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.CANCELLED)),
     convertToBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.booked)),
@@ -76,11 +76,11 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-const mapStateToProps = function(state, prps) {
+const mapStateToProps = function(state) {
   // get the data for the select name component
-  const id = prps.params.id;
+  const id = state.router.walkId;
   let walkId = (id && id[0]) === 'W' ? id : state.walks.bookable[0];
-  logit('prps', prps, id, walkId)
+  logit('prps',  id, walkId)
   // let walkId = state.walks.current;
   let members = getSortedMemebersList(state);
   let reqType = state.controller.addToWaitList ? request.WAITLIST : request.BOOKED;

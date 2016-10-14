@@ -1,14 +1,15 @@
 // import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { browserHistory } from 'react-router'
 import Bookings from '../views/bookings/Bookings.js';
+import {setPage} from '../../ducks/router-duck.js';
 // import * as actions from '../actions/walks-actions.js';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, request} from '../../ducks/walksDuck'
 import {actionCreators as mlActionCreators} from '../../ducks/memberslist-duck'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
+import {getSubsStatus} from '../../utilities/subsStatus'
 import { createSelector } from 'reselect'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');
@@ -44,12 +45,10 @@ function mapDispatchToProps(dispatch) {
   return {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
     walkCancelBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType+'X')),
-    // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
-    // accountSelected: (acc)=>{ logit('accountSelected', acc.value);browserHistory.push('/bookings/'+acc.value)},
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
             dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
-            browserHistory.push('/bookings');
+            dispatch(setPage({page:'bookings', memberId: acc.memId, accountId: acc.accountId}));
           },
     accountUpdatePayment: bindActionCreators((accId, amount)=>({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount}), dispatch),
     annotateOpenDialog: (...args)=>dispatch(annotateOpenDialog(...args)),
@@ -57,15 +56,14 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-const mapStateToProps = function(store, props) {
+const mapStateToProps = function(store) {
   const getAccId = (id)=>id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
   // get the data for the select name component
   let members = getSortedMemebersList(store);
-  logit('params', props)
   // const id = props.params.id;
   // let currentAccId = id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined);
   // let currentAccId = id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
-  let currentAccId = getAccId(props.params.id) || getAccId(store.membersList.displayMember)
+  let currentAccId = getAccId(store.router.memberId) || getAccId(store.membersList.displayMember)
   // let currentAccId = (id && id[0]) === 'M' ? store.members[id].accountId : id;
   let options = members.map(member=>({value: member.accountId, memId: member._id, label: `${member.lastName}, ${member.firstName}`}));
   let accountCurrent = currentAccId ? store.accounts.list[currentAccId] : {};
@@ -73,8 +71,11 @@ const mapStateToProps = function(store, props) {
   // logit('acMem', accountMembers, store.accounts.current);
   // get the names of the members using this account
   let accNames = accountMembers.map((memId)=>{
-    return {memId: memId, firstName: store.members[memId].firstName, lastName: store.members[memId].lastName, suspended: store.members[memId].suspended}
+    let mem = store.members[memId];
+    const subsStatus = getSubsStatus(mem); // {due: true, year: 2016, fee: 15, status: 'late'}
+    return {memId: memId, firstName: store.members[memId].firstName, lastName: store.members[memId].lastName, suspended: store.members[memId].suspended, subs: subsStatus.status}
   });
+
   // get the data for all the current walks
   let walks = (store.walks.bookable||[]).map((walkId)=>{
       let walk = store.walks.list[walkId];

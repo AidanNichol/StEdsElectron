@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import MembersList from '../views/members/MembersList.js';
 // import * as actions from '../../actions/membersList-actions.js';
 import {actionCreators} from '../../ducks/memberslist-duck';
+import {setPage} from '../../ducks/router-duck.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
 
@@ -56,26 +57,30 @@ const newMember = createSelector(
 );
 
 function mapDispatchToProps(dispatch) {
-  // return {
-  //   createNewMember: ()=>(dispatch({type: 'MEMBERLIST_CREATE_NEW_MEMBER'})),
-  // }
-  return bindActionCreators(actionCreators, dispatch);
+  let actions = bindActionCreators(actionCreators, dispatch);
+  let membersListSetDisplayedMember = actionCreators.membersListSetDisplayedMember;
+  actions.membersListSetDisplayedMember = (memId)=>{
+    dispatch(membersListSetDisplayedMember(memId));
+    dispatch(setPage({page: 'membersList', memberId: memId, accountId: null}));
+  }
+
+  return actions;
+  // return bindActionCreators(actionCreators, dispatch);
 }
 const mapStateToProps = function(store) {
   var members = store.members;
-  // var coll = new Intl.Collator();
-  // var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
-  // var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
-  // var cmp = (store.membersList.sortProp === 'name' ? compareNames : compareIds);
-  // logit('members', members);
-  // var allList = Object.keys(members).sort(cmp).map((id)=>members[id]);
   let allList = getSortedMembersList(store);
-  var member;
+  var member, id;
   if (store.membersList.displayMember === 'new') member= newMember(store);
-  // if (store.membersList.displayMember) member = members[store.membersList.displayMember];
-  else if (store.membersList.displayMember) member = members[store.membersList.displayMember];
-  else member = store.membersList.displayMember;
-
+  else {
+    id = store.membersList.displayMember || store.router.memberId || members[0].memberId;
+    // store.membersList.displayMember = id;
+    member = members[id];
+  }
+  //  if (store.membersList.displayMember) member = members[store.membersList.displayMember];
+  // else if (store.router.memberId) member = members[store.router.memberId];
+  // else member = store.membersList.displayMember;
+logit('whatt!!', store.router, store.membersList.displayMember, id)
   var props = {
             members: store.members,
             ...store.currentMember,
@@ -84,15 +89,16 @@ const mapStateToProps = function(store) {
             allList,
             newMemberTemplate,
             member,
+            displayMember: id,
             // actions,
             memberAdmin: isUserAuthorized(['membership', 'bookings']),
             // listByName: ['membersList', 'listByName'],
             // membersList: store.membersList,
       };
-    if (allList.length > 0 && !props.displayMember) {
-      props.displayMember = allList[0].memberId;
-      props.member=allList[0];
-    }
+    // if (allList.length > 0 && !props.displayMember) {
+    //   props.displayMember = allList[0].memberId;
+    //   props.member=allList[0];
+    // }
     logit('container', store, props);
     return props;
 

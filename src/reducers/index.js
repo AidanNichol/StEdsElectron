@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { routerReducer } from 'react-router-redux'
+// import { routerReducer } from 'react-router-redux'
 import {reducer as formReducer} from 'redux-form';
 // import {properCaseName, properCaseAddress, normalizePhone} from '../components/utility/normalizers.js';
 
@@ -13,6 +13,7 @@ import currentMember from '../reducers/currentMember-reducers.js';
 import {reducer as signinReducer } from '../ducks/signin-duck.js';
 import controller from '../reducers/controller-reducers.js';
 import replicator from '../ducks/replication-duck.js';
+import {reducer as router} from '../ducks/router-duck.js';
 console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
@@ -24,18 +25,10 @@ var reducers = combineReducers({
     currentMember,
     signin: signinReducer,
     replicator,
-    routing: routerReducer,
+    router,
+    // routing: routerReducer,
     // form: form,
     form: formReducer
-    // .normalize({
-    //
-    //   EditMemberData: {                                    // <--- name of the form
-    //     // firstName: properCaseName,
-    //     lastName: properCaseName,
-    //     // // address: properCaseAddress,
-    //     phone: normalizePhone,                          // normalizer for 'phone' field
-    //   }
-    // })
     .plugin({
       EditMemberData: (state, action) => { // <------ 'account' is name of form given to reduxForm()
       switch(action.type) {

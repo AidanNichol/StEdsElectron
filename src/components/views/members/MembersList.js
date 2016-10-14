@@ -37,7 +37,7 @@ class Memberslist extends React.Component {
     // var {currentPage, dispStart, dispLength, member, displayMember, sortProp, showEditMemberModal, showModal, allList, memberAdmin} = this.props;
     // var {membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember, membersListToggleShowModal, setShowEditMemberModal, membersEditSaveChanges} = this.props.actions;
     var {currentPage, dispStart, dispLength, member, displayMember, sortProp,
-        showEditMemberModal, showModal, allList, memberAdmin,
+        showEditMemberModal, showModal, allList, memberAdmin, newMember,
         membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember,
         membersListToggleShowModal, setShowEditMemberModal, membersListPrint,
         createNewMember, membersEditSaveChanges} = this.props;
@@ -84,7 +84,7 @@ class Memberslist extends React.Component {
             {members}
           </div>
           {/* {!displayMember? null : */}
-            <EditMemberData {...{member, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}} onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}/>
+            <EditMemberData {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}} onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}/>
           {/* } */}
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
           <span className="button1" hidden={showEditMemberModal}>

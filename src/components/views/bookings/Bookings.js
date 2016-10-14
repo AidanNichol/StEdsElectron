@@ -10,8 +10,6 @@ import {request, Icon} from '../../../ducks/walksDuck'
 import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
 import {AnnotateBooking} from './annotateBooking'
 // import ChangeLog from '..//utility/ChangeLog.js';
-import path from 'path'
-// var AJNLogging = require('../utilities/utility').AJNLogging;
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'bookings');
 
@@ -48,11 +46,12 @@ var Bookings = React.createClass({
     };
     var title = (<h4>Bookings</h4>);
     var bCl = classnames({bookings: true, ['mems'+accNames.length]: true});
-    const base = 'file://'+path.resolve(__dirname, '../../../less')
+    var mCl = accNames.map((member, i)=>{
+      return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
+    });
+
     return (
       <div style={{margin: "0 10px 0 10px"}} >
-        <link rel="stylesheet" href={base+"/bookings.less"} />
-        <link rel="stylesheet" href={base+"/logsTable.less"} />
         <Panel header={title} bsStyle='info'  body={{className: bCl}} id="steds_bookings">
         <div className="select">
         <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
@@ -62,7 +61,7 @@ var Bookings = React.createClass({
         <div className="heading">
         <div className="title date">Date<br/>Venue</div>
         <div className="title avail">Available</div>
-        {accNames.map((member, i)=>( <div className={'avail member'+i+(member.suspended ? ' suspended' : '')} key={member.memId}>{member.firstName }</div> ))}
+        {accNames.map((member, i)=> ( <div className={mCl[i]} key={member.memId}>{member.firstName }</div> ))}
         </div>
         {walks.map((walk)=>(
           <div className="walk" key={'WWW'+walk.walkId}>

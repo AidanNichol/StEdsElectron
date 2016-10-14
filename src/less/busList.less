@@ -1,49 +1,64 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
 
-
-
 div.panel-title {
   .data {
-    font-size: .9em;
+    font-size: 0.9em;
   }
- }
-
+}
 
 .bus-list {
   display: table-cell;
 
-
   .booked-members {
-    grid-template-rows: repeat( 18, 23px);
+    grid-template-rows: repeat(18, 23px);
   }
+
   .waiting-list {
-    grid-template-rows: repeat( 4, 23px);
+    grid-template-rows: repeat(4, 23px);
+
     .member {
       span {
         display: inline-block;
         width: 150px;
       }
     }
-
   }
-  .booked-members, .waiting-list {
+
+  .booked-members,
+  .waiting-list {
     display: grid;
     align-items: center;
-    grid-gap: 0px;
-    grid-template-columns:  repeat(3, 220px);
+    grid-gap: 0;
+    grid-template-columns: repeat(3, 220px);
     grid-auto-flow: column;
+
     .member {
       color: green;
       margin-left: 10px;
       margin-right: 10px;
-      &:hover{
+
+      .annotation {
+        font-size: 0.7em;
+      }
+
+      &:hover {
         background-color: #eee;
       }
-      span {
+
+      > span {
         display: inline-block;
-        &.bName{width: 170px}
-        &.wName{width: 130px}
-        &.pos{width: 20px}
+
+        &.bName {
+          width: 170px;
+        }
+
+        &.wName {
+          width: 130px;
+        }
+
+        &.pos {
+          width: 20px;
+        }
       }
 
       input {

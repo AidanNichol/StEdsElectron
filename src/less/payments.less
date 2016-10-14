@@ -8,79 +8,84 @@
 @border-color: #bce8f1;
 @header-text-color: #31708f;
 @background-color: #d9edf7;
-$radius: 5px;
+@radius: 5px;
 
-border: #bce8f1 solid thin;
-
-.logHeader{
+.logHeader {
   color: #31708f;
   background-color: #d9edf7;
   border-bottom: #bce8f1 solid thin;
 }
 
 .payments {
+  border: #bce8f1 solid thin;
   border-collapse: collapse;
   width: 500px;
-  span{
+
+  span {
     display: inline-block;
   }
-  .overview{
+
+  .overview {
     .walk-detail {
       width: 200px;
-      padding-right: 5px
+      padding-right: 5px;
     }
   }
-  .overview, .header{
+
+  .overview,
+  .header {
     background-color: @background-color;
     border-radius: $radius;
     border-bottom: @border-color thin solid;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     padding: 2px 5px;
+
     .who {
       width: 200px;
       font-size: 1.1em;
       font-weight: bold;
-      padding-right: 5px
+      padding-right: 5px;
     }
-    .owed{
-      width:60px;
-      text-align: center;
-      text-align: center;
 
+    .owed {
+      width: 60px;
+      text-align: center;
     }
-    .paid{
+
+    .paid {
       width: 60px;
       text-align: center;
       margin-left: 20px;
-      input{
+
+      input {
         width: 40px;
         font-size: 0.85em;
       }
-
     }
   }
-  .header{
-    span{
+
+  .header {
+    span {
       font-size: 1.1em;
       font-weight: bold;
     }
   }
-  .debtor{
+
+  .debtor {
     color: @header-text-color;
     margin-bottom: 5px;
     padding-bottom: 4px;
     border: @border-color thin solid;
     border-radius: $radius;
-    .owed{
+
+    .owed {
       font-size: 0.85em;
       padding: 2px;
     }
   }
+
   .details {
     padding: 3px 20px;
   }
-
-
-
 }

@@ -9,7 +9,7 @@ import {Panel} from 'react-bootstrap';
 
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'BulkAdd.js');
+var logit = Logit('color:yellow; background:blue;', 'BulkAdd');
 
 var AddMember = React.createClass({
   displayName: 'AddMember',
@@ -22,7 +22,7 @@ var AddMember = React.createClass({
       <div className="member">
         <span className="bName">{name}</span>
         {
-          waitlisted || <input className="checkbox" type="checkbox" alt="paid" checked={paid} onChange={()=>paidChanged({accId, amount, memId, walkId, amount})} />
+          waitlisted || <input className="checkbox" type="checkbox" alt="paid" checked={paid} onChange={()=>paidChanged({accId, amount, memId, walkId})} />
         }
       </div>
       );
@@ -39,7 +39,6 @@ var BulkAdd = React.createClass({
     var pos = 1;
     return (
       <Panel header={title} bsStyle="info" className="bulk-add">
-        <link rel="stylesheet" href="less/bulkAdd.less" />;
         <SelectWalk {...{setCurrentWalk, walks, currentWalk}}/>
         <div className="select" style={{postion: "relative"}}>
           <span style={{width: "50%", display: "inline-block"}}>
