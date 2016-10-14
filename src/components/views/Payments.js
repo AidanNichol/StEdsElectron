@@ -3,7 +3,7 @@
 import React from 'react';
 // var classNames = require('classnames');
 // var R = require('ramda');
-import { Panel } from 'react-bootstrap';
+import {Panel} from '../utility/AJNPanel'
 // var words = require("underscore.string/words");
 import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
@@ -60,9 +60,9 @@ export default function Payments(props){
 
     logit('payments', props);
     var {debts, accountUpdatePayment} = props;
-    var title = (<h3>Payments Due</h3>);
+    var title = (<h4>Payments Due</h4>);
     return (
-    <Panel className="payments" header={title} bsStyle='info' style={{margin:20}} >
+    <Panel className="payments" header={title} style={{margin:20}} >
       <div className="all-debts">
         <div className="header">
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>

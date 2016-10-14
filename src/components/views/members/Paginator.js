@@ -13,7 +13,7 @@ export const  Paginator = (props)=> {
       <nav>
           <ul className={'pagination ' + className}>
               <li className={currentPage === 1 ? 'disabled' : ''} onClick={()=>changePage(Math.max(1, currentPage-1))}>
-                      <span>&laquo;</span>
+                      <span><span>&nbsp;</span><br/><span>&laquo;</span></span>
               </li>
               {iterator.map((page)=> (
                       <li key={page}
@@ -24,7 +24,8 @@ export const  Paginator = (props)=> {
                       </li>
                   ) )}
               <li className={currentPage === max ? 'disabled' : ''} onClick={()=>changePage(Math.min(max, currentPage+1))}>
-                      <span>&raquo;</span>
+                <span><span>&nbsp;</span><br/><span>&raquo;</span></span>
+                      {/* <span>&raquo;</span> */}
               </li>
           </ul>
       </nav>

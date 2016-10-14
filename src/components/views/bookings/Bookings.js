@@ -3,7 +3,6 @@ import React from 'react';
 // import _ from 'lodash';
 import classnames from 'classnames';
 
-// import { Panel} from 'react-bootstrap';
 import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'

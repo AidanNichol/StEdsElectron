@@ -8,12 +8,8 @@ import {connect} from 'react-redux';
 import classnames from 'classnames';
 
 import TooltipButton from '../../utility/TooltipButton';
-// var belle = require('belle');
-// var TextInput = belle.TextInput;
 import TextInput from 'react-textarea-autosize';
 
-// import {Panel, PanelHeader} from 'rebass';
-// import {Panel} from 'react-bootstrap';
 import {Panel} from '../../utility/AJNPanel'
 import {getSubsStatus} from '../../../utilities/subsStatus'
 // import {getSubsDue, getSubsLate} from '../../../utilities/DateUtilities';

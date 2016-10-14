@@ -8,10 +8,6 @@ import Paginator from './Paginator.js';
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
 import {Panel} from '../../utility/AJNPanel'
-// import path from 'path';
-
-// import { Panel } from 'react-bootstrap';
-// import { Button, OverlayTrigger, Tooltip, } from 'react-bootstrap';
 
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'MemberList.jsx');

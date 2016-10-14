@@ -2,7 +2,6 @@
 import React from 'react';
 import {Icon} from '../../../ducks/walksDuck'
 import classNames from 'classnames';
-// import {Button} from 'react-bootstrap';
 import TooltipButton from '../../utility/TooltipButton.js';
 import TooltipContent from '../../utility/TooltipContent.js';
 // import Select from 'react-select';

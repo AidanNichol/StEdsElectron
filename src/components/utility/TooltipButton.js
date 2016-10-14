@@ -3,7 +3,6 @@ var React = require('react');
 import classnames from 'classnames'
 import {Icon} from './Icon.js'
 
-// var Button = require('react-bootstrap').Button;
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'TooltipButton.jsx');
 var TooltipButton = React.createClass({

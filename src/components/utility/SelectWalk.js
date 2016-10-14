@@ -2,8 +2,6 @@
 import XDate from 'xdate';
 var React = require('react');
 
-import { ButtonGroup, Button} from 'react-bootstrap';
-
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'WalkOptionList.js');
 
@@ -21,16 +19,17 @@ var SelectWalk = React.createClass({
     logit('SelectWalk', walks, this.props);
     return (
       <div className="walkSelect">
-        <ButtonGroup style={{marginBottom: 15}}>
+        <div style={{marginBottom: 10}}>
         {walks.map(function(walk) {
           let dispDate = new XDate(walk.walkDate).toString('dd MMM');
           let venue = walk.venue.replace(/\(.*\)/, '')
+          let style = {width: 100, backgroundColor: currentWalk === walk.walkId ? '#87bbe7' : '#d9edf7'}
           return (
-                <Button  style={{width:100}} key={'Y' + walk.walkId} onClick={()=>{setCurrentWalk(walk.walkId)}} active={currentWalk === walk.walkId}>{dispDate}<br/>{venue}</Button>
+                <button  style={style} key={'Y' + walk.walkId} onClick={()=>{setCurrentWalk(walk.walkId)}} >{dispDate}<br/>{venue}</button>
           );
           })
         }
-        </ButtonGroup>
+        </div>
       </div>
       );
   },

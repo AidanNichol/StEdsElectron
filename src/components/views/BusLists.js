@@ -3,8 +3,7 @@ import React from 'react';
 
 import SelectWalk from '../utility/SelectWalk.js';
 
-// import {Panel as MyPanel} from '../utility/Panel.js';
-import {Panel } from 'react-bootstrap';
+import {Panel} from '../utility/AJNPanel'
 
 
 import Logit from '../../factories/logit.js';
@@ -53,10 +52,10 @@ export default function BusLists(props){
     var pos = 1;
     // const showMemberBookings = ()=>{};
     return (
-      <Panel header={title} bsStyle="info" className="bus-list">
+      <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
-        <div header='Added Members' className="booked-members">
+        <div className="booked-members">
           {
             bookings.map((bkng)=>
               <div className="member" key={bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>

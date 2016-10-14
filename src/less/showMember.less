@@ -69,17 +69,26 @@
   }
 
   .pagination {
+    margin: 0;
     margin-bottom: 10px;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 15px;
-  }
+    list-style-type: none;
+    padding: 0;
 
-  .pagination > li > span {
-    padding: 3px 0;
-    line-height: 1;
-    text-align: center;
-    min-height: 36px;
-    display: inline-block;
+    > li {
+      display: inline;
+
+      > span {
+        border: thin black solid;
+        border-collapse: collapse;
+        padding: 3px 0;
+        line-height: 1;
+        text-align: center;
+        min-height: 36px;
+        display: inline-block;
+      }
+    }
   }
 
   .by-name {

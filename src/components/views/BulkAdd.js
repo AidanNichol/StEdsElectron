@@ -4,8 +4,7 @@ import React from 'react';
 import SelectMember from '../utility/RSelectMember.js';
 import SelectWalk from '../utility/SelectWalk.js';
 
-// import {Panel as MyPanel} from '../utility/Panel.js';
-import {Panel} from 'react-bootstrap';
+import {Panel} from '../utility/AJNPanel'
 
 
 import Logit from '../../factories/logit.js';
@@ -38,7 +37,7 @@ var BulkAdd = React.createClass({
     var title = (<h4>Bulk Add</h4>);
     var pos = 1;
     return (
-      <Panel header={title} bsStyle="info" className="bulk-add">
+      <Panel header={title} className="bulk-add">
         <SelectWalk {...{setCurrentWalk, walks, currentWalk}}/>
         <div className="select" style={{postion: "relative"}}>
           <span style={{width: "50%", display: "inline-block"}}>

@@ -1,9 +1,6 @@
 /* jshint quotmark: false, jquery: true */
 var React = require('react');
 
-var Button = require('react-bootstrap').Button;
-
-var counter = 0;
 export default React.createClass({
   propTypes: {
     // You can declare that a prop is a specific JS primitive. By default, these
@@ -24,9 +21,9 @@ export default React.createClass({
     var {className, placement, tiptext, visible, active, img, lable, onClick} = this.props;
     if (!visible) return null;
     if (!tiptext) return (
-      <Button onClick={onClick} active={active} className={className + ' ttbtn' }>
+      <button onClick={onClick} active={active} className={className + ' ttbtn' }>
         {img ? <img src={img} /> : null }{lable ? lable : null}
-      </Button>
+      </button>
     );
     return (
       <div className={className + ' ttbtn hint--'+placement+' hint--rounded hint--medium' } aria-label={tiptext}>
