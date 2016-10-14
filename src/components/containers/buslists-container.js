@@ -33,10 +33,14 @@ const makeGetBookings = (requestType)=> createSelector(
       var nameColl = new Intl.Collator();
       var nameCmp = (a, b) => nameColl.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
       let bookings = Object.keys(walk.booked)
-           .filter((memId)=>walk.booked[memId] === requestType)
+           .filter((memId)=>{
+             if (!members[memId])console.error('memberId not found', memId, walk)
+             return walk.booked[memId] === requestType})
            .sort(nameCmp)
            .map((memId)=>{
-             let name = members[memId].firstName+' '+members[memId].lastName;
+             if (!members[memId])console.error('memberId not found')
+             let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
+            //  let name = members[memId].firstName+' '+members[memId].lastName;
              let annotation = (annotations[memId] ? `(${annotations[memId]})` : '')
              return { memId, name, annotation, type: walk.booked[memId], requestType};
            });
@@ -54,7 +58,9 @@ const getWaitingList = createSelector(
        let bookings = Object.keys(walk.booked)
            .filter((memId)=>walk.booked[memId] === request.WAITLIST)
            .map((memId)=>{
-             let name = members[memId].firstName+' '+members[memId].lastName;
+             if (!members[memId])console.error('memberId not found')
+             let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
+            //  let name = members[memId].firstName+' '+members[memId].lastName;
              let dat = i.thaw(walk.log).reverse().find((log)=>log[2] === memId)[0];
              return {dat, memId, name, waitlisted: true};
            });

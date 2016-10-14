@@ -28,7 +28,9 @@ const getBookings = createSelector(
        let bookings = Object.keys(walk.booked)
            .filter((memId)=>walk.booked[memId] === request.BOOKED)
            .map((memId)=>{
-             let name = members[memId].firstName+' '+members[memId].lastName;
+             if (!members[memId])console.error('memberId not found')
+             let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
+            //  let name = members[memId].firstName+' '+members[memId].lastName;
              let dat;
              for (let log of walk.log) {
                if (log[2] === memId){
@@ -57,7 +59,8 @@ const getWaitingList = createSelector(
        let bookings = Object.keys(walk.booked)
            .filter((memId)=>walk.booked[memId] === request.WAITLIST)
            .map((memId)=>{
-             let name = members[memId].firstName+' '+members[memId].lastName;
+             if (!members[memId])console.error('memberId not found')
+             let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
              let dat;
              for (let log of walk.log) {
                if (log[2] === memId){

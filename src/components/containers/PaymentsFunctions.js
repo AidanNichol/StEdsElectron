@@ -98,7 +98,11 @@ const makeGetAccountDebt = (accId)=> createSelector(
   (state)=>getAccountName(state.accounts.list[accId], state.members),
   (state)=>state.members || {},
   (wLogs, aLogs, thisAcc, accName, members)=>{
-    if (thisAcc.members.length===0 || !members[thisAcc.members[0]])return;
+    if (thisAcc.members.length===0 || !members[thisAcc.members[0]])
+    {
+      console.error('bad Acount record', thisAcc, members)
+      return;
+    }
     // logit('account '+accId, thisAcc);
     let logs = aLogs;
     let sortname;

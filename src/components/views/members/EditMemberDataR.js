@@ -84,6 +84,9 @@ const deleteButtons = (props)=>{
   if (!suspended) return null;
   return (
     <span>
+    {deleteMe ?
+      <img className="stamp" src="../images/Deleted Member.svg" /> : null
+    }
     <TooltipButton label="Delete Member" onClick={remove} tiptext="Permanently Delete Member" visible={editMode && deleteMe} />
     <TooltipButton icon="user-undelete" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
     <TooltipButton icon="user-delete" onClick={()=>onChange(true)} tiptext="Request Member Deletion" visible={editMode && (!deleteMe)} />
