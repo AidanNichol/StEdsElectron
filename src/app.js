@@ -21,15 +21,15 @@ app.on('window-all-closed', () => {
 app.on('ready', ()=>{
   mainWindow = new BrowserWindow({width: 1280, height: 800, x: 0, y: 100, webPreferences: {experimentalFeatures: true, 'plugins': true}});
   // if(process.env.ENV === 'development'){
-    installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
-    installExtension(REDUX_DEVTOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
-    installExtension(POUCHDB_INSPECTOR)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
+    // installExtension(REACT_DEVELOPER_TOOLS)
+    // .then((name) => console.log(`Added Extension:  ${name}`))
+    // .catch((err) => console.log('An error occurred: ', err));
+    // installExtension(REDUX_DEVTOOLS)
+    // .then((name) => console.log(`Added Extension:  ${name}`))
+    // .catch((err) => console.log('An error occurred: ', err));
+    // installExtension(POUCHDB_INSPECTOR)
+    // .then((name) => console.log(`Added Extension:  ${name}`))
+    // .catch((err) => console.log('An error occurred: ', err));
     mainWindow.openDevTools();
   // }
 
