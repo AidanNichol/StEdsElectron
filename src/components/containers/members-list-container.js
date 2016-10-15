@@ -73,7 +73,7 @@ const mapStateToProps = function(store) {
   var member, id;
   if (store.membersList.displayMember === 'new') member= newMember(store);
   else {
-    id = store.membersList.displayMember || store.router.memberId || members[0].memberId;
+    id = store.membersList.displayMember || store.router.memberId || allList[0].memberId;
     // store.membersList.displayMember = id;
     member = members[id];
   }

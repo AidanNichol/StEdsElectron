@@ -1224,10 +1224,6 @@ boom@2.x.x:
   dependencies:
     hoek "2.x.x"
 
-bootstrap@^3.3.7:
-  version "3.3.7"
-  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-3.3.7.tgz#5a389394549f23330875a3b150656574f8a9eb71"
-
 boxen@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/boxen/-/boxen-0.6.0.tgz#8364d4248ac34ff0ef1b2f2bf49a6c60ce0d81b6"
@@ -1423,7 +1419,7 @@ circular-json@^0.3.0:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/circular-json/-/circular-json-0.3.1.tgz#be8b36aefccde8b3ca7aa2d6afc07a37242c0d2d"
 
-classnames@^2.2.1, classnames@^2.2.3, classnames@^2.2.4, classnames@^2.2.5:
+classnames@^2.2.1, classnames@^2.2.4:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
 
@@ -1969,10 +1965,6 @@ doctrine@^1.2.2:
     esutils "^2.0.2"
     isarray "^1.0.0"
 
-dom-helpers@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-2.4.0.tgz#9bb4b245f637367b1fa670274272aa28fe06c367"
-
 dom-serializer@~0.1.0, dom-serializer@0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/dom-serializer/-/dom-serializer-0.1.0.tgz#073c697546ce0780ce23be4a28e293e40bc30c82"
@@ -2044,21 +2036,7 @@ editions@^1.1.0, editions@^1.1.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/editions/-/editions-1.3.1.tgz#008425f64dc1401db45ec110e06aa602562419c0"
 
-electron-compile@*:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/electron-compile/-/electron-compile-4.0.0.tgz#8533deb2b9e9840b9e27b8beb81d52503f9cd5ad"
-  dependencies:
-    "@paulcbetts/mime-types" "^2.1.10"
-    btoa "^1.1.2"
-    debug-electron "0.0.1"
-    lru-cache "^4.0.1"
-    mkdirp "^0.5.1"
-    pify "^2.3.0"
-    rimraf "^2.5.4"
-    spawn-rx "^2.0.3"
-    yargs "^4.8.1"
-
-electron-compile@^3.3.6:
+electron-compile:
   version "3.3.6"
   resolved "https://registry.yarnpkg.com/electron-compile/-/electron-compile-3.3.6.tgz#d9d7aaf9dbb0fe07a613dab647c4f5560ca1c5c4"
   dependencies:
@@ -2073,6 +2051,20 @@ electron-compile@^3.3.6:
     rimraf "^2.5.2"
     spawn-rx "^2.0.3"
     yargs "^3.31.0"
+
+electron-compile@*:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/electron-compile/-/electron-compile-4.0.0.tgz#8533deb2b9e9840b9e27b8beb81d52503f9cd5ad"
+  dependencies:
+    "@paulcbetts/mime-types" "^2.1.10"
+    btoa "^1.1.2"
+    debug-electron "0.0.1"
+    lru-cache "^4.0.1"
+    mkdirp "^0.5.1"
+    pify "^2.3.0"
+    rimraf "^2.5.4"
+    spawn-rx "^2.0.3"
+    yargs "^4.8.1"
 
 electron-compilers@*, electron-compilers@^4.0.0:
   version "4.0.1"
@@ -2155,7 +2147,7 @@ electron-packager@^8.1.0:
     sanitize-filename "^1.6.0"
     semver "^5.3.0"
 
-electron-prebuilt-compile@^1.4.2:
+electron-prebuilt-compile:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/electron-prebuilt-compile/-/electron-prebuilt-compile-1.4.3.tgz#012dc69996186a465b2cc0a300a9d817536450c6"
   dependencies:
@@ -3143,7 +3135,7 @@ inquirer@^0.12.0:
     strip-ansi "^3.0.0"
     through "^2.3.6"
 
-invariant@^2.0.0, invariant@^2.1.0, invariant@^2.2.0, invariant@^2.2.1:
+invariant@^2.0.0, invariant@^2.2.0, invariant@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.1.tgz#b097010547668c7e337028ebe816ebe36c8a8d54"
   dependencies:
@@ -3508,10 +3500,6 @@ jsx-ast-utils@^1.3.1:
   dependencies:
     acorn-jsx "^3.0.1"
     object-assign "^4.1.0"
-
-keycode@^2.1.2:
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/keycode/-/keycode-2.1.7.tgz#7b9255919f6cff562b09a064d222dca70b020f5c"
 
 keygrip@~1.0.0:
   version "1.0.1"
@@ -4980,24 +4968,6 @@ rcedit@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/rcedit/-/rcedit-0.7.0.tgz#560b2920165034a135316e6a111f8274b9cec521"
 
-react-addons-pure-render-mixin@^15.3.1:
-  version "15.3.2"
-  resolved "https://registry.yarnpkg.com/react-addons-pure-render-mixin/-/react-addons-pure-render-mixin-15.3.2.tgz#c5f54764667ead26e6cdf7178b6c8dbbd8463ec2"
-
-react-bootstrap@^0.30.5:
-  version "0.30.5"
-  resolved "https://registry.yarnpkg.com/react-bootstrap/-/react-bootstrap-0.30.5.tgz#22d9bdab13b9eec04918206602709e1c8a0d76e2"
-  dependencies:
-    babel-runtime "^6.11.6"
-    classnames "^2.2.5"
-    dom-helpers "^2.4.0"
-    invariant "^2.2.1"
-    keycode "^2.1.2"
-    react-overlays "^0.6.10"
-    react-prop-types "^0.4.0"
-    uncontrollable "^4.0.1"
-    warning "^3.0.0"
-
 react-dock@^0.2.1:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/react-dock/-/react-dock-0.2.3.tgz#a25461564f3cf64ab5b7098e7546036066a9c0e2"
@@ -5028,21 +4998,6 @@ react-mixin@^1.7.0:
   dependencies:
     object-assign "^2.0.0"
     smart-mixin "^1.2.0"
-
-react-overlays@^0.6.10:
-  version "0.6.10"
-  resolved "https://registry.yarnpkg.com/react-overlays/-/react-overlays-0.6.10.tgz#e7e52dad47f00a0fc784eb044428c3a9e874bfa3"
-  dependencies:
-    classnames "^2.2.5"
-    dom-helpers "^2.4.0"
-    react-prop-types "^0.4.0"
-    warning "^3.0.0"
-
-react-prop-types@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-prop-types/-/react-prop-types-0.4.0.tgz#f99b0bfb4006929c9af2051e7c1414a5c75b93d0"
-  dependencies:
-    warning "^3.0.0"
 
 react-pure-render@^1.0.2:
   version "1.0.2"
@@ -5177,14 +5132,6 @@ readline2@^1.0.1:
     code-point-at "^1.0.0"
     is-fullwidth-code-point "^1.0.0"
     mute-stream "0.0.5"
-
-rebass@^0.3.1:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/rebass/-/rebass-0.3.3.tgz#bfffddf219107b07be2133173bab9b9887098173"
-  dependencies:
-    classnames "^2.2.3"
-    object-assign "^4.0.1"
-    react-addons-pure-render-mixin "^15.3.1"
 
 recast@^0.10.0, recast@^0.10.1:
   version "0.10.43"
@@ -6097,12 +6044,6 @@ ultron@1.0.x:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.0.2.tgz#ace116ab557cd197386a4e88f4685378c8b2e4fa"
 
-uncontrollable@^4.0.1:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/uncontrollable/-/uncontrollable-4.0.3.tgz#06ec76cb9e02914756085d9cea0354fc746b09b4"
-  dependencies:
-    invariant "^2.1.0"
-
 underscore.string@^3.2.2:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/underscore.string/-/underscore.string-3.3.4.tgz#2c2a3f9f83e64762fdc45e6ceac65142864213db"
@@ -6207,12 +6148,6 @@ void-elements@~2.0.1:
 vuvuzela@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/vuvuzela/-/vuvuzela-1.0.3.tgz#3be145e58271c73ca55279dd851f12a682114b0b"
-
-warning@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/warning/-/warning-3.0.0.tgz#32e5377cb572de4ab04753bdf8821c01ed605b7c"
-  dependencies:
-    loose-envify "^1.0.0"
 
 webidl-conversions@^2.0.0:
   version "2.0.1"
