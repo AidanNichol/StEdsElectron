@@ -1,17 +1,53 @@
-/*!
- * Bootstrap v3.3.6 (http://getbootstrap.com)
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
+@font-face {
+  font-family: 'OpenSans';
+  src: url('../../fonts/Open_Sans/OpenSans-Regular.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoThin';
+  src: url('../../fonts/Roboto/Roboto-Thin.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoLight';
+  src: url('../../fonts/Roboto/Roboto-Light.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoRegular';
+  src: url('../../fonts/Roboto/Roboto-Regular.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoBold';
+  src: url('../../fonts/Roboto/Roboto-Bold.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoBlack';
+  src: url('../../fonts/Roboto/Roboto-Black.ttf')  format('truetype');
+}
+
+@font-face {
+  font-family: 'RobotoMedium';
+  src: url('../../fonts/Roboto/Roboto-Medium.ttf')  format('truetype');
+}
+
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 html {
   font-family: sans-serif;
   -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
 }
+
 body {
   margin: 0;
+  font-family: "RobotoRegular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
 }
+
 article,
 aside,
 details,
@@ -27,6 +63,7 @@ section,
 summary {
   display: block;
 }
+
 audio,
 canvas,
 progress,
@@ -34,42 +71,53 @@ video {
   display: inline-block;
   vertical-align: baseline;
 }
+
 audio:not([controls]) {
   display: none;
   height: 0;
 }
+
 [hidden],
 template {
   display: none;
 }
+
 a {
   background-color: transparent;
 }
+
 a:active,
 a:hover {
   outline: 0;
 }
+
 abbr[title] {
   border-bottom: 1px dotted;
 }
+
 b,
 strong {
   font-weight: bold;
 }
+
 dfn {
   font-style: italic;
 }
+
 h1 {
-  margin: .67em 0;
+  margin: 0.67em 0;
   font-size: 2em;
 }
+
 mark {
   color: #000;
   background: #ff0;
 }
+
 small {
   font-size: 80%;
 }
+
 sub,
 sup {
   position: relative;
@@ -77,18 +125,23 @@ sup {
   line-height: 0;
   vertical-align: baseline;
 }
+
 sup {
-  top: -.5em;
+  top: -0.5em;
 }
+
 sub {
-  bottom: -.25em;
+  bottom: -0.25em;
 }
+
 img {
   border: 0;
 }
+
 svg:not(:root) {
   overflow: hidden;
 }
+
 figure {
   margin: 1em 40px;
 }
@@ -275,13 +328,6 @@ html {
   font-size: 10px;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #333;
-  background-color: #fff;
 }
 input,
 button,
@@ -756,7 +802,7 @@ pre {
   display: block;
   padding: 9.5px;
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: 0.9em;
   line-height: 1.42857143;
   color: #333;
   word-break: break-all;
@@ -797,7 +843,7 @@ legend {
   width: 100%;
   padding: 0;
   margin-bottom: 20px;
-  font-size: 21px;
+  font-size: 1.5em;
   line-height: inherit;
   color: #333;
   border: 0;
@@ -841,7 +887,7 @@ input[type="checkbox"]:focus {
 output {
   display: block;
   padding-top: 7px;
-  font-size: 14px;
+  font-size: 1em;
   line-height: 1.42857143;
   color: #555;
 }
