@@ -40,10 +40,6 @@ const loadPage = (curPage, loading)=>{
   }
 }
 
-import path from 'path';
-const base = 'file://'+path.resolve(__dirname, '../../..')
-
-
 const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   const Link = ({page, show, name})=>{
     if (!show) return null;
@@ -54,11 +50,9 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   return (
         <div>
         <div className="mainPage"  style={{paddingLeft:3, paddingTop: 3}}>
-        {window.steds_svg}
-        <img src={base+"/images/St.Edwards.col4.png"} width="60px"/>
+        <img className="logo" src={"../images/St.Edwards.col4.png"} width="40px"/>
         <ReplicationStatus className="devlinks"/>
         <Signin />
-        <button key="5" className="sc" onClick={window.$$LogSagas}>SagaLog</button>
         {/*<Shortcuts className="shortcuts"/>*/}
         {/*<DisplayErrors />*/}
         <div className="nav">

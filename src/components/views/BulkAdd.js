@@ -48,7 +48,7 @@ var BulkAdd = React.createClass({
           </span>
         </div>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
-        <div header='Added Members' className="added-members">
+        <div className="added-members">
           {
             bookings.map((bkng)=>
               <AddMember key={bkng.memId} {...bkng} {...{amount, walkId}} paidChanged={bkng.paid ? accountDelPayment : accountAddPayment}  />
@@ -56,7 +56,7 @@ var BulkAdd = React.createClass({
           }
         </div>
         <h3>Waiting List</h3>
-        <div header='Added Members' className="waiting-list">
+        <div className="waiting-list">
           {
             waitingList.map((bkng)=>{
                 return (<div key={bkng.memId} className="member">

@@ -64,8 +64,6 @@ class Memberslist extends React.Component {
     var title = (<h4>Membership Lists</h4>);
     return (
       <div style={{margin: "0 10px 0 10px"}} >
-      <link rel="stylesheet" href="less/memberlist-grid.less" />
-      <link rel="stylesheet" href="less/showMember.less" />
       <Panel header={title} className="member-list" id="steds_memberlist">
           <div className="list-index" hidden={showEditMemberModal}>
             {/* <ButtonGroup className='buttons'> */}
