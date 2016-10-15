@@ -5,6 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "build": "electron-packager-compile . --out=dist  --app-version=$npm_package_version --version=1.4.3 --asar --prune --overwrite --platform=darwin --arch=x64",
+    "buildwin": "electron-packager-compile . --out=dist  --app-version=0.1.0 --version=1.4.3 --asar --prune --overwrite --platform=win32 --arch=all",
     "debug": "DEBUG=steds:* electron .",
     "start": "cross-env ENV=development electron .",
     "dev": "./node_modules/.bin/electron .",
