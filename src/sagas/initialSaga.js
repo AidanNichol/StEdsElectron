@@ -53,7 +53,6 @@ export default function* (){
     docs = data.rows.filter(row => row.doc.type === 'walk').map(row => row.doc).concat(docs);
 
     yield put(walksDocsLoaded(docs));
-    yield put(signinRequested('sandy', 'sandy'));
   };
 
   // try{
@@ -67,6 +66,7 @@ export default function* (){
     ]
     // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
     yield call(actions.initialLoadCompleted);
+    // yield put(signinRequested('sandy', 'sandy'));
 
   // } catch(error){
   //   yield put({ type: 'INITIAL_SAGA_FAILED', error});
