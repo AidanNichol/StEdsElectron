@@ -1,4 +1,3 @@
-// require('less/watermark.less');
 
 import * as i from 'icepick';
 import React from 'react';
@@ -81,7 +80,7 @@ const deleteButtons = (props)=>{
   return (
     <span>
     {deleteMe ?
-      <img className="stamp" src="../images/Deleted Member.svg" /> : null
+      <img className="stamp" src="../assets/Deleted Member.svg" /> : null
     }
     <TooltipButton label="Delete Member" onClick={remove} tiptext="Permanently Delete Member" visible={editMode && deleteMe} />
     <TooltipButton icon="user-undelete" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
@@ -139,8 +138,7 @@ let EditMemberData = (props)=>{
     let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
       <Panel bsStyle='info' className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
-        <link rel="stylesheet" href="less/editMember.less" />
-        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode} />
+        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
         {/* <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} /> */}
         <div className={clss}>
           {/* <form className={clss} name="user-details" autoComplete="off" onSubmit={onSubmit} > */}

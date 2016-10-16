@@ -67,7 +67,7 @@ export function payment(props){
           <TooltipButton lable={`Payment Due £${props.owing}`} onClick={paidInFull} tiptext='Paid Full Amount' visible/> &nbsp; or
         </span>
       }
-      <TooltipContent tiptext='Enter paid amount and press enter' visible>
+      <TooltipContent className='payment-boxes' tiptext='Enter paid amount and press enter' visible>
         <span className="pay-box">
           <span>Pay &nbsp; <input type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
           <span> Note &nbsp; <input type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>

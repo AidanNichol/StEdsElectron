@@ -28,3 +28,4 @@ test.js
 temp*.json
 /stedsBooking-darwin-x64
 /dist
+/.serve

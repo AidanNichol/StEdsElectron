@@ -12,7 +12,7 @@ logit('enviromnent', process.env)
 
 // Get the logo - couldn't get referencing the file directly working.
 var logo;
-fs.readFile(process.env.PWD+'/images/steds-logo.jpg',  'base64', (err, data)=>{
+fs.readFile(process.env.PWD+'/assets/steds-logo.jpg',  'base64', (err, data)=>{
   if (err)logit('get logo', err);
   else {
     logo = 'data:image/jpeg;base64,'+data;
