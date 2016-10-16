@@ -38,7 +38,7 @@ console.log('PouchDB creating', PouchDB);
 
 // db = new PouchDB('http://localhost:5984/bookings', {user: 'aidan', password: 'admin'});
 // db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
-db = new PouchDB('stEdsBookings', {adapter: 'idb'});
+db = new PouchDB('stEdsBookings', {adapter: 'websql'});
 window.PouchDB = PouchDB;
 logit('window', window);
 // sync();

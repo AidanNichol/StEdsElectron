@@ -39,7 +39,7 @@ var _dbuSetupCompleted = require("pouchdb-seamless-auth")(PouchDB)
     .then((resp)=>{logit('setSeamlessAuthRemoteDB OK', resp); return resp;})
     .catch((error)=>{logit('setSeamlessAuthRemoteDB Error', error)});
 
-var dbu = new PouchDB('_users');
+var dbu = new PouchDB('_users', {adapter: 'websql'});
 
 function* authorize(username, password){
     try{
