@@ -1,6 +1,4 @@
 // require('less/main.scss');
-// <link rel="stylesheet" href="less/mainpage-grid.less" />;
-// <link rel="stylesheet" href="less/folder-tabs.less" />;
 import React from 'react';
 // import { Link } from 'react-router';
 import {connect} from 'react-redux';
@@ -22,14 +20,9 @@ import PaymentsContainer from '../containers/Payments-container.js';
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');
 
-// import {Icon} from '../../utility/Icon'
-// import DevLinks from '../header/DevLinks.js';
-// import DisplayErrors from '../header/DisplayErrors.js';
-
-
 
 const loadPage = (curPage, loading)=>{
-  if (loading) return (<span>loading ... <img src="../images/gears.svg" /></span>);
+  if (loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
   switch(curPage) {
     case 'membersList': return (<MembersListContainer />);
     case 'bookings': return (<BookingsContainer />);
@@ -50,7 +43,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   return (
         <div>
         <div className="mainPage"  style={{paddingLeft:3, paddingTop: 3}}>
-        <img className="logo" src={"../images/St.Edwards.col4.png"} width="40px"/>
+        <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
         <ReplicationStatus className="devlinks"/>
         <Signin />
         {/*<Shortcuts className="shortcuts"/>*/}

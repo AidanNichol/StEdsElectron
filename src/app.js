@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 const electron = require('electron');
 const {Menu} = require('electron');
 const app = electron.app;
@@ -43,9 +44,8 @@ function createWindow() {
       .catch((err) => console.log('An error occurred: ', err));
       mainWindow.openDevTools();
     }
-    console.log('memu', Menu.getApplicationMenu())
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${__dirname}/index.tpl.html`);
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
 
     // mainWindow.setProgressBar(-1); // hack: force icon refresh
     mainWindow.webContents.on('did-finish-load', () => {

@@ -12,7 +12,6 @@ function replicationStatus({ paused, waiting, className }) {
   return ( <div className={className}>
     <span>
     <Icon name={icon}/>
-      {/* <img src={`/images/${icon}.svg`} /> */}
     </span>
     {paused.pull ? <span style={{color: '#cccccc'}}>&darr;</span> : <span style={{color: '#00ff00', fontWeight:'bold'}}> &dArr; </span>}
     {paused.push ? <span style={{color: '#cccccc'}}>&uarr;</span> : <span style={{color: '#00ff00', fontWeight:'bold'}}> &uArr; </span>}
