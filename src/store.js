@@ -15,7 +15,7 @@ import {remoteCouch} from './services/remoteCouch'
 import * as ct_actions from './actions/controller-actions.js';
 import * as ac_actions from './actions/accounts-actions.js';
 
-const logger = createLogger();
+const logger = createLogger({collapsed: true, diff: true});
 export var store ={};
 export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();

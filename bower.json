@@ -1,0 +1,25 @@
+{
+  "name": "StEdsBookings",
+  "description": "Electron Application for St. Edwards Fellwalkers booking system",
+  "main": "src/app.js",
+  "authors": [
+    "Aidan Nichol"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "express",
+    "webpack",
+    "node"
+  ],
+  "homepage": "https://github.com/AidanNichol/StEdsElectron",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "pdfmake": "^0.1.20"
+  }
+}

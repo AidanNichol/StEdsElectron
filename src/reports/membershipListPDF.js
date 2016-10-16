@@ -141,7 +141,7 @@ function buildPDF(members){
   }
 
   fs.writeFile('tempPDF.json', JSON.stringify(dd));
-
+  logit('pdfMake', pdfMake)
   pdfMake.createPdf(dd).download('membersList.pdf');
   // pdfMake.createPdf(dd).getBuffer((result)=>{
   //   fs.writeFile('temp.pdf', result, "MacRomanEncoding");
