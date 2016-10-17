@@ -4,6 +4,8 @@
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
   "main": ".serve/app.js",
   "scripts": {
+    "pack": "build --arch=ia32",
+    "dist": "build",
     "build": "electron-packager-compile . --out=dist  --app-version=$npm_package_version --version=1.4.3 --asar --prune --overwrite --platform=darwin --arch=x64",
     "buildwin": "electron-packager-compile . --out=dist  --app-version=0.1.0 --version=1.4.3 --asar --prune --overwrite --platform=win32 --arch=all",
     "debug": "DEBUG=steds:* electron .",
@@ -19,6 +21,10 @@
     "package-win": "cross-env NODE_ENV=production electron-packager . app --out=dist --platform=win32 --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
     "quick-package": "run-s clean-cache compile package-for-this clean-source",
     "package-for-this": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\""
+  },
+  "build": {
+    "asar": true,
+    "iconUrl": "http://stedwardsfellwalkers.co.uk/favicon.ico"
   },
   "ava": {
     "files": [
@@ -107,6 +113,7 @@
     "cross-env": "^3.1.2",
     "del": "^2.2.2",
     "electron": "^1.4.3",
+    "electron-builder": "^7.13.0",
     "electron-connect": "^0.6.0",
     "electron-packager": "^8.1.0",
     "eslint": "^3.7.1",
