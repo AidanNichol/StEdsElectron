@@ -2,10 +2,11 @@ import Logit from '../factories/logit';
 var logit = Logit('color:yellow; background:cyan;', 'members:saga');
 import * as i from 'icepick';
 import {uniq} from 'ramda';
+import { createSelector } from 'reselect'
 
 // import db from '../services/bookingsDB';
 import docUpdateSaga from '../sagas/docUpdateSaga';
-import {actions} from '../ducks/memberslist-duck';
+import {actions, actionCreators} from '../ducks/memberslist-duck';
 
 import { call, put, take, select } from 'redux-saga/effects';
 
@@ -62,19 +63,38 @@ export default function* membersSaga(){
       // res = yield call([db, db.put], doc);
       yield call(docUpdateSaga, doc);
       logit('update', 'done')
-      // if (!res.ok) yield put({ type: 'MEMBER_SAGA_FAILED', res});
-      // console.log('res', res);
-      // yield put({type: 'MEMBERS_EDIT_SETSHOWMODAL', payload: false});
-      yield put({type: actions.SET_EDIT_MODE, payload: false});
 
-      // yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: 'M9001'});
-      // yield put({type: 'MEMBERS_LIST_SET_DISPLAYED_MEMBER', payload: doc._deleted ? undefined : doc.memberId});
-      yield put({type: actions.DISPLAYED_MEMBER, payload: 'M9001'});
-      yield put({type: actions.DISPLAYED_MEMBER, payload: doc._deleted ? undefined : doc.memberId});
+      yield put(actionCreators.setShowEditMemberModal(false));
+      // yield put({type: actions.SET_EDIT_MODE, payload: false});
+
+      yield put(actionCreators.membersListSetDisplayedMember('M9001', false));
+      yield put(actionCreators.membersListSetDisplayedMember(doc._deleted ? undefined : doc.memberId));
+      // yield put(actionCreators.membersListSetDisplayedMember(doc._deleted ? undefined : doc.memberId, getDispStart(doc.memberId, state)));
     }
 
 
   // } catch(error){
   //   yield put({ type: 'MEMBER_SAGA_FAILED', error});
   // }
+}
+
+const getSortedMembersList = createSelector(
+  (state)=>state.members,
+  (state)=>state.membersList.sortProp,
+  (members, sortProp) => {
+    var coll = new Intl.Collator();
+    var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
+    var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
+    var cmp = (sortProp === 'name' ? compareNames : compareIds);
+    // logit('members', members);
+    return Object.keys(members).sort(cmp).map((id)=>members[id]);
+  }
+)
+
+function getDispStart( memId, resync, state){
+  let list = getSortedMembersList(state);
+  const {dispStart, dispLength, resync: resyncD} = state.membersList;
+  if (!resync && !resyncD) return dispStart;
+  let i = list.findIndex((mem)=>mem.memberId === memId);
+  return i >= dispStart && i <= dispStart+dispLength-1 ? dispStart : Math.max(i - 11, 0)
 }

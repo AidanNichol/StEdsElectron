@@ -57,8 +57,8 @@ let renderTextArea = (field) => {
 const subscriptionButton = (props)=>{
   const { input: {  onChange}, _delete, editMode, subsStatus, meta, style={}, ...other } = props;
   // if (!subsStatus.due) return null;
-  style.marginLeft = 140;
-  logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
+  style.marginLeft = 115;
+  // logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
   return (
     <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`} onClick={()=>onChange(subsStatus.year)} {...other} style={style}  visible={editMode && !_delete && subsStatus.due} />
   )
@@ -127,9 +127,7 @@ let EditMemberData = (props)=>{
       membersEditSaveChanges({doc, origDoc: props.member});
 
     }
-    logit('subsStatus', 'pre')
     const subsStatus = getSubsStatus({subscription, memberStatus}); // {due: true, year: 2016, fee: 15, status: 'late'}
-    logit('subsStatus', 'post')
     var title = (<div style={{width:'100%'}}>
       { firstName } { lastName } {dirty ? '(changed)' : ''}
         <span style={{float: 'right', hidden:!(editMode && dirty), cursor:'pointer'}} className='closeWindow' onClick={()=>setShowEditMemberModal(false)} >{showMode || dirty?"" :"X"}</span>

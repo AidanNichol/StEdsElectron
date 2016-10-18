@@ -30,32 +30,47 @@ class Memberslist extends React.Component {
 
   render() {
     logit ('props', this.props);
-    // var {currentPage, dispStart, dispLength, member, displayMember, sortProp, showEditMemberModal, showModal, allList, memberAdmin} = this.props;
-    // var {membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember, membersListToggleShowModal, setShowEditMemberModal, membersEditSaveChanges} = this.props.actions;
     var {currentPage, dispStart, dispLength, member, displayMember, sortProp,
-        showEditMemberModal, showModal, allList, memberAdmin, newMember,
+        showEditMemberModal, allList, memberAdmin, newMember,
         membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember,
-        membersListToggleShowModal, setShowEditMemberModal, membersListPrint,
+        setShowEditMemberModal, membersListPrint, memberIndex,
         createNewMember, membersEditSaveChanges} = this.props;
 
-    dispStart = (currentPage - 1) * dispLength
+    // if (resync && syncPos != dispStart) membersListSetPage({page: 1, value: syncPos});
+    // dispStart = (currentPage - 1) * dispLength
 
-    var clues = allList
-          .filter((m, index)=>(index%dispLength===0))
-          .map((m)=>(sortProp === 'name' ? m.lastName.substr(0, 2) : m._id.substr(1)));
-    // logit('clues', clues, allList);
+    // var clues = allList
+    //       .filter((m, index)=>(index%dispLength===0))
+    //       .map((m)=>(sortProp === 'name' ? m.lastName.substr(0, 2) : m._id.substr(1)));
+    // // logit('clues', clues, allList);
     var list = allList.slice(dispStart, dispStart + dispLength);
+
     var members = list.map((member)=>{
-      let clss = classnames('list-line', {current: displayMember === member.memberId}, (member.suspended ? 'suspended' : member.subsStatus));
+      var showMemberStatus = member.memberStatus !== 'Member' && member.memberStatus !== 'OK';
+      let clss = classnames('list-line', [member.memberStatus]: true, {current: displayMember === member.memberId}, (member.suspended ? 'suspended' : member.subsStatus));
       // logit('classes', this.props.membersList.status)
       return (
         <div key={member._id} className={clss} onClick={()=>membersListSetDisplayedMember(member.memberId)}>
-          {member.memberStatus !== 'Member' ? <span className='member-status'>({member.memberStatus})</span> : null}
+          {showMemberStatus && <span className='member-status'>({member.memberStatus})</span>}
           <span className="id">{member._id.substr(1)}</span>
           <span className="name">{member.lastName + ', ' + member.firstName}</span>
         </div>
       );
+    });
 
+    var index = memberIndex.key.map(([disp, key, start], i, idx)=>{
+      let value = start;
+      let end = i < idx.length-1 ? idx[i+1][2]-1 : allList.length-1;
+      let seeStart = start >= dispStart && start < dispStart + dispLength;
+      let seeEnd = end >= dispStart && end < dispStart + dispLength;
+      let partVisible= seeStart || seeEnd
+      let allVisible = seeStart && seeEnd
+      logit('build index', {disp, key, start, i, end, seeStart, seeEnd, partVisible, allVisible, idx})
+      let cl = classnames({indexItem: true, partVisible, allVisible});
+      return (
+        <div className={cl}
+              onClick={()=>membersListSetPage({value})}
+              key={"mem:index:"+key}>{disp}</div>)
     });
     let max = Math.ceil(allList.length / dispLength);
     let maxVisible = Math.min(max, sortProp === 'name' ? 7 : 6);
@@ -65,18 +80,22 @@ class Memberslist extends React.Component {
     return (
       <div style={{margin: "0 10px 0 10px"}} >
       <Panel header={title} className="member-list" id="steds_memberlist">
-          <div className="list-index" hidden={showEditMemberModal}>
-            {/* <ButtonGroup className='buttons'> */}
+          {/* <div className="list-index" hidden={showEditMemberModal}> */}
+            <div className='sort-buttons' hidden={showEditMemberModal}>
               <TooltipButton key="name"  className={sortProp === 'name' ? 'active' : ''} onClick={()=>membersListSetSortBy('name')}>sort by Name</TooltipButton>
               <TooltipButton key="number"  className={sortProp === 'id' ? 'active' : ''} onClick={()=>membersListSetSortBy('id')}>sort by Number</TooltipButton>
-            {/* </ButtonGroup> */}
-
-            <Paginator max={max}
+            </div>
+            <div className="index" hidden={showEditMemberModal}>
+              {index}
+            </div>
+            {/* <Paginator max={max}
               clues={clues} maxVisible={maxVisible}
               currentPage={currentPage}
-              changePage={(page)=>membersListSetPage({page: page, value: (page - 1) * dispLength})} className={'by-' + sortProp}/>
-            {members}
-          </div>
+              changePage={(page)=>membersListSetPage({page: page, value: (page - 1) * dispLength})} className={'by-' + sortProp}/> */}
+            <div className="names" hidden={showEditMemberModal}>
+              {members}
+            </div>
+          {/* </div> */}
           {/* {!displayMember? null : */}
             <EditMemberData {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}} onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}/>
           {/* } */}

@@ -7,6 +7,7 @@ import classnames from 'classnames';
 // import {Logon} from '../views/logon/Logon.js';
 import {Signin} from '../../ducks/signin-duck.js';
 import {setPage} from '../../ducks/router-duck.js';
+import {actionCreators} from '../../ducks/memberslist-duck';
 // import {Shortcuts} from '../../views/logon/Logon.js';
 import {ReplicationStatus} from '../views/header/ReplicationStatus'
 // import store from '../../store';
@@ -20,7 +21,6 @@ import PaymentsContainer from '../containers/Payments-container.js';
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');
 
-
 const loadPage = (curPage, loading)=>{
   if (loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
   switch(curPage) {
@@ -29,6 +29,7 @@ const loadPage = (curPage, loading)=>{
     case 'bulkadd': return (<BulkAddContainer />);
     case 'buslists': return (<BusListsContainer />);
     case 'payments': return (<PaymentsContainer />);
+    case 'none': return(<div>Welcome to St.Edwards Booking System - please login.</div>)
     default: return (<BookingsContainer />);
   }
 }
@@ -49,7 +50,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
         {/*<Shortcuts className="shortcuts"/>*/}
         {/*<DisplayErrors />*/}
         <div className="nav">
-        <Link page="bookings" name="Bookings" show />
+        <Link page="bookings" name="Bookings" show={bookingsAdmin} />
         <Link page="buslists" name="Buslist" show={bookingsAdmin}/>
 
         <Link page="bulkadd" name="BulkAdd" show={bookingsAdmin}/>
@@ -67,8 +68,12 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
 }
 
 function mapDispatchToProps(dispatch) {
+  const {membersListSetPage} = actionCreators;
   return {
-    setPage: (page)=>dispatch(setPage({page})),
+    setPage: (page)=>{
+      dispatch(membersListSetPage({resync: true}));
+      dispatch(setPage({page}))
+    },
   }
 }
 
@@ -78,7 +83,7 @@ const mapStateToProps = (state) => {
     bookingsAdmin: isUserAuthorized(['bookings']),
     memberAdmin: isUserAuthorized(['membership', 'bookings']),
     loading: state.controller.loading,
-    curPage: state.router.page,
+    curPage: state.signin.name ? state.router.page : 'none',
   }
 }
 

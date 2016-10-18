@@ -24,7 +24,7 @@ export const routerInitialized = () => ({type: SET_USER});
 //---------------------------------------------------------------------
 export var defaultState = (localStorage.getItem('stEdsRouter') ? JSON.parse(localStorage.getItem('stEdsRouter'))
         : {page: null, memberId: null, accountId: null, initialized: false, walkId: null});
-        
+
 const setAndSaveState = (state, payload)=>{
   let newState = i.assign(state, payload);
   localStorage.setItem('stEdsRouter', JSON.stringify(newState));
@@ -34,7 +34,6 @@ const setAndSaveState = (state, payload)=>{
 // export function reducer(state = {page: null, memberId: null, accountId: null}, action) {
 export function reducer(state = defaultState, action) {
   let {type, ...payload}  = action;
-  logit('action', {type,payload,action})
   switch(type) {
     case SET_PAGE:
       return setAndSaveState(state, payload);

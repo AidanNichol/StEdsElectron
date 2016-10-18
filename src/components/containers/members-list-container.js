@@ -42,10 +42,44 @@ const getSortedMembersList = createSelector(
     var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
     var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
     var cmp = (sortProp === 'name' ? compareNames : compareIds);
-    logit('members', members);
+    // logit('members', members);
     return Object.keys(members).sort(cmp).map((id)=>members[id]);
   }
 )
+const membersIndexByName = createSelector(
+  getSortedMembersList,
+  (members)=>{
+    let key = [], index={}, lastKey=""
+    members.forEach((mem, i)=>{
+      let c = mem.lastName[0];
+      if (c !== lastKey){
+        lastKey = c;
+        key.push([c, c, i]);
+        index[c] = 0;
+      }
+      index[c]++;
+    });
+    return {key, index};
+  }
+);
+
+const membersIndexByNumber = createSelector(
+  getSortedMembersList,
+  (members)=>{
+    let key = [], index={};
+    let bsize = Math.ceil(members.length/24)
+    for (var i = 0; i < members.length; i=i+bsize) {
+        let c = members[i].memberId;
+        key.push(['○', c, i]);
+        index[c] = i;
+    }
+    return {key, index};
+  }
+);
+
+const getMemberIndex = (store) => store.membersList.sortProp === 'name' ? membersIndexByName(store) : membersIndexByNumber(store);
+
+
 const newMember = createSelector(
   getSortedMembersList,
   (members)=>{
@@ -56,10 +90,18 @@ const newMember = createSelector(
   }
 );
 
+function getDispStart(list, memId, state){
+  const {dispStart, dispLength, resync} = state.membersList;
+  if (!resync) return dispStart;
+  let i = list.findIndex((mem)=>mem.memberId === memId);
+  return i >= dispStart && i <= dispStart+dispLength-1 ? dispStart : Math.max(i - 11, 0)
+}
+
 function mapDispatchToProps(dispatch) {
   let actions = bindActionCreators(actionCreators, dispatch);
   let membersListSetDisplayedMember = actionCreators.membersListSetDisplayedMember;
   actions.membersListSetDisplayedMember = (memId)=>{
+
     dispatch(membersListSetDisplayedMember(memId));
     dispatch(setPage({page: 'membersList', memberId: memId, accountId: null}));
   }
@@ -80,14 +122,17 @@ const mapStateToProps = function(store) {
   //  if (store.membersList.displayMember) member = members[store.membersList.displayMember];
   // else if (store.router.memberId) member = members[store.router.memberId];
   // else member = store.membersList.displayMember;
-logit('whatt!!', store.router, store.membersList.displayMember, id)
+// logit('whatt!!', store.router, store.membersList.displayMember, id)
   var props = {
             members: store.members,
             ...store.currentMember,
             ...store.membersList,
+            dispStart: getDispStart(allList, id, store),
+            // syncPos: getDispStart(allList, id, store),
             newMember: (store.membersList.displayMember === 'new'),
             allList,
             newMemberTemplate,
+            memberIndex: getMemberIndex(store),
             member,
             displayMember: id,
             // actions,
@@ -99,7 +144,7 @@ logit('whatt!!', store.router, store.membersList.displayMember, id)
     //   props.displayMember = allList[0].memberId;
     //   props.member=allList[0];
     // }
-    logit('container', store, props);
+    // logit('container', store, props);
     return props;
 
 }

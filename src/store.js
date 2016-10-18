@@ -10,6 +10,7 @@ import createLogger from 'redux-logger';
 import sagaMonitor from './sagas/sagaMonitor.js';
 import {monitorReplications} from './ducks/replication-duck'
 import {default as routerDefault} from './ducks/router-duck'
+import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
 // import * as ml_actions from './actions/membersList-actions.js';
 import * as ct_actions from './actions/controller-actions.js';
@@ -20,7 +21,8 @@ export var store ={};
 export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();
 const defaultState = i.freeze({
-  membersList: {list: [], currentPage: 1, dispStart: 0, dispLength: 20, displayMember: null, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false},
+  // membersList: {list: [], currentPage: 1, dispStart: 0, dispLength: 22, displayMember: null, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false},
+  membersList: memberslistDefault,
   signin: {name: null, roles: [], memberId: ''},
   walks: {list: {}},
   accounts: {list: {}},
