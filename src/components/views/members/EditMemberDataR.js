@@ -165,7 +165,7 @@ let EditMemberData = (props)=>{
               <label className="item-label">mobile</label>
               <Field component={renderField} name='mobile' type="text"/>
           </div>
-          <div className="form-line">
+          <div className={"form-line"+(memberStatus==='Guest'?' hidden':'')}>
               <label className="item-label">subscription</label>
               {/* <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
                 <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} /> */}

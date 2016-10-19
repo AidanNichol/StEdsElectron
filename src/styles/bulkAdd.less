@@ -1,7 +1,5 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
 
-
-
 input[type='checkbox'] {
   display: inline;
   margin-right: 10px;
@@ -10,49 +8,57 @@ input[type='checkbox'] {
 
 div.panel-title {
   .data {
-    font-size: .9em;
+    font-size: 0.9em;
   }
- }
-
-
-
-
-
-
+}
 
 .bulk-add {
   display: table-cell;
 
-
   .added-members {
-    grid-template-rows: repeat( 18, 23px);
+    grid-template-rows: repeat(18, 23px);
   }
+
   .waiting-list {
-    grid-template-rows: repeat( 4, 23px);
+    grid-template-rows: repeat(4, 23px);
+
     .member {
       span {
         display: inline-block;
         width: 150px;
       }
     }
-
   }
-  .added-members, .waiting-list {
+
+  .added-members,
+  .waiting-list {
     display: grid;
     align-items: center;
-    grid-gap: 0px;
-    grid-template-columns:  repeat(3, 220px);
+    grid-gap: 0;
+    grid-template-columns: repeat(3, 220px);
     grid-auto-flow: column;
+
     .member {
       margin-left: 10px;
       margin-right: 10px;
+
       span {
         display: inline-block;
-        &.bName{width: 170px}
-        &.wName{width: 130px}
-        &.pos{width: 20px}
+
+        &.bName {
+          width: 170px;
+        }
+
+        &.wName {
+          width: 130px;
+        }
+
+        &.pos {
+          width: 20px;
+        }
       }
-      &:hover{
+
+      &:hover {
         background-color: #eee;
       }
 

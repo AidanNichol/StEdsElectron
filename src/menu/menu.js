@@ -1,5 +1,10 @@
 import electron from 'electron';
-
+function myFunction() {
+  const remote = require('electron').remote;
+  const BrowserWindow = remote.BrowserWindow;
+  var win = new BrowserWindow({ width: 800, height: 600 });
+  win.loadURL(`file://${__dirname}/../about.html`);
+}
 export var template = [
   {
     label: 'Edit',
@@ -108,6 +113,10 @@ export var template = [
         label: 'Learn More',
         click: function() { require('electron').shell.openExternal('http://electron.atom.io') }
       },
+      {
+        label: 'About StEdwardsBookings',
+        click: myFunction
+      },
     ]
   },
 ];
@@ -119,6 +128,7 @@ if (process.platform == 'darwin') {
     submenu: [
       {
         label: 'About ' + name,
+        click: myFunction,
         role: 'about'
       },
       {
@@ -152,10 +162,11 @@ if (process.platform == 'darwin') {
       {
         label: 'Quit',
         accelerator: 'Command+Q',
-        click: function() { app.quit(); }
+        click: function() { electron.app.quit(); }
       },
     ]
   });
+
   // Window menu.
   template[3].submenu.push(
     {

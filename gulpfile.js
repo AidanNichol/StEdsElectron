@@ -56,7 +56,7 @@ gulp.task('compile:styles', ['compile:less', 'compile:scss', 'copy:css'])
 // Inject *.css(compiled and depedent) files into *.html
 gulp.task('inject:css', ['compile:styles'], function() {
   return gulp.src(srcDir + '/**/*.html')
-    .pipe($.inject(gulp.src(mainBowerFiles({base: srcDir+'/bower_components'}).concat([serveDir + '/styles/**/*.css'])), {
+    .pipe($.inject(gulp.src(mainBowerFiles({base: '/bower_components'}).concat([serveDir + '/styles/**/*.css'])), {
       relative: true,
       ignorePath: ['../../.serve', '..'],
       addPrefix: '..'
@@ -67,7 +67,7 @@ gulp.task('inject:css', ['compile:styles'], function() {
 
 // Copy assets
 gulp.task('assets', function () {
-  return gulp.src(srcDir + '/assets/**/*')
+  return gulp.src('assets/**/*')
     .pipe(gulp.dest(serveDir + '/assets'))
     .pipe(gulp.dest(distDir + '/assets'))
   ;
@@ -75,9 +75,9 @@ gulp.task('assets', function () {
 
 // Copy font
 gulp.task('fonts', function () {
-  return gulp.src(srcDir + '/font/**/*')
-    .pipe(gulp.dest(serveDir + '/font'))
-    .pipe(gulp.dest(distDir + '/font'))
+  return gulp.src('fonts/**/*')
+    .pipe(gulp.dest(serveDir + '/fonts'))
+    .pipe(gulp.dest(distDir + '/fonts'))
   ;
 });
 
@@ -106,12 +106,12 @@ gulp.task('compile:scripts', function () {
 // Make HTML and concats CSS files.
 gulp.task('html', ['inject:css'], function () {
   var assets = $.useref.assets({searchPath: ['/bower_components', serveDir + '/styles']});
-  return gulp.src(serveDir + '/renderer/**/*.html')
+  return gulp.src(serveDir + '/src/**/*.html')
     .pipe(assets)
     .pipe($.if('*.css', $.minifyCss()))
     .pipe(assets.restore())
     .pipe($.useref())
-    .pipe(gulp.dest(distDir + '/renderer'))
+    .pipe(gulp.dest(distDir + '/src'))
   ;
 });
 
@@ -133,11 +133,13 @@ gulp.task('bundle:dependencies', function () {
   var excludeModules = defaultModules.concat(electronModules);
 
   for(var name in packageJson.dependencies) {
+    console.log(name);
     dependencies.push(name);
   }
 
   // create a list of dependencies' main files
   var modules = dependencies.map(function (dep) {
+    console.log('dep=', dep)
     var packageJson = require(dep + '/package.json');
     var main;
     if(!packageJson.main) {
@@ -151,7 +153,7 @@ gulp.task('bundle:dependencies', function () {
   });
 
   // add babel/polyfill module
-  modules.push({name: 'babel', main: ['polyfill.js']});
+  // modules.push({name: 'babel', main: ['polyfill.js']});
 
   // create bundle file and minify for each main files
   modules.forEach(function (it) {
@@ -218,7 +220,7 @@ gulp.task('serve', ['inject:css', 'compile:scripts:watch', 'compile:styles', 'mi
   electron.start();
   gulp.watch(['bower.json', srcDir+'/styles/**/*.css', srcDir+'/styles/**/*.less', srcDir+'/styles/**/*.scss', srcDir + '/index.html'], ['inject:css']);
   gulp.watch([serveDir + '/app.js', serveDir + '/browser/**/*.js'], electron.restart);
-  gulp.watch([serveDir + '/styles/**/*.css', serveDir + '/renderer/**/*.html', serveDir + '/renderer/**/*.js'], electron.reload);
+  gulp.watch([serveDir + '/styles/**/*.css', serveDir + '/**/*.html', serveDir + '/**/*.js'], electron.reload);
 });
 
 gulp.task('build', ['html', 'compile:scripts', 'packageJson', 'copy:fonts', 'misc']);

@@ -1,6 +1,5 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
-// import _ from 'lodash';
 import classnames from 'classnames';
 
 import {Panel} from '../../utility/AJNPanel'

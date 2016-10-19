@@ -1,14 +1,9 @@
 /* jshint quotmark: false */
-// var _ = require('lodash');
 import React from 'react';
-// var classNames = require('classnames');
-// var R = require('ramda');
 import {Panel} from '../utility/AJNPanel'
-// var words = require("underscore.string/words");
 import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
 
-// => hello-world
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments.js');
 

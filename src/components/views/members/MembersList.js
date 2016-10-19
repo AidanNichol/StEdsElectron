@@ -1,10 +1,6 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
 var classnames = require('classnames');
-import Paginator from './Paginator.js';
-// var ShowMemberData = require('views/members/ShowMemberData');
-// var TestModal = require('views/members/testModal');
-// import EditMemberData from '../views/members/EditMemberData.js';
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
 import {Panel} from '../../utility/AJNPanel'
@@ -30,7 +26,7 @@ class Memberslist extends React.Component {
 
   render() {
     logit ('props', this.props);
-    var {currentPage, dispStart, dispLength, member, displayMember, sortProp,
+    var {dispStart, dispLength, member, displayMember, sortProp,
         showEditMemberModal, allList, memberAdmin, newMember,
         membersListSetSortBy, membersListSetPage, membersListSetDisplayedMember,
         setShowEditMemberModal, membersListPrint, memberIndex,
@@ -65,16 +61,12 @@ class Memberslist extends React.Component {
       let seeEnd = end >= dispStart && end < dispStart + dispLength;
       let partVisible= seeStart || seeEnd
       let allVisible = seeStart && seeEnd
-      logit('build index', {disp, key, start, i, end, seeStart, seeEnd, partVisible, allVisible, idx})
       let cl = classnames({indexItem: true, partVisible, allVisible});
       return (
         <div className={cl}
               onClick={()=>membersListSetPage({value})}
               key={"mem:index:"+key}>{disp}</div>)
     });
-    let max = Math.ceil(allList.length / dispLength);
-    let maxVisible = Math.min(max, sortProp === 'name' ? 7 : 6);
-    logit('preReturn', {currentPage, dispStart, dispLength, max, maxVisible}, this.props);
 
     var title = (<h4>Membership Lists</h4>);
     return (

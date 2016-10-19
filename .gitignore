@@ -24,8 +24,10 @@ public/bootstrap*
 test.js
 /test
 /testx
-/build
+
 temp*.json
 /stedsBooking-darwin-x64
 /dist
-/.serve
+.serve
+.app
+*.tgz
