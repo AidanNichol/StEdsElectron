@@ -22,8 +22,7 @@ let mainWindow,
       x: 0,
       y: 100,
       show: false,
-      webPreferences: {experimentalFeatures: true,
-        'plugins': true}
+      webPreferences: {experimentalFeatures: true}
     };
 // if(process.env.ENV !== 'development'){
 //   crashReporter.start();
