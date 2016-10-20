@@ -88,16 +88,14 @@ class Memberslist extends React.Component {
             </div>
           {/* </div> */}
           {/* {!displayMember? null : */}
-            <EditMemberData {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}}
+            <EditMemberData className="details" {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}}
                 onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}
                 style={{minHeight: '100%'}}/>
           {/* } */}
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
-          <span className="button1" hidden={showEditMemberModal}>
-              <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
+          <span className="action-buttons" hidden={showEditMemberModal}>
+            <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
                 (Sorted by ${sortProp})`} icon="Printer" />
-          </span>
-          <span className="button2" hidden={showEditMemberModal}>
             <TooltipButton icon="user-add" onClick={()=>createNewMember()} tiptext='Create a New Member' visible/>
           </span>
 

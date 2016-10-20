@@ -1,103 +1,106 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
 @import './watermark.less';
 
-.panel-body {
-  position: relative;
-}
+.show-member-details .panel-contents {
+  .user-details {
+    margin-right: 10px;
+    width: 500px;
+    display: grid;
+    grid-template-columns: 80px auto;
+    grid-template-rows: 50px auto 60px 1fr;
+    grid-template-areas: "edit form"
+                        "... form"
+                        "buttons buttons";
 
-.member-details {
-  display: table-cell;
-  margin-right: 10px;
-  width: 500px;
-}
+    .edit-button {
+      grid-area: edit;
+      // grid-row: 1;
+      // grid-column: 1;
+      // justify-content: flex-start;
+    }
 
-.user-details {
-  .form-line {
-    display: table-row;
-    margin-top: 5px;
-    width: 90%;
+    .form {
+      grid-area: form;
+    }
 
-    &.hidden {
-      // display: none;
-      visibility: hidden;
+    .edit-buttons {
+      grid-area: buttons;
+      display: flex;
+      justify-content: center;
+
+      button {
+        height: 60px;
+        box-sizing: border-box;
+      }
+    }
+
+    .stamp {
+      grid-area: form;
+      width: 80%;
+    }
+
+    .form-line {
+      margin-top: 5px;
+      width: 90%;
+      display: flex;
+      flex-direction: row;
+
+      &.hidden {
+        // display: none;
+        visibility: hidden;
+      }
+    }
+
+    .item-label {
+      padding-right: 10px;
+      padding-top: 8px;
+      text-align: right;
+      vertical-align: top;
+      width: 100px;
+    }
+
+    .item-input {
+      margin-top: 5px;
+      width: 300px;
+
+      &.due input {
+        background-color: #ff6;
+        margin-right: 6px;
+      }
+
+      &.late input {
+        background-color: #f66;
+      }
+    }
+
+    div.item-input {
+      border: inset 2px rgb(238, 238, 238);
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+
+    button,
+    a[type='button'] {
+      img {
+        height: 40px;
+      }
+
+      padding: 5px 8px;
     }
   }
 
-  .item-label {
-    display: table-cell;
-    padding-right: 10px;
-    padding-top: 8px;
-    text-align: right;
-    vertical-align: top;
-    width: 100px;
+  .closeWindow {
+    float: right;
   }
 
-  .item-input {
-    display: table-cell;
-    margin-top: 5px;
-    width: 300px;
-
-    &.due input {
-      background-color: #ff6;
-      margin-right: 6px;
-    }
-
-    &.late input {
-      background-color: #f66;
-    }
+  .user-details.suspended:not(.deleted) {
+    .watermark('Member Suspended');
   }
 
-  div.item-input {
-    border: inset 2px rgb(238, 238, 238);
-    margin-bottom: 5px;
-    margin-top: 10px;
-  }
-}
-
-.modal-footer {
-  .ttbtn {
-    min-height: 58px;
+  .user-details.guest:not(.suspended) {
+    .watermark('Guest'; blue; 600%);
   }
 
-  button,
-  a[type='button'] {
-    img {
-      height: 40px;
-    }
 
-    padding: 5px 8px;
-  }
-}
 
-.closeWindow {
-  float: right;
-}
-
-.user-details.suspended:not(.deleted) {
-  .watermark('Member Suspended');
-}
-
-.user-details.guest:not(.suspended) {
-  .watermark('Guest'; blue; 600%);
-}
-
-.user-details .stamp {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  margin: auto;
-  right: 0;
-  top: 0;
-  width: 80%;
-}
-
-.register-user {
-  display: table-cell;
-}
-
-.edit-member {
-  position: relative;
-  top: 0;
-  right: 0;
-  z-index: 100;
 }

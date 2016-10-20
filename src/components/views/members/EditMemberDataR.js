@@ -79,9 +79,9 @@ const deleteButtons = (props)=>{
   if (!suspended) return null;
   return (
     <span>
-    {deleteMe ?
+    {/* {deleteMe ?
       <img className="stamp" src="../assets/Deleted Member.svg" /> : null
-    }
+    } */}
     <TooltipButton label="Delete Member" onClick={remove} tiptext="Permanently Delete Member" visible={editMode && deleteMe} />
     <TooltipButton icon="user-undelete" onClick={()=>onChange(false)} tiptext='Clear the Delete Request' visible={editMode && deleteMe}/>
     <TooltipButton icon="user-delete" onClick={()=>onChange(true)} tiptext="Request Member Deletion" visible={editMode && (!deleteMe)} />
@@ -136,11 +136,11 @@ let EditMemberData = (props)=>{
     let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
       <Panel className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
-        <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
         {/* <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} /> */}
         <div className={clss}>
+          <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
           {/* <form className={clss} name="user-details" autoComplete="off" onSubmit={onSubmit} > */}
-          <fieldset disabled={showMode} size={40}>
+          <fieldset className="form" disabled={showMode} size={40}>
           <div className="form-line">
               <label className="item-label">firstName</label>
               <Field component={renderField} name="firstName" type="text" normalize={properCaseName} />
@@ -200,11 +200,17 @@ let EditMemberData = (props)=>{
                 </Field>
           </div>
           </fieldset>
-          <TooltipButton label='Close' onClick={()=>setShowEditMemberModal(false)} visible={editMode && !dirty} />
-          <TooltipButton label='Discard' onClick={reset} visible={editMode && dirty && !deletePending} />
-          <TooltipButton label="Save" onClick={saveChangesX} tiptext="Save All Changes to this Member" visible={editMode && !_delete && dirty} />
-          <Field component={suspendButtons} name='suspended' {...{editMode, _delete, suspended}} />
-          <Field component={deleteButtons} name='_delete' {...{editMode, suspended, handleSubmit, remove}} />
+          {_delete ?
+            <img className="stamp" src="../assets/Deleted Member.svg" /> : null
+          }
+          <div className="edit-buttons">
+            <TooltipButton label='Close' onClick={()=>setShowEditMemberModal(false)} visible={editMode && !dirty} />
+            <TooltipButton label='Discard' onClick={reset} visible={editMode && dirty && !deletePending} />
+            <TooltipButton label="Save" onClick={saveChangesX} tiptext="Save All Changes to this Member" visible={editMode && !_delete && dirty} />
+            <Field component={suspendButtons} name='suspended' {...{editMode, _delete, suspended}} />
+            <Field component={deleteButtons} name='_delete' {...{editMode, suspended, handleSubmit, remove}} />
+
+          </div>
         {/* </form> */}
         </div>
 

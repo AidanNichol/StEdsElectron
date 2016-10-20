@@ -35,7 +35,7 @@ var TooltipButton = React.createClass({
     //     {img ? <img src={img} /> : null }{label ? label : null}
     //   </button>
     // );
-    const clnm = classnames({[className]: className, ttbtn:false, ['hint--'+(placement||'top')]: tiptext, [' hint--rounded hint--medium']:tiptext})
+    const clnm = classnames({[className]: className, button:true, ttbtn:false, ['hint--'+(placement||'top')]: tiptext, [' hint--rounded hint--medium']:tiptext})
     style = {color: '#333',
                    backgroundColor: '#e6e6e6',
                    border: '1px solid #adadad',

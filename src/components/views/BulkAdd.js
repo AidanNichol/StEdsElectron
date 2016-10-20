@@ -43,10 +43,10 @@ var BulkAdd = React.createClass({
           <span style={{width: "50%", display: "inline-block"}}>
             <SelectMember style={{width: "50%", maxWidth: "50%", marginTop: "20px"}} valueKey="memId" options={this.props.options} onSelected={memSelected}/>
           </span>
-          <span style={{postion: "relative", bottom: "10px"}}>
-            Add to Waitlist <input className="checkbox" type="checkbox" alt="paid" checked={addToWaitList} onChange={toggleAddToWaitList} />
-          </span>
         </div>
+        <span className="add-to-wl" style={{postion: "relative", bottom: "10px"}}>
+        Add to Waitlist <input className="checkbox" type="checkbox" alt="paid" checked={addToWaitList} onChange={toggleAddToWaitList} />
+        </span>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
         <div className="added-members">
           {
@@ -55,7 +55,6 @@ var BulkAdd = React.createClass({
             )
           }
         </div>
-        <h3>Waiting List</h3>
         <div className="waiting-list">
           {
             waitingList.map((bkng)=>{

@@ -19,7 +19,7 @@
 .payments {
   border: #bce8f1 solid thin;
   border-collapse: collapse;
-  width: 500px;
+  width: 100%;
 
   span {
     display: inline-block;
@@ -30,6 +30,15 @@
       width: 200px;
       padding-right: 5px;
     }
+  }
+
+  .all-debts {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    height: 100%;
+    // grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 
   .overview,

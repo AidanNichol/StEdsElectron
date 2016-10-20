@@ -1,24 +1,37 @@
 .member-list .panel-contents {
+  .names {
+    display: grid;
+  }
+}
+.member-list .panel-contents {
   width: 1225px;
   display: grid;
   align-items: center;
   // background: no-repeat url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/12005/grid.png);
   grid-gap: 0;
-  grid-template-columns: 80px 80px 80px 30px 500px;
-  // grid-template-rows: repeat( 24, 50px);
+  grid-template-columns: 80px 240px 30px 500px;
+  grid-template-rows: 1fr 1fr;
   background-color: #fff;
   color: #444;
+  height: 100%;
+  grid-template-areas: "btn1 names index details"
+                       "btn2 names index details";
 
   .sort-buttons {
-    grid-column: 1 / span 3;
+    grid-area: btn1;
+    grid-column: 1;
     grid-row: 1;
     align-self: start;
+
+    button {
+      margin-bottom: 10px;
+    }
   }
 
   .names {
-    grid-column: 1 / span 3;
-    grid-row: 2;
+    grid-area: names;
     align-self: start;
+    height: 100%;
 
     .id {
       display: inline-block;
@@ -29,8 +42,7 @@
   }
 
   .index {
-    grid-column: 4;
-    grid-row: 2;
+    grid-area: index;
     align-self: center;
     cursor: pointer;
     text-align: center;
@@ -49,26 +61,28 @@
   }
 
   .list-index {
-    grid-column: 1 / span 3;
-    grid-row: 1;
+    grid-area: names;
     align-self: start;
   }
 
   .show-member-details {
-    grid-column: 5;
-    grid-row: 1 / span 3;
+    grid-area: details;
     align-self: start;
     margin-left: 10px;
+    height: 100%;
     width: 100%;
   }
 
-  .button1 {
-    grid-column: 1;
-    grid-row: 3;
-  }
+  .action-buttons {
+    grid-area: btn2;
+    align-self: end;
 
-  .button2 {
-    grid-column: 2;
-    grid-row: 3;
+    button {
+      margin-top: 10px;
+    }
+
+    img {
+      height: 40px;
+    }
   }
 }
