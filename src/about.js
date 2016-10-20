@@ -12,7 +12,6 @@ function fsExists(myDir) {
   }
 }
 
-
 var links = [
   ['Electron', 'Electron', 'http://electron.atom.io'],
   ['react', 'react', 'http://facebook.github.io/react/docs/getting-started.html'],
@@ -30,17 +29,23 @@ const GetIcon = ({name, ...rest})=>{
   return (<span {...rest}>{name}</span>)
 };
 render(
-  (<div>
-    <img src={`./assets/St.EdwardsLogoSimple.svg`} height='120px' />
-    <div>St.Edwards Booking System</div>
-    <div>Developed by Aidan Nichol</div>
-    <GetIcon name="github" onClick={()=>open(`https://github.com/AidanNichol/StEdsElectron`)} />
-    <span>Source code available on Github</span>
+  (<div id="about-page">
+    <img className="main-logo" src={`./assets/St.EdwardsLogoSimple.svg`} height='120px' />
+    <div className="main-text">
+      <div>St.Edwards Booking System</div>
+      <div>Developed by Aidan Nichol</div>
+
+    </div>
+    <GetIcon className="sub-logo" name="github" onClick={()=>open(`https://github.com/AidanNichol/StEdsElectron`)} />
+    <span className="sub-text">Source code available on Github</span>
     {
       links.map(([name, text, link, icon], i)=>{
         return (
           <div key={'link:'+i} >
-            <GetIcon {...{name}} onClick={()=>open(link)}/> {text}
+            <GetIcon className="sub-logo" {...{name}} onClick={()=>open(link)}/>
+            <span className="sub-text">
+              {text}
+            </span>
           </div>
         );
       })

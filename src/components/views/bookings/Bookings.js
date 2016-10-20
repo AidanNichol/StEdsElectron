@@ -49,8 +49,7 @@ var Bookings = React.createClass({
     });
 
     return (
-      <div style={{margin: "0 10px 0 10px"}} >
-        <Panel header={title} bsStyle='info'  body={{className: bCl}} id="steds_bookings">
+        <Panel header={title} body={{className: bCl}} id="steds_bookings">
         <div className="select">
         <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
         {accNames.map((member)=>( <h5 key={member.memId}>{ member.firstName } { member.lastName }</h5> ))}
@@ -81,7 +80,6 @@ var Bookings = React.createClass({
         <Payment accId={accId}/>
         </Panel>
 
-      </div>
       );
   },
 });

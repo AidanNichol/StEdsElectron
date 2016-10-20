@@ -102,7 +102,7 @@ function mapDispatchToProps(dispatch) {
   let membersListSetDisplayedMember = actionCreators.membersListSetDisplayedMember;
   actions.membersListSetDisplayedMember = (memId)=>{
 
-    dispatch(membersListSetDisplayedMember(memId));
+    dispatch(membersListSetDisplayedMember(memId, true));
     dispatch(setPage({page: 'membersList', memberId: memId, accountId: null}));
   }
 

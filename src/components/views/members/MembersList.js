@@ -70,7 +70,6 @@ class Memberslist extends React.Component {
 
     var title = (<h4>Membership Lists</h4>);
     return (
-      <div style={{margin: "0 10px 0 10px"}} >
       <Panel header={title} className="member-list" id="steds_memberlist">
           {/* <div className="list-index" hidden={showEditMemberModal}> */}
             <div className='sort-buttons' hidden={showEditMemberModal}>
@@ -89,7 +88,9 @@ class Memberslist extends React.Component {
             </div>
           {/* </div> */}
           {/* {!displayMember? null : */}
-            <EditMemberData {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}} onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}/>
+            <EditMemberData {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}}
+                onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}
+                style={{minHeight: '100%'}}/>
           {/* } */}
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
           <span className="button1" hidden={showEditMemberModal}>
@@ -101,7 +102,6 @@ class Memberslist extends React.Component {
           </span>
 
       </Panel>
-      </div>
     );
   }
 }

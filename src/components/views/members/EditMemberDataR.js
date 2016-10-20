@@ -135,7 +135,7 @@ let EditMemberData = (props)=>{
 
     let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
-      <Panel bsStyle='info' className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
+      <Panel className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
         <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
         {/* <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} /> */}
         <div className={clss}>

@@ -43,7 +43,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   logit('currentPage', curPage)
   return (
         <div>
-        <div className="mainPage"  style={{paddingLeft:3, paddingTop: 3}}>
+        <div className="mainPage" >
         <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
         <ReplicationStatus className="devlinks"/>
         <Signin />

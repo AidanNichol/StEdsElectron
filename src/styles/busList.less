@@ -6,59 +6,94 @@ div.panel-title {
   }
 }
 
-.bus-list {
-  display: table-cell;
+.bus-list .panel-contents {
+  // min-height: 600px;
+  display: grid;
+  grid-template-rows: 60px;
+  grid-template-columns: 3fr 20px 2fr;
 
-  .booked-members {
-    grid-template-rows: repeat(18, 23px);
+  .walk-select {
+    grid-row: 1;
+    grid-column: 1;
   }
 
-  .waiting-list {
-    grid-template-rows: repeat(4, 23px);
+  .booked-members {
+    grid-row: 2;
+    grid-column: 1;
+  }
 
+  .others {
+    grid-row: 2;
+    grid-column: 3;
+  }
+}
+
+.bus-list {
+  .booked-members {
+    display: grid;
+    grid-template-rows: repeat(18, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .others {
+    display: grid;
+    // grid-template-rows: repeat(18, 1fr);
+    grid-template-columns: 1fr 1fr;
+    border: red thin solid;
+  }
+
+  .others,
+  .booked-cars,
+  .waiting-list {
     .member {
-      span {
-        display: inline-block;
-        width: 150px;
-      }
+      margin-bottom: 10px;
+    }
+
+    button {
+      margin-left: 10px;
     }
   }
 
+  .booked-cars,
+  .others,
   .booked-members,
   .waiting-list {
-    display: grid;
-    align-items: center;
-    grid-gap: 0;
-    grid-template-columns: repeat(3, 220px);
+    align-items: start;
+    grid-gap: 8px;
     grid-auto-flow: column;
+
+    .seats-available {
+      grid-row: 17 / span 2;
+      grid-column: 3;
+      width: 180px;
+      margin-left: 10px;
+      margin-right: 10px;
+      border: black thin solid;
+      border-radius: 5px;
+      text-align: center;
+    }
 
     .member {
       color: green;
-      margin-left: 10px;
-      margin-right: 10px;
+      display: flex;
+      // flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
 
+      // div:first-child {
+      //   justify-content: flex-start;
+      // }
+      //
+      // div:last-child {
+      //   justify-content: flex-end;
+      // }
+      //
       .annotation {
         font-size: 0.7em;
       }
 
       &:hover {
         background-color: #eee;
-      }
-
-      > span {
-        display: inline-block;
-
-        &.bName {
-          width: 170px;
-        }
-
-        &.wName {
-          width: 130px;
-        }
-
-        &.pos {
-          width: 20px;
-        }
       }
 
       input {
@@ -68,10 +103,11 @@ div.panel-title {
 
       button {
         width: 25px;
+        margin-right: 20px;
 
-        span {
-          width: 10px;
-        }
+        // span {
+        //   width: 10px;
+        // }
       }
     }
   }

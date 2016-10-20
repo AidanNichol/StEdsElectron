@@ -18,7 +18,7 @@ let mainWindow,
     loadingScreen,
     windowParams = {
       width: 1280,
-      height: 800,
+      height: 774,
       x: 0,
       y: 100,
       show: false,
