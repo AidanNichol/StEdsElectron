@@ -223,6 +223,13 @@ gulp.task('serve', ['inject:css', 'compile:scripts:watch', 'compile:styles', 'mi
   gulp.watch([serveDir + '/styles/**/*.css', serveDir + '/**/*.html', serveDir + '/**/*.js'], electron.reload);
 });
 
+gulp.task('run', ['inject:css', 'compile:scripts:watch', 'compile:styles', 'misc'], function () {
+  var electron = electronServer.create();
+  electron.start();
+  gulp.watch(['bower.json', srcDir+'/styles/**/*.css', srcDir+'/styles/**/*.less', srcDir+'/styles/**/*.scss', srcDir + '/index.html'], ['inject:css']);
+  gulp.watch([serveDir + '/app.js', serveDir + '/browser/**/*.js'], electron.restart);
+});
+
 gulp.task('build', ['html', 'compile:scripts', 'packageJson', 'copy:fonts', 'misc']);
 
 gulp.task('serve:dist', ['build'], function () {

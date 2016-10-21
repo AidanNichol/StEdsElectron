@@ -47,9 +47,11 @@ class Memberslist extends React.Component {
       // logit('classes', this.props.membersList.status)
       return (
         <div key={member._id} className={clss} onClick={()=>membersListSetDisplayedMember(member.memberId)}>
-          {showMemberStatus && <span className='member-status'>({member.memberStatus})</span>}
-          <span className="id">{member._id.substr(1)}</span>
-          <span className="name">{member.lastName + ', ' + member.firstName}</span>
+          <span className="line-name">
+            <span className="id">{member._id.substr(1)}</span>
+            <span className="name">{member.lastName + ', ' + member.firstName}</span>
+          </span>
+          <span className='member-status'>{showMemberStatus ? `(${member.memberStatus})` : ''}</span>
         </div>
       );
     });

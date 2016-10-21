@@ -11,42 +11,43 @@ var logit = Logit('color:yellow; background:blue;', 'BusLists');
 
 
 export default function BusLists(props){
-    var {bookings, cars, waitingList, walkId, status, walks, cancelBooking, convertToBooking, setCurrentWalk, showMemberBookings} = props;
+    var {bookings, cars, waitingList, walkId, status, walks, cancelBooking,
+      convertToBooking, setCurrentWalk, showMemberBookings, printBusList} = props;
     logit('props', props);
-    var Others = ({cars, list})=>{
-      var others = [];
-      if (cars.length > 0){
-        others.push(<h4 key="cars:head">Cars</h4>);
-        props.cars.forEach((bkng)=>{
-          others.push(<div className="member" key={'cars:'+bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>
-          <div className="bName">{bkng.name}</div> <div className='annotation'>{bkng.annotation}
-          <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
-          </div>
-          </div>)}
-        );
-
-      }
-      if (list.length > 0){
-        others.push(<h4 key="wait:head">Waiting List</h4>);
-        list.forEach((bkng)=>{
-            others.push(<div key={'wait:'+bkng.memId} className="member"   onClick={()=>showMemberBookings(bkng.memId)}>
-              <div className="wName"><span className="pos">{pos++}. </span>{bkng.name} </div>
-                <div className='annotation'>{bkng.annotation}
-                  <button type="button" style={{lineHeight: 0.9, fontSize: '80%'}} onClick={()=>convertToBooking(bkng.memId, walkId)} >✅ </button>
-                  <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
-                </div>
-              </div>
-            )
-          }
-        );
-
-      }
-      return (<div className="others">
-      <Waitlist list={list} />
-      <Cars cars={cars} />
-      {/* {others} */}
-      </div>)
-    }
+    // var Others = ({cars, list})=>{
+    //   var others = [];
+    //   if (cars.length > 0){
+    //     others.push(<h4 key="cars:head">Cars</h4>);
+    //     props.cars.forEach((bkng)=>{
+    //       others.push(<div className="member" key={'cars:'+bkng.memId}  onClick={()=>showMemberBookings(bkng.memId)}>
+    //       <div className="bName">{bkng.name}</div> <div className='annotation'>{bkng.annotation}
+    //       <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
+    //       </div>
+    //       </div>)}
+    //     );
+    //
+    //   }
+    //   if (list.length > 0){
+    //     others.push(<h4 key="wait:head">Waiting List</h4>);
+    //     list.forEach((bkng)=>{
+    //         others.push(<div key={'wait:'+bkng.memId} className="member"   onClick={()=>showMemberBookings(bkng.memId)}>
+    //           <div className="wName"><span className="pos">{pos++}. </span>{bkng.name} </div>
+    //             <div className='annotation'>{bkng.annotation}
+    //               <button type="button" style={{lineHeight: 0.9, fontSize: '80%'}} onClick={()=>convertToBooking(bkng.memId, walkId)} >✅ </button>
+    //               <button type="button" style={{lineHeight: 0.9, fontSize: '80%', fontWeight: 'bold'}} onClick={()=>cancelBooking(bkng.memId, walkId)} >X</button>
+    //             </div>
+    //           </div>
+    //         )
+    //       }
+    //     );
+    //
+    //   }
+    //   return (<div className="others">
+    //   <Waitlist list={list} />
+    //   <Cars cars={cars} />
+    //   {/* {others} */}
+    //   </div>)
+    // }
 
     const Cars = (props)=>{
       return props.cars.length === 0 ? null :
@@ -89,6 +90,7 @@ export default function BusLists(props){
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
+        <div><button type="button" onClick={()=>{logit('clicke', '');printBusList()}}>Print All  Walks PDF</button></div>
         <div className="booked-members">
           {
             bookings.map((bkng)=>

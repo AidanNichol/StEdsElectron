@@ -9,7 +9,7 @@
   align-items: center;
   // background: no-repeat url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/12005/grid.png);
   grid-gap: 0;
-  grid-template-columns: 80px 240px 30px 500px;
+  grid-template-columns: 80px 240px 50px 500px;
   grid-template-rows: 1fr 1fr;
   background-color: #fff;
   color: #444;
@@ -32,13 +32,6 @@
     grid-area: names;
     align-self: start;
     height: 100%;
-
-    .id {
-      display: inline-block;
-      width: 40px;
-      margin-right: 10px;
-      text-align: right;
-    }
   }
 
   .index {
@@ -46,13 +39,23 @@
     align-self: center;
     cursor: pointer;
     text-align: center;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    // justify-content: space-around;
 
-    .allVisible {
-      background-color: #ccc;
-    }
+    div {
+      padding-bottom: 7px;
 
-    .partVisible:not(.allVisible) {
-      background-color: #eee;
+      &.allVisible {
+        background-color: #ccc;
+      }
+
+      &.partVisible:not(.allVisible) {
+        background-color: #eee;
+      }
     }
 
     div {
@@ -71,6 +74,19 @@
     margin-left: 10px;
     height: 100%;
     width: 100%;
+  }
+
+  .list-line {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    .id {
+      display: inline-block;
+      width: 40px;
+      margin-right: 10px;
+      text-align: right;
+    }
   }
 
   .action-buttons {

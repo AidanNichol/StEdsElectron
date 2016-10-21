@@ -41,17 +41,18 @@ const makeGetBookings = (requestType)=> createSelector(
              if (!members[memId])console.error('memberId not found')
              let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
             //  let name = members[memId].firstName+' '+members[memId].lastName;
-             let annotation = (annotations[memId] ? `(${annotations[memId]})` : '')
+             let annotation = (annotations[memId] ? ` (${annotations[memId]})` : '')
+             if (members[memId].memberStatus === 'Guest')annotation += ' (guest)';
              return { memId, name, annotation, type: walk.booked[memId], requestType};
            });
       logit('getBookings', bookings);
       return bookings;
     }
 );
-const getBusBookings = makeGetBookings(request.BOOKED)
-const getCarBookings = makeGetBookings(request.CAR)
+export const getBusBookings = makeGetBookings(request.BOOKED)
+export const getCarBookings = makeGetBookings(request.CAR)
 
-const getWaitingList = createSelector(
+export const getWaitingList = createSelector(
     (state, id)=>state.walks.list[id],
     (state)=>state.members,
     (walk, members)=>{
@@ -69,6 +70,7 @@ const getWaitingList = createSelector(
      }
 );
 
+
 function mapDispatchToProps(dispatch) {
   return {
     // setCurrentWalk: (walkId)=>{dispatch({type: 'WALK_SELECTED', walkId});},
@@ -78,6 +80,7 @@ function mapDispatchToProps(dispatch) {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(changeWalkDoc(walkId, accId, memId, reqType)),
     cancelBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.CANCELLED)),
     convertToBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.booked)),
+    printBusList: (walkId)=>dispatch({type: 'buslist/Print', walkId}),
   }
 }
 

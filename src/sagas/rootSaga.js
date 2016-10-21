@@ -6,6 +6,7 @@ import {walksSaga} from '../ducks/walksDuck.js';
 import monitorChanges from '../sagas/dbChangeMonitoring.js';
 import accountsSaga from '../sagas/accountsSaga.js';
 import membershipListPDF from '../reports/membershipListPDF'
+import busListPDF from '../reports/busListPDF'
 import {signinSaga} from '../ducks/signin-duck.js';
 import * as sgnn from '../ducks/signin-duck.js';
 // import {signinSaga} from './sagas/signinSaga.js';
@@ -20,6 +21,7 @@ export default function * rootSaga() {
     spawn(signinSaga),
     spawn(accountsSaga),
     spawn(membershipListPDF),
+    spawn(busListPDF),
     // call(initialSaga),
   ]);
 }

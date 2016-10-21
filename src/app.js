@@ -3,7 +3,6 @@ const electron = require('electron');
 // const {Menu} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-require('electron-debug')({showDevTools: true});
 import { spawn } from "child_process"
 import * as path from "path"
 
@@ -64,6 +63,7 @@ function createWindow() {
 
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
+    require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {
