@@ -5,7 +5,7 @@
   "main": ".serve/app.js",
   "scripts": {
     "pack": "build --arch=ia32",
-    "dist": "build",
+    "dist": "build --arch=ia32",
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
     "dev": "./node_modules/.bin/electron .",
@@ -16,9 +16,9 @@
     "compile": "cross-env NODE_ENV=production electron-compile --appDir . ./src",
     "package": "run-s clean-cache compile package-linux package-win clean-source",
     "package-linux": "cross-env NODE_ENV=production electron-packager . app --out=dist --platform=linux --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
-    "package-win": "cross-env NODE_ENV=production electron-packager . app --out=dist --platform=win32 --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
+    "package-win": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --platform=win32 --asar=true --icon=\"./build/icon.ico\" --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
     "quick-package": "run-s clean-cache compile package-for-this clean-source",
-    "package-for-this": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\""
+    "package-for-this": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --asar=true --icon=\"./build/icon.ico\" --ignore=\".compilerc|.gitignore|cleaner.js\""
   },
   "build": {
     "appId": "co.uk.stedwardsfellwalkers.bookings",
