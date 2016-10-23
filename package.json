@@ -4,8 +4,8 @@
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
   "main": ".serve/app.js",
   "scripts": {
-    "pack": "build --arch=ia32",
-    "dist": "build --arch=ia32",
+    "pack": "build",
+    "dist": "build",
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
     "dev": "./node_modules/.bin/electron .",
@@ -25,10 +25,11 @@
     "win": {
       "iconUrl": "http://stedwardsfellwalkers.co.uk/favicon.ico",
       "remoteReleases": "https://github.com/AidanNichol/StEdsElectron",
-      "publish": [
-        "github",
-        "bintray"
-      ]
+      "certificateFile": "C:\\Temp\\SelfSignedCert.pfx",
+      "certificatePassword": "a1dan!",
+      "publish": {
+        "provider": "github"
+      }
     }
   },
   "ava": {
