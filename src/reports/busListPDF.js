@@ -48,8 +48,9 @@ function buildPDF(state){
     // table.push({text: dispDate, style: 'header'});
     // table.push({text: venue, style: 'header'});
     getData(table, getBusBookings(state, walkId), '', false);
-    getData(table, getCarBookings(state, walkId), 'Cars', false);
-    getData(table, getWaitingList(state, walkId), 'Waiting List', true);
+    table.push({text: `......  +${walk.capacity - table.length + 1} available  ......`, bold: true});
+    getData(table, getCarBookings(state, walkId), '====== Cars ==========', false);
+    getData(table, getWaitingList(state, walkId), '==== Waiting List ====', true);
     return table;
   });
   logit('bildPDF', walks)
@@ -83,8 +84,6 @@ function buildPDF(state){
       subheader: {
         fontSize: 12,
         bold: true,
-        color: 'blue',
-        fillColor: '#ff0000',
         margin: [0, 2, 0, 2],
         underline: true,
       },
