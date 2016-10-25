@@ -1,11 +1,11 @@
 {
   "name": "StEdsBookings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
   "main": ".serve/app.js",
   "scripts": {
-    "pack": "build",
-    "dist": "build",
+    "pack": "build =-win --ia32",
+    "dist": "build --win --ia32",
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
     "dev": "./node_modules/.bin/electron .",
@@ -27,9 +27,7 @@
       "remoteReleases": "https://github.com/AidanNichol/StEdsElectron",
       "certificateFile": "C:\\Temp\\SelfSignedCert.pfx",
       "certificatePassword": "a1dan!",
-      "publish": {
-        "provider": "github"
-      }
+      "target": "NSIS"
     }
   },
   "ava": {
@@ -123,7 +121,7 @@
     "del": "^2.2.2",
     "devtron": "^1.4.0",
     "electron": "^1.4.3",
-    "electron-builder": "^7.14.1",
+    "electron-builder": "^7.14.2",
     "electron-connect": "^0.6.0",
     "electron-packager": "^8.1.0",
     "eslint": "^3.7.1",
