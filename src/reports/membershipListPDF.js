@@ -37,7 +37,7 @@ export default function* printMemberslistSaga(){
 
   while(true){ // eslint-disable-line no-constant-condition
     let action = yield take(actions.PRINT_LIST);
-    let pdf = buildPDF( action.payload );
+    let pdf = membershipListReport( action.payload );
     logit('PDF', {pdf, action});
   }
 }
@@ -50,7 +50,7 @@ function showSubs(mem){
   return {text: `'${mem.subscription ? parseInt(mem.subscription)%100:16}`,
     ...subsMap[subs.status]};
 }
-function buildPDF(members){
+export function membershipListReport(members){
   // const subsMap = {ok:{'✓'}, due: '?', late: '✘'};
   let fmtMem = {};
   logit('bildPDF', members)

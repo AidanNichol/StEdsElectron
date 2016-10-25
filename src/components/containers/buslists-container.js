@@ -42,7 +42,7 @@ const makeGetBookings = (requestType)=> createSelector(
              let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
             //  let name = members[memId].firstName+' '+members[memId].lastName;
              let annotation = (annotations[memId] ? ` (${annotations[memId]})` : '')
-             if (members[memId].memberStatus === 'Guest')annotation += ' (guest)';
+             if (members[memId].memberStatus === 'Guest')annotation += ' *G*';
              return { memId, name, annotation, type: walk.booked[memId], requestType};
            });
       logit('getBookings', bookings);
@@ -80,7 +80,7 @@ function mapDispatchToProps(dispatch) {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(changeWalkDoc(walkId, accId, memId, reqType)),
     cancelBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.CANCELLED)),
     convertToBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.booked)),
-    printBusList: (walkId)=>dispatch({type: 'buslist/Print', walkId}),
+    printBusList: (walkId)=>dispatch({type: 'buslist/Print', payload:walkId}),
   }
 }
 
