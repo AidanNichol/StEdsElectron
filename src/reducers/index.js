@@ -9,7 +9,6 @@ import walks from '../ducks/walksDuck.js';
 import accounts from '../reducers/accounts-reducer.js';
 // import membersList from '../reducers/memberslist-reducers.js';
 import membersList from '../ducks/memberslist-duck';
-import currentMember from '../reducers/currentMember-reducers.js';
 import {reducer as signinReducer } from '../ducks/signin-duck.js';
 import controller from '../reducers/controller-reducers.js';
 import replicator from '../ducks/replication-duck.js';
@@ -22,7 +21,6 @@ var reducers = combineReducers({
     walks,
     accounts,
     membersList,
-    currentMember,
     signin: signinReducer,
     replicator,
     router,
