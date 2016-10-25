@@ -31,3 +31,4 @@ temp*.json
 .serve
 .app
 *.tgz
+/app

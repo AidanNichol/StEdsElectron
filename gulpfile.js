@@ -14,11 +14,12 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var packageJson = require('./package.json');
 var optimist = require('optimist');
+var useref = require('gulp-useref');
 
 var srcDir      = 'src';      // source directory
 var serveDir    = '.serve';   // directory for serve task
-var distDir     = 'dist';     // directory for serve:dist task
-var releaseDir  = 'release';  // directory for application packages
+var distDir     = 'app';     // directory for serve:dist task
+var releaseDir  = 'dist';  // directory for application packages
 
 var babelOptions = {
   "presets": ["es2015", "stage-0", "react"],
@@ -105,13 +106,10 @@ gulp.task('compile:scripts', function () {
 
 // Make HTML and concats CSS files.
 gulp.task('html', ['inject:css'], function () {
-  var assets = $.useref.assets({searchPath: ['/bower_components', serveDir + '/styles']});
-  return gulp.src(serveDir + '/src/**/*.html')
-    .pipe(assets)
+  return gulp.src(serveDir+'/**/*.html')
+    .pipe(useref())
     .pipe($.if('*.css', $.minifyCss()))
-    .pipe(assets.restore())
-    .pipe($.useref())
-    .pipe(gulp.dest(distDir + '/src'))
+    .pipe(gulp.dest(distDir))
   ;
 });
 
@@ -181,8 +179,14 @@ gulp.task('bundle:dependencies', function () {
 });
 
 // Write a package.json for distribution
-gulp.task('packageJson', ['bundle:dependencies'], function (done) {
+// gulp.task('packageJson', ['bundle:dependencies'], function (done) {
+gulp.task('packageJson', function (done) {
   var json = _.cloneDeep(packageJson);
+  delete json.devDependencies;
+  delete json.scripts;
+  delete json.build;
+  delete json.ava;
+  console.log(json);
   json.main = 'app.js';
   fs.writeFile(distDir + '/package.json', JSON.stringify(json), function (err) {
     done();
@@ -236,15 +240,5 @@ gulp.task('serve:dist', ['build'], function () {
   electronServer.create({path: distDir}).start();
 });
 
-gulp.task('boilerplate', function () {
-  var outDir = optimist.argv.o || optimist.argv.out;
-  if (!outDir) {
-    console.log('usage: gulp boilerplate -o {outdir}');
-    return;
-  }
-  var configStream = gulp.src(['bower.json', 'package.json', 'gulpfile.js', '.gitignore']).pipe(gulp.dest(outDir));
-  var srcStream = gulp.src(['src/**/*']).pipe(gulp.dest(outDir + '/src'));
-  return merge([configStream, srcStream]);
-});
 
 gulp.task('default', ['build']);

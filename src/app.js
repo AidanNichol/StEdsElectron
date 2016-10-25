@@ -19,8 +19,10 @@ let mainWindow,
       width: 1280,
       height: 774,
       x: 0,
-      y: 100,
+      y: 0,
       show: false,
+      fullscreen: true,
+      title: "St.Edward's Booking System",
       webPreferences: {experimentalFeatures: true}
     };
 // if(process.env.ENV !== 'development'){
