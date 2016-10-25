@@ -5,7 +5,7 @@ import fs from 'fs'
 import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:black;', 'printPayments:report');
 
-const home = process.env.HOME;
+const home =process.env.HOME || process.env.HOMEPATH;
 logit('home', home)
 function isDirSync(aPath) {
   try {
