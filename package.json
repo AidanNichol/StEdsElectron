@@ -1,25 +1,16 @@
 {
   "name": "StEdsBookings",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
-  "main": "app/app.js",
+  "main": ".serve/app.js",
   "scripts": {
     "postinstall": "install-app-deps",
     "pack": "build -win --ia32",
     "dist": "build --win --ia32",
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
-    "dev": "./node_modules/.bin/electron .",
-    "test": "NODE_PATH=src ava",
-    "startx": "rm -rf .cache && cross-env NODE_ENV=development electron .",
-    "clean-cache": "rm -rf .cache",
-    "clean-source": "node cleaner.js \"./dist\"",
-    "compile": "cross-env NODE_ENV=production electron-compile --appDir . ./src",
-    "package": "run-s clean-cache compile package-linux package-win clean-source",
-    "package-linux": "cross-env NODE_ENV=production electron-packager . app --out=dist --platform=linux --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
-    "package-win": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --platform=win32 --asar=true --icon=\"./build/icon.ico\" --arch=all --overwrite --ignore=\".compilerc|.gitignore|cleaner.js\"",
-    "quick-package": "run-s clean-cache compile package-for-this clean-source",
-    "package-for-this": "cross-env NODE_ENV=production electron-packager . app --out=dist --overwrite --asar=true --icon=\"./build/icon.ico\" --ignore=\".compilerc|.gitignore|cleaner.js\""
+    "deploy": "gulp build && dist",
+    "test": "NODE_PATH=src ava"
   },
   "build": {
     "appId": "co.uk.stedwardsfellwalkers.bookings",

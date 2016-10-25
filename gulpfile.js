@@ -189,6 +189,7 @@ gulp.task('packageJson', function (done) {
   console.log(json);
   json.main = 'app.js';
   fs.writeFile(distDir + '/package.json', JSON.stringify(json), function (err) {
+    if (err) console.log('copy package.json failed! ', err);
     done();
   });
 });
