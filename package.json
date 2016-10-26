@@ -6,10 +6,13 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "pack": "build -win --ia32",
-    "dist": "build --win --ia32",
+    "dist": "build",
+    "release": "build",
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
     "deploy": "gulp build && dist",
+    "compile": "babel -d app/ src/",
+    "css": "postcss -c postcss.json",
     "test": "NODE_PATH=src ava"
   },
   "build": {
@@ -19,7 +22,10 @@
       "remoteReleases": "https://github.com/AidanNichol/StEdsElectron",
       "certificateFile": "../SelfSignedCert.pfx",
       "certificatePassword": "a1dan!",
-      "target": "NSIS"
+      "target": "NSIS",
+      "publish": [
+        "github"
+      ]
     }
   },
   "ava": {
@@ -102,6 +108,7 @@
   },
   "devDependencies": {
     "ava": "^0.16.0",
+    "babel-cli": "^6.18.0",
     "babel-eslint": "^7.0.0",
     "babel-plugin-transform-class-properties": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
@@ -111,6 +118,7 @@
     "browserify": "^13.1.0",
     "concurrently": "^2.2.0",
     "cross-env": "^3.1.2",
+    "cssnano": "^3.8.0",
     "del": "^2.2.2",
     "devtron": "^1.4.0",
     "electron": "^1.4.3",
@@ -135,9 +143,16 @@
     "gulp-useref": "^3.1.2",
     "gulp-watch": "^4.3.10",
     "ignore-styles": "^5.0.1",
+    "less": "^2.7.1",
     "main-bower-files": "^2.13.1",
     "merge2": "^1.0.2",
     "optimist": "^0.6.1",
+    "postcss-cli": "^2.6.0",
+    "postcss-cssnext": "^2.8.0",
+    "postcss-less": "^0.15.0",
+    "postcss-less-engine": "^0.6.2",
+    "postcss-nested": "^1.0.0",
+    "precss": "^1.4.0",
     "svgstore": "^1.1.0",
     "timekeeper": "^0.1.1",
     "vinyl-buffer": "^1.0.0",

@@ -1,0 +1,11 @@
+{
+  "use":["postcss-cssnext", "postcss-nested"],
+  "output": "app/styles/bookings.css",
+  "local-plugins": true,
+
+  "input": "src/styles/bookings.css",
+  "postcss-cssnext": {
+    "browserslist": "last 2 chrome versions"
+  }
+
+}

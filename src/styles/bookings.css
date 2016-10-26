@@ -1,0 +1,202 @@
+:root {
+  --watermark {
+    bottom: 0;
+    color: black;
+    content: 'Member Suspended';
+    cursor: default;
+    display: block;
+    font-family: sans-serif;
+    font-size: 360%;
+    font-style: italic;
+    font-weight: bold;
+    left: 20%;
+    width: 7em;
+    height: 4em;
+    line-height: 100%;
+    pointer-events: none;
+    position: absolute;
+    opacity: 0.1;
+    right: 0;
+    text-align: center;
+    top: 30%;
+    transform: rotate(-45deg);
+    user-select: none;
+    z-index: 9999;
+  }
+}
+
+#steds_bookings {
+  & .mems1.panel-body .panel-contents {
+    grid-template-columns: 400px 470px;
+  }
+
+  & .mems2.panel-body .panel-contents {
+    grid-template-columns: 500px 470px;
+  }
+
+  & .mems3.panel-body .panel-contents {
+    grid-template-columns: 600px 470px;
+  }
+
+  & .panel-body .panel-contents {
+    display: grid;
+
+    & .select {
+      grid-column: 1;
+      grid-row: 1;
+      width: 300px;
+    }
+
+    .bTable {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .payment {
+      grid-column: 2;
+      grid-row: 3;
+      margin-left: 10px;
+      min-height: 1px;
+      margin-top: 10px;
+
+      .payment-boxes {
+        display: inline-block;
+      }
+
+      .pay-box {
+        padding: 10px;
+        margin-left: 15px;
+        background: rgb(238, 238, 238);
+        border: rgb(170, 170, 170) solid 2px;
+
+        span {
+          padding-right: 1em;
+        }
+
+        input {
+          width: 50px;
+        }
+      }
+    }
+
+    .logsTable {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      padding-bottom: 10px;
+    }
+  }
+
+  .heading,
+  .walk {
+    display: grid;
+    text-align: center;
+    align-items: center;
+    grid-gap: 0;
+    grid-template-columns: 100px 100px 100px 100px 100px;
+
+    div {
+      border: solid black thin;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      min-height: 62px;
+
+      &.avail {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+
+      &.bookingcell {
+        font-size: 1.5em;
+        padding-bottom: 0;
+        padding-top: 0;
+
+        .normal {
+          padding-top: 7px;
+          width: 32px;
+        }
+
+        .annotation {
+          padding-top: 0;
+          font-size: 0.7em;
+          display: block;
+          text-align: center;
+          width: 100%;
+        }
+
+        .hotspot {
+          display: none;
+        }
+
+        &:hover {
+          font-size: 1.3em;
+
+          .hotspot {
+            display: inline-block;
+          }
+
+          .normal {
+            display: none;
+          }
+
+          .fullwidth {
+            width: 100%;
+            height: 30px;
+            display: inline-block;
+          }
+
+          .halfwidth {
+            width: 50%;
+            height: 30px;
+            display: inline-block;
+          }
+
+          background-color: #f5edc3;
+
+          span:hover {
+            background-color: #eada88;
+          }
+        }
+      }
+    }
+  }
+
+  .bookings {
+    h5 {
+      font-size: 2em;
+    }
+  }
+
+  .tooltip-inner {
+    max-width: none;
+  }
+
+  .heading {
+    .suspended {
+      &::before {
+        @apply --watermark;
+
+        content: 'Suspended';
+        color: red;
+        opacity: 0.2;
+        font-size: 250%;
+        transform: rotate(-70deg);
+        left: 15%;
+        top: 49%;
+      }
+    }
+
+    .guest {
+      &::before {
+        @apply --watermark;
+
+        content: 'Guest';
+        color: blue;
+        opacity: 0.2;
+        transform: rotate(-70deg);
+        left: 12%;
+        top: 43%;
+      }
+    }
+  }
+}
