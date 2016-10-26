@@ -3,8 +3,8 @@ const electron = require('electron');
 // const {Menu} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-// import { spawn } from "child_process"
-// import * as path from "path"
+import { spawn } from "child_process"
+import * as path from "path"
 
 
 // import app from 'app';
@@ -19,9 +19,8 @@ let mainWindow,
       width: 1280,
       height: 774,
       x: 0,
-      y: 0,
+      y: 100,
       show: false,
-      title: "St.Edward's Booking System",
       webPreferences: {experimentalFeatures: true}
     };
 // if(process.env.ENV !== 'development'){
@@ -58,13 +57,12 @@ function createWindow() {
         if (loadingScreen) {
             let loadingScreenBounds = loadingScreen.getBounds();
             mainWindow.setBounds(loadingScreenBounds);
-            mainWindow.maximize();
             loadingScreen.close();
         }
     });
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
@@ -96,36 +94,36 @@ app.on('ready', ()=>{
   createWindow();
 })
 
-// function run(args: string[], done: Function): void {
-//   const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
-//   console.log("Spawning `%s` with args `%s`", updateExe, args)
-//   spawn(updateExe, args, {
-//     detached: true
-//   })
-//     .on("close", done)
-// }
+function run(args: string[], done: Function): void {
+  const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
+  console.log("Spawning `%s` with args `%s`", updateExe, args)
+  spawn(updateExe, args, {
+    detached: true
+  })
+    .on("close", done)
+}
 
-// export default function handleStartupEvent(): boolean {
-//   if (process.platform !== "win32") {
-//     return false
-//   }
-//
-//   const cmd = process.argv[1]
-//   console.log("Processing squirrel command `%s`", cmd)
-//   const target = path.basename(process.execPath)
-//   if (cmd === "--squirrel-install" || cmd === "--squirrel-updated") {
-//     run(['--createShortcut=' + target + ''], app.quit)
-//     return true
-//   }
-//   else if (cmd === "--squirrel-uninstall") {
-//     run(['--removeShortcut=' + target + ''], app.quit)
-//     return true
-//   }
-//   else if (cmd === "--squirrel-obsolete") {
-//     app.quit()
-//     return true
-//   }
-//   else {
-//     return false
-//   }
-// }
+export default function handleStartupEvent(): boolean {
+  if (process.platform !== "win32") {
+    return false
+  }
+
+  const cmd = process.argv[1]
+  console.log("Processing squirrel command `%s`", cmd)
+  const target = path.basename(process.execPath)
+  if (cmd === "--squirrel-install" || cmd === "--squirrel-updated") {
+    run(['--createShortcut=' + target + ''], app.quit)
+    return true
+  }
+  else if (cmd === "--squirrel-uninstall") {
+    run(['--removeShortcut=' + target + ''], app.quit)
+    return true
+  }
+  else if (cmd === "--squirrel-obsolete") {
+    app.quit()
+    return true
+  }
+  else {
+    return false
+  }
+}
