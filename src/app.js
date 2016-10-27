@@ -53,7 +53,7 @@ function createWindow() {
     // mainWindow.setProgressBar(-1); // hack: force icon refresh
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.show();
-
+        mainWindow.maximize();
         if (loadingScreen) {
             let loadingScreenBounds = loadingScreen.getBounds();
             mainWindow.setBounds(loadingScreenBounds);
@@ -62,7 +62,7 @@ function createWindow() {
     });
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
     require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
