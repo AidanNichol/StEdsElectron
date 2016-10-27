@@ -12,6 +12,7 @@ import * as path from "path"
 // const crashReporter = electron.crashReporter;
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer';
 const POUCHDB_INSPECTOR = "hbhhpaojmpfimakffndmpmpndcmonkfa";
+// var ESI = require('electron-single-instance');
 
 let mainWindow,
     loadingScreen,
@@ -23,6 +24,19 @@ let mainWindow,
       show: false,
       webPreferences: {experimentalFeatures: true}
     };
+    
+    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window.
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
+      }
+    })
+
+    if (shouldQuit) {
+      app.quit()
+    }
+
 // if(process.env.ENV !== 'development'){
 //   crashReporter.start();
 //   //appMenu.append(devMenu);
@@ -53,14 +67,15 @@ function createWindow() {
     // mainWindow.setProgressBar(-1); // hack: force icon refresh
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.show();
-        mainWindow.maximize();
         if (loadingScreen) {
             let loadingScreenBounds = loadingScreen.getBounds();
             mainWindow.setBounds(loadingScreenBounds);
+            mainWindow.maximize();
             loadingScreen.close();
         }
     });
 
+    // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
     require('electron-debug')({showDevTools: true});
