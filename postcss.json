@@ -1,5 +1,5 @@
 {
-  "use":["postcss-import", "postcss-inline-comment" "postcss-cssnext", "postcss-nested"],
+  "use":["postcss-import", "postcss-inline-comment", "postcss-cssnext", "postcss-nested"],
   "dir": "app/styles/",
   "local-plugins": true,
 

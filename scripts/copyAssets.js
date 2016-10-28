@@ -21,51 +21,6 @@ var serveDir    = '.serve';   // directory for serve task
 var distDir     = 'app';     // directory for serve:dist task
 var releaseDir  = 'dist';  // directory for application packages
 
-var babelOptions = {
-  "presets": ["es2015", "stage-0", "react"],
-  "plugins": ["transform-class-properties"],
-  "sourceMaps": "inline"};
-
-// Compile *.less files with sourcemaps
-gulp.task('compile:less', function () {
-  return gulp.src([srcDir + '/styles/**/*.less'])
-    .pipe($.sourcemaps.init())
-    .pipe($.less())
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest(serveDir + '/styles'))
-    ;
-});
-
-// Compile *.less files with sourcemaps
-gulp.task('compile:scss', function () {
-  return gulp.src([srcDir + '/styles/**/*.scss'])
-    .pipe($.sourcemaps.init())
-    .pipe($.sass())
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest(serveDir + '/styles'))
-    ;
-});
-
-// Compile *.less files with sourcemaps
-gulp.task('copy:css', function () {
-  return gulp.src([srcDir + '/styles/**/*.css'])
-    .pipe(gulp.dest(serveDir + '/styles'))
-    ;
-});
-
-gulp.task('compile:styles', ['compile:less', 'compile:scss', 'copy:css'])
-// Inject *.css(compiled and depedent) files into *.html
-gulp.task('inject:css', ['compile:styles'], function() {
-  return gulp.src(srcDir + '/**/*.html')
-    .pipe($.inject(gulp.src(mainBowerFiles({base: '/bower_components'}).concat([serveDir + '/styles/**/*.css'])), {
-      relative: true,
-      ignorePath: ['../../.serve', '..'],
-      addPrefix: '..'
-    }))
-    .pipe(gulp.dest(serveDir))
-  ;
-});
-
 // Copy assets
 gulp.task('assets', function () {
   return gulp.src('assets/**/*')
