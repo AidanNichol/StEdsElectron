@@ -1,7 +1,6 @@
 #about-page {
   display: grid;
   align-items: center;
-  // background: no-repeat url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/12005/grid.png);
   grid-gap: 3px;
   grid-template-columns: repeat(24, 50px);
   grid-template-rows: 90px;

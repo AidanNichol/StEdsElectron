@@ -11,8 +11,15 @@
     "debug": "DEBUG=steds:* electron .",
     "start": "gulp serve",
     "deploy": "gulp build && dist",
-    "compile": "babel -d app/ src/",
-    "css": "postcss -c postcss.json",
+    "build:js": "babel -d app/ src/",
+    "build:css": "postcss -c postcss.json",
+    "build:package": "node scripts/buildPackage app",
+    "copy:assets": "cp -R assets app/assets",
+    "copy:fonts": "cp -R fonts app/fonts",
+    "build": "npm run build:js && npm run build:css && npm run copy:assets npm run copy:fonts",
+    "watch:js": "npm run build:js -- --watch",
+    "watch:css": "npm run build:css -- --watch",
+    "watch": "parallelshell 'npm run watch:js' 'npm run watch:css'",
     "test": "NODE_PATH=src ava"
   },
   "build": {
@@ -147,8 +154,10 @@
     "main-bower-files": "^2.13.1",
     "merge2": "^1.0.2",
     "optimist": "^0.6.1",
+    "parallelshell": "^2.0.0",
     "postcss-cli": "^2.6.0",
     "postcss-cssnext": "^2.8.0",
+    "postcss-import": "^8.1.2",
     "postcss-less": "^0.15.0",
     "postcss-less-engine": "^0.6.2",
     "postcss-nested": "^1.0.0",
@@ -156,6 +165,7 @@
     "svgstore": "^1.1.0",
     "timekeeper": "^0.1.1",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "watch": "^1.0.1"
   }
 }

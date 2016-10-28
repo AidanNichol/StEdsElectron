@@ -1,9 +1,9 @@
 {
-  "use":["postcss-cssnext", "postcss-nested"],
-  "output": "app/styles/bookings.css",
+  "use":["postcss-import", "postcss-inline-comment" "postcss-cssnext", "postcss-nested"],
+  "dir": "app/styles/",
   "local-plugins": true,
 
-  "input": "src/styles/bookings.css",
+  "input": "src/styles/**/*.css",
   "postcss-cssnext": {
     "browserslist": "last 2 chrome versions"
   }

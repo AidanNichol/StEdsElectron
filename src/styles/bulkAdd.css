@@ -1,5 +1,5 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import './watermark.less';
+@import './watermark.css';
 
 input[type='checkbox'] {
   display: inline;
@@ -24,7 +24,15 @@ div.panel-title {
 
   .added-members {
     grid-area: booked;
-    .watermark('Booked'; blue; 600%; @left: -20%; @top: 20%; @transform: rotate(45deg););
+    &::before {
+      @apply --watermark;
+      content: 'Booked';
+      color: blue;
+      font-size: 600%;
+      left: -20%;
+      top: 20%;
+      transform: rotate(45deg);
+    }
   }
 
   .select {
@@ -42,7 +50,15 @@ div.panel-title {
   .waiting-list {
     grid-area: waiting;
     grid-template-rows: repeat(4, 23px);
-    .watermark('Waiting List'; blue; 600%; @left: 45%; @top:25%; @transform: rotate(45deg););
+    &::before {
+      @apply --watermark;
+      content: 'Waiting List';
+      color: blue;
+      font-size: 600%;
+      left: 45%;
+      top: 25%;
+      transform: rotate(45deg);
+    }
 
     .member {
       span {
