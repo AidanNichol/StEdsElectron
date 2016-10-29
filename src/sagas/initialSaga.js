@@ -3,7 +3,7 @@ import { call, put } from 'redux-saga/effects.js';
 import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
 import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
-import {signinRequested} from '../ducks/signin-duck'
+import {resignin} from '../ducks/signin-duck'
 import {setPage} from '../ducks/router-duck.js';
 
 import Logit from '../factories/logit.js';
@@ -66,7 +66,7 @@ export default function* (){
     ]
     // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
     yield call(actions.initialLoadCompleted);
-    yield put(signinRequested('sandy', 'sandy'));
+    yield call(resignin);
 
   // } catch(error){
   //   yield put({ type: 'INITIAL_SAGA_FAILED', error});

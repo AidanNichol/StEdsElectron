@@ -60,29 +60,37 @@ var dbu = new PouchDB('_users', {adapter: 'websql'});
 // }
 
 function* authorize(username, password){
-    try{
-      authError = '';
-      logit ('_dbuSetupCompleted', _dbuSetupCompleted);
-      yield _dbuSetupCompleted;
-      logit('about to signin', username);
-      // debugger;
-      var resp = yield call([PouchDB, PouchDB.seamlessLogIn], username, password);
-      logit('signin resp', resp);
-      var sess = yield call([PouchDB, PouchDB.seamlessSession]);
-      // logit('session', sess)
-      var data = yield call([dbu, dbu.get], 'org.couchdb.user:'+sess.userCtx.name);
-      logit('data', data);
-      var {name, roles, memberId} = data;
-      return {name, roles, memberId};
-    }
-    catch(error){
-      logit('error', error);
-      authError = `(${error.name}) ${error.message}`
-      // throw new Error('redux-form: Signin failed: ' + error.message);
-      return authError
-      // throw new SubmissionError({ _error: 'Signin failed!  ' + error.message})
-    }
+  try{
+    authError = '';
+    logit ('_dbuSetupCompleted', _dbuSetupCompleted);
+    yield _dbuSetupCompleted;
+    logit('about to signin', username);
+    // debugger;
+    var resp = yield call([PouchDB, PouchDB.seamlessLogIn], username, password);
+    logit('signin resp', resp);
+    localStorage.setItem('stEdsSignin', JSON.stringify({username, password}));
 
+    var sess = yield call([PouchDB, PouchDB.seamlessSession]);
+    // logit('session', sess)
+    var data = yield call([dbu, dbu.get], 'org.couchdb.user:'+sess.userCtx.name);
+    logit('data', data);
+    var {name, roles, memberId} = data;
+    return {name, roles, memberId};
+  }
+  catch(error){
+    logit('error', error);
+    authError = `(${error.name}) ${error.message}`
+    // throw new Error('redux-form: Signin failed: ' + error.message);
+    return authError
+    // throw new SubmissionError({ _error: 'Signin failed!  ' + error.message})
+  }
+}
+
+export function *resignin(){
+  if (!localStorage.getItem('stEdsSignin')) return;
+  const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
+  logit('resignin', signinRequested(username, password))
+  yield put(signinRequested(username, password))
 }
 
 export const signinSaga = function* signinSaga(){
