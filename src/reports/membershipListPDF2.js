@@ -31,15 +31,6 @@ if (!isDirSync(docs)) {
 let docname = docs+'/membersList.pdf';
 logit('name', {docname})
 
-function showSubs(mem){
-  const statusMap = {Member: '', HLM: 'hlm', Guest: 'gst', '?': ''};
-  const subsMap = {OK:{color: 'green'}, due: {color: 'orange', bold: true}, late: {color: 'red', bold: true}};
-  let stat = statusMap[mem.memberStatus||'?'];
-  if (stat !== '') return stat;
-  let subs = getSubsStatus(mem);
-  return {text: `'${mem.subscription ? parseInt(mem.subscription)%100:16}`,
-  ...subsMap[subs.status]};
-}
 // import db from 'services/bookingsDB';
 
 export function membershipListReport(members){
@@ -55,13 +46,25 @@ export function membershipListReport(members){
     {atts: { align: 'center', width: 125}, field: 'nextOfKin', title: 'Next of Kin' , },
     {atts: {continued: false, align: 'center', width: 62}, field: 'medical',   title: 'Medical' , }
   ];
-
+  const normal = 'Times-Roman';
+  const bold = 'Times-Bold';
   const margin = 30;
+
+  function showSubs(mem){
+    const defAtts = { align: 'left', width: 10};
+    const statusMap = {Member: '', HLM: 'hlm', Guest: 'gst', '?': ''};
+    const subsMap = {OK:{fillColor: 'green'}, due: {fillColor: 'orange', font: bold}, late: {fillColor: 'red', font: bold}};
+    let stat = statusMap[mem.memberStatus||'?'];
+    if (stat !== '') return [stat, defAtts];
+
+    let subs = getSubsStatus(mem);
+    stat = `'${mem.subscription ? parseInt(mem.subscription)%100:16}`;
+    return [stat, {...defAtts, ...subsMap[subs.status]}];
+  }
+
   var doc = new PDFDocument({size: 'A4', layout: 'landscape', margins: {top:20, bottom: 20, left:margin, right: margin}, autoFirstPage: false});
   doc.pipe(fs.createWriteStream(docname) )
 
-  const normal = 'Times-Roman';
-  const bold = 'Times-Bold';
 
   logit('env', process.env)
   doc.addPage();
@@ -108,6 +111,8 @@ export function membershipListReport(members){
   let y1 = doc.y;
   let y2 = y1;
   members.forEach((mem)=>{
+    let [text, atts] = showSubs(mem);
+    columns[1].atts = atts;
     fmtMem = {...mem,
       memNo: mem._id.substr(1),
       // name: {columns: [mem.lastName+", "+mem.firstName, {text: statusMap[mem.memberStatus||'?'], alignment: 'right', fontSize: 6 }]},
@@ -115,7 +120,7 @@ export function membershipListReport(members){
       // memberStatus: statusMap[mem.memberStatus||'?'],
       address: (mem.address||''),
       // address: (mem.address||'').replace("\n", ", "),
-      subs: showSubs(mem),};
+      subs: text,};
     // columns.forEach((col)=>doc.text(fmtMem[col.field], col.atts));
     x=x1; y=y1;
     columns.forEach((col)=>{
