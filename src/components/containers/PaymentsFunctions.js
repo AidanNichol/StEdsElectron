@@ -19,7 +19,7 @@ const getMemberNames = createSelector(
     let oldResult = membersNames;
     Object.keys(members).forEach((memId)=>{
       let accId = members[memId].accountId;
-      let name = accounts[accId].members.length > 1 ? members[memId].firstName : '';
+      let name = accounts && accounts[accId] && accounts[accId].members.length > 1 ? members[memId].firstName : '';
       membersNames = i.set(membersNames, memId, name);// setting to existing value is ignored
     });
     logit('getMemberNames', oldResult === membersNames, {oldResult, membersNames});

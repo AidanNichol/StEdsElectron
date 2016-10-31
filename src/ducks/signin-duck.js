@@ -89,6 +89,7 @@ function* authorize(username, password){
 export function *resignin(){
   if (!localStorage.getItem('stEdsSignin')) return;
   const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
+  if (!username || !password) return;
   logit('resignin', signinRequested(username, password))
   yield put(signinRequested(username, password))
 }
@@ -122,6 +123,7 @@ export function reducer(state = {name: null, roles: [], memberId: ''}, action) {
       return i.assign(state, action.data);
     case SIGNOUT_SUCCESS:
       authError = '';
+      localStorage.removeItem('stEdsSignin');
       return i.assign(state, defaultState);
   }
   return state;
