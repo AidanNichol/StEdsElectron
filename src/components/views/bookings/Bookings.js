@@ -7,13 +7,14 @@ import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
 import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
 import {AnnotateBooking} from './annotateBooking'
+import {getTodaysDate} from '../../../utilities/DateUtilities.js';
 // import ChangeLog from '..//utility/ChangeLog.js';
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'bookings');
 
 var Bookings = React.createClass({
   render: function() {
-    var {accNames, walks, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
+    var {accNames, walks, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
     var accId = account.accId;
     logit('props', this.props);
 
@@ -47,7 +48,8 @@ var Bookings = React.createClass({
     var mCl = accNames.map((member, i)=>{
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
-
+    var _today = getTodaysDate();
+    const closeit = (walk)=>{logit('closeit', walk, _today); return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId)}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
         <div className="select">
@@ -62,7 +64,7 @@ var Bookings = React.createClass({
         </div>
         {walks.map((walk)=>(
           <div className="walk" key={'WWW'+walk.walkId}>
-          <div className="date">{walk.walkDate}<br/>{walk.venue}</div>
+          <div className="date">{walk.walkDate}<br/>{walk.venue} {closeit(walk)}</div>
           <div className="avail">{walk.status.display}</div>
           {
             walk.bookings.map((booking, i)=>

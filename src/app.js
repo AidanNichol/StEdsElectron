@@ -24,7 +24,7 @@ let mainWindow,
       show: false,
       webPreferences: {experimentalFeatures: true}
     };
-    
+
     const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
       // Someone tried to run a second instance, we should focus our window.
       if (mainWindow) {
@@ -50,17 +50,17 @@ function isDev() {
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow(windowParams);
-    // if(isDev()){
-    //   installExtension(REACT_DEVELOPER_TOOLS)
-    //   .then((name) => console.log(`Added Extension:  ${name}`))
-    //   .catch((err) => console.log('An error occurred: ', err));
-    //   installExtension(REDUX_DEVTOOLS)
-    //   .then((name) => console.log(`Added Extension:  ${name}`))
-    //   .catch((err) => console.log('An error occurred: ', err));
-    //   installExtension(POUCHDB_INSPECTOR)
-    //   .then((name) => console.log(`Added Extension:  ${name}`))
-    //   .catch((err) => console.log('An error occurred: ', err));
-    // }
+    if(isDev()){
+      installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+      installExtension(REDUX_DEVTOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+      installExtension(POUCHDB_INSPECTOR)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+    }
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 

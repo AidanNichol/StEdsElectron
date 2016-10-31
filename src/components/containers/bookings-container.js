@@ -5,7 +5,7 @@ import Bookings from '../views/bookings/Bookings.js';
 import {setPage} from '../../ducks/router-duck.js';
 // import * as actions from '../actions/walks-actions.js';
 var actions = {};
-import {updateWalkBookings, annotateOpenDialog, request} from '../../ducks/walksDuck'
+import {updateWalkBookings, annotateOpenDialog, closeWalkBookings, request} from '../../ducks/walksDuck'
 import {actionCreators as mlActionCreators} from '../../ducks/memberslist-duck'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
@@ -45,6 +45,7 @@ function mapDispatchToProps(dispatch) {
   return {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
     walkCancelBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType+'X')),
+    closeWalkBookings: (walkId)=>dispatch(closeWalkBookings(walkId)),
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
             dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
@@ -57,7 +58,7 @@ function mapDispatchToProps(dispatch) {
 
 
 const mapStateToProps = function(store) {
-  const getAccId = (id)=>id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
+  const getAccId = (id)=>id ? (id[0] === 'M' ? (store.members && store.members[id] ? store.members[id].accountId : undefined) : (id[0] === 'A' ? id : undefined)) : undefined;
   // get the data for the select name component
   let members = getSortedMemebersList(store);
   // const id = props.params.id;

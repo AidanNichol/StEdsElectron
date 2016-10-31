@@ -4,7 +4,6 @@ import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
 import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
 import {resignin} from '../ducks/signin-duck'
-import {setPage} from '../ducks/router-duck.js';
 
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'InitialSaga');
@@ -66,11 +65,7 @@ export default function* (){
     ]
     // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
     yield call(actions.initialLoadCompleted);
-<<<<<<< HEAD
-    yield put(signinRequested('sandy', '54ndR@'));
-=======
     yield call(resignin);
->>>>>>> NPM&cssnext
 
   // } catch(error){
   //   yield put({ type: 'INITIAL_SAGA_FAILED', error});

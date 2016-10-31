@@ -94,6 +94,8 @@ const WALK_UPDATE_BOOKING = 'walks/update_booking'
 const WALK_ANNOTATE_OPEN_DIALOG = 'walks/annotate_open_dialog'
 const WALK_ANNOTATE_CLOSE_DIALOG = 'walks/annotate_close_dialog'
 const WALK_ANNOTATE_BOOKING = 'walks/annotate_booking'
+const WALK_CLOSE_BOOKINGS = 'walks/close_bookings'
+const WALK_UPDATE_BOOKABLE = 'walks/update_bookable'
 const DOCS_LOADED = 'walks/docs_loaded'
 const WALK_SELECTED = 'walks/selected'
 
@@ -113,6 +115,8 @@ export const updateWalkBookings = (walkId, accId, memId, reqType) => ({type: WAL
 export const annotateWalkBookings = (walkId, memId, text) => ({type:WALK_ANNOTATE_BOOKING, walkId, memId, text});
 export const annotateOpenDialog = (walkId, memId) => ({type:WALK_ANNOTATE_OPEN_DIALOG, walkId, memId});
 export const annotateCloseDialog = () => ({type:WALK_ANNOTATE_CLOSE_DIALOG});
+export const closeWalkBookings = (walkId) => ({type:WALK_CLOSE_BOOKINGS, walkId});
+export const updateBookableWalks = (walkId) => ({type:WALK_UPDATE_BOOKABLE, walkId});
 export const walksDocsLoaded = (docs) => ({type: DOCS_LOADED, docs})
 export const walksSelected = (walkId) => ({type: WALK_SELECTED, walkId})
 // export const walksUpdateBooking = createAction('WALKS_UPDATE_BOOKING');
@@ -133,10 +137,13 @@ logit('loaded', null);
         action.docs.forEach(doc => {
           if (!doc.walkDate)doc.walkDate=doc._id.substr(1);
           if (doc.firstBooking > _now)return;
-          if (doc._id.substr(1) >= _today){
+          if (!doc.closed){
             bookable.push(doc._id);
             getBookingsSummaryFn[doc._id] = makeGetBookingsSummary(doc._id);
           }
+          if (!doc.booked)doc.booked={};
+          if (!doc.annotations)doc.annotations={};
+          if (!doc.log)doc.log=[];
           list[doc._id] = doc;
         });
         logit('newstate', {list, bookable});
@@ -155,6 +162,9 @@ logit('loaded', null);
         return i.set(state, 'annotate', {dialogOpen: true, walkId: action.walkId, memId: action.memId})
       case WALK_ANNOTATE_CLOSE_DIALOG:
         return i.setIn(state, ['annotate', 'dialogOpen'], false)
+      case WALK_UPDATE_BOOKABLE:
+
+        return i.set(state, 'bookable', Object.keys(state.list).filter((docId)=>!state.list[docId].closed && state.list[docId].firstBooking <= _now))
       // default:
       //   return state;
     }
@@ -187,17 +197,20 @@ export function getBookingsSummary(walk){
 //---------------------------------------------------------------------
 
 export function* walksSaga(args){
-  logit('loaded', args);
+  const mapAction = {[WALK_UPDATE_BOOKING]: updateBooking, [WALK_ANNOTATE_BOOKING]: annotateBooking, [WALK_CLOSE_BOOKINGS]: closeWalk}
+  logit('loaded', {args, mapAction});
   // try{
     while(true){ // eslint-disable-line no-constant-condition
       logit('waiting for','WALK_UPDATE_BOOKING' );
-      let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING]);
+      let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING, WALK_CLOSE_BOOKINGS]);
       logit('took', action)
       doer = yield select((state)=>state.signin.memId || '???');
       let walk = yield select((state, walkId)=>state.walks.list[walkId], action.walkId);
-      let newWalk = yield call(action.type === WALK_UPDATE_BOOKING ? updateBooking : annotateBooking, walk, action);
+      // let newWalk = yield call(action.type === WALK_UPDATE_BOOKING ? updateBooking : annotateBooking, walk, action);
+      let newWalk = yield call(mapAction[action.type], walk, action);
       if (newWalk)yield call(docUpdateSaga, newWalk, action);
       if (action.type === WALK_ANNOTATE_BOOKING)yield put(annotateCloseDialog())
+      if (action.type === WALK_CLOSE_BOOKINGS)yield put(updateBookableWalks(action.walkId))
     }
 
 
@@ -249,4 +262,9 @@ function updateBooking(walk, changes){
   if (reqType === request.CANCELLED)delete newDoc.booked[memId];
   logit('newDoc', newDoc)
   return newDoc;
+}
+
+function closeWalk(walk, action){
+  logit('closeWalk', walk, action)
+  return {...walk, closed: true};
 }
