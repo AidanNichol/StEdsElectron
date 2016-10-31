@@ -1,8 +1,8 @@
 /* global debug */
-import debug from 'debug';
-window.mydebug = debug;
+// import debug from 'debug';
+// window.mydebug = debug;
 export default function Logit(style,source) {
-  let debb = debug(`steds:${source}`);
+  // let debb = debug(`steds:${source}`);
 
 
 // debug.enable('*');
