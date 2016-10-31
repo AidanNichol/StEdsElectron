@@ -94,14 +94,14 @@
   }
 
   .user-details.suspended:not(.deleted) {
-    &::beore {
+    &::before {
       @apply --watermark;
       content: 'Member Suspended';
     }
   }
 
   .user-details.guest:not(.suspended) {
-    &::beore {
+    &::before {
       @apply --watermark;
       content: 'Guest';
       color: blue;
