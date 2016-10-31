@@ -50,17 +50,17 @@ function isDev() {
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow(windowParams);
-    if(isDev()){
-      installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-      installExtension(REDUX_DEVTOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-      installExtension(POUCHDB_INSPECTOR)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-    }
+    // if(isDev()){
+    //   installExtension(REACT_DEVELOPER_TOOLS)
+    //   .then((name) => console.log(`Added Extension:  ${name}`))
+    //   .catch((err) => console.log('An error occurred: ', err));
+    //   installExtension(REDUX_DEVTOOLS)
+    //   .then((name) => console.log(`Added Extension:  ${name}`))
+    //   .catch((err) => console.log('An error occurred: ', err));
+    //   installExtension(POUCHDB_INSPECTOR)
+    //   .then((name) => console.log(`Added Extension:  ${name}`))
+    //   .catch((err) => console.log('An error occurred: ', err));
+    // }
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
@@ -109,36 +109,36 @@ app.on('ready', ()=>{
   createWindow();
 })
 
-function run(args: string[], done: Function): void {
-  const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
-  console.log("Spawning `%s` with args `%s`", updateExe, args)
-  spawn(updateExe, args, {
-    detached: true
-  })
-    .on("close", done)
-}
-
-export default function handleStartupEvent(): boolean {
-  if (process.platform !== "win32") {
-    return false
-  }
-
-  const cmd = process.argv[1]
-  console.log("Processing squirrel command `%s`", cmd)
-  const target = path.basename(process.execPath)
-  if (cmd === "--squirrel-install" || cmd === "--squirrel-updated") {
-    run(['--createShortcut=' + target + ''], app.quit)
-    return true
-  }
-  else if (cmd === "--squirrel-uninstall") {
-    run(['--removeShortcut=' + target + ''], app.quit)
-    return true
-  }
-  else if (cmd === "--squirrel-obsolete") {
-    app.quit()
-    return true
-  }
-  else {
-    return false
-  }
-}
+// function run(args: string[], done: Function): void {
+//   const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
+//   console.log("Spawning `%s` with args `%s`", updateExe, args)
+//   spawn(updateExe, args, {
+//     detached: true
+//   })
+//     .on("close", done)
+// }
+//
+// export default function handleStartupEvent(): boolean {
+//   if (process.platform !== "win32") {
+//     return false
+//   }
+//
+//   const cmd = process.argv[1]
+//   console.log("Processing squirrel command `%s`", cmd)
+//   const target = path.basename(process.execPath)
+//   if (cmd === "--squirrel-install" || cmd === "--squirrel-updated") {
+//     run(['--createShortcut=' + target + ''], app.quit)
+//     return true
+//   }
+//   else if (cmd === "--squirrel-uninstall") {
+//     run(['--removeShortcut=' + target + ''], app.quit)
+//     return true
+//   }
+//   else if (cmd === "--squirrel-obsolete") {
+//     app.quit()
+//     return true
+//   }
+//   else {
+//     return false
+//   }
+// }

@@ -1,5 +1,5 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import './watermark.less';
+@import './watermark.css';
 
 .show-member-details .panel-contents {
   .user-details {
@@ -94,11 +94,19 @@
   }
 
   .user-details.suspended:not(.deleted) {
-    .watermark('Member Suspended');
+    &::beore {
+      @apply --watermark;
+      content: 'Member Suspended';
+    }
   }
 
   .user-details.guest:not(.suspended) {
-    .watermark('Guest'; blue; 600%);
+    &::beore {
+      @apply --watermark;
+      content: 'Guest';
+      color: blue;
+      font-size: 600%;
+    }
   }
 
 

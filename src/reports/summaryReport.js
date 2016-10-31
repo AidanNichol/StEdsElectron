@@ -25,6 +25,7 @@ if (!isDirSync(docs)) {
 }
 docs = docs+'/StEdwards'
 if (!isDirSync(docs)) {
+  logit('want to mkdir', docs)
   fs.mkdirSync(docs);
 }
 let docname = docs+'/busSummary.pdf';

@@ -1,6 +1,4 @@
 body {
-  // margin: 40px;
-  // font: 80% Arial, Helvetica, sans-serif;
 }
 
 .mainPage {
@@ -8,14 +6,12 @@ body {
   width: 100vw;
   display: grid;
   align-items: center;
-  // background: no-repeat url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/12005/grid.png);
+
   grid-gap: 3px;
   grid-template-columns: repeat(24, 50px);
-  // grid-template-rows: 90px  auto;
   grid-template-rows: 90px  677px;
   background-color: white;
   color: #444;
-  // margin-top: -20px;
 }
 
 .box {
@@ -47,15 +43,12 @@ body {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, 45px);
-  // grid-gap: 5px;
 }
 
 .nav {
   grid-column: 1 / span 8;
   grid-row: 1;
   top: 10px;
-  // margin-top: 0;
-  // padding-top: 0;
 }
 
 .devlinks {
@@ -73,7 +66,6 @@ body {
 
 .shortcuts {
   .sc {
-    // display: block;
     background-color: cyan;
     color: white;
     border: none;

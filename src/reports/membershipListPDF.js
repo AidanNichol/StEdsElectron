@@ -3,11 +3,9 @@ import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'printMembers:saga');
 import fs from 'fs';
 // import db from 'services/bookingsDB';
-import {actions} from '../ducks/memberslist-duck';
 import {getSubsStatus} from '../utilities/subsStatus';
 
 import XDate from 'xdate';
-import { call, put, take, select } from 'redux-saga/effects';
 logit('enviromnent', process.env)
 
 // Get the logo - couldn't get referencing the file directly working.
@@ -32,15 +30,6 @@ const columns = [
     {width: 125, field: 'nextOfKin', title: 'Next of Kin' ,     style: {alignment: 'center'}},
     {width: 62, field: 'medical',   title: 'Medical' ,     style: {alignment: 'center'}}];
 
-export default function* printMemberslistSaga(){
-
-
-  while(true){ // eslint-disable-line no-constant-condition
-    let action = yield take(actions.PRINT_LIST);
-    let pdf = membershipListReport( action.payload );
-    logit('PDF', {pdf, action});
-  }
-}
 function showSubs(mem){
   const statusMap = {Member: '', HLM: 'hlm', Guest: 'gst', '?': ''};
   const subsMap = {OK:{color: 'green'}, due: {color: 'orange', bold: true}, late: {color: 'red', bold: true}};

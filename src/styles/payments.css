@@ -1,14 +1,16 @@
-@primary-color: #428bca;
-@success-color: #dff0d8;
-@info-color: #d9edf7;
-@warning-color: #fcf8e3;
-@danger-color: #f2dede;
-@warning-color: yellow;
+:root {
+  --primary-color: #428bca;
+  --success-color: #dff0d8;
+  --info-color: #d9edf7;
+  --warning-color: #fcf8e3;
+  --danger-color: #f2dede;
+  --warning-color: yellow;
 
-@border-color: #bce8f1;
-@header-text-color: #31708f;
-@background-color: #d9edf7;
-@radius: 5px;
+  --border-color: #bce8f1;
+  --header-text-color: #31708f;
+  --background-color: #d9edf7;
+  --radius: 5px;
+}
 
 .logHeader {
   color: #31708f;
@@ -43,9 +45,9 @@
 
   .overview,
   .header {
-    background-color: @background-color;
-    border-radius: $radius;
-    border-bottom: @border-color thin solid;
+    background-color: var(--background-color);
+    border-radius: var(--radius);
+    border-bottom: var(--border-color) thin solid;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     padding: 2px 5px;
@@ -82,11 +84,11 @@
   }
 
   .debtor {
-    color: @header-text-color;
+    color: var(--header-text-color);
     margin-bottom: 5px;
     padding-bottom: 4px;
-    border: @border-color thin solid;
-    border-radius: $radius;
+    border: var(--border-color) thin solid;
+    border-radius: var(--radius);
 
     .owed {
       font-size: 0.85em;

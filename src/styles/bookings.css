@@ -1,30 +1,21 @@
-/* scss-lint:disable QualifyingElement Comment SelectorFormat */
-@import './watermark.less';
-@primary-color: #428bca;
-@success-color: #dff0d8;
-@info-color: #d9edf7;
-@warning-color: #fcf8e3;
-@danger-color: #f2dede;
-@warning-color: yellow;
-
-
+@import './watermark.css';
 #steds_bookings {
-  .mems1.panel-body .panel-contents {
+  & .mems1.panel-body .panel-contents {
     grid-template-columns: 400px 470px;
   }
 
-  .mems2.panel-body .panel-contents {
+  & .mems2.panel-body .panel-contents {
     grid-template-columns: 500px 470px;
   }
 
-  .mems3.panel-body .panel-contents {
+  & .mems3.panel-body .panel-contents {
     grid-template-columns: 600px 470px;
   }
 
-  .panel-body .panel-contents {
+  & .panel-body .panel-contents {
     display: grid;
 
-    .select {
+    & .select {
       grid-column: 1;
       grid-row: 1;
       width: 300px;
@@ -70,16 +61,11 @@
     }
   }
 
-  // .xTable {
-  //   width: 340px;
-  // }
-
   .heading,
   .walk {
     display: grid;
     text-align: center;
     align-items: center;
-    // background: no-repeat url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/12005/grid.png);
     grid-gap: 0;
     grid-template-columns: 100px 100px 100px 100px 100px;
 
@@ -161,57 +147,55 @@
 
   .heading {
     .suspended {
-      .watermark('Suspended'; red; @opacity: 0.2; @fontSize: 250%; @transform: rotate(-70deg); @left: 15%; @top: 49%)
+      &::before {
+        @apply --watermark;
+
+        content: 'Suspended';
+        color: red;
+        opacity: 0.2;
+        font-size: 250%;
+        transform: rotate(-70deg);
+        left: 15%;
+        top: 49%;
+      }
     }
 
     .guest {
-      .watermark('Guest'; blue; @opacity: 0.2; @transform: rotate(-70deg); @left: 12%; @top: 45%)
-    }
+      &::before {
+        @apply --watermark;
 
+        content: 'Guest';
+        color: blue;
+        opacity: 0.2;
+        transform: rotate(-70deg);
+        left: 12%;
+        top: 43%;
+      }
+    }
     .due {
-      .watermark('Subs Due .'; green; @fontSize: 250%; @opacity: 0.2; @transform: rotate(-70deg); @left: 15%; @top: 49%)
+      &::before {
+        @apply --watermark;
+        content: 'Subs Due .';
+        color: green;
+        font-size: 250%;
+        opacity: 0.2;
+        transform: rotate(-70deg);
+        left: 15%;
+        top: 49%;
+        }
     }
 
     .late {
-      .watermark('Subs Late .'; blue; @fontSize: 250%; @opacity: 0.2; @transform: rotate(-70deg); @left: 15%; @top: 49%;)
+      &::before {
+        @apply --watermark;
+        content: 'Subs Late .';
+        color: blue;
+        font-size: 250%;
+        opacity: 0.2;
+        transform: rotate(-70deg);
+        left: 15%;
+        top: 49%;
+      }
     }
   }
-
-  // .bookingForm {
-  //   &.suspended tbody {
-  //     .watermark ('Member Suspended'; red; @opacity: 0.6; @transform: rotate(-30deg);)
-  //   }
-  //
-  //   &.guest:not(.suspended) tbody {
-  //     .watermark( 'Guest'; blue; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
-  //   }
-  //
-  //   &.late:not(.suspended):not(.guest) tbody {
-  //     .watermark ('Subs Late'; red; @opacity: 0.3; @transform: rotate(-30deg); @fontSize: 600%;)
-  //   }
-  // }
 }
-
-// label.cross::before {
-//   bottom: -12px;
-//   color: red;
-//   content: 'X';
-//   font-size: 2.8em;
-//   left: 40%;
-//   position: absolute;
-//   z-index: 100;
-// }
-//
-// input.Waitlist::before {
-//   color: blue;
-//   content: 'W';
-//   left: -14px;
-//   position: relative;
-// }
-//
-// input.Waitlist::after {
-//   color: red;
-//   content: 'L';
-//   position: relative;
-//   right: -3px;
-// }
