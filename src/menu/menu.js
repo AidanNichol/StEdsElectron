@@ -2,7 +2,7 @@ import electron from 'electron';
 function myFunction() {
   const remote = require('electron').remote;
   const BrowserWindow = remote.BrowserWindow;
-  var win = new BrowserWindow({ width: 800, height: 600 });
+  var win = new BrowserWindow({ width: 800, height: 600, webPreferences: {experimentalFeatures: true} });
   win.loadURL(`file://${__dirname}/../about.html`);
 }
 export var template = [

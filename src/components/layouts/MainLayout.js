@@ -17,10 +17,11 @@ import BookingsContainer from '../containers/bookings-container.js';
 import BulkAddContainer from '../containers/bulkAdd-container.js';
 import BusListsContainer from '../containers/buslists-container.js';
 import PaymentsContainer from '../containers/Payments-container.js';
+var packageJson = require('../../../package.json');
 
+const version = packageJson.version;
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings');
-
 const loadPage = (curPage, loading)=>{
   if (loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
   switch(curPage) {
@@ -56,6 +57,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
         <Link page="bulkadd" name="BulkAdd" show={bookingsAdmin}/>
         <Link page="payments" name="Payments" show={bookingsAdmin}/>
         <Link page="membersList" name="Members" show={memberAdmin}/>
+        <span>v{version}</span>
         </div>
 
         <div style={{padding: 5}} className="maincontent">

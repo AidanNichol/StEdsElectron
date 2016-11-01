@@ -48,6 +48,7 @@ function isDev() {
   return app.getPath("exe").includes("/node_modules/electron/");
 }
 function createWindow() {
+
     // Create the browser window.
     mainWindow = new BrowserWindow(windowParams);
     if(isDev()){
@@ -78,7 +79,7 @@ function createWindow() {
     // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
-    require('electron-debug')({showDevTools: true});
+    // require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {

@@ -2,7 +2,7 @@ import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'reports:saga');
 // import fs from 'fs';
 // import {actions} from '../ducks/memberslist-duck';
-import{membershipListReport} from '../reports/membershipListPDF';
+import{membershipListReport} from '../reports/membershipListPDF2';
 import{summaryReport} from '../reports/summaryReport';
 
 import { take, select } from 'redux-saga/effects';

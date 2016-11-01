@@ -57,7 +57,7 @@
 }
 
 .nav.right .link {
-  padding: 1.5em 1em 1em 2em;
+  padding: 1em 1em 1em 1.5em;
 
   &::before {
     transform-origin: bottom right;
