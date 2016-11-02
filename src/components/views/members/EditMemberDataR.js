@@ -194,7 +194,7 @@ let EditMemberData = (props)=>{
           <div className="form-line">
               <label className="item-label">Status</label>
               <Field component='select' name='memberStatus' disabled={!memberAdmin || showMode} >
-                  <option value="OK">Member</option>
+                  <option value="Member">Member</option>
                   <option value="Guest">Guest</option>
                   <option value="HLM">Honary Life Member</option>
                 </Field>
