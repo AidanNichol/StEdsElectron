@@ -3,6 +3,7 @@ import React from 'react';
 var classnames = require('classnames');
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
+import {getSubsStatus} from '../../../utilities/subsStatus';
 import {Panel} from '../../utility/AJNPanel'
 
 import Logit from '../../../factories/logit.js';
@@ -43,7 +44,8 @@ class Memberslist extends React.Component {
 
     var members = list.map((member)=>{
       var showMemberStatus = member.memberStatus !== 'Member' && member.memberStatus !== 'OK';
-      let clss = classnames('list-line', [member.memberStatus]: true, {current: displayMember === member.memberId}, (member.suspended ? 'suspended' : member.subsStatus));
+      let subsStatus = getSubsStatus(member).status;
+      let clss = classnames('list-line', [member.memberStatus]: true, {current: displayMember === member.memberId}, (member.suspended ? 'suspended' : subsStatus));
       // logit('classes', this.props.membersList.status)
       return (
         <div key={member._id} className={clss} onClick={()=>membersListSetDisplayedMember(member.memberId)}>

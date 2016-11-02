@@ -26,7 +26,7 @@ function MemberBill(props){
       event.target.value = '';
     };
 
-    var details = data.debt.map((bkng)=>
+    var details = data.debt.filter((bkng)=>bkng.outstanding).map((bkng)=>
         <div className='walk-detail' key={bkng.dat}>{bkng.dispDate} {bkng.text} </div>
     );
     return (<div className="debtor" >

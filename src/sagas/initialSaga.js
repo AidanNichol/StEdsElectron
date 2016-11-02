@@ -43,7 +43,8 @@ export default function* (){
                     return row.doc});
 
     const filterPrevWalks = {
-      startkey: "W"+docs[0].firstBooking,
+      // startkey: "W"+docs[0].firstBooking,
+      startkey: "W2016-10-15",
       endkey: "W"+_today,
       include_docs: true
     };

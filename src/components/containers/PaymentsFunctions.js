@@ -130,16 +130,26 @@ const makeGetAccountDebt = (accId)=> createSelector(
     logs = logs.map((log, i)=>({...log, historic: (i <= lastHistory) }));
     let debt = [];
     if (balance < 0){
+      let due = balance;
+      logit('getdebt', balance, logs)
       debt = logs
         .slice(lastOK+1)
+        .reverse()
         .map((log, i, arr)=>{
-          log.outstanding = request.billable(log.req);
-          let cancelled = arr.slice(i+1).filter((l)=>l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId).length > 0
-          log.outstanding = log.outstanding && !cancelled
+          if (due < 0 && request.billable(log.req)){
+            log.outstanding = true;
+            let cancelled = arr.slice(0,i-1).filter((l)=>l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId).length > 0
+            log.outstanding = log.outstanding && !cancelled
+            due -= Math.min(due, -log.amount)
+            
+          }
+          else log.outstanding = false;
+          logit('log', due, log)
           let owing = Math.min(-log.amount, -balance);
           // logit('logs '+accId, {logs, balance, lastOK, owing});
           return {...log, owing};
         })
+        .reverse()
         .filter((log)=>log.req==='B' || log.req==='L');
     }
     // logit('logs '+accId, {balance, debt, logs, accName, sortname});
