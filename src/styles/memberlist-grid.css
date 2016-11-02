@@ -1,9 +1,4 @@
 .member-list .panel-contents {
-  .names {
-    display: grid;
-  }
-}
-.member-list .panel-contents {
   width: 1225px;
   display: grid;
   align-items: center;
@@ -13,8 +8,9 @@
   background-color: #fff;
   color: #444;
   height: 100%;
-  grid-template-areas: "btn1 names index details"
-                       "btn2 names index details";
+  grid-template-areas:
+    "btn1 names index details"
+    "btn2 names index details";
 
   .sort-buttons {
     grid-area: btn1;
@@ -80,6 +76,7 @@
 
   .list-line {
     width: 100%;
+    height: 4.3%;
     display: flex;
     justify-content: space-between;
 

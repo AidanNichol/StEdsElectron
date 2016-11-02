@@ -67,7 +67,7 @@
   "memberId": "M1187",
   "type": "member",
   "status": "0",
-  "subscription": "2016",
+  "subscription": "2015",
   "_id": "M1187",
   "_rev": "9-6b53a290fe94f97f9c99f4d5ee74a246"
 }, {
@@ -85,7 +85,7 @@
   "memberId": "M1188",
   "type": "member",
   "status": "0",
-  "subscription": "2016",
+  "subscription": "",
   "_id": "M1188",
   "_rev": "9-536b9cbf3e5fe1e84ad985d5807083a1"
 }, {

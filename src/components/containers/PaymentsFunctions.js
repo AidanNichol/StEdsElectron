@@ -37,9 +37,10 @@ const tranformLogRec = (logObj, memNames)=>{
   logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
   // else logObj.amount *= -1;
   let name = logObj.memId ? memNames[logObj.memId] : '';
+  logObj.name = name;
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
   let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.req==='P' ? logObj.note || '' : ` ${name} ${venue} ${text}`);
+  logObj.text = (logObj.req==='P' ? logObj.note || '' : ` ${venue} ${text}`);
   // logObj.text = request.names[logObj.req] + (logObj.req==='P' ? '' : ` ${name} ${venue}`);
   return logObj;
 };

@@ -47,6 +47,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
         <div className="mainPage" >
         <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
         <ReplicationStatus className="devlinks"/>
+        <span className="version">v {version}</span>
         <Signin />
         {/*<Shortcuts className="shortcuts"/>*/}
         {/*<DisplayErrors />*/}
@@ -57,7 +58,6 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
         <Link page="bulkadd" name="BulkAdd" show={bookingsAdmin}/>
         <Link page="payments" name="Payments" show={bookingsAdmin}/>
         <Link page="membersList" name="Members" show={memberAdmin}/>
-        <span>v{version}</span>
         </div>
 
         <div style={{padding: 5}} className="maincontent">

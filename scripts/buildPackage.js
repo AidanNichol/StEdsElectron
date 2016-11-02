@@ -20,6 +20,6 @@ console.log(__dirname,dest,out);
   delete json.scripts;
   delete json.build;
   delete json.ava;
-  json.main = 'app.js';
+  json.main = 'app/app.js';
   // console.log(json);
   fs.writeFileSync(out, JSON.stringify(json));

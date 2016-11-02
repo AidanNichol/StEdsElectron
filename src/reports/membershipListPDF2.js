@@ -51,15 +51,17 @@ export function membershipListReport(members){
   const margin = 30;
 
   function showSubs(mem){
-    const defAtts = { align: 'center', width: 20};
     const statusMap = {Member: '', HLM: 'hlm', Guest: 'gst', '?': ''};
-    const subsMap = {OK:{fillColor: 'green'}, due: {fillColor: 'orange', font: bold}, late: {fillColor: 'red', font: bold}};
+    const subsMap = {OK:{color: 'green'}, due: {color: 'orange', font: bold}, late: {color: 'red', font: bold}};
     let stat = statusMap[mem.memberStatus||'?'];
-    if (stat !== '') return [stat, defAtts];
+    if (mem.memberId === 'M2031')logit('mem', mem, stat)
+    if (stat !== '') return [stat, {}];
 
     let subs = getSubsStatus(mem);
-    stat = `'${mem.subscription ? parseInt(mem.subscription)%100:16}`;
-    return [stat, {...defAtts, ...subsMap[subs.status]}];
+    stat = `${mem.subscription ? "'"+parseInt(mem.subscription)%100:'---'}`;
+    let atts = subsMap[subs.status];
+    if (mem.memberId === 'M2031')logit('subs', subs, stat, atts)
+    return [stat, atts];
   }
 
   const factor = 1.14
@@ -116,7 +118,8 @@ export function membershipListReport(members){
   members.forEach((mem,i)=>{
     if (i > 0 && i%16 === 0)doc.addPage();
     let [text, atts] = showSubs(mem);
-    columns[1].atts = atts;
+    let {font=normal, color='black'} = atts||{};
+    columns[1].atts = {...columns[1].atts, color, font};
     fmtMem = {...mem,
       memNo: mem._id.substr(1),
       // name: {columns: [mem.lastName+", "+mem.firstName, {text: statusMap[mem.memberStatus||'?'], alignment: 'right', fontSize: 6 }]},
@@ -130,7 +133,8 @@ export function membershipListReport(members){
     y1 += gapH;
     x=x1; y=y1; y2 = y+20;
     columns.forEach((col)=>{
-      doc.fontSize(dFS).text(fmtMem[col.field], x, y, col.atts)
+      // let {color='black', font=normal} = col.atts;
+      doc.fillColor(color).font(font).fontSize(dFS).text(fmtMem[col.field]||'', x, y, col.atts)
       y2 = Math.max(y2, doc.y)
       x += col.atts.width + (col.gap||0);
     });

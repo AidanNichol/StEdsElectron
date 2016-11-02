@@ -48,6 +48,11 @@ span.logText {
   padding-left: 5px;
   display: inline-block;
   min-width: 200px;
+
+  .name {
+    font-style: italic;
+    font-size: 0.9em;
+  }
 }
 
 span.logAmount {
