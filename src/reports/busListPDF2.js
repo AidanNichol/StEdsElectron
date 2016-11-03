@@ -23,7 +23,7 @@ const getData = (doc, data, text, showNumber, colW)=>{
   doc.fontSize(12);
   data.forEach((bkng, i)=> {
     doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {width: colW, continued: true})
-    doc.font(italic).text(bkng.annotation||' ')
+    doc.font(italic).fillColor('blue').text(bkng.annotation||' ').fillColor('black')
     // doc.fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {continued: true, width: colW})
     // .fontSize(9).text(`${bkng.annotation||' '}`, {align: 'right', width: colW})
     doc.fontSize(12)

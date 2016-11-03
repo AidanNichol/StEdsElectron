@@ -51,7 +51,7 @@ export function paymentsDueReport(doc, state){
   debts.forEach((data, i) => {
     console.log('payment', data);
     if (i=== bal)doc.text('', pWidth/2+20, yOff);
-    doc.fontSize(14).text(data.accName, {continued:true, width: colW}).text(`£${-data.balance}`,{align: 'right', width: colW});
+    doc.font(normal).fontSize(14).text(data.accName, {continued:true, width: colW}).text(`£${-data.balance}`,{align: 'right', width: colW});
     doc.fontSize(12);
     data.debt.filter((bkng)=>bkng.outstanding).forEach((bkng)=>
       doc.font(normal).fontSize(12).text(`${bkng.dispDate} ${bkng.text}`, {continued:true}).font(italic).fontSize(10).text(bkng.name||' ')
