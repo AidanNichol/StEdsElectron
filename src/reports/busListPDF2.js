@@ -34,7 +34,7 @@ const getData = (doc, data, text, showNumber, colW)=>{
 export function busListReport(doc, state){
   doc.addPage()
   const pWidth = doc.page.width;
-  // const pHeight = doc.page.Height;
+  // const pHeight = doc.page.height;
   const gutter = 20
   const nameH = doc.fontSize(14).currentLineHeight()
   // const detailH = doc.fontSize(12).currentLineHeight()

@@ -18,25 +18,25 @@ function isDirSync(aPath) {
     }
   }
 }
-let docs = home+'/Documents';
-if (!isDirSync(docs)) {
-  docs = home+'/My Documents';
-  if (!isDirSync(docs)) docs = home;
-}
-docs = docs+'/StEdwards'
-if (!isDirSync(docs)) {
-  logit('want to mkdir', docs)
-  fs.mkdirSync(docs);
-}
-let docname = docs+'/busSummary.pdf';
-logit('name', {docname})
-const margin = 30;
-var doc = new PDFDocument({size: 'A4', margins: {top:20, bottom: 20, left:margin, right: margin}, autoFirstPage: false});
-doc.pipe(fs.createWriteStream(docname) )
 
 // import db from 'services/bookingsDB';
 
 export function summaryReport(payload, state){
+  let docs = home+'/Documents';
+  if (!isDirSync(docs)) {
+    docs = home+'/My Documents';
+    if (!isDirSync(docs)) docs = home;
+  }
+  docs = docs+'/StEdwards'
+  if (!isDirSync(docs)) {
+    logit('want to mkdir', docs)
+    fs.mkdirSync(docs);
+  }
+  let docname = docs+'/busSummary.pdf';
+  logit('name', {docname})
+  const margin = 30;
+  var doc = new PDFDocument({size: 'A4', margins: {top:20, bottom: 20, left:margin, right: margin}, autoFirstPage: false});
+  doc.pipe(fs.createWriteStream(docname) )
 
   busListReport(doc, state);
   paymentsDueReport(doc, state);
