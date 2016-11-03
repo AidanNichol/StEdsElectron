@@ -26,6 +26,7 @@
     "open:dev": "electron app/app.js",
     "watch:build": "watch 'npm run build:dist' .",
     "dev": "npm run copy:assets & npm run copy:fonts & npm run build:html & npm run build:package & npm run open:dev & parallelshell 'npm run watch:js' 'npm run watch:css' ",
+    "devm": "parallelshell 'npm run watch:js' 'npm run watch:css' 'npm run open:dev'",
     "test": "NODE_PATH=src ava"
   },
   "build": {

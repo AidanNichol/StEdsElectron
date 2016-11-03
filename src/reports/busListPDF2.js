@@ -7,6 +7,7 @@ var logit = Logit('color:yellow; background:black;', 'printBuslists:report');
 
 import XDate from 'xdate';
 logit('env', process.env)
+logit('dirname', __dirname)
 
 // import db from 'services/bookingsDB';
 import {getBusBookings, getCarBookings, getWaitingList} from '../components/containers/buslists-container';
@@ -40,7 +41,7 @@ export function busListReport(doc, state){
   const gapH = doc.fontSize(9).currentLineHeight()
   let x,y;
 logit('state', state, process.env);
-  doc.image(process.env.PWD+'/assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
+  doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
   doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Bus Lists', 30, 30+(20-nameH)/2, {align:'center'});
   doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
   x=doc.x; y=doc.y;
