@@ -22,4 +22,5 @@ console.log(__dirname,dest,out);
   delete json.ava;
   json.main = 'app.js';
   // console.log(json);
-  fs.writeFileSync(out, JSON.stringify(json));
+  /* disable this function for now */
+  // fs.writeFileSync(out, JSON.stringify(json));

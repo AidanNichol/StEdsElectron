@@ -90,7 +90,7 @@ export default function BusLists(props){
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
-        <div><button type="button" onClick={()=>{logit('clicke', '');printBusList()}}>Print All  Walks PDF</button></div>
+        <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div>
         <div className="booked-members">
           {
             bookings.map((bkng)=>

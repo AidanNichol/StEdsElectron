@@ -13,7 +13,7 @@ import {getBusBookings, getCarBookings, getWaitingList} from '../components/cont
 
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
-const italic = 'Times-italic';
+const italic = 'Times-Italic';
 
 
 const getData = (doc, data, text, showNumber, colW)=>{
@@ -21,7 +21,8 @@ const getData = (doc, data, text, showNumber, colW)=>{
   if (text.length > 0)doc.fontSize(12).text(text);
   doc.fontSize(12);
   data.forEach((bkng, i)=> {
-    doc.fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name} ${bkng.annotation||''}`)
+    doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {width: colW, continued: true})
+    doc.font(italic).text(bkng.annotation||' ')
     // doc.fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {continued: true, width: colW})
     // .fontSize(9).text(`${bkng.annotation||' '}`, {align: 'right', width: colW})
     doc.fontSize(12)
@@ -38,7 +39,7 @@ export function busListReport(doc, state){
   // const detailH = doc.fontSize(12).currentLineHeight()
   const gapH = doc.fontSize(9).currentLineHeight()
   let x,y;
-logit('state', state);
+logit('state', state, process.env);
   doc.image(process.env.PWD+'/assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
   doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Bus Lists', 30, 30+(20-nameH)/2, {align:'center'});
   doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
@@ -63,8 +64,8 @@ logit('state', state);
     doc.fontSize(12).text(`+${walk.capacity - noBkngs} available `, {align:'center', width: colW});
     let y2 = doc.y;
     doc.rectAnnotation(x,y-4, colW, y2-y+4)
-    getData(doc, getCarBookings(state, walkId), '====== Cars ==========', false, colW);
-    getData(doc, getWaitingList(state, walkId), '==== Waiting List ====', true, colW);
+    getData(doc, getCarBookings(state, walkId), '===== Cars =====', false, colW);
+    getData(doc, getWaitingList(state, walkId), '= Waiting List =', true, colW);
   });
 
 

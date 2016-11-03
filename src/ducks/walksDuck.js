@@ -104,7 +104,7 @@ const WALK_SELECTED = 'walks/selected'
 //---------------------------------------------------------------------
  export function Icon({type, className, ...rest}){
    const loc = path.resolve(__dirname, '../../assets')
-   return <img className={className||''} {...rest} src={`../assets/icon-${type}.svg`} />
+   return <img className={(className||'')+' icon'} {...rest} src={`../assets/icon-${type}.svg`} />
  }
 
 //---------------------------------------------------------------------

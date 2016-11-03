@@ -1,12 +1,11 @@
 // import React from 'react';
 import { createSelector } from 'reselect'
-import {request} from '../../ducks/walksDuck'
-// import Immutable from 'seamless-immutable';
+import {request} from 'ducks/walksDuck'
 import * as i from 'icepick';
 import XDate from 'xdate';
-import {getTodaysDate} from '../../utilities/DateUtilities.js';
+import {getTodaysDate} from 'utilities/DateUtilities.js';
 var _today = getTodaysDate();
-import Logit from '../../factories/logit.js';
+import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'PaymentsFunctions');
 
 
@@ -140,17 +139,17 @@ const makeGetAccountDebt = (accId)=> createSelector(
             log.outstanding = true;
             let cancelled = arr.slice(0,i-1).filter((l)=>l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId).length > 0
             log.outstanding = log.outstanding && !cancelled
-            due -= Math.min(due, -log.amount)
-            
+            due += Math.min(-due, log.amount)
+
           }
           else log.outstanding = false;
-          logit('log', due, log)
+          logit('getdebt log', due, log)
           let owing = Math.min(-log.amount, -balance);
           // logit('logs '+accId, {logs, balance, lastOK, owing});
           return {...log, owing};
         })
         .reverse()
-        .filter((log)=>log.req==='B' || log.req==='L');
+        .filter((log)=>log.req==='B' || log.req==='C' || log.req==='L');
     }
     // logit('logs '+accId, {balance, debt, logs, accName, sortname});
     return  {accId, balance, debt, logs, accName, sortname};

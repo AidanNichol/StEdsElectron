@@ -5,7 +5,6 @@
   --warning-color: #fcf8e3;
   --danger-color: #f2dede;
   --warning-color: yellow;
-
   --border-color: #bce8f1;
   --header-text-color: #31708f;
   --background-color: #d9edf7;
@@ -98,5 +97,10 @@
 
   .details {
     padding: 3px 20px;
+
+    .name {
+      font-size: 0.9em;
+      font-style: italic;
+    }
   }
 }

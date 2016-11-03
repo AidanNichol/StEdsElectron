@@ -62,6 +62,57 @@
       "es2015",
       "stage-0",
       "react"
+    ],
+    "plugins": [
+      [
+        "module-alias",
+        [
+          {
+            "src": "./src/utilities",
+            "expose": "utilities"
+          },
+          {
+            "src": "./src/components",
+            "expose": "components"
+          },
+          {
+            "src": "./src/services",
+            "expose": "services"
+          },
+          {
+            "src": "./src/sagas",
+            "expose": "sagas"
+          },
+          {
+            "src": "./src/factories",
+            "expose": "factories"
+          },
+          {
+            "src": "./src/ducks",
+            "expose": "ducks"
+          },
+          {
+            "src": "./src/components/views",
+            "expose": "views"
+          },
+          {
+            "src": "./src/components/containers",
+            "expose": "containers"
+          },
+          {
+            "src": "./src/components/containers",
+            "expose": "containers"
+          },
+          {
+            "src": "./src/components/utility",
+            "expose": "utility"
+          },
+          {
+            "src": "npm:lodash",
+            "expose": "underscore"
+          }
+        ]
+      ]
     ]
   },
   "repository": {
@@ -126,6 +177,7 @@
     "ava": "^0.16.0",
     "babel-cli": "^6.18.0",
     "babel-eslint": "^7.0.0",
+    "babel-plugin-module-alias": "^1.6.0",
     "babel-plugin-transform-class-properties": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-es2016-node5": "^1.1.2",
@@ -142,6 +194,9 @@
     "electron-connect": "^0.6.0",
     "electron-packager": "^8.1.0",
     "eslint": "^3.7.1",
+    "eslint-import-resolver-babel-module": "^2.0.1",
+    "eslint-import-resolver-babel-module-alias": "^1.5.1",
+    "eslint-plugin-import": "^2.0.1",
     "eslint-plugin-no-unused-vars-rest": "^1.0.3",
     "eslint-plugin-react": "^6.3.0",
     "glob": "^7.1.1",

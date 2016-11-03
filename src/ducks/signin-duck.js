@@ -34,7 +34,7 @@ export const signoutSuccess = () => ({type: SIGNOUT_SUCCESS});
 import { call, put, take } from 'redux-saga/effects.js';
 var authError = "";
 
-var _dbuSetupCompleted = require("pouchdb-seamless-auth")(PouchDB)
+var _dbuSetupCompleted = require("utilities/pouchdb-seamless-auth")(PouchDB)
     .then(()=> PouchDB.setSeamlessAuthRemoteDB('http://nicholware.com:5984/_users'))
     .then((resp)=>{logit('setSeamlessAuthRemoteDB OK', resp); return resp;})
     .catch((error)=>{logit('setSeamlessAuthRemoteDB Error', error)});

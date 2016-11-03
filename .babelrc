@@ -1,0 +1,58 @@
+{
+  "presets": [
+    "es2015",
+    "stage-0",
+    "react"
+  ],
+  "plugins": [
+    [
+      "module-alias",
+      [
+        {
+          "src": "./src/utilities",
+          "expose": "utilities"
+        },
+        {
+          "src": "./src/components",
+          "expose": "components"
+        },
+        {
+          "src": "./src/services",
+          "expose": "services"
+        },
+        {
+          "src": "./src/sagas",
+          "expose": "sagas"
+        },
+        {
+          "src": "./src/factories",
+          "expose": "factories"
+        },
+        {
+          "src": "./src/ducks",
+          "expose": "ducks"
+        },
+        {
+          "src": "./src/components/views",
+          "expose": "views"
+        },
+        {
+          "src": "./src/components/containers",
+          "expose": "containers"
+        },
+        {
+          "src": "./src/components/containers",
+          "expose": "containers"
+        },
+        {
+          "src": "./src/components/utility",
+          "expose": "utility"
+        },
+        {
+          "src": "npm:lodash",
+          "expose": "underscore"
+        }
+      ]
+    ]
+  ]
+}
