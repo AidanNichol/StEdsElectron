@@ -36,4 +36,4 @@ var SelectWalk = React.createClass({
 });
 
 
-module.exports = SelectWalk;
+export default SelectWalk;

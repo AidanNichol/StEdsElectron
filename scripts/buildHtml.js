@@ -1,7 +1,6 @@
 var argv = require("argv")
 const glob = require('glob')
 var fs = require('fs')
-var path = require('path')
 const args = argv.option([
     {
         name: 'src',
@@ -12,13 +11,17 @@ const args = argv.option([
       type: 'string',
     },
     {
+      name: 'js',
+      type: 'string',
+    },
+    {
         name: 'dest',
         short: 'd',
         type: 'string'
     }
 ]);
 var res = args.run()
-const {src, dest, css} = res.options;
+const {src, dest, css, js} = res.options;
 const cssF = glob.sync(css).map((c)=>{
   let nm = `../${dest}${c.substr(3)}`
   return `<link rel="stylesheet" href="${nm}">`
@@ -29,6 +32,10 @@ html.forEach((prg)=>{
   let i = lines.findIndex((line)=> /<!-- inject:css -->/.test(line))
   if (i>=0){
     lines.splice(i+1, 0, ...cssF)
+  }
+  i = lines.findIndex((line)=> /<!-- inject:js -->/.test(line))
+  if (i>=0){
+    lines.splice(i+1, 0, `<script src="${js}" />`)
   }
   let out = `${dest}${prg.substr(3)}`
   console.log(`Processed ${prg}: ${i < 0 ? 0 : cssF.length} items inserted`)

@@ -55,4 +55,4 @@ var TooltipButton = React.createClass({
     );
   },
 });
-module.exports = TooltipButton;
+export default TooltipButton;

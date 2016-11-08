@@ -10,10 +10,8 @@ import {Panel} from '../utility/AJNPanel'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'BulkAdd');
 
-var AddMember = React.createClass({
-  displayName: 'AddMember',
-  render: function() {
-  var {name, paid, accId, memId, walkId, amount, paidChanged, waitlisted} = this.props;
+var AddMember = (props)=> {
+  var {name, paid, accId, memId, walkId, amount, paidChanged, waitlisted} = props;
   // var iveChanged = () =>{
   //   paidChanged({accId, amount, memId, walkId});
   // };
@@ -25,15 +23,12 @@ var AddMember = React.createClass({
         }
       </div>
       );
-  },
-});
+  }
 
 
-var BulkAdd = React.createClass({
-  displayName: 'Bulkadd',
-  render: function() {
-    var {bookings, waitingList, walkId, amount, walks, accountAddPayment, accountDelPayment, memSelected, setCurrentWalk, currentWalk, addToWaitList, toggleAddToWaitList} = this.props;
-    logit('props', this);
+export default function BulkAdd(props) {
+    var {bookings, waitingList, walkId, amount, walks, accountAddPayment, accountDelPayment, memSelected, setCurrentWalk, currentWalk, addToWaitList, toggleAddToWaitList} = props;
+    logit('props', props);
     var title = (<h4>Bulk Add</h4>);
     var pos = 1;
     return (
@@ -41,13 +36,13 @@ var BulkAdd = React.createClass({
         <SelectWalk {...{setCurrentWalk, walks, currentWalk}}/>
         <div className="select" style={{postion: "relative"}}>
           <span style={{width: "50%", display: "inline-block"}}>
-            <SelectMember style={{width: "50%", maxWidth: "50%", marginTop: "20px"}} valueKey="memId" options={this.props.options} onSelected={memSelected}/>
+            <SelectMember style={{width: "50%", maxWidth: "50%", marginTop: "20px"}} valueKey="memId" options={props.options} onSelected={memSelected}/>
           </span>
         </div>
         <span className="add-to-wl" style={{postion: "relative", bottom: "10px"}}>
         Add to Waitlist <input className="checkbox" type="checkbox" alt="paid" checked={addToWaitList} onChange={toggleAddToWaitList} />
         </span>
-        {/*<div className="errorMsg">{this.state.msg}</div>*/}
+        {/*<div className="errorMsg">{state.msg}</div>*/}
         <div className="added-members">
           {
             bookings.map((bkng)=>
@@ -65,6 +60,4 @@ var BulkAdd = React.createClass({
         </div>
       </Panel>
     );
-  },
-});
-module.exports = BulkAdd;
+  }

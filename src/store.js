@@ -9,7 +9,7 @@ import initialSaga from './sagas/initialSaga.js';
 import createLogger from 'redux-logger';
 import sagaMonitor from './sagas/sagaMonitor.js';
 import {monitorReplications} from './ducks/replication-duck'
-import {default as routerDefault} from './ducks/router-duck'
+import {routerDefaultState} from './ducks/router-duck'
 import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
 // import * as ml_actions from './actions/membersList-actions.js';
@@ -27,7 +27,7 @@ const defaultState = i.freeze({
   walks: {list: {}},
   accounts: {list: {}},
   controller: {addToWaitList: false},
-  router: routerDefault,
+  routerDefaultState,
 });
 export const configureStore = (initalState = defaultState)=>{
   if (!initalState)initalState = defaultState;

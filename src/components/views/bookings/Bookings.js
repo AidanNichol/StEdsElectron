@@ -85,4 +85,4 @@ var Bookings = React.createClass({
       );
   },
 });
-module.exports = Bookings;
+export default Bookings;

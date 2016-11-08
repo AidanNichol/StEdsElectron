@@ -1,7 +1,7 @@
 
-import {titleize} from 'underscore.string';
-
-
+// import {titleize} from 'underscore.string';
+const titleize = (string)=>
+string.toLowerCase().replace(/(^|\s)[a-z]/g,function(f){return f.toUpperCase();});
 
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'EditMemberData.js');

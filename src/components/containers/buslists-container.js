@@ -8,7 +8,7 @@ import BusLists from '../views/BusLists.js';
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
-import {changeWalkDoc, request} from '../../ducks/walksDuck'
+import {updateWalkBookings, request} from '../../ducks/walksDuck'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'BusLists Container');
 
@@ -77,9 +77,9 @@ function mapDispatchToProps(dispatch) {
     setCurrentWalk: (walkId)=>{ dispatch(setPage({page: 'buslists', walkId}))},
     // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
     showMemberBookings: (memId)=>{dispatch(setPage({page: 'bookings', memberId: memId, accountId: null}))},
-    walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(changeWalkDoc(walkId, accId, memId, reqType)),
-    cancelBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.CANCELLED)),
-    convertToBooking: (memId, walkId)=>dispatch(changeWalkDoc(walkId, null, memId, request.booked)),
+    walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
+    cancelBooking: (memId, walkId)=>dispatch(updateWalkBookings(walkId, null, memId, request.CANCELLED)),
+    convertToBooking: (memId, walkId)=>dispatch(updateWalkBookings(walkId, null, memId, request.booked)),
     printBusList: (walkId)=>dispatch({type: 'buslist/Print', payload:walkId}),
   }
 }
