@@ -10,11 +10,12 @@ import createLogger from 'redux-logger';
 import sagaMonitor from './sagas/sagaMonitor.js';
 import {monitorReplications} from './ducks/replication-duck'
 import {routerDefaultState} from './ducks/router-duck'
+import {lockDefaultState} from './ducks/lock-duck'
 import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
 // import * as ml_actions from './actions/membersList-actions.js';
-import * as ct_actions from './actions/controller-actions.js';
-import * as ac_actions from './actions/accounts-actions.js';
+// import * as ct_actions from './actions/controller-actions.js';
+// import * as ac_actions from './actions/accounts-actions.js';
 
 const logger = createLogger({collapsed: true, diff: true});
 export var store ={};
@@ -27,7 +28,8 @@ const defaultState = i.freeze({
   walks: {list: {}},
   accounts: {list: {}},
   controller: {addToWaitList: false},
-  routerDefaultState,
+  router: routerDefaultState,
+  lock: lockDefaultState,
 });
 export const configureStore = (initalState = defaultState)=>{
   if (!initalState)initalState = defaultState;
@@ -44,9 +46,9 @@ export const configureStore = (initalState = defaultState)=>{
 
   sagaMiddleware.run(initialSaga);
 
-  assignAll(ct_actions, store);
+  // assignAll(ct_actions, store);
   // assignAll(ml_actions, store);
-  assignAll(ac_actions, store);
+  // assignAll(ac_actions, store);
 
   sagaMiddleware.run(rootSaga);
   // var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';

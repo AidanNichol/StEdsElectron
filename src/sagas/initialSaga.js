@@ -1,6 +1,6 @@
 import db from '../services/bookingsDB.js';
 import { call, put } from 'redux-saga/effects.js';
-import * as actions from '../actions/controller-actions.js';
+// import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
 import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
 import {resignin} from '../ducks/signin-duck'
@@ -65,7 +65,7 @@ export default function* (){
       call(loadWalks),
     ]
     // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
-    yield call(actions.initialLoadCompleted);
+    yield put({type: 'INITIAL_LOAD_COMPLETED'});
     yield call(resignin);
 
   // } catch(error){

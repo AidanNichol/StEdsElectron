@@ -22,14 +22,18 @@ export default function* membersSaga(){
       if (!doc.accountId){ // new member - create account
         doc.accountId = 'A'+doc.memberId.substr(1);
       }
+      logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
       if (_deleted || _delete)doc._deleted = true;
       doc = i.thaw(doc);
-      logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
+      var {_subspaid, ...xDoc} = doc;
+      logit('stripped', {_subspaid, xDoc})
       // doc = {...doc};
       doc.account = doc.accountId;
+      delete doc._subspaid;
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
       let accounts = yield select(state=>state.accounts.list);
       if (doc._rev === undefined)doc = i.unset(doc, '_rev');
+      if (doc._subspaid !== undefined)doc = i.unset(doc, '_subspaid');
       if (doc._deleted != true)doc = i.unset(doc, '_deleted');
       // if (doc._delete === true)doc = i.unset(doc, '_deleted');
       logit('doc', doc);

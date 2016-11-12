@@ -133,6 +133,7 @@ const mapStateToProps = function(store) {
             allList,
             newMemberTemplate,
             memberIndex: getMemberIndex(store),
+            report: store.controller,
             member,
             displayMember: id,
             // actions,

@@ -3,6 +3,7 @@ import * as i from 'icepick';
 import { connect } from 'react-redux';
 import {setPage} from '../../ducks/router-duck.js';
 import {getBookingsSummary} from '../../ducks/walksDuck'
+import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 
 import BusLists from '../views/BusLists.js';
 // import {accountSelected} from '../actions/accounts-actions.js';
@@ -73,13 +74,11 @@ export const getWaitingList = createSelector(
 
 function mapDispatchToProps(dispatch) {
   return {
-    // setCurrentWalk: (walkId)=>{dispatch({type: 'WALK_SELECTED', walkId});},
     setCurrentWalk: (walkId)=>{ dispatch(setPage({page: 'buslists', walkId}))},
-    // walkUpdateBooking: bindActionCreators((walkId, accId, memId, reqType)=>({type: 'WALK_UPDATE_BOOKING', walkId, accId, memId, reqType}), dispatch),
     showMemberBookings: (memId)=>{dispatch(setPage({page: 'bookings', memberId: memId, accountId: null}))},
-    walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
-    cancelBooking: (memId, walkId)=>dispatch(updateWalkBookings(walkId, null, memId, request.CANCELLED)),
-    convertToBooking: (memId, walkId)=>dispatch(updateWalkBookings(walkId, null, memId, request.booked)),
+    // walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
+    cancelBooking: (memId, walkId)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, null, memId, request.CANCELLED)),
+    convertToBooking: (memId, walkId)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, null, memId, request.booked)),
     printBusList: (walkId)=>dispatch({type: 'buslist/Print', payload:walkId}),
   }
 }

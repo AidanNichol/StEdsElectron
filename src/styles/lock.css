@@ -1,0 +1,66 @@
+@keyframes bounceIn {
+  0%,
+  100% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+
+  25%,
+  75% {
+    transform: scale(1);
+    opacity: 1;
+    left: 1%;
+  }
+
+  50% {
+    transform: scale(2.2);
+    opacity: 1;
+    left: 2%;
+  }
+}
+
+@keyframes shout {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(3);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.lock {
+  display: flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    position: relative;
+    left: 8px;
+    width: 32px;
+  }
+
+  &.animate {
+    & img {
+      animation: shout 2s 2;
+    }
+
+    &::before {
+      content: 'Click Me First';
+      position: absolute;
+      text-align: center;
+      color: blue;
+      font-size: 1em;
+      opacity: 0;
+      animation: bounceIn 4s 1;
+      z-index: 10;
+      width: 32px;
+    }
+  }
+}

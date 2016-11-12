@@ -26,7 +26,7 @@ var TooltipButton = React.createClass({
     };
   },
   render: function() {
-    var {img, icon, lable, label, placement, tiptext, visible, className, style, ...other} = this.props;
+    var {img, icon, lable, label, placement, tiptext, visible, className, style, iconStyle, ...other} = this.props;
     if (typeof visible != 'boolean') logit('props', this.props);
     if (lable)label = lable;
     if (!visible) return null;
@@ -41,7 +41,7 @@ var TooltipButton = React.createClass({
                    border: '1px solid #adadad',
                    padding: '5px 8px',
                    borderRadius: 4,
-                   boxShadow: 'inset 0 3px 5px rgb(0,0,0,.125)',
+                  //  boxShadow: 'inset 0 3px 5px rgb(0,0,0,.125)',
                    marginLeft: 5,
                    ...style,
                   }
@@ -49,7 +49,7 @@ var TooltipButton = React.createClass({
       <button className={clnm }
           aria-label={tiptext} style={style}
            {...other}>
-           {icon ? <Icon name={icon}/> : null} {img ? <img src={img} /> : null }{label ? label : this.props.children}
+           {icon ? <Icon name={icon} style={iconStyle}/> : null} {img ? <img src={img}  style={iconStyle}/> : null }{label ? label : this.props.children}
       </button>
 
     );

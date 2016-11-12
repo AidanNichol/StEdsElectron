@@ -1,5 +1,7 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
+import {Lock} from 'ducks/lock-duck'
+import {PrintButton} from 'sagas/reportsSaga';
 
 import SelectWalk from '../utility/SelectWalk.js';
 
@@ -89,8 +91,10 @@ export default function BusLists(props){
     return (
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
+        <Lock />
         {/*<div className="errorMsg">{this.state.msg}</div>*/}
-        <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div>
+        <PrintButton report='busList' tiptext='Print All  Walks PDF' />
+        {/* <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div> */}
         <div className="booked-members">
           {
             bookings.map((bkng)=>

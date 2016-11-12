@@ -1,3 +1,7 @@
+:focus {
+  outline: -webkit-focus-ring-color auto 5px;
+  outline-style: none;
+}
 
 div.panel-title {
   .data {
@@ -8,26 +12,39 @@ div.panel-title {
 .bus-list .panel-contents {
   display: grid;
   grid-template-rows: 60px;
-  grid-template-columns: 3fr 20px 2fr;
+  grid-template-columns: 2fr 1fr 20px 2fr;
+  grid-template-areas:
+    "select lock xx print"
+    "booked booked xx others ";
 
   .walk-select {
-    grid-row: 1;
-    grid-column: 1;
+    grid-area: select;
   }
 
   .print-buttons {
-    grid-row: 1;
-    grid-column: 3;
+    grid-area: print;
+    align-self: center;
+
+    &:focus {
+      outline-width: 0;
+    }
+
+    img {
+      height: 40px;
+    }
+  }
+
+  .lock {
+    grid-area: lock;
+    align-self: center;
   }
 
   .booked-members {
-    grid-row: 2;
-    grid-column: 1;
+    grid-area: booked;
   }
 
   .others {
-    grid-row: 2;
-    grid-column: 3;
+    grid-area: others;
   }
 }
 
@@ -40,7 +57,6 @@ div.panel-title {
 
   .others {
     display: grid;
-    /*grid-template-rows: repeat(18, 1fr);*/
     grid-template-columns: 1fr 1fr;
   }
 
@@ -78,17 +94,9 @@ div.panel-title {
     .member {
       color: green;
       display: flex;
-      /*flex-direction: column;*/
       justify-content: space-between;
       padding: 0;
 
-      /*div:first-child {*/
-      /*  justify-content: flex-start;*/
-      /*}*/
-      //
-      /*div:last-child {*/
-      /*  justify-content: flex-end;*/
-      /*}*/
       .annotation {
         font-size: 0.7em;
       }
@@ -105,15 +113,7 @@ div.panel-title {
       button {
         width: 25px;
         margin-right: 20px;
-
-        /*span {*/
-        /*  width: 10px;*/
-        /*}*/
       }
     }
-  }
-
-  button {
-    width: 200px;
   }
 }

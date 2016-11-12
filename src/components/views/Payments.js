@@ -4,6 +4,7 @@ import {Panel} from '../utility/AJNPanel'
 import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
 import {Icon} from 'ducks/walksDuck'
+import {Lock} from 'ducks/lock-duck'
 
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments.js');
@@ -60,6 +61,7 @@ export default function Payments(props){
     return (
     <Panel className="payments" header={title} style={{margin:20}} >
       <div className="all-debts">
+      <Lock />
         <div className="header">
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>
         </div>

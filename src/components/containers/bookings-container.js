@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Bookings from '../views/bookings/Bookings.js';
 import {setPage} from '../../ducks/router-duck.js';
+import {dispatchIfUnlocked} from '../../ducks/lock-duck.js';
 // import * as actions from '../actions/walks-actions.js';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, closeWalkBookings, request} from '../../ducks/walksDuck'
@@ -43,16 +44,16 @@ var getBookingsSummary = {};
 // );
 function mapDispatchToProps(dispatch) {
   return {
-    walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType)),
-    walkCancelBooking: (walkId, accId, memId, reqType)=>dispatch(updateWalkBookings(walkId, accId, memId, reqType+'X')),
+    walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, reqType)),
+    walkCancelBooking: (walkId, accId, memId, reqType)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, reqType+'X')),
     closeWalkBookings: (walkId)=>dispatch(closeWalkBookings(walkId)),
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
             dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
             dispatch(setPage({page:'bookings', memberId: acc.memId, accountId: acc.accountId}));
           },
-    accountUpdatePayment: bindActionCreators((accId, amount)=>({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount}), dispatch),
-    annotateOpenDialog: (...args)=>dispatch(annotateOpenDialog(...args)),
+    // accountUpdatePayment: (accId, amount)=>dispatchIfUnlocked(dispatch, ({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount})),
+    annotateOpenDialog: (...args)=>dispatchIfUnlocked(dispatch, annotateOpenDialog(...args)),
   }
 }
 

@@ -1,16 +1,27 @@
 {
-  "presets": [
-    "es2015",
-    "stage-0",
-    "react"
-  ],
-  "plugins": [
-    [
-      "module-resolver",
-      {
-         "root": ["./src"],
-         "alias": {"views": "components/views"}
-      }
-    ]
-  ]
+  "env": {
+    "rollup": {
+      "presets": [
+        "es2015-rollup",
+        "stage-0",
+        "react"
+      ]
+    },
+    "development": {
+      "presets": [
+        "es2015",
+        "stage-0",
+        "react"
+      ],
+      "plugins": [
+        [
+          "module-resolver",
+          {
+            "root": ["./src"],
+            "alias": {"views": "components/views"}
+          }
+        ]
+      ]       
+    }
+  }
 }

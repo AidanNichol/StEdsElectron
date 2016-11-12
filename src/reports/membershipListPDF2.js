@@ -142,4 +142,5 @@ export function membershipListReport(members){
     y1 += gapH*0.3;
   });
   doc.end()
+  return docname.substr(home.length+1);
 }

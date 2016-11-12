@@ -1,3 +1,5 @@
+// require ('babel-polyfill')
+// require('../src/helpers.js')
 var argv = require("argv")
 const glob = require('glob')
 var fs = require('fs')
@@ -35,7 +37,7 @@ html.forEach((prg)=>{
   }
   i = lines.findIndex((line)=> /<!-- inject:js -->/.test(line))
   if (i>=0){
-    lines.splice(i+1, 0, `<script src="${js}" />`)
+    lines.splice(i+1, 0, `<script src="${js}" ></script>`)
   }
   let out = `${dest}${prg.substr(3)}`
   console.log(`Processed ${prg}: ${i < 0 ? 0 : cssF.length} items inserted`)

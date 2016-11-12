@@ -1,4 +1,5 @@
-import 'babel-polyfill'
+// import 'babel-polyfill'
+// import './helpers.js'
 const electron = require('electron');
 // const {Menu} = require('electron');
 const app = electron.app;

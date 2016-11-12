@@ -3,6 +3,7 @@ import React from 'react';
 var classnames = require('classnames');
 import EditMemberData from './EditMemberDataR.js';
 import TooltipButton from '../../utility/TooltipButton.js';
+import {PrintButton} from 'sagas/reportsSaga';
 import {getSubsStatus} from '../../../utilities/subsStatus';
 import {Panel} from '../../utility/AJNPanel'
 
@@ -98,8 +99,9 @@ class Memberslist extends React.Component {
           {/* } */}
           {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
           <span className="action-buttons" hidden={showEditMemberModal}>
-            <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
-                (Sorted by ${sortProp})`} icon="Printer" />
+            <PrintButton report='memberslist' payload={allList} placement='right' tiptext={`Print Membership List (Sorted by ${sortProp})`} />
+            {/* <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
+                (Sorted by ${sortProp})`} icon="Printer" /> */}
             <TooltipButton icon="user-add" onClick={()=>createNewMember()} tiptext='Create a New Member' visible/>
           </span>
 

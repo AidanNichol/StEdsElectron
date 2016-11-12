@@ -1,7 +1,7 @@
 
 import * as i from 'icepick';
 import React from 'react';
-import {Field, reduxForm, formValueSelector, getFormValues, isDirty} from 'redux-form';
+import {Field, reduxForm, formValueSelector, getFormValues, isDirty, change} from 'redux-form';
 import {connect} from 'react-redux';
 // import {Icon} from '../../Utility/Icon'
 import classnames from 'classnames';
@@ -55,12 +55,20 @@ let renderTextArea = (field) => {
 //
 // }
 const subscriptionButton = (props)=>{
-  const { input: {  onChange}, _delete, editMode, subsStatus, meta, style={}, ...other } = props;
+  const { input: {  onChange}, _delete, editMode, subsStatus, subsPaid, meta, style={}, ...other } = props;
   // if (!subsStatus.due) return null;
   style.marginLeft = 115;
   // logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
+  // const change = ()=>{
+  //   onChange(subsStatus.year);
+  //   subsPaid(subsStatus.fee);
+  // }
   return (
-    <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`} onClick={()=>onChange(subsStatus.year)} {...other} style={style}  visible={editMode && !_delete && subsStatus.due} />
+    <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`}
+        onClick={()=>{onChange(subsStatus.year); subsPaid(subsStatus.fee);}}
+        {...other}
+        style={style}
+        visible={editMode && !_delete && subsStatus.due} />
   )
 
 }
@@ -127,6 +135,7 @@ let EditMemberData = (props)=>{
       membersEditSaveChanges({doc, origDoc: props.member});
 
     }
+    var subsPaid = (fee)=>props.dispatch(change(props.form, '_subspaid', fee));
     const subsStatus = getSubsStatus({subscription, memberStatus}); // {due: true, year: 2016, fee: 15, status: 'late'}
     var title = (<div style={{width:'100%'}}>
       { firstName } { lastName } {dirty ? '(changed)' : ''}
@@ -170,7 +179,7 @@ let EditMemberData = (props)=>{
               {/* <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
                 <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} /> */}
                 <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
-                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsStatus}} />
+                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsStatus, subsPaid}} />
 
               </Field>
           </div>
@@ -228,7 +237,7 @@ const mapStateToProps = function mapStateToProps(state, props){
   member = member ? i.thaw(member) : {};
   if (member && !('suspended' in member))member.suspended = false;
   const newProps = {
-    initialValues: {_delete:false, ...member}, // will pull state into form's initialValues
+    initialValues: {_delete:false, _subspaid: 0, ...member}, // will pull state into form's initialValues
     // subsDueForYear: subsDue,
     // __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
     // __subsDue: !(member && subs === subsDue ),
@@ -251,4 +260,4 @@ EditMemberData = connect(
   mapStateToProps
 )(EditMemberData)
 
-export default EditMemberData
+export default EditMemberData;

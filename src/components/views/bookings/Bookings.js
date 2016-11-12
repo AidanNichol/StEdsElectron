@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
+import {Lock} from '../../../ducks/lock-duck'
 import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
 import {AnnotateBooking} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';
@@ -76,6 +77,7 @@ var Bookings = React.createClass({
 
         ))}
         <AnnotateBooking {...annotate}/>
+        <Lock />
         </div>
 
         <ChangeLog accId={accId}/>

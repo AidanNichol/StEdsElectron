@@ -13,6 +13,7 @@ import {reducer as signinReducer } from '../ducks/signin-duck.js';
 import controller from '../reducers/controller-reducers.js';
 import replicator from '../ducks/replication-duck.js';
 import {reducer as router} from '../ducks/router-duck.js';
+import {reducer as lockReducer} from '../ducks/lock-duck.js';
 console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
@@ -21,6 +22,7 @@ var reducers = combineReducers({
     walks,
     accounts,
     membersList,
+    lock: lockReducer,
     signin: signinReducer,
     replicator,
     router,

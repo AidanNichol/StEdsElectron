@@ -40,7 +40,7 @@ export function busListReport(doc, state){
   // const detailH = doc.fontSize(12).currentLineHeight()
   const gapH = doc.fontSize(9).currentLineHeight()
   let x,y;
-logit('state', state, process.env);
+logit('state', {state, env: process.env, __dirname});
   doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
   doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Bus Lists', 30, 30+(20-nameH)/2, {align:'center'});
   doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})

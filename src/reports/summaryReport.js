@@ -41,4 +41,5 @@ export function summaryReport(payload, state){
   busListReport(doc, state);
   paymentsDueReport(doc, state);
   doc.end();
+  return docname.substr(home.length+1);
 }
