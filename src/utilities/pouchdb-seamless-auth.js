@@ -173,11 +173,18 @@ function startReplication(username, info) {
       .catch(useEmptyDoc);
     Promise.all([getRemote, getLocal])
       .then(Function.prototype.apply.bind(function (remoteDoc, localDoc) {
+        console.log('seamlessReplicate', {remoteDoc, localDoc});
         if (getRev(remoteDoc) > getRev(localDoc)) {
-          local.remove(localDoc)
-          .then(()=>local.compact())
-          .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
-          .catch((err)=>console.error('update local record', err))
+          if (localDoc._rev !== '0'){
+            local.remove(localDoc)
+            .then(()=>local.compact())
+            .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
+            .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
+            .catch((err)=>console.error('update local record', err))
+          } else {
+            local.bulkDocs([remoteDoc], {new_edits: false}) 
+            .catch((err)=>console.error('update local record', err))
+          }
         } else if (remoteDoc._rev < localDoc._rev) {
           remote.bulkDocs([localDoc], {new_edits: false});
         } else {
