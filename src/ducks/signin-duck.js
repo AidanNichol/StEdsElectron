@@ -105,6 +105,7 @@ export const signinSaga = function* signinSaga(){
       logit('token', token)
       if (token){
         yield put(signinSuccess(token));
+        // sagaMiddleware.run(monitorReplications, remoteCouch);
         yield take(SIGNOUT_REQUESTED);
         yield call([PouchDB, PouchDB.seamlessLogOut]);
         yield put(signoutSuccess());

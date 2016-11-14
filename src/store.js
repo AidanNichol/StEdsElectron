@@ -1,6 +1,6 @@
 import * as i from 'icepick';
 import { createStore, applyMiddleware, compose } from 'redux'
-import { assignAll } from 'redux-act';
+// import { assignAll } from 'redux-act';
 import createSagaMiddleware from 'redux-saga'
 // import reducers from './reducers';
 import reducers from './reducers/index.js';
@@ -13,11 +13,11 @@ import {routerDefaultState} from './ducks/router-duck'
 import {lockDefaultState} from './ducks/lock-duck'
 import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
+import {getSettings} from 'ducks/settings-duck'
 // import * as ml_actions from './actions/membersList-actions.js';
 // import * as ct_actions from './actions/controller-actions.js';
 // import * as ac_actions from './actions/accounts-actions.js';
 
-const logger = createLogger({collapsed: true, diff: true});
 export var store ={};
 export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();
@@ -34,15 +34,24 @@ const defaultState = i.freeze({
 export const configureStore = (initalState = defaultState)=>{
   if (!initalState)initalState = defaultState;
   console.log({reducers, sagaMonitor});
+  const middlewares = [sagaMiddleware];
+
+  if (getSettings('debug.reduxLogger')) {
+    const logger = createLogger({collapsed: true, diff: true});
+    middlewares.push(logger);
+  }
+
   store = createStore(
     reducers,
     initalState,
-    compose(applyMiddleware(sagaMiddleware, logger),
+    compose(applyMiddleware(...middlewares),
     // DevTools.instrument(),
 
     window.devToolsExtension ? window.devToolsExtension() : f => f)
   );
   console.log('store', store.getState());
+
+  sagaMiddleware.run(monitorReplications, remoteCouch);
 
   sagaMiddleware.run(initialSaga);
 
@@ -54,7 +63,6 @@ export const configureStore = (initalState = defaultState)=>{
   // var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
   // var remoteCouch = 'http://localhost:3000/db/bookings';
 
-  sagaMiddleware.run(monitorReplications, remoteCouch);
   return store;
 
 };

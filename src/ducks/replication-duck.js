@@ -77,6 +77,10 @@ function createReplicationChannel (remoteCouch) {
 }
 
 export function * monitorReplications (remoteCouch) {
+	yield take('SIGNIN_SUCCESS');
+	if (!localStorage.getItem('stEdsSignin')) return;
+	const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
+
   const info = yield call([db, db.info]);
   logit('info', info);
 	yield put(dbChange(info.update_seq))

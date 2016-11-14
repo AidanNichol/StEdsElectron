@@ -4,6 +4,7 @@ const electron = require('electron');
 // const {Menu} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
+import {getSettings} from 'ducks/settings-duck'
 import { spawn } from "child_process"
 import * as path from "path"
 
@@ -14,6 +15,8 @@ import * as path from "path"
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer';
 const POUCHDB_INSPECTOR = "hbhhpaojmpfimakffndmpmpndcmonkfa";
 // var ESI = require('electron-single-instance');
+
+app.setName('stedsbookings')
 
 let mainWindow,
     loadingScreen,
@@ -79,7 +82,7 @@ function createWindow() {
 
     // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
     // require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.

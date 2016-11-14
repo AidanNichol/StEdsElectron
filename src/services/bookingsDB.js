@@ -9,6 +9,7 @@
 // var PouchDBa  = require('pouchdb-authentication');
 // export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
 var db;
+import {getSettings} from 'ducks/settings-duck'
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:red;', 'DBbookings');
 
@@ -46,7 +47,7 @@ console.log('PouchDB created', db);
 db.info().then(function(info) {console.info('Bookings Info', info);});
 
 PouchDB.debug.disable();
-// PouchDB.debug.enable('pouchdb:*');
+getSettings('debug.database') && PouchDB.debug.enable('pouchdb:*');
 import pouchSeed from 'pouchdb-seed-design';
 import ddoc from '../services/designDocs'
 

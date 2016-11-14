@@ -1,9 +1,13 @@
 import electron from 'electron';
-function myFunction() {
-  const remote = require('electron').remote;
-  const BrowserWindow = remote.BrowserWindow;
+const remote = require('electron').remote;
+const BrowserWindow = remote.BrowserWindow;
+function showAboutWindow() {
   var win = new BrowserWindow({ width: 800, height: 600, webPreferences: {experimentalFeatures: true} });
   win.loadURL(`file://${__dirname}/../about.html`);
+}
+function showSettingsWindow() {
+  var win = new BrowserWindow({ width: 700, height: 750, webPreferences: {experimentalFeatures: true} });
+  win.loadURL(`file://${__dirname}/../settings.html`);
 }
 export var template = [
   {
@@ -87,6 +91,13 @@ export var template = [
           window.$$LogSagas();
         }
       },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Edit Settings',
+        click: showSettingsWindow
+      },
     ]
   },
   {
@@ -115,7 +126,7 @@ export var template = [
       },
       {
         label: 'About StEdwardsBookings',
-        click: myFunction
+        click: showAboutWindow
       },
     ]
   },
@@ -128,7 +139,7 @@ if (process.platform == 'darwin') {
     submenu: [
       {
         label: 'About ' + name,
-        click: myFunction,
+        click: showAboutWindow,
         role: 'about'
       },
       {
