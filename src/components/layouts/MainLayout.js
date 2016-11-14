@@ -34,10 +34,11 @@ const loadPage = (curPage, loading)=>{
     default: return (<BookingsContainer />);
   }
 }
-
+var myPages = [];
 const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   const Link = ({page, show, name})=>{
     if (!show) return null;
+    myPages.push (page);
     var cl = classnames({link: true, selected: curPage === page});
     return (<span onClick={()=>setPage(page)}  className={cl}>{name}</span>)
   }
@@ -80,12 +81,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = (state) => {
-
+  let curPage = myPages.includes(state.router.page) ? state.router.page : myPages[0];
+  if (!state.signin.name) curPage = 'none';
   return {
     bookingsAdmin: isUserAuthorized(['bookings']),
     memberAdmin: isUserAuthorized(['membership', 'bookings']),
     loading: state.controller.loading,
-    curPage: state.signin.name ? state.router.page : 'none',
+    curPage: curPage,
   }
 }
 
