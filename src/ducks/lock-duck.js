@@ -5,7 +5,7 @@ import { call, put, take, fork, cancel } from 'redux-saga/effects.js';
 // import { takeLatest } from 'redux-saga';
 import {lockSettings} from './settings-duck'
 import Logit from '../factories/logit.js';
-const logit = Logit('color:white; background:blue;', 'LockDuck');
+const logit = Logit('color:white; background:blue;', 'Lock:Duck');
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 logit('settings', lockSettings)

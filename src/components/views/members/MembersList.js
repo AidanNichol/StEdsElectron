@@ -8,7 +8,7 @@ import {getSubsStatus} from '../../../utilities/subsStatus';
 import {Panel} from '../../utility/AJNPanel'
 
 import Logit from '../../../factories/logit.js';
-var logit = Logit('color:white; background:navy;', 'MemberList.jsx');
+var logit = Logit('color:white; background:navy;', 'MemberList:View');
 // const saveChanges = (values)=>{
 //   logit('saveChanges', values);
 //   membersEditSaveChanges({doc: values, origDoc: members});

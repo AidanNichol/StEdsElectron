@@ -6,7 +6,7 @@ import XDate from 'xdate';
 import {getTodaysDate} from 'utilities/DateUtilities.js';
 var _today = getTodaysDate();
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'PaymentsFunctions');
+var logit = Logit('color:blue; background:yellow;', 'Payments:Functions');
 
 
 var membersNames = i.freeze({});

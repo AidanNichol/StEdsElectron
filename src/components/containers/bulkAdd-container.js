@@ -6,7 +6,7 @@ import {isUserAuthorized} from '../../services/auth.js';
 import { createSelector } from 'reselect'
 import {updateWalkBookings, request} from '../../ducks/walksDuck'
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'bulkAdd Container');
+var logit = Logit('color:yellow; background:blue;', 'bulkAdd:Container');
 
 var datColl = new Intl.Collator();
 var datCmp = (a, b) => datColl.compare(a.dat, b.dat);

@@ -87,7 +87,7 @@ export function membershipListReport(members){
   doc.on('pageAdded', ()=>{
     currentPage += 1
     doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continue: true})
-    doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Payments Due', 30, 30+(20-nameH)/2, {align:'center'});
+    doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Membership List', 30, 30+(20-nameH)/2, {align:'center'});
     doc.font(normal).fontSize(9).text(timestamp,30,40-gapH*1.0, {align: 'right'})
     doc.font(normal).fontSize(9).text(`page ${currentPage.toString()} of ${pageCount}`,30,40+gapH*0, {align: 'right'})
     doc.fontSize(dFS).text('', margin, 60);
@@ -126,7 +126,7 @@ export function membershipListReport(members){
       name: mem.lastName+", "+mem.firstName,
       // memberStatus: statusMap[mem.memberStatus||'?'],
       // address: (mem.address||''),
-      address: (mem.address||'').replace("\n", ", "),
+      address: (mem.address||'').replace(/[\n]/g, ", "),
       subs: text,};
     // columns.forEach((col)=>doc.text(fmtMem[col.field], col.atts));
     doc.underline(margin, y1+gapH*0.4, pWidth-2*margin, 0.1, {color: 'lightgrey', strokeWidth: 8, dash: 4})

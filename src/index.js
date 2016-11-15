@@ -6,6 +6,9 @@ import {configureStore} from './store.js';
 import MainLayout from './components/layouts/MainLayout.js';
 import {template} from './menu/menu.js'
 import {remote} from 'electron';
+import {opts} from '../factories/logit.js';
+console.log('logit:opts', opts)
+
 const Menu = remote.Menu;
 
 const menu = Menu.buildFromTemplate(template);

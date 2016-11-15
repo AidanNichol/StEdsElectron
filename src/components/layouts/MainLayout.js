@@ -21,7 +21,7 @@ var packageJson = require('../../../package.json');
 
 const version = packageJson.version;
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'bookings');
+var logit = Logit('color:yellow; background:blue;', 'MainLayout');
 const loadPage = (curPage, loading)=>{
   if (loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
   switch(curPage) {
@@ -36,6 +36,7 @@ const loadPage = (curPage, loading)=>{
 }
 var myPages = [];
 const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
+  myPages = []
   const Link = ({page, show, name})=>{
     if (!show) return null;
     myPages.push (page);

@@ -3,7 +3,7 @@ import { eventChannel, END, buffers } from 'redux-saga'
 import { call, put, take } from 'redux-saga/effects';
 
 import Logit from '../factories/logit';
-var logit = Logit('color:white; background:red;', 'replicationDuck');
+var logit = Logit('color:white; background:red;', 'replication:Duck');
 import * as i from 'icepick'
 
 	const DB_CHANGE = 'repliction/db_change'

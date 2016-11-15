@@ -13,7 +13,7 @@ import {isUserAuthorized} from '../../services/auth.js';
 import {getSubsStatus} from '../../utilities/subsStatus'
 import { createSelector } from 'reselect'
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'bookings');
+var logit = Logit('color:yellow; background:blue;', 'bookings:Container');
 
 const getSortedMemebersList = createSelector(
   (state)=>state.members,

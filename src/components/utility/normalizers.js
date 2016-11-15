@@ -4,7 +4,7 @@ const titleize = (string)=>
 string.toLowerCase().replace(/(^|\s)[a-z]/g,function(f){return f.toUpperCase();});
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'EditMemberData.js');
+var logit = Logit('color:yellow; background:cyan;', 'EditMemberData');
 export function normalize(field, fn){
   let origalOnChange = field.onChange;
   // if (event.type!=='input')

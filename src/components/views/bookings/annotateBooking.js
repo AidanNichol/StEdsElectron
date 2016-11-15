@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {annotateWalkBookings, annotateCloseDialog} from '../../../ducks/walksDuck.js';
 import Logit from '../../../factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'AnnotateBookings');
+var logit = Logit('color:yellow; background:cyan;', 'Annotate:Bookings');
 
 function Annotate(props){
   var { memId, walkId, dialogOpen, venue, name, text, annotateCloseDialog,annotateWalkBookings } = props;

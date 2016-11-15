@@ -4,7 +4,7 @@ import {getAllDebts, showStats} from './PaymentsFunctions'
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments-container');
+var logit = Logit('color:blue; background:yellow;', 'Payments:Container');
 
 
 function mapDispatchToProps(dispatch) {

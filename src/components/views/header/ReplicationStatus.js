@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Logit from '../../../factories/logit.js';
-var logit = Logit('color:white; background:red;', 'replicationDuck');
+var logit = Logit('color:white; background:red;', 'replication:Duck');
 import {Icon} from '../../utility/Icon'
 
 function replicationStatus({ paused, waiting, className }) {

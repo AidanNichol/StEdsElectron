@@ -11,7 +11,7 @@ import {AnnotateBooking} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';
 // import ChangeLog from '..//utility/ChangeLog.js';
 import Logit from '../../../factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'bookings');
+var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
 
 var Bookings = React.createClass({
   render: function() {

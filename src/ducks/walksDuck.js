@@ -8,7 +8,7 @@ import docUpdateSaga from '../sagas/docUpdateSaga.js';
 import {pushLog} from '../utilities/docLogging.js';
 import Logit from '../factories/logit.js';
 import path from 'path'
-var logit = Logit('color:white; background:black;', 'WalksDuck');
+var logit = Logit('color:white; background:black;', 'Walks:Duck');
 
 import {now, getTodaysDate} from '../utilities/DateUtilities.js';
 var _today = getTodaysDate();

@@ -1,9 +1,11 @@
 /* global debug */
 // import debug from 'debug';
 // window.mydebug = debug;
+export var opts = {}
+
 export default function Logit(style,source) {
   // let debb = debug(`steds:${source}`);
-
+opts[source] = {enabled: true};
 
 // debug.enable('*');
     return function logit(...Y){

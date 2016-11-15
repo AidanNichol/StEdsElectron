@@ -1,7 +1,7 @@
 import * as i from 'icepick';
 import Logit from '../factories/logit.js';
 import {setPage} from '../ducks/router-duck.js';
-var logit = Logit('color:white; background:black;', 'AccountsReducer');
+var logit = Logit('color:white; background:black;', 'Accounts:Reducer');
 
   export default function(state = {list: {}, current:{}}, action) {
     switch(action.type) {

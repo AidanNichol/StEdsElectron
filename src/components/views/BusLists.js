@@ -9,7 +9,7 @@ import {Panel} from '../utility/AJNPanel'
 
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'BusLists');
+var logit = Logit('color:yellow; background:blue;', 'BusLists:view');
 
 
 export default function BusLists(props){

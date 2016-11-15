@@ -6,7 +6,7 @@ import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js
 import {resignin} from '../ducks/signin-duck'
 
 import Logit from '../factories/logit.js';
-var logit = Logit('color:white; background:navy;', 'InitialSaga');
+var logit = Logit('color:white; background:navy;', 'Initial:Saga');
 
 
 export default function* (){

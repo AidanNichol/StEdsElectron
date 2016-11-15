@@ -5,7 +5,7 @@ import {request} from '../ducks/walksDuck'
 import {pushLog} from '../utilities/docLogging.js';
 import Logit from '../factories/logit.js';
 
-var logit = Logit('color:white; background:blue;', 'AccountsSaga');
+var logit = Logit('color:white; background:blue;', 'Accounts:Saga');
 
 const getAccount = (state, id)=>{
   if (id[0] === 'A')return state.accounts.list[id];

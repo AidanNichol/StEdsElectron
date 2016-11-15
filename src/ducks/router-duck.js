@@ -1,6 +1,6 @@
 import * as i from 'icepick';
 import Logit from '../factories/logit.js';
-const logit = Logit('color:white; background:blue;', 'Router');
+const logit = Logit('color:white; background:blue;', 'Router:duck');
 
 
 //---------------------------------------------------------------------

@@ -8,7 +8,7 @@ import {Panel} from '../utility/AJNPanel'
 
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'BulkAdd');
+var logit = Logit('color:yellow; background:blue;', 'BulkAdd:view');
 
 var AddMember = (props)=> {
   var {name, paid, accId, memId, walkId, amount, paidChanged, waitlisted} = props;

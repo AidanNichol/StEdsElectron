@@ -5,7 +5,7 @@ import {Field, reduxForm, SubmissionError} from 'redux-form';
 import * as i from 'icepick';
 import Logit from '../factories/logit.js';
 // import {remoteCouchUsers} from '../services/remoteCouch'
-const logit = Logit('color:white; background:blue;', 'SigninDuck');
+const logit = Logit('color:white; background:blue;', 'Signin:Duck');
 
 
 //---------------------------------------------------------------------
