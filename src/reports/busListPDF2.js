@@ -38,16 +38,7 @@ const getData = (doc, data, text, showNumber, colW)=>{
 }
 
 export function busListReport(doc, state){
-  doc.on('pageAdded', ()=>{
-    const height14 = doc.fontSize(14).currentLineHeight()
-    const height4 = doc.fontSize(4).currentLineHeight()
-    const height9 = doc.fontSize(9).currentLineHeight()
-
-    doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
-    doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Bus Lists', 30, 30+(20-height14)/2, {align:'center'});
-    doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height9)/2, {align: 'right'})
-    doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height4)/2, {align: 'right'})
-  });  doc.addPage()
+  doc.addPage()
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
   const gutter = 20
@@ -114,6 +105,6 @@ logit('state', {state, env: process.env, __dirname});
     getData(doc, waitlist, '= Waiting List =', true, colW);
     col += 1;
   });
-
+  // doc.off('pageAdded')
 
 }

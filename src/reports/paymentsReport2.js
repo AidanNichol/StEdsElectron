@@ -37,9 +37,9 @@ export function paymentsDueReport(doc, state){
   };
 
   let x,y;
-  doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continue: true})
-  doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Payments Due', 30, 30+(20-nameH)/2, {align:'center'});
-  doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
+  // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continue: true})
+  // doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Payments Due', 30, 30+(20-nameH)/2, {align:'center'});
+  // doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
    x=doc.x; y=doc.y;
   logit('x,y', {x,y})
   let debts = getAllDebts(state);
