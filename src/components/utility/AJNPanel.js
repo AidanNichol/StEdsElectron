@@ -7,7 +7,7 @@ export const Panel = (props)=>{
   const {className: clb, ...bdy} = body;
   return (
     <div className={`panel ajn-panel ${className} ${mode}`} {...other}>
-      <div className='panel-header'>{header}</div>
+      <div className={'panel-header '+mode}>{header}</div>
       <div className={'panel-body '+(clb||'')} {...bdy}>
         <div className='panel-contents'>
           {children}

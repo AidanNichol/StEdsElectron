@@ -93,6 +93,7 @@ api.seamlessLogIn = function (username, password, opts, callback) {
   var args = parseArgs(opts, callback);
   var promise = callFromAvailableSource('logIn', username, password, args.opts)
     .then(startReplication.bind(null, username))
+    .then((passthru)=>{logit('replcate returned', passthru); return passthru})
     .then(invalidateCache)
     .then(returnResp);
   nodify(promise, args.callback);
@@ -172,29 +173,31 @@ function startReplication(username, info) {
       .catch(useEmptyDoc);
     var getLocal = local.get('org.couchdb.user:' + username, {revs: true})
       .catch(useEmptyDoc);
-    Promise.all([getRemote, getLocal])
+    return Promise.all([getRemote, getLocal])
       .then(Function.prototype.apply.bind(function (remoteDoc, localDoc) {
-        logit('seamlessReplicate', {remoteDoc, localDoc});
+        logit('seamlessReplicate', {remoteDoc, localDoc, info});
         if (getRev(remoteDoc) > getRev(localDoc)) {
           logit('update', 'copy remote to local')
           if (localDoc._rev !== '0'){
             logit('remove old local', )
-            local.remove(localDoc)
+            return local.remove(localDoc)
             .then(()=>local.compact())
             .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
-            .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
+            .then(()=> info)
             .catch((err)=>console.error('remove & update local record', err))
           } else {
             logit('add to local', remoteDoc)
-            local.bulkDocs([remoteDoc], {new_edits: false})
+            return local.bulkDocs([remoteDoc], {new_edits: false})
+            .then(()=> info)
             .catch((err)=>console.error('update local record', err))
           }
         } else if (remoteDoc._rev < localDoc._rev) {
-          remote.bulkDocs([localDoc], {new_edits: false});
+          return remote.bulkDocs([localDoc], {new_edits: false})
+          .then(()=> info)
         } else {
           // both were up-to-date already. Prevent cache invalidation by
           // returning directly.
-          return;
+          return info;
         }
         invalidateCache();
       }, null));

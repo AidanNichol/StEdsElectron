@@ -47,7 +47,7 @@ if (DbSettings.resetLocal){
   dbu.destroy()
     .then(()=>{
       setSettings(`database.${getSettings('database.current')}.resetLocal`, false)
-      dbu = new PouchDB(localDb, {adapter: 'websql'});       
+      dbu = new PouchDB(localDb, {adapter: 'websql'});
     })
 }
 
@@ -81,7 +81,7 @@ function* authorize(username, password){
     localStorage.setItem('stEdsSignin', JSON.stringify({username, password}));
 
     var sess = yield call([PouchDB, PouchDB.seamlessSession]);
-    // logit('session', sess)
+    logit('session', sess)
     var data = yield call([dbu, dbu.get], 'org.couchdb.user:'+sess.userCtx.name);
     logit('data', data);
     var {name, roles, memberId} = data;

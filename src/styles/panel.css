@@ -12,14 +12,13 @@
     border-radius: 2px;
     background-color: #fff;
     min-height: 100%;
-  }
 
-  &.development {
-    .panel-header {
-      color: #8f7031;
-      background-color: #f0d398;
+    &.developement {
       border-color: #8f7031;
+    }
 
+    &.production {
+      border-color: #bce8f1;
     }
   }
 
@@ -31,7 +30,6 @@
     font-weight: 600;
     border-width: 2px;
     border-style: solid;
-    border-color: #bce8f1;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 0;
@@ -41,8 +39,18 @@
     margin-top: -7px;
     margin-bottom: 10px;
     padding: 5px 10px;
-    color: #31708f;
-    background-color: #d9edf7;
+
+    &.production {
+      color: #31708f;
+      background-color: #d9edf7;
+      border-color: #bce8f1;
+    }
+
+    &.developement {
+      color: #8f7031;
+      background-color: #f0d398;
+      border-color: #8f7031;
+    }
 
     h3,
     h4 {
