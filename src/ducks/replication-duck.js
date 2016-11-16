@@ -1,6 +1,7 @@
 import db from '../services/bookingsDB';
 import { eventChannel, END, buffers } from 'redux-saga'
 import { call, put, take } from 'redux-saga/effects';
+import {DbSettings} from 'ducks/settings-duck';
 
 import Logit from '../factories/logit';
 var logit = Logit('color:white; background:red;', 'replication:Duck');
@@ -76,7 +77,8 @@ function createReplicationChannel (remoteCouch) {
 
 }
 
-export function * monitorReplications (remoteCouch) {
+export function * monitorReplications () {
+	const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
 	yield take('SIGNIN_SUCCESS');
 	if (!localStorage.getItem('stEdsSignin')) return;
 	const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));

@@ -2,6 +2,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {Field, reduxForm, SubmissionError} from 'redux-form';
+import {DbSettings, getSettings, setSettings} from 'ducks/settings-duck';
 import * as i from 'icepick';
 import Logit from '../factories/logit.js';
 // import {remoteCouchUsers} from '../services/remoteCouch'
@@ -33,13 +34,22 @@ export const signoutSuccess = () => ({type: SIGNOUT_SUCCESS});
 // import PouchDB from 'pouchdb';
 import { call, put, take } from 'redux-saga/effects.js';
 var authError = "";
-
-var _dbuSetupCompleted = require("utilities/pouchdb-seamless-auth")(PouchDB)
-    .then(()=> PouchDB.setSeamlessAuthRemoteDB('http://nicholware.com:5984/_users'))
+var remoteDb = `http://${DbSettings.remotehost}:5984/_users`;
+var localDb = DbSettings.localUsers;
+logit('user DBs', {remoteDb, localDb, reset: DbSettings.resetLocal})
+var _dbuSetupCompleted = require("utilities/pouchdb-seamless-auth")(PouchDB, localDb)
+    .then(()=> PouchDB.setSeamlessAuthRemoteDB(remoteDb))
     .then((resp)=>{logit('setSeamlessAuthRemoteDB OK', resp); return resp;})
     .catch((error)=>{logit('setSeamlessAuthRemoteDB Error', error)});
 
-var dbu = new PouchDB('_users', {adapter: 'websql'});
+var dbu = new PouchDB(localDb, {adapter: 'websql'});
+if (DbSettings.resetLocal){
+  dbu.destroy()
+    .then(()=>{
+      setSettings(`database.${getSettings('database.current')}.resetLocal`, false)
+      dbu = new PouchDB(localDb, {adapter: 'websql'});       
+    })
+}
 
 // function authorization({username, password}){
 //   return  _dbuSetupCompleted

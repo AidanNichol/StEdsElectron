@@ -19,7 +19,8 @@ There has to be a better way to do this!!!
   limitations under the License.
 */
 
-'use strict';
+import Logit from '../factories/logit.js';
+const logit = Logit('color:white; background:blue;', 'Signin:Seamless');
 
 var Auth = require('pouchdb-auth');
 var extend = require('extend');
@@ -30,9 +31,9 @@ var PouchDB, local, remote;
 var cacheInvalidated;
 var cache;
 
-module.exports = function (thePouchDB) {
+module.exports = function (thePouchDB, localDb) {
   PouchDB = thePouchDB;
-  local = new PouchDB('_users');
+  local = new PouchDB(localDb, {adapter: 'websql'});
 
   return Auth.useAsAuthenticationDB.call(local)
     .then(invalidateCache)
@@ -173,16 +174,19 @@ function startReplication(username, info) {
       .catch(useEmptyDoc);
     Promise.all([getRemote, getLocal])
       .then(Function.prototype.apply.bind(function (remoteDoc, localDoc) {
-        console.log('seamlessReplicate', {remoteDoc, localDoc});
+        logit('seamlessReplicate', {remoteDoc, localDoc});
         if (getRev(remoteDoc) > getRev(localDoc)) {
+          logit('update', 'copy remote to local')
           if (localDoc._rev !== '0'){
+            logit('remove old local', )
             local.remove(localDoc)
             .then(()=>local.compact())
             .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
             .then(()=> local.bulkDocs([remoteDoc], {new_edits: false}) )
-            .catch((err)=>console.error('update local record', err))
+            .catch((err)=>console.error('remove & update local record', err))
           } else {
-            local.bulkDocs([remoteDoc], {new_edits: false}) 
+            logit('add to local', remoteDoc)
+            local.bulkDocs([remoteDoc], {new_edits: false})
             .catch((err)=>console.error('update local record', err))
           }
         } else if (remoteDoc._rev < localDoc._rev) {

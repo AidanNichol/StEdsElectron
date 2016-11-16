@@ -14,6 +14,15 @@
     min-height: 100%;
   }
 
+  &.development {
+    .panel-header {
+      color: #8f7031;
+      background-color: #f0d398;
+      border-color: #8f7031;
+
+    }
+  }
+
   .panel-header {
     flex: 0;
     box-sizing: border-box;

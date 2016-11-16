@@ -9,7 +9,7 @@
 // var PouchDBa  = require('pouchdb-authentication');
 // export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
 var db;
-import {getSettings} from 'ducks/settings-duck'
+import {getSettings, DbSettings} from 'ducks/settings-duck'
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:red;', 'DBbookings');
 
@@ -35,11 +35,12 @@ console.log('PouchDB creating', PouchDB);
 //   console.log('XYZW version 2', doc);
 // }).catch(function(error){console.error('XYZW error', error)});
 
-
+const localDb = DbSettings.localname;
+logit('localDb', DbSettings, localDb)
 
 // db = new PouchDB('http://localhost:5984/bookings', {user: 'aidan', password: 'admin'});
 // db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
-db = new PouchDB('stEdsBookings', {adapter: 'websql'});
+db = new PouchDB(localDb, {adapter: 'websql'});
 window.PouchDB = PouchDB;
 logit('window', window);
 // sync();
