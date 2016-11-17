@@ -29,7 +29,11 @@ export function changeLog(props) {
           let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});
           return (<div key={i} className={rCl}>
             <span className="logDate">{log.dispDate}</span>
-            <span className="logText"><Icon type={log.req} /> {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }{log.text}</span>
+            <span className="logText">
+              <Icon type={log.req} />
+              {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }
+              <span className="text">{log.text}</span>
+            </span>
             <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
             <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
             <span className={bCl}>{log.balance}</span>

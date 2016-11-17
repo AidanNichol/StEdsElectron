@@ -22,6 +22,16 @@ const bool = (val, base, name)=>{
   let inputValue;
   return <div key={base}><span key={base+'S'}>{name}</span><input key={base+'I'} type='checkbox' onChange={()=>toggled(base, inputValue)} ref={(input) => inputValue = input} defaultChecked={val} /><span className="base">{base}</span></div>
 };
+const list = (val, base, name, obj)=>{
+  let inputValue;
+  return (<div key={base}>
+          <span key={base+'S'}>{name}</span>
+          <select key={base+'I'} type='checkbox' onChange={()=>changed(base, inputValue)} ref={(input) => inputValue = input} defaultValue={val} >
+          { Object.keys(obj).filter((n)=>(typeof obj[n] === 'object')).map((n)=>(<option value={n}>{n}</option>))}
+          </select>
+          <span className="base">{base}</span>
+        </div>)
+  };
 
 
 
@@ -31,6 +41,7 @@ const objectTree = (obj, base, name)=>{
     number: numb,
     string: strng,
     boolean: bool,
+    'database.current': list,
   };
   base = (base ? base +'.' : '');
   return (
@@ -40,7 +51,9 @@ const objectTree = (obj, base, name)=>{
       {
         Object.keys(obj).map((name)=>{
           let val = obj[name]
-          return typeMap[typeof val](val, base+name, name)
+          const baseN = base+name
+          if (typeMap[baseN])return typeMap[baseN](val, base+name, name, obj)
+          return typeMap[typeof val](val, baseN, name)
         })
       }
 

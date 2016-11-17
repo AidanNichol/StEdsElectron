@@ -14,10 +14,9 @@ settings.applyDefaultsSync();
   // const db = settings.getSync(`database.${mode}`);
   // console.log('settings db', {mode, db})
 
-const mode = settings.getSync('database.current');
-const db = settings.getSync(`database.${mode}`);
-console.log('settings db', {mode, db})
-export const DbSettings = db;
+export const mode = settings.getSync('database.current');
+export const DbSettings = settings.getSync(`database.${mode}`);
+console.log('settings DbSettings', {mode, DbSettings})
 
 export const getSettings = (field)=>settings.getSync(field);
 export const setSettings = (field, value)=>settings.setSync(field, value);
