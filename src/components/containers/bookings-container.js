@@ -1,6 +1,6 @@
 // import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+// import { bindActionCreators } from 'redux';
 import Bookings from '../views/bookings/Bookings.js';
 import {setPage} from '../../ducks/router-duck.js';
 import {dispatchIfUnlocked} from '../../ducks/lock-duck.js';

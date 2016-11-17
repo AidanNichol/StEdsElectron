@@ -15,11 +15,11 @@ const getAccount = (state, id)=>{
 var doer;
 
 
-function* updatePaymentToAccount(action){
+function* updatePaymentToAccount(action, type){
     doer = yield select((state)=>state.signin.memId);
     var acc = yield select(getAccount, action.accId);
       // var funds = (acc.funds || 0) + action.amount;
-    var log = pushLog(acc.log, false, doer, action.walkId, action.memId, 'P', action.amount, action.note);
+    var log = pushLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note);
     var newAcc = i.set(acc, 'log', log);
     // var newAcc = acc.set('log', log);
     yield call(docUpdateSaga, newAcc, action);
@@ -52,10 +52,11 @@ export default function* accountsSaga(){
   try{
     while(true){ // eslint-disable-line no-constant-condition
       logit('waiting for ', 'ACCOUNT_UPDATE_PAYMENT');
-      var action = yield take(['ACCOUNT_UPDATE_PAYMENT', 'ACCOUNT_ADD_TAGGED_PAYMENT', 'ACCOUNT_DEL_TAGGED_PAYMENT']);
+      var action = yield take(['ACCOUNT_UPDATE_PAYMENT', 'ACCOUNT_UPDATE_SUBSCRIPTION_PAYMENT', 'ACCOUNT_ADD_TAGGED_PAYMENT', 'ACCOUNT_DEL_TAGGED_PAYMENT']);
       logit('taken '+action.type, action)
       switch(action.type){
-        case 'ACCOUNT_UPDATE_PAYMENT': yield fork(updatePaymentToAccount, action); break;
+        case 'ACCOUNT_UPDATE_SUBSCRIPTION_PAYMENT': yield fork(updatePaymentToAccount, action, 'S'); break;
+        case 'ACCOUNT_UPDATE_PAYMENT': yield fork(updatePaymentToAccount, action, 'P'); break;
         case 'ACCOUNT_ADD_TAGGED_PAYMENT': yield fork(addTaggedPayment, action); break;
         case 'ACCOUNT_DEL_TAGGED_PAYMENT': yield fork(deleteTaggedPayment, action); break;
       }

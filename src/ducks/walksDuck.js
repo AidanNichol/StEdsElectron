@@ -49,7 +49,7 @@ export const request = {
     WX: 2,
     BX: 2,
     BL: 2, // no credit
-    C: 2,
+    C: 3,
     CL: 2,
     CX: 2,
     A: 2,
