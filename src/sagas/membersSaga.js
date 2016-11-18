@@ -1,7 +1,6 @@
 import Logit from '../factories/logit';
 var logit = Logit('color:yellow; background:cyan;', 'members:saga');
 import * as i from 'icepick';
-import {uniq} from 'ramda';
 import { createSelector } from 'reselect'
 
 // import db from '../services/bookingsDB';
@@ -33,7 +32,6 @@ export default function* membersSaga(){
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
       let accounts = yield select(state=>state.accounts.list);
       if (doc._rev === undefined)doc = i.unset(doc, '_rev');
-      if (doc._subspaid !== undefined)doc = i.unset(doc, '_subspaid');
       if (doc._deleted != true)doc = i.unset(doc, '_deleted');
       // if (doc._delete === true)doc = i.unset(doc, '_deleted');
       logit('doc', doc);
@@ -51,7 +49,7 @@ export default function* membersSaga(){
         logit('newAccount', Object.isExtensible(newAccount), Object.isSealed(newAccount), Object.isFrozen(newAccount))
         logit('newAccount', Object.isExtensible(newAccount.members), Object.isSealed(newAccount.members), Object.isFrozen(newAccount.members))
         logit('account', newAccount);
-        newAccount.members = uniq([...newAccount.members, doc.memberId]);
+        if (!newAccount.members.includes(doc.members)) newAccount.members = newAccount.members.push(doc.memberId);
         logit('account', newAccount);
         // res = yield call([db, db.put], newAccount);
         yield call(docUpdateSaga, newAccount);
@@ -65,6 +63,7 @@ export default function* membersSaga(){
 
       }
       // res = yield call([db, db.put], doc);
+      if (doc._subspaid !== undefined)doc = i.unset(doc, '_subspaid');
       yield call(docUpdateSaga, doc);
       logit('update', 'done')
 
