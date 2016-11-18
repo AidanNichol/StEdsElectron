@@ -8,12 +8,19 @@
     border-bottom: #bce8f1 solid thin;
   }
 
+  .logRec {
+    display: flex;
+    align-items: center;
+  }
+
   .logRec.outstanding {
     color: navy;
     font-weight: bold;
+    overflow: hidden;
 
     .logText {
       font-size: 1.1em;
+      white-space: nowrap;
     }
   }
 }
@@ -48,6 +55,13 @@ span.logText {
   padding-left: 5px;
   display: inline-block;
   min-width: 200px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+
+  .text {
+    white-space: nowrap;
+  }
 
   .name {
     font-style: italic;

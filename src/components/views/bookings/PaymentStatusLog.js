@@ -29,7 +29,11 @@ export function changeLog(props) {
           let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});
           return (<div key={i} className={rCl}>
             <span className="logDate">{log.dispDate}</span>
-            <span className="logText"><Icon type={log.req} /> {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }{log.text}</span>
+            <span className="logText">
+              <Icon type={log.req} />
+              {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }
+              <span className="text">{log.text}</span>
+            </span>
             <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
             <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
             <span className={bCl}>{log.balance}</span>
@@ -70,7 +74,7 @@ export function payment(props){
       <TooltipContent className='payment-boxes' tiptext='Enter paid amount and press enter' visible>
         <span className="pay-box">
           <span>Pay &nbsp; <input type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
-          <span> Note &nbsp; <input type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
+          <span> Note &nbsp; <input size="20" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
           {/* <span>&nbsp;</span> */}
         </span>
       </TooltipContent>
