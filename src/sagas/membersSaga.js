@@ -1,7 +1,7 @@
 import Logit from '../factories/logit';
 var logit = Logit('color:yellow; background:cyan;', 'members:saga');
 import * as i from 'icepick';
-import { createSelector } from 'reselect'
+// import { createSelector } from 'reselect'
 
 // import db from '../services/bookingsDB';
 import docUpdateSaga from '../sagas/docUpdateSaga';
@@ -26,7 +26,7 @@ export default function* membersSaga(){
       doc = i.thaw(doc);
       var {_subspaid, ...xDoc} = doc;
       logit('stripped', {_subspaid, xDoc})
-      // doc = {...doc};
+      doc = xDoc;
       doc.account = doc.accountId;
       delete doc._subspaid;
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
@@ -63,15 +63,18 @@ export default function* membersSaga(){
 
       }
       // res = yield call([db, db.put], doc);
-      if (doc._subspaid !== undefined)doc = i.unset(doc, '_subspaid');
+      logit('subspaid?', _subspaid, doc)
+      if (_subspaid !== undefined){
+        yield put({type: 'ACCOUNT_UPDATE_SUBSCRIPTION_PAYMENT', accId:doc.accountId, memId: doc.memberId, amount: _subspaid })
+      }
       yield call(docUpdateSaga, doc);
       logit('update', 'done')
 
       yield put(actionCreators.setShowEditMemberModal(false));
       // yield put({type: actions.SET_EDIT_MODE, payload: false});
 
-      yield put(actionCreators.membersListSetDisplayedMember('M9001', false));
-      yield put(actionCreators.membersListSetDisplayedMember(doc._deleted ? undefined : doc.memberId));
+      yield put(actionCreators.membersListSetDisplayedMember('M9001', false)); // without this the form shows empty fields - need to figure out why.
+      yield put(actionCreators.membersListSetDisplayedMember(doc._deleted ? undefined : doc.memberId, true));
       // yield put(actionCreators.membersListSetDisplayedMember(doc._deleted ? undefined : doc.memberId, getDispStart(doc.memberId, state)));
     }
 
@@ -81,23 +84,23 @@ export default function* membersSaga(){
   // }
 }
 
-const getSortedMembersList = createSelector(
-  (state)=>state.members,
-  (state)=>state.membersList.sortProp,
-  (members, sortProp) => {
-    var coll = new Intl.Collator();
-    var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
-    var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
-    var cmp = (sortProp === 'name' ? compareNames : compareIds);
-    // logit('members', members);
-    return Object.keys(members).sort(cmp).map((id)=>members[id]);
-  }
-)
+// const getSortedMembersList = createSelector(
+//   (state)=>state.members,
+//   (state)=>state.membersList.sortProp,
+//   (members, sortProp) => {
+//     var coll = new Intl.Collator();
+//     var compareNames = (a, b) => coll.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
+//     var compareIds = (a, b) => parseInt(a.substr(1))-parseInt(b.substr(1));
+//     var cmp = (sortProp === 'name' ? compareNames : compareIds);
+//     // logit('members', members);
+//     return Object.keys(members).sort(cmp).map((id)=>members[id]);
+//   }
+// )
 
-function getDispStart( memId, resync, state){
-  let list = getSortedMembersList(state);
-  const {dispStart, dispLength, resync: resyncD} = state.membersList;
-  if (!resync && !resyncD) return dispStart;
-  let i = list.findIndex((mem)=>mem.memberId === memId);
-  return i >= dispStart && i <= dispStart+dispLength-1 ? dispStart : Math.max(i - 11, 0)
-}
+// function getDispStart( memId, resync, state){
+//   let list = getSortedMembersList(state);
+//   const {dispStart, dispLength, resync: resyncD} = state.membersList;
+//   if (!resync && !resyncD) return dispStart;
+//   let i = list.findIndex((mem)=>mem.memberId === memId);
+//   return i >= dispStart && i <= dispStart+dispLength-1 ? dispStart : Math.max(i - 11, 0)
+// }

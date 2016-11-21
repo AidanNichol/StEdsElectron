@@ -41,15 +41,12 @@
       .pay-box {
         padding: 10px;
         margin-left: 15px;
+        padding-right: 0;
         background: rgb(238, 238, 238);
         border: rgb(170, 170, 170) solid 2px;
 
         span {
-          padding-right: 1em;
-        }
-
-        input {
-          width: 50px;
+          padding-right: 0;
         }
       }
     }
@@ -177,9 +174,11 @@
         top: 43%;
       }
     }
+
     .due {
       &::before {
         @apply --watermark;
+
         content: 'Subs Due .';
         color: green;
         font-size: 250%;
@@ -187,12 +186,13 @@
         transform: rotate(-70deg);
         left: 15%;
         top: 42%;
-        }
+      }
     }
 
     .late {
       &::before {
         @apply --watermark;
+
         content: 'Subs Late .';
         color: blue;
         font-size: 250%;

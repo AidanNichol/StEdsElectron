@@ -16,7 +16,7 @@ function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = function(state) {
 
-  var debts = getAllDebts(state);
+  var debts = getAllDebts(state).debts;
   showStats();
   logit('debts', debts);
   var props = {
