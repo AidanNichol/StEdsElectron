@@ -49,7 +49,7 @@ class Memberslist extends React.Component {
       let clss = classnames('list-line', [member.memberStatus]: true, {current: displayMember === member.memberId}, (member.suspended ? 'suspended' : subsStatus));
       // logit('classes', this.props.membersList.status)
       return (
-        <div key={member._id} className={clss} onClick={()=>membersListSetDisplayedMember(member.memberId)}>
+        <div key={member._id} className={clss} onClick={()=>membersListSetDisplayedMember(member.memberId, dispStart)}>
           <span className="line-name">
             <span className="id">{member._id.substr(1)}</span>
             <span className="name">{member.lastName + ', ' + member.firstName}</span>

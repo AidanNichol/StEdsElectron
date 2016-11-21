@@ -57,7 +57,7 @@ let renderTextArea = (field) => {
 const subscriptionButton = (props)=>{
   const { input: {  onChange}, _delete, editMode, subsStatus, subsPaid, meta, style={}, ...other } = props;
   // if (!subsStatus.due) return null;
-  style.marginLeft = 115;
+  style.marginLeft = 80;
   // logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
   // const change = ()=>{
   //   onChange(subsStatus.year);

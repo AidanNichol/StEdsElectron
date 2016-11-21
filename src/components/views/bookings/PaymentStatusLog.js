@@ -73,8 +73,8 @@ export function payment(props){
       }
       <TooltipContent className='payment-boxes' tiptext='Enter paid amount and press enter' visible>
         <span className="pay-box">
-          <span>Pay &nbsp; <input type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
-          <span> Note &nbsp; <input size="20" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
+          <span>Pay &nbsp; <input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
+          <span> Note &nbsp; <input size="21" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
           {/* <span>&nbsp;</span> */}
         </span>
       </TooltipContent>

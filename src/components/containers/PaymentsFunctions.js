@@ -117,12 +117,18 @@ const makeGetAccountDebt = (accId)=> createSelector(
     let lastHistory = -1
     let walkPast = 'W'+_today
     let currentFound = false
+    let zeroPoints = [-1]
+    let lastZeroPoint = -1;
     logs = logs.sort(logCmp).map((log, i)=>{
       // logs = logs.map((log, i)=>{
       balance -= log.amount;
       // logit('log '+accId, {log, balance});
       if (!currentFound && log.req !== 'P' && log.walkId > walkPast)currentFound = true
       if (!currentFound && balance === 0)lastHistory = i;
+      if (log.req === 'P' && balance === 0){
+        zeroPoints.push(i);
+        lastZeroPoint = i;
+      }
       if (balance >= 0) lastOK = i;
       return {...log, balance};
     });
@@ -152,7 +158,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
         .filter((log)=>log.req==='B' || log.req==='C' || log.req==='L');
     }
     // logit('logs '+accId, {balance, debt, logs, accName, sortname});
-    return  {accId, balance, debt, logs, accName, sortname};
+    return  {accId, balance, debt, logs, lastHistory, zeroPoints,lastZeroPoint, accName, sortname};
 }
 );
 
@@ -195,11 +201,12 @@ export const getAccDebt = (accId, state)=>{
 };
 
 export const getAllDebts = (state)=>{
-  let debts=[];
+  let debts=[], credits=[];
   Object.keys(state.accounts.list).forEach((accId)=>{
     // ["A1182", "A608"].forEach((accId)=>{
     let debt = getAccDebt(accId, state);
     if (!debt || debt.balance < 0) debts.push(debt);
+    if (!debt || debt.balance >0) credits.push(debt);
   });
 
   var nameColl = new Intl.Collator();
@@ -207,7 +214,7 @@ export const getAllDebts = (state)=>{
 
   debts = debts.sort(nameCmp);
   logit('debts', debts);
-  return debts;
+  return {debts, credits};
 };
 export const showStats = ()=>{
   if (_getWalkLogs.length===0)return;

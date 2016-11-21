@@ -94,15 +94,17 @@ function getDispStart(list, memId, state){
   const {dispStart, dispLength, resync} = state.membersList;
   if (!resync) return dispStart;
   let i = list.findIndex((mem)=>mem.memberId === memId);
+  logit('resync', {i, dispStart, dispLength, dispLast: dispStart + dispLength-1, resync})
   return i >= dispStart && i <= dispStart+dispLength-1 ? dispStart : Math.max(i - 11, 0)
 }
 
 function mapDispatchToProps(dispatch) {
   let actions = bindActionCreators(actionCreators, dispatch);
   let membersListSetDisplayedMember = actionCreators.membersListSetDisplayedMember;
-  actions.membersListSetDisplayedMember = (memId)=>{
+  actions.membersListSetDisplayedMember = (memId, dispStart)=>{
 
-    dispatch(membersListSetDisplayedMember(memId, true));
+    dispatch(membersListSetDisplayedMember(memId, false));
+    dispatch(actionCreators.membersListSetPage({value: dispStart}));
     dispatch(setPage({page: 'membersList', memberId: memId, accountId: null}));
   }
 

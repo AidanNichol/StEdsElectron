@@ -1,7 +1,7 @@
 {
   "name": "stedsbookings",
   "productName": "St.EdwardsBookings",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
   "main": "app/app.js",
   "scripts": {
@@ -140,6 +140,7 @@
     "redux-logger": "^2.6.1",
     "redux-saga": "^0.12.1",
     "reselect": "^2.5.1",
+    "svg2png": "^4.1.0",
     "xdate": "^0.8.0"
   },
   "devDependencies": {

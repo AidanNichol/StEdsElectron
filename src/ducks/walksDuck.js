@@ -49,7 +49,7 @@ export const request = {
     WX: 2,
     BX: 2,
     BL: 2, // no credit
-    C: 2,
+    C: 3,
     CL: 2,
     CX: 2,
     A: 2,
@@ -204,7 +204,7 @@ export function* walksSaga(args){
       logit('waiting for','WALK_UPDATE_BOOKING' );
       let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING, WALK_CLOSE_BOOKINGS]);
       logit('took', action)
-      doer = yield select((state)=>state.signin.memId || '???');
+      doer = yield select((state)=>state.signin.memberId || '???');
       let walk = yield select((state, walkId)=>state.walks.list[walkId], action.walkId);
       // let newWalk = yield call(action.type === WALK_UPDATE_BOOKING ? updateBooking : annotateBooking, walk, action);
       let newWalk = yield call(mapAction[action.type], walk, action);

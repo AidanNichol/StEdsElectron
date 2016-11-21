@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit'
 import {busListReport} from './busListPDF2'
 import {paymentsDueReport} from './paymentsReport2'
+import {creditsOwedReport} from './creditsReport2'
 import fs from 'fs'
 import XDate from 'xdate';
 
@@ -51,8 +52,10 @@ export function summaryReport(payload, state){
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height4)/2, {align: 'right'})
   });
   busListReport(doc, state);
-  title = 'St.Edwards Fellwalkers: Payments Due';
-  paymentsDueReport(doc, state);
+  title = 'St.Edwards Fellwalkers: Credits & Payments';
+  const yStart = creditsOwedReport(doc, state);
+  paymentsDueReport(doc, state, yStart);
+  // title = 'St.Edwards Fellwalkers: Credits Owed';
   doc.end();
   return docname.substr(home.length+1);
 }
