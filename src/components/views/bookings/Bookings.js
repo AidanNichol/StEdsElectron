@@ -50,7 +50,7 @@ var Bookings = React.createClass({
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
     var _today = getTodaysDate();
-    const closeit = (walk)=>{logit('closeit', walk, _today); return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId)}>X</button>)};
+    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId)}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
         <div className="select">
