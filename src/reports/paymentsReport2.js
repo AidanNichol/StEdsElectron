@@ -12,11 +12,11 @@ const italic = 'Times-Italic';
 const calcLineHeights = (doc)=>{
   const h14 = doc.fontSize(14).text( ' ', margin, 80).y - 80;
   const h12 = doc.fontSize(12).text( ' ', margin, 80).y - 80;
-  const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
-  return [h14, h12, h9]
+  // const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
+  return [h14, h12, h12/4]
 }
 
-import XDate from 'xdate';
+// import XDate from 'xdate';
 logit('env', process.env)
 logit('dirname', __dirname)
 export function paymentsDueReport(doc, state, yStart){

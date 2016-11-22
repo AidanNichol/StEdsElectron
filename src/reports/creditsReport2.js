@@ -6,8 +6,8 @@ var logit = Logit('color:yellow; background:black;', 'printCredits:report');
 const calcLineHeights = (doc)=>{
   const h14 = doc.fontSize(14).text( ' ', margin, 80).y - 80;
   const h12 = doc.fontSize(12).text( ' ', margin, 80).y - 80;
-  const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
-  return [h14, h12, h9]
+  // const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
+  return [h14, h12, h12/4]
 }
 
 const margin = 30;
@@ -88,7 +88,7 @@ export function creditsOwedReport(doc, state){
       doc.font(normal).fontSize(12)
           .text(log.dispDate, x, y)
           .image(`./assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
-          .text(log.text, x+77, y, {continued:true});
+          .text(log.text, x+77, y);
       log.req !== 'P' && doc.font(italic).fontSize(10).text(log.name||' ', doc.x, y);
       y += detailH
     });

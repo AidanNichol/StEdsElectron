@@ -15,53 +15,53 @@ import {getBusBookings, getCarBookings, getWaitingList} from '../components/cont
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
 const italic = 'Times-Italic';
-
-
-const getData = (doc, data, text, showNumber, colW)=>{
-  if (data.length === 0)return 0;
-  if (text.length > 0)doc.fontSize(12).text(text);
-  const y0 = doc.y;
-  doc.fontSize(12);
-  data.forEach((bkng, i)=> {
-    const annotate = bkng.annotation && bkng.annotation !== '';
-    doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {width: colW, continued: annotate})
-    // doc.font(italic).fillColor('blue').text(bkng.annotation||' ').fillColor('black')
-    // doc.fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, {continued: true, width: colW})
-    if (bkng.annotation && bkng.annotation !== '')
-      doc.fontSize(9).font(italic).fillColor('blue').text(`${bkng.annotation||' '}`, {align: 'right', width: colW}).fillColor('black')
-    doc.fontSize(12).text('')
-  })
-  logit ('height12', doc.fontSize(12).currentLineHeight())
-  let y = doc.y
-  logit('zzz', { y, av: (y- y0)/data.length})
-  return data.length;
+const calcLineHeights = (doc)=>{
+  const h14 = doc.fontSize(14).text( ' ', margin, 80).y - 80;
+  const h12 = doc.fontSize(12).text( ' ', margin, 80).y - 80;
+  const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
+  const h4 = doc.fontSize(4).text( ' ', margin, 80).y - 80;
+  // const h9 = doc.fontSize(9).text( ' ', margin, 80).y - 80;
+  return [h14, h12, h9, h4]
 }
+
 
 export function busListReport(doc, state){
   doc.addPage()
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
   const gutter = 20
-  const height14 = doc.fontSize(14).currentLineHeight()
-  logit ('14 point', height14)
-  var height12 = doc.fontSize(12).currentLineHeight()
-  logit ('12 point', height12, height12*1.22, 13.392/height12)
-  height12 *= 1.24;
-  var height4 = doc.fontSize(4).currentLineHeight()
-  logit ('4 point', height4, height4*1.19, 4.4/height4)
-  height4 *= 1.24;
-  var height9 = doc.fontSize(9).currentLineHeight()
-  logit ('9 point', height9, height12*1.19, 13.2/height12)
-  height9 *= 1.24;
+  const [height14, height12, height9, height4] = calcLineHeights(doc);
+  // const height14 = doc.fontSize(14).currentLineHeight()
+
+  const getData = (doc, data, text, showNumber, colW, x, y)=>{
+    if (data.length === 0)return 0;
+    if (text.length > 0){
+      doc.fontSize(12).text(text, x, y)
+      y += height12
+    }
+
+    data.forEach((bkng, i)=> {
+      const annotate = bkng.annotation && bkng.annotation !== '';
+      doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, x, y, {contimue: annotate})
+      if (annotate) {
+        doc.fontSize(9).font(italic).fillColor('blue').text(`${bkng.annotation||' '}`, {align: 'right', width: colW}).fillColor('black')
+      }
+      y = doc.y;
+    })
+
+
+    return y;
+  }
+
   let x,y;
-logit('state', {state, env: process.env, __dirname});
+  logit('state', {state, env: process.env, __dirname});
   x=doc.x; y=doc.y;
   logit('x,y', {x,y})
   let noCols = state.walks.bookable.length;
   noCols = 4;
   const colW = (pWidth-2*margin -(noCols-1)*gutter)/noCols;
   let col = 0;
-  state.walks.bookable.filter((walkId)=>walkId > _today).forEach((walkId, i)=>{
+  state.walks.bookable.filter((walkId)=>walkId > _today).forEach((walkId)=>{
     let walk = state.walks.list[walkId];
     let dispDate = new XDate(walk.walkDate).toString('dd MMM');
     let venue = walk.venue.replace(/\(.*\)/, '');
@@ -81,28 +81,26 @@ logit('state', {state, env: process.env, __dirname});
       col = 0;
     }
     let x = margin+col*(colW+gutter);
+    let y = 60;
     doc.text('', x, 60, {width: colW});
-    logit('x', {i, y: doc.y, noCols,colW, margin, pWidth, gutter, noLines, colsNeeded, height14, height4, height12, spaceRemaining, spaceNeeded})
-    doc.font(bold)
-    doc.fontSize(14).text(venue, {continued:true, bold:true, width: colW}).fontSize(9).text(` (${dispDate})`, {align:'right', width: colW});
-    doc.font(normal).text(' ')
-    doc.text('', x, 80, {width: colW});
-    logit('y after heading', doc.y, 60+height14 + height4 )
-    const noBkngs = getData(doc, busBookings, '', false, colW);
-    doc.fontSize(4).text(' ')
-    logit('y after buslist', doc.y, 80+height4 + busBookings.length * height12)
-    x=doc.x; y=doc.y;
-    doc.fontSize(12).text(`+${walk.capacity - noBkngs} available `, {align:'center', width: colW});
-    let y2 = doc.y;
-    doc.rectAnnotation(x,y-4, colW, y2-y+4)
-    logit('y after available', doc.y, 80 + height4 + (busBookings.length + 1) * height12, {y, y2})
+    doc.font(bold).fontSize(14).text(venue, x, y, {width: colW})
+      .fontSize(9).text(` (${dispDate})`, x, y, {align:'right', width: colW});
+    y = 60 + height14;
+    let noBkngs = busBookings.length;
+    y = getData(doc, busBookings, '', false, colW, x, y);
+    if (walk.capacity - noBkngs > 0){
+      y += 3;
+      doc.fontSize(12).text(`+${walk.capacity - noBkngs} available `, x, y, {align:'center', width: colW});
+      doc.rectAnnotation(x,y-4, colW, height12+4)
+      y += height12;
+    }
     if (colsNeeded>1){
       col += 1
-      let x = margin+col*(colW+gutter);
-      doc.text('', x, 80, {width: colW});
+      x = margin+col*(colW+gutter);
+      y = 60 + height14;
     }
-    getData(doc, carBookings, '===== Cars =====', false, colW);
-    getData(doc, waitlist, '= Waiting List =', true, colW);
+    y = getData(doc, carBookings, '===== Cars =====', false, colW, x, y);
+    y = getData(doc, waitlist, '= Waiting List =', true, colW, x, y);
     col += 1;
   });
   // doc.off('pageAdded')
