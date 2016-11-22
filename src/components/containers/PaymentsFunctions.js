@@ -130,7 +130,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
         lastZeroPoint = i;
       }
       if (balance >= 0) lastOK = i;
-      return {...log, balance};
+      return {...log, zeroPoint: balance === 0, balance};
     });
     logs = logs.map((log, i)=>({...log, historic: (i <= lastHistory) }));
     let debt = [];
@@ -142,10 +142,15 @@ const makeGetAccountDebt = (accId)=> createSelector(
         .reverse()
         .map((log, i, arr)=>{
           if (due < 0 && request.billable(log.req)){
-            log.outstanding = true;
-            let cancelled = arr.slice(0,i-1).filter((l)=>l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId).length > 0
-            log.outstanding = log.outstanding && !cancelled
-            due += Math.min(-due, log.amount)
+            // log.outstanding = true;
+            let cancelled = arr.slice(0,i).filter((l)=>{
+              const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
+              logit('cancelled', {log, l, cancelled})
+              return l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
+            }).length > 0
+            // log.outstanding = log.outstanding && !cancelled
+            log.outstanding = !cancelled
+            if (!cancelled) due += Math.min(-due, log.amount)
 
           }
           else log.outstanding = false;
