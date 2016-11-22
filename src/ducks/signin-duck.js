@@ -78,9 +78,9 @@ function* authorize(username, password){
     // debugger;
     var resp = yield call([PouchDB, PouchDB.seamlessLogIn], username, password);
     logit('signin resp', resp);
-    localStorage.setItem('stEdsSignin', JSON.stringify({username, password}));
 
     var sess = yield call([PouchDB, PouchDB.seamlessSession]);
+    localStorage.setItem('stEdsSignin', JSON.stringify({username, password}));
     logit('session', sess)
     var data = yield call([dbu, dbu.get], 'org.couchdb.user:'+sess.userCtx.name);
     logit('data', data);
@@ -90,6 +90,8 @@ function* authorize(username, password){
   catch(error){
     logit('error', error);
     authError = `(${error.name}) ${error.message}`
+    localStorage.removeItem('stEdsSignin');
+    localStorage.removeItem('stEdsRouter');
     // throw new Error('redux-form: Signin failed: ' + error.message);
     return authError
     // throw new SubmissionError({ _error: 'Signin failed!  ' + error.message})
@@ -135,23 +137,11 @@ export function reducer(state = {name: null, roles: [], memberId: ''}, action) {
     case SIGNOUT_SUCCESS:
       authError = '';
       localStorage.removeItem('stEdsSignin');
+      localStorage.removeItem('stEdsRouter');
       return i.assign(state, defaultState);
   }
   return state;
 }
-
-// import * as i from 'icepick';
-// import { createReducer } from 'redux-act';
-// import * as actions from '../actions/signin-actions.js';
-// const defaultState = i.freeze({name: '', email: '', role: '', thumbnail: '', memberId: '', provider: ''});
-// export default createReducer({
-//   [actions.signinRequested ]: (state, action)=> i.assign(state, action),
-// 	[actions.signinSuccess ]: (state, action)=> i.assign(state, action),
-// 	[actions.authenticateUserViaServiceRequested ]: (state, action)=> i.assign(state, action),
-// 	[actions.signoutRequested ]: (state)=> i.assign(state, defaultState),
-// },
-// defaultState); // <-- This is the default state
-
 
 //---------------------------------------------------------------------
 //          Component
