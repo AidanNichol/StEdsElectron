@@ -45,7 +45,7 @@ var getBookingsSummary = {};
 function mapDispatchToProps(dispatch) {
   return {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, reqType)),
-    walkCancelBooking: (walkId, accId, memId, reqType)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, reqType+'X')),
+    walkCancelBooking: (walkId, accId, memId)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, 'X')),
     closeWalkBookings: (walkId)=>dispatch(closeWalkBookings(walkId)),
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
