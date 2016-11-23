@@ -188,7 +188,10 @@ const makeGetBookingsSummary = () => createSelector(
 );
 var getBookingsSummaryFn = {};
 export function getBookingsSummary(walk){
-  // logit('getBookingsSummary', walk, getBookingsSummaryFn)
+  if (!getBookingsSummaryFn[walk._id]){
+    console.warn( 'getBookingsSummary', walk, getBookingsSummaryFn)
+    return ({free: 0, available:0, display: '??????'})
+  }
   return getBookingsSummaryFn[walk._id](walk);
 }
 
