@@ -34,7 +34,7 @@ export function creditsOwedReport(doc, state){
 
   const getPng = (req)=>{
     if (!icons[req]){
-      let buffer = fs.readFileSync(`./assets/icon-${req}.svg`)
+      let buffer = fs.readFileSync(`${__dirname}/../assets/icon-${req}.svg`)
       icons[req] = svg2png(buffer, {height: detailH});
     }
     return icons[req];
@@ -87,7 +87,7 @@ export function creditsOwedReport(doc, state){
     data.logs.slice(data.lastZeroPoint+1).forEach((log)=>{
       doc.font(normal).fontSize(12)
           .text(log.dispDate, x, y)
-          .image(`./assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
+          .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
           .text(log.text, x+77, y);
       log.req !== 'P' && doc.font(italic).fontSize(10).text(log.name||' ', doc.x, y);
       y += detailH

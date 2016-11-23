@@ -86,7 +86,7 @@ export function paymentsDueReport(doc, state, yStart){
     doc.fontSize(12);
     data.debt.filter((bkng)=>bkng.outstanding).forEach((bkng)=>{
       doc.font(normal).fontSize(12).text(bkng.dispDate, x, y)
-      .image(`./assets/icon-${bkng.req}.jpg`, x+67, y-3, { height: detailH*.9})
+      .image(`${__dirname}/../assets/icon-${bkng.req}.jpg`, x+67, y-3, { height: detailH*.9})
       doc.font(normal).fontSize(12).text(bkng.text, x+77, y)
       .font(italic).fontSize(10).text(bkng.name||' ', doc.x, y)
       y += detailH;
