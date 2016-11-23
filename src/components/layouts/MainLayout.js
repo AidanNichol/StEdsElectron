@@ -17,6 +17,7 @@ import BookingsContainer from '../containers/bookings-container.js';
 import BulkAddContainer from '../containers/bulkAdd-container.js';
 import BusListsContainer from '../containers/buslists-container.js';
 import PaymentsContainer from '../containers/Payments-container.js';
+import PaymentsSummary from '/components/views/PaymentsSummary.js';
 var packageJson = require('../../../package.json');
 
 const version = packageJson.version;
@@ -30,6 +31,7 @@ const loadPage = (curPage, loading)=>{
     case 'bulkadd': return (<BulkAddContainer />);
     case 'buslists': return (<BusListsContainer />);
     case 'payments': return (<PaymentsContainer />);
+    case 'paymentsSummary': return (<PaymentsSummary />);
     case 'none': return(<div>Welcome to St.Edwards Booking System - please login.</div>)
     default: return (<BookingsContainer />);
   }
@@ -59,6 +61,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
 
         <Link page="bulkadd" name="BulkAdd" show={bookingsAdmin}/>
         <Link page="payments" name="Payments" show={bookingsAdmin}/>
+        <Link page="paymentsSummary" name="Payments Summary" show={bookingsAdmin}/>
         <Link page="membersList" name="Members" show={memberAdmin}/>
         </div>
 

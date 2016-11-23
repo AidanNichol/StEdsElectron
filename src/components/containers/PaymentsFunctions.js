@@ -7,7 +7,8 @@ import {getTodaysDate} from 'utilities/DateUtilities.js';
 var _today = getTodaysDate();
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Functions');
-
+var limit;
+// limit='2016-11-03T12:00'
 
 var membersNames = i.freeze({});
 // var membersNames = Immutable({});
@@ -25,6 +26,68 @@ const getMemberNames = createSelector(
     return membersNames;
   }
 );
+
+export const getWalkLogsByDate = createSelector(
+  (state)=>state.walks.list,
+  (state)=>state.members,
+  (state, startDate)=>startDate,
+  (state, startDate, endDate)=>endDate,
+  (walks, members, startDate, endDate)=>{
+    let logs = [];
+    Object.keys(walks).forEach((walk)=>{
+      (walks[walk].log||[]).forEach((log)=>{
+        let [dat, who, memId, req, text] = log;
+        if (startDate && (dat < startDate) )return;
+        if (endDate && (dat > endDate) )return;
+        if (req === 'A')return;
+        logs.push(tranformSummaryLogRec({dat, who, memId, req, walkId: walk, text}, members));
+      });
+
+    });
+    logit('_getWalkLogsByDate ', logs);
+    return logs.sort(logCmp);
+  }
+);
+
+export const getAccountLogByDateAndType = createSelector(
+  (state)=>state.accounts.list || {} ,
+  (state)=>state.members,
+  (state, startDate)=>startDate,
+  (state, startDate, endDate)=>endDate,
+  (state, startDate, endDate, reqType)=>reqType,
+  (accs, members, startDate, endDate, reqType)=>{
+    let logs = []
+    logit('getAccountLogsByDateAndType', {accs, members, startDate, endDate, reqType})
+    Object.keys(accs).forEach((acc)=>{
+      (accs[acc].log||[]).forEach((log)=>{
+        let [dat, who, walkId, memId, req, amount, note] = log;
+        if (startDate && (dat < startDate) )return;
+        if (endDate && (dat > endDate) )return;
+        if (req !== reqType) return;
+        if (amount < 0)req = req+'C';
+        logs.push(tranformSummaryLogRec({dat, who, walkId, memId, req, amount, note}, members, accs[acc]));
+      });
+    });
+    logit('getAccountLogsByDateAndType ', logs);
+    return logs.sort(logCmp);
+  }
+);
+
+const tranformSummaryLogRec = (logObj, members, acc)=>{
+  // logit('logObj pre ', logObj)
+  let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
+  // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
+  logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
+  // else logObj.amount *= -1;
+  if (!logObj.memId || logObj.req[0] === 'P') {logObj.name = getAccountName(acc, members);}
+  else {logObj.name = members[logObj.memId].firstName+' '+members[logObj.memId].lastName}
+  logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
+  let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
+  logObj.text = (logObj.req[0]==='P' ? logObj.note || '' : ` ${venue} ${text}`);
+  // logObj.text = request.names[logObj.req] + (logObj.req==='P' ? '' : ` ${name} ${venue}`);
+  // logit('logObj post', logObj)
+  return logObj;
+};
 
 var _getWalkLogs = [];
 var _acc = {};
@@ -51,6 +114,7 @@ const makeGetWalkLogs = (walkId) => createSelector(
       let map = {};
       (walk.log||[]).forEach((log)=>{
         let [dat, who, memId, req, text] = log;
+        if (limit && dat >= limit)return;
         if (!map[memId])map[memId] = [];
         map[memId].push(tranformLogRec({dat, who, memId, req, walkId, text}, memNames));
       });
@@ -81,13 +145,14 @@ const makeGetAccountLog = (accId)=> createSelector(
     getMemberNames,
     (accLog, memNames)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
-      logit('getAccountLogs '+accId, {accLog})
+      // logit('getAccountLogs '+accId, {accLog})
       aLogs = aLogs.filter((lg)=>lg[4]!=='P' || (lg[5]!==null && lg[5]!==0))
+        .filter((lg)=>!limit || lg[0] < limit)
         .map((log)=>{
           let [dat, who, walkId, memId, req, amount, note] = log;
           return tranformLogRec({dat, who, walkId, memId, req, amount, note}, memNames);
       });
-      logit('getAccountLogs '+accId, aLogs);
+      // logit('getAccountLogs '+accId, aLogs);
       return aLogs;
     });
 
@@ -136,7 +201,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
     let debt = [];
     if (balance < 0){
       let due = balance;
-      logit('getdebt', balance, logs)
+      // logit('getdebt', balance, logs)
       debt = logs
         .slice(lastOK+1)
         .reverse()
@@ -154,7 +219,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
 
           }
           else log.outstanding = false;
-          logit('getdebt log', due, log)
+          // logit('getdebt log', due, log)
           let owing = Math.min(-log.amount, -balance);
           // logit('logs '+accId, {logs, balance, lastOK, owing});
           return {...log, owing};
