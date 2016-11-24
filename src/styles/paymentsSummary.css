@@ -1,0 +1,53 @@
+:root {
+  --primary-color: #428bca;
+  --success-color: #dff0d8;
+  --info-color: #d9edf7;
+  --warning-color: #fcf8e3;
+  --danger-color: #f2dede;
+  --warning-color: yellow;
+  --border-color: #bce8f1;
+  --header-text-color: #31708f;
+  --background-color: #d9edf7;
+  --radius: 5px;
+}
+
+.logHeader {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-bottom: #bce8f1 solid thin;
+}
+
+.payments-summary {
+  border: #bce8f1 solid thin;
+  border-collapse: collapse;
+  width: 100%;
+
+  .summary {
+    display: flex;
+    flex-wrap: wrap;
+    width: 60%;
+
+    > div {
+      padding: 10px;
+      width: 50%;
+      border: gray solid thin;
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+
+      > div {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+
+        span {
+          display: inline-block;
+          width: 2.3em;
+          text-align: right;
+        }
+      }
+    }
+  }
+
+
+}

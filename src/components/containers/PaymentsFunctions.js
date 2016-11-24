@@ -8,7 +8,7 @@ var _today = getTodaysDate();
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Functions');
 var limit;
-// limit='2016-11-03T12:00'
+limit='2016-11-03T12:00'
 
 var membersNames = i.freeze({});
 // var membersNames = Immutable({});
@@ -40,7 +40,8 @@ export const getWalkLogsByDate = createSelector(
         if (startDate && (dat < startDate) )return;
         if (endDate && (dat > endDate) )return;
         if (req === 'A')return;
-        logs.push(tranformSummaryLogRec({dat, who, memId, req, walkId: walk, text}, members));
+        let amount =  Math.abs((_walkData[walk] ? _walkData[walk].fee || 8 : 8) * request.chargeFactor(req));
+        logs.push(tranformSummaryLogRec({dat, who, memId, req, amount, walkId: walk, text}, members));
       });
 
     });
@@ -64,7 +65,11 @@ export const getAccountLogByDateAndType = createSelector(
         if (startDate && (dat < startDate) )return;
         if (endDate && (dat > endDate) )return;
         if (req !== reqType) return;
-        if (amount < 0)req = req+'C';
+        if (note && note.includes('BACS'))req = req + 'B'
+        if (amount < 0){
+          req = req+'C';
+          amount *= -1;
+        }
         logs.push(tranformSummaryLogRec({dat, who, walkId, memId, req, amount, note}, members, accs[acc]));
       });
     });
@@ -77,8 +82,7 @@ const tranformSummaryLogRec = (logObj, members, acc)=>{
   // logit('logObj pre ', logObj)
   let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
   // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
-  logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
-  // else logObj.amount *= -1;
+  // if (logObj.amount && logObj.req[0]==='P') logObj.amount = -1 * logObj.amount;
   if (!logObj.memId || logObj.req[0] === 'P') {logObj.name = getAccountName(acc, members);}
   else {logObj.name = members[logObj.memId].firstName+' '+members[logObj.memId].lastName}
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
