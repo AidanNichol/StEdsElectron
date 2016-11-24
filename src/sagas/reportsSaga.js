@@ -54,7 +54,7 @@ const Print = ({printing, reportName, tiptext, report, payload, ...props})=>{
     tiptext='Printed saved as '+reportName;
   }
   logit('TooltipButton', {printing, icon, reportName, tiptext, props})
-  return ( <TooltipButton {...props} tiptext={tiptext} icon={icon} iconStyle={{width: 40}}/> )
+  return ( <TooltipButton {...props} tiptext={tiptext} icon={icon} style={{padding: 2, maxHeight: 40}} iconStyle={{width: 30, height: 30}}/> )
 }
 const mapStateToProps = (state, {className='', report, payload, ...rest})=>({
   className: 'report '+className,

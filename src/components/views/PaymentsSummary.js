@@ -25,13 +25,58 @@ const BkngLogRec = ({log})=>(
     <div className='walk-detail'>{log.dispDate}<Icon type={log.req} width="16"/>  <span>{log.amount}</span>{log.text&&log.text!=='' && ` [${log.text}] `}<span className="name">{log.name}</span> </div>
   )
 
+
 function Payments(props){
 
     logit('payments', props);
-    var {aLogs, bLogs} = props;
+    var {aLogs, bLogs, tots,
+    closingDebt, closingCredit,
+    openingDebt, openingCredit} = props;
+    var calcNew = {debt: openingDebt, credit: openingCredit};
+    logit('calcNew', calcNew)
+
+    const AccLineTot = ({title, factor, base, item}) =>{
+      logit('AccLineTot', {title, factor, base, item, calcNew})
+      if (!tots[item])return null;
+      calcNew[base] = calcNew[base] + factor* tots[item][1]
+      return ( <div>{title}({tots[item][0]}) <span>{factor<0?'-': factor>0?'+':''}<span>{tots[item][1]}</span></span></div> )
+    }
+    const AccLine = ({title, factor=1, base, item}) =>{
+      logit('AccLine', {title, factor, base, item, calcNew})
+      calcNew[base] = calcNew[base] + factor* item
+      return ( <div>{title} <span>{item}</span></div> )
+    }
+    var creditsUsed;
+    const CreditUsed = ()=>{
+      creditsUsed = closingCredit - calcNew.credit;
+      logit('creditsUsed', {creditsUsed, closingCredit, calcNew})
+      return null
+    }
     var title = (<h4>Payments Made</h4>);
     return (
     <Panel className="paymentsSummary" header={title} style={{margin:20}} >
+      <div>
+        <div>
+          <AccLine title="Opening Credit" item={openingCredit} base='credit' />
+          <AccLineTot factor='+1' title="Bus Bookings Cancelled" item='BX' base='credit' />
+          <AccLineTot factor='+1' title="Car Bookings Cancelled" item='CX' base='credit' />
+          <AccLineTot factor='-1' title="Credits Refunded" item='PC' base='credit' />
+          <CreditUsed/>
+          <AccLine factor='-1' title="-Credit used" item={creditsUsed} base='credit' />
+          <AccLine factor='0' title="Closing Credit" item={closingCredit} base='credit' />
+
+        </div>
+        <div>
+          <AccLine title="Opening Debt" item={openingDebt} base='debt' />
+          <AccLineTot factor='+1' title="Bus Bookings Made" item='B' base='debt' />
+          <AccLineTot factor='+1' title="Car Bookings Made" item='C' base='debt' />
+          <AccLineTot factor='-1' title="Payments Received(non BACS)" item='P' base='debt' />
+          <AccLineTot factor='-1' title="Payments Received(BACS)" item='PB' base='debt' />
+          <AccLineTot factor='-1' title="Payments Received(BACS)" item='PB' base='debt' />
+          <AccLine factor='+1' title="+Credit used" item={creditsUsed} base='debt' />
+          <AccLine factor='0' title="Closing Debt" item={closingDebt} base='debt' />
+        </div>
+      </div>
       <div className="all-debts">
       {/* <Lock /> */}
 
