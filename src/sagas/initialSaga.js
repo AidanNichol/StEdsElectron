@@ -2,7 +2,7 @@ import db from '../services/bookingsDB.js';
 import { call, put } from 'redux-saga/effects.js';
 // import * as actions from '../actions/controller-actions.js';
 import {walksDocsLoaded} from '../ducks/walksDuck'
-import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
+import {getLastAvailableDate, getTodaysDate, getPrevDate} from '../utilities/DateUtilities.js';
 import {resignin} from '../ducks/signin-duck'
 
 import Logit from '../factories/logit.js';
@@ -53,6 +53,13 @@ export default function* (){
     docs = data.rows.filter(row => row.doc.type === 'walk').map(row => row.doc).concat(docs);
 
     yield put(walksDocsLoaded(docs));
+  };
+
+  const loadSummaries = function*(){
+    const data = yield call([db, db.allDocs], {include_docs: true, startkey: 'A'+getPrevDate(), endkey: 'A9999999' });
+    logit('load datasummaries', data)
+    // let docs = data.rows.filter(row => row.doc.type === 'paymentSummary').map(row => row.doc);
+    // yield put({ type: 'PAYMENT_SUMMARIES_LOADED', docs: docs });
   };
 
   // try{

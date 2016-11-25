@@ -4,6 +4,7 @@ var xxx = require( '../containers/PaymentsFunctions')
 import {getAllDebts, getWalkLogsByDate, getAccountLogByDateAndType} from '../containers/PaymentsFunctions'
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
+import {getLogTime} from 'utilities/DateUtilities.js';
 
 import React from 'react';
 import {Panel} from '../utility/AJNPanel'
@@ -26,54 +27,87 @@ const BkngLogRec = ({log})=>(
   )
 
 
-function Payments(props){
+function Payments({doc}){
 
-    logit('payments', props);
+    logit('payments', doc);
     var {aLogs, bLogs, tots,
     closingDebt, closingCredit,
-    openingDebt, openingCredit} = props;
+    openingDebt, openingCredit, startDate, endDate} = doc;
     var calcNew = {debt: openingDebt, credit: openingCredit};
     logit('calcNew', calcNew)
 
-    const AccLineTot = ({title, factor='', base, item}) =>{
-      logit('AccLineTot', {title, factor, amount: tots[item]&&tots[item][1], base, item, tots})
+    const AccLineTot = ({title, factor='', item, className=''}) =>{
+      logit('AccLineTot', {title, factor, amount: tots[item]&&tots[item][1], item, tots})
       if (!tots[item])return null;
-      return ( <div><div>{title}({tots[item][0]})</div> <div>{factor}£<span>{tots[item][1]}</span></div></div> )
+      return (<div className={"line detail "+className}><div className="title">{title.replace(/ /g, ' ')} ({tots[item][0]})</div><div className="value">{factor}£<span>{tots[item][1]}</span></div></div>)
     }
-    const AccLine = ({title, factor='', base, item}) =>{
+    const AccLine = ({title, factor='', item, className=''}) =>{
       if (item <0 )return null;
-      logit('AccLine', {title, factor, base, item})
-      return ( <div><div>{title}</div> <div>{factor}£<span>{item}</span></div></div> )
+      logit('AccLine', {title, factor, item})
+      return (<div className={"line "+className} ><div className="title">{title.replace(/ /g, ' ')}</div><div className="value">{factor}£<span>{item}</span></div></div>)
     }
 
-    const creditsUsed = openingCredit + (tots.BX ? tots.BX[1] : 0) + (tots.CX ? tots.CX[1] : 0) - (tots.PC ? tots.PC[1] : 0) - closingCredit;
-    const calcDebt = openingDebt + (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0) - (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0) - creditsUsed;
+    // const creditsUsed = openingCredit + (tots.BX ? tots.BX[1] : 0) + (tots.CX ? tots.CX[1] : 0) - (tots.PC ? tots.PC[1] : 0) - closingCredit;
+    const creditsUsed = openingCredit - closingCredit;
+    const netBookings = (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0)
+                      - (tots.BX ? tots.BX[1] : 0) - (tots.CX ? tots.CX[1] : 0);
+    const netCashAndCheques =  (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0)
+    const netBACS = (tots.PB ? tots.PB[1] : 0) - (tots.PBC ? tots.PBC[1] : 0)
+    const netPayments = netCashAndCheques + netBACS;
+    const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
     logit('creditsUsed', creditsUsed)
     var title = (<h4>Payments Made</h4>);
     return (
     <Panel className="payments-summary" header={title} style={{margin:20}} >
       <div className="summary">
-        <div>
-          <AccLine title="Opening Credit" item={openingCredit} base='credit' />
-          <AccLineTot factor='+' title="Bus Bookings Cancelled" item='BX' base='credit' />
-          <AccLineTot factor='+' title="Car Bookings Cancelled" item='CX' base='credit' />
-          <AccLineTot factor='-' title="Credits Refunded" item='PC' base='credit' />
-          {/* <CreditUsed/> */}
-          <AccLine factor='-' title="Credit Used" item={creditsUsed} base='credit' />
-          <AccLine factor='+' title="Credit Issused" item={-creditsUsed} base='credit' />
-          <AccLine title="Closing Credit" item={closingCredit} base='credit' />
-
+        <div className="block">
+          <div className="credit">
+          <AccLine title="Opening Credit" item={openingCredit}/>
+          </div>
+          <div className="debt">
+          <AccLine title="Opening Debt" item={-openingDebt}/>
+          </div>
         </div>
-        <div>
-          <AccLine title="Opening Debt" item={-openingDebt} base='debt' />
-          <AccLineTot factor='+' title="Bus Bookings Made" item='B' base='debt' />
-          <AccLineTot factor='+' title="Car Bookings Made" item='C' base='debt' />
-          <AccLineTot factor='-' title="Payments Received(non BACS)" item='P' base='debt' />
-          <AccLineTot factor='-' title="Payments Received(BACS)" item='PB' base='debt' />
-          <AccLine factor='+' title="Credit Used" item={creditsUsed} base='debt' />
-          <AccLine factor='-' title="Credit Issued" item={-creditsUsed} base='debt' />
-          <AccLine title="Calculated Closing Debt" item={calcDebt} base='debt' />
-          <AccLine title="Closing Debt" item={-closingDebt} base='debt' />
+        <div className="block">
+          <div className="credit"></div>
+          <div className="debt">
+          <AccLineTot factor='' title="Bus Bookings Made" item='B'/>
+          <AccLineTot factor='' title="Car Bookings Made" item='C'/>
+          <AccLineTot factor='-' title="Bus Bookings Cancelled" item='BX'/>
+          <AccLineTot factor='-' title="Car Bookings Cancelled" item='CX'/>
+          <AccLine factor='+' title="Net Bookings" item={netBookings}/>
+          <AccLineTot factor='' title="Payments Received" item='P'/>
+          <AccLineTot factor='' title="Payments Received(BACS)" item='PB'/>
+          <AccLineTot factor='-' title="Payments Refunded" item='PC'/>
+          <AccLineTot factor='-' title="Payments Refunded(BACS)" item='PBC'/>
+          <AccLine factor='-' title="Net Payments" item={netPayments}/>
+          </div>
+        </div>
+        <div className="block">
+          <div className="credit">
+          {/* <CreditUsed/> */}
+          <AccLine factor='－' title="Net Credit Used" item={creditsUsed}/>
+          <AccLine factor='+' title="Net Credit Issused" item={-creditsUsed}/>
+          </div>
+          <div className="debt">
+          <AccLine factor='-' title="Net Credit Used" item={creditsUsed}/>
+          <AccLine factor='+' title="Net Credit Issued" item={-creditsUsed}/>
+          </div>
+        </div>
+        <div className="block">
+          <div className="credit">
+          <AccLine title="Closing Credit" item={closingCredit}/>
+          </div>
+          <div className="debt">
+          <AccLine title="Closing Debt" item={-closingDebt}/>
+          <AccLine title="Calculated Closing Debt" item={calcDebt}/>
+          </div>
+        </div>
+        <div className="block">
+          <div className="credit">&nbsp; </div>
+          <div className="debt">
+            <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
+          </div>
         </div>
       </div>
       <div className="all-debts">
@@ -100,12 +134,10 @@ function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = function(state) {
   var startDate;
-  var endDate = '2016-11-03T12:00';
+  var endDate;
   const {credits, debts} = getAllDebts(state);
-  var closingCredit = credits.reduce((sum, item)=>sum+item.balance, 0);
-  var closingDebt = debts.reduce((sum, item)=>sum+item.balance, 0);
-  var openingCredit = 0;
-  var openingDebt = 0;
+  endDate = '2016-11-03T12:00:00';
+  if (!endDate)endDate = getLogTime();
 
   var aLogs = getAccountLogByDateAndType(state, startDate, endDate, 'P');
   var bLogs = getWalkLogsByDate(state, startDate, endDate);
@@ -115,13 +147,17 @@ const mapStateToProps = function(state) {
     tot[lg.req][1] += lg.amount;
     return tot;
   }, {});
-  logit('logs', aLogs, bLogs, tots, closingCredit, closingDebt);
-  return {
-            aLogs,
-            bLogs,
-            tots,
-            closingDebt, closingCredit,
-            openingDebt, openingCredit,
-      };
+
+  var doc ={
+    closingCredit: credits.reduce((sum, item)=>sum+item.balance, 0),
+    closingDebt: debts.reduce((sum, item)=>sum+item.balance, 0),
+    openingCredit: 0,
+    openingDebt: 0,
+    aLogs, bLogs, tots, startDate, endDate,
+    type: 'paymentSummary', _id: 'S'+endDate.substr(0, 17),
+  }
+
+  logit('logs doc', doc);
+  return { doc };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Payments);

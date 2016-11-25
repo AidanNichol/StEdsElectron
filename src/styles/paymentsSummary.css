@@ -22,28 +22,71 @@
   border-collapse: collapse;
   width: 100%;
 
+  .summary.grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas:
+      "bO dO"
+      "b1 d1"
+      "b2 d2"
+      "bC dC";
+  }
+
   .summary {
     display: flex;
     flex-wrap: wrap;
     width: 60%;
+    flex-direction: column;
+    padding: 5px;
+    border: gray solid thin;
 
-    > div {
-      padding: 10px;
-      width: 50%;
-      border: gray solid thin;
+    .block {
       display: flex;
-      justify-content: flex-start;
-      flex-direction: column;
+      flex-direction: row;
+      min-height: 1.2;
 
-      > div {
+      .credit {
+        width: 30%;
+      }
+
+      .debt {
+        width: 60%;
+      }
+
+      .credit,
+      .debt {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 5px;
         display: flex;
-        justify-content: space-between;
-        flex-direction: row;
+        justify-content: flex-start;
+        flex-direction: column;
 
-        span {
-          display: inline-block;
-          width: 2.3em;
-          text-align: right;
+        .line {
+          display: flex;
+          justify-content: space-between;
+          flex-direction: row;
+
+          &.detail {
+            color: blue;
+            padding-right: 6em;
+            padding-left: 6em;
+          }
+
+          &.bank {
+            font-weight: bold;
+            font-size: 1.2em;
+          }
+
+          .value {
+            display: flex;
+
+            span {
+              display: inline-block;
+              min-width: 3em;
+              text-align: right;
+            }
+          }
         }
       }
     }
