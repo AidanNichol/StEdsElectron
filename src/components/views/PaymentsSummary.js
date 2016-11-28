@@ -1,10 +1,11 @@
 /* jshint quotmark: false */
 import { connect } from 'react-redux';
-var xxx = require( '../containers/PaymentsFunctions')
 import {getAllDebts, getWalkLogsByDate, getAccountLogByDateAndType} from '../containers/PaymentsFunctions'
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
+import XDate from 'xdate';
+import fs from 'fs';
 
 import React from 'react';
 import {Panel} from '../utility/AJNPanel'
@@ -15,7 +16,6 @@ import {Icon} from 'ducks/walksDuck'
 
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Summary');
-logit('PaymentsFunctions', xxx)
 
 
 const AccLogRec = ({log})=>{return (
@@ -41,8 +41,8 @@ function Payments({doc}){
       if (!tots[item])return null;
       return (<div className={"line detail "+className}><div className="title">{title.replace(/ /g, ' ')} ({tots[item][0]})</div><div className="value">{factor}£<span>{tots[item][1]}</span></div></div>)
     }
-    const AccLine = ({title, factor='', item, className=''}) =>{
-      if (item <0 )return null;
+    const AccLine = ({title, factor='', item, opt, className=''}) =>{
+      if (opt && item <=0 )return null;
       logit('AccLine', {title, factor, item})
       return (<div className={"line "+className} ><div className="title">{title.replace(/ /g, ' ')}</div><div className="value">{factor}£<span>{item}</span></div></div>)
     }
@@ -59,56 +59,49 @@ function Payments({doc}){
     var title = (<h4>Payments Made</h4>);
     return (
     <Panel className="payments-summary" header={title} style={{margin:20}} >
-      <div className="summary">
-        <div className="block">
-          <div className="credit">
-          <AccLine title="Opening Credit" item={openingCredit}/>
+      {startDate ||'?? ??? ??:??'} to {endDate}
+      <div className="summary grid">
+          <div className="block cO">
+            <AccLine title="Opening Credit" item={openingCredit}/>
           </div>
-          <div className="debt">
-          <AccLine title="Opening Debt" item={-openingDebt}/>
+          <div className="block dO">
+            <AccLine title="Opening Debt" item={openingDebt}/>
           </div>
-        </div>
-        <div className="block">
-          <div className="credit"></div>
-          <div className="debt">
-          <AccLineTot factor='' title="Bus Bookings Made" item='B'/>
-          <AccLineTot factor='' title="Car Bookings Made" item='C'/>
-          <AccLineTot factor='-' title="Bus Bookings Cancelled" item='BX'/>
-          <AccLineTot factor='-' title="Car Bookings Cancelled" item='CX'/>
-          <AccLine factor='+' title="Net Bookings" item={netBookings}/>
-          <AccLineTot factor='' title="Payments Received" item='P'/>
-          <AccLineTot factor='' title="Payments Received(BACS)" item='PB'/>
-          <AccLineTot factor='-' title="Payments Refunded" item='PC'/>
-          <AccLineTot factor='-' title="Payments Refunded(BACS)" item='PBC'/>
-          <AccLine factor='-' title="Net Payments" item={netPayments}/>
+          <div className="block c1">&nbsp; </div>
+          <div className="block d1">
+            <AccLineTot factor='' title="Bus Bookings Made" item='B'/>
+            <AccLineTot factor='' title="Car Bookings Made" item='C'/>
+            <AccLineTot factor='-' title="Bus Bookings Cancelled" item='BX'/>
+            <AccLineTot factor='-' title="Car Bookings Cancelled" item='CX'/>
+            <AccLineTot factor='-' title="Bus Cancelled (no credit)" item='BL'/>
+            <AccLineTot factor='-' title="Car Cancelled (no credit)" item='CL'/>
+            <AccLine factor='+' title="Net Bookings" item={netBookings}/>
+            <AccLineTot factor='' title="Payments Received" item='P'/>
+            <AccLineTot factor='' title="Payments Received(BACS)" item='PB'/>
+            <AccLineTot factor='-' title="Payments Refunded" item='PC'/>
+            <AccLineTot factor='-' title="Payments Refunded(BACS)" item='PBC'/>
+            <AccLine factor='-' title="Net Payments" item={netPayments}/>
           </div>
-        </div>
-        <div className="block">
-          <div className="credit">
+          <div className="block c2">
           {/* <CreditUsed/> */}
-          <AccLine factor='－' title="Net Credit Used" item={creditsUsed}/>
-          <AccLine factor='+' title="Net Credit Issused" item={-creditsUsed}/>
+            <AccLine factor='－' opt title="Net Credit Used" item={creditsUsed}/>
+            <AccLine factor='+' opt title="Net Credit Issused" item={-creditsUsed}/>
           </div>
-          <div className="debt">
-          <AccLine factor='-' title="Net Credit Used" item={creditsUsed}/>
-          <AccLine factor='+' title="Net Credit Issued" item={-creditsUsed}/>
+          <div className="block d2">
+            <AccLine factor='-' opt title="Net Credit Used" item={creditsUsed}/>
+            <AccLine factor='+' opt title="Net Credit Issued" item={-creditsUsed}/>
           </div>
-        </div>
-        <div className="block">
-          <div className="credit">
-          <AccLine title="Closing Credit" item={closingCredit}/>
+          <div className="block cC">
+            <AccLine title="Closing Credit" item={closingCredit}/>
           </div>
-          <div className="debt">
-          <AccLine title="Closing Debt" item={-closingDebt}/>
-          <AccLine title="Calculated Closing Debt" item={calcDebt}/>
+          <div className="block dC">
+            <AccLine title="Closing Debt" item={-closingDebt}/>
+            {-closingDebt!==calcDebt && <AccLine title="Calculated Closing Debt" className="error" item={calcDebt}/>}
           </div>
-        </div>
-        <div className="block">
-          <div className="credit">&nbsp; </div>
-          <div className="debt">
-            <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
+          <div>&nbsp;</div>
+          <div className="block" >
+              <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
           </div>
-        </div>
       </div>
       <div className="all-debts">
       {/* <Lock /> */}
@@ -133,11 +126,14 @@ function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = function(state) {
-  var startDate;
-  var endDate;
-  const {credits, debts} = getAllDebts(state);
-  endDate = '2016-11-03T12:00:00';
+  var startDate, endDate, openingCredit=0, openingDebt=0;
+  // endDate = '2016-11-04T23:00:00';
+  // startDate = '2016-11-04T23:00:00'; endDate = '2016-11-06T23:00:00'; openingCredit=72; openingDebt=268;
+  // startDate = '2016-11-06T23:00:00'; endDate = '2016-11-18T09:00:00'; openingCredit=72; openingDebt=212;
+  // startDate = '2016-11-18T09:00:00'; endDate = '2016-11-21T09:00:00'; openingCredit=56; openingDebt=140;
+  startDate = '2016-11-21T09:00:00'; openingCredit=40; openingDebt=96;
   if (!endDate)endDate = getLogTime();
+  const {credits, debts} = getAllDebts(state);
 
   var aLogs = getAccountLogByDateAndType(state, startDate, endDate, 'P');
   var bLogs = getWalkLogsByDate(state, startDate, endDate);
@@ -151,13 +147,16 @@ const mapStateToProps = function(state) {
   var doc ={
     closingCredit: credits.reduce((sum, item)=>sum+item.balance, 0),
     closingDebt: debts.reduce((sum, item)=>sum+item.balance, 0),
-    openingCredit: 0,
-    openingDebt: 0,
-    aLogs, bLogs, tots, startDate, endDate,
-    type: 'paymentSummary', _id: 'S'+endDate.substr(0, 17),
+    openingCredit,
+    openingDebt,
+    aLogs, bLogs, tots,
+    startDate: startDate && (new XDate(startDate).toString('dd MMM HH:mm')),
+    endDate: (new XDate(endDate).toString('dd MMM HH:mm')),
+    type: 'paymentSummary',
+    _id: 'S'+endDate.substr(0, 16),
   }
-
-  logit('logs doc', doc);
+  fs.writeFileSync(`${__dirname}/../../../tests/paymentsSummary${endDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
+  logit('logs doc', doc, __dirname);
   return { doc };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Payments);

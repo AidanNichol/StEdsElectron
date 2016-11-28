@@ -8,7 +8,10 @@ var _today = getTodaysDate();
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Functions');
 var limit;
-limit='2016-11-03T12:00:00'
+// limit = '2016-11-04T23:00:00';
+// limit = '2016-11-06T23:00:00';
+// limit = '2016-11-18T09:00:00';
+// limit = '2016-11-21T09:00:00';
 
 var membersNames = i.freeze({});
 // var membersNames = Immutable({});
