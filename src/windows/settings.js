@@ -32,7 +32,7 @@ const list = (val, base, name, obj)=>{
           <span className="base">{base}</span>
         </div>)
   };
-
+const adapter = (val, base, name)=>list(val, base, name, {idb:{}, websql: {}})
 
 
 const objectTree = (obj, base, name)=>{
@@ -42,6 +42,7 @@ const objectTree = (obj, base, name)=>{
     string: strng,
     boolean: bool,
     'database.current': list,
+    adapter: adapter,
   };
   base = (base ? base +'.' : '');
   return (
@@ -52,6 +53,7 @@ const objectTree = (obj, base, name)=>{
         Object.keys(obj).map((name)=>{
           let val = obj[name]
           const baseN = base+name
+          if (typeMap[name])return typeMap[name](val, base+name, name, obj)
           if (typeMap[baseN])return typeMap[baseN](val, base+name, name, obj)
           return typeMap[typeof val](val, baseN, name)
         })
@@ -66,7 +68,7 @@ const objectTree = (obj, base, name)=>{
 render(
   (<div id="settings-page">
     <div className='item'>
-      <img className="main-logo" src={`./assets/St.EdwardsLogoSimple.svg`} height='120px' />
+      <img className="main-logo" src={`../assets/St.EdwardsLogoSimple.svg`} height='120px' />
       <div className="main-text">
         <div>St.Edwards Booking System</div>
         <div style={{fontSize: '1em'}}>Settings</div>

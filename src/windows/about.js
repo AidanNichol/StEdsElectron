@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import fs from 'fs';
+import jetpack from 'fs-jetpack'
 var open = require("open");
 
 function fsExists(myDir) {
@@ -22,16 +23,20 @@ var links = [
   // ['PouchDB Authenticate', 'PouchDB Authenticate', 'https://github.com/nolanlawson/pouchdb-authentication'],
 ];
 const GetIcon = ({name, ...rest})=>{
-  const iName = `./assets/mark-${name.toLowerCase()}`;
-  console.log({iName})
-  const ico = fsExists(`${iName}.svg`) ? `${iName}.svg` : (fsExists(`${iName}.png`) ? `${iName}.png` : undefined);
+  const iName = `../assets/mark-${name.toLowerCase()}`;
+  const xName = `mark-${name.toLowerCase()}`;
+  const dir = jetpack.cwd(__dirname).dir('../assets')
+  const ext = ['svg', 'png', 'jpg'].find((ext)=>!!dir.exists(`${xName}.${ext}`));
+  const ico = ext && `${dir.cwd()}/${xName}.${ext}`
+  console.log({iName, xName, dir: dir.cwd(), ext, ico, svg: dir.exists(`${xName}.svg`), png: dir.exists(`${xName}.png`)})
+  // const ico = jetpack.exists(`${iName}.svg`)==='file' ? `${iName}.svg` : (jetpack.exists(`${iName}.png`)==='file' ? `${iName}.png` : undefined);
   if (ico) return (<div><img src={ico} height='40px' {...rest}/></div>)
   return (<div {...rest}>{name}</div>)
 };
 render(
   (<div id="about-page">
     <div className='item'>
-      <img className="main-logo" src={`./assets/St.EdwardsLogoSimple.svg`} height='120px' />
+      <img className="main-logo" src={`../assets/St.EdwardsLogoSimple.svg`} height='120px' />
       <div className="main-text">
         <div>St.Edwards Booking System</div>
         <div style={{fontSize: '1em'}}>Developed by Aidan Nichol</div>

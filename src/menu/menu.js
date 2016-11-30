@@ -3,11 +3,11 @@ const remote = require('electron').remote;
 const BrowserWindow = remote.BrowserWindow;
 function showAboutWindow() {
   var win = new BrowserWindow({ width: 800, height: 600, webPreferences: {experimentalFeatures: true} });
-  win.loadURL(`file://${__dirname}/../about.html`);
+  win.loadURL(`file://${__dirname}/../windows/about.html`);
 }
 function showSettingsWindow() {
   var win = new BrowserWindow({ width: 700, height: 750, webPreferences: {experimentalFeatures: true} });
-  win.loadURL(`file://${__dirname}/../settings.html`);
+  win.loadURL(`file://${__dirname}/../windows/settings.html`);
 }
 export var template = [
   {
