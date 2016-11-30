@@ -84,15 +84,11 @@ export const getAccountLogByDateAndType = createSelector(
 const tranformSummaryLogRec = (logObj, members, acc)=>{
   // logit('logObj pre ', logObj)
   let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
-  // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
-  // if (logObj.amount && logObj.req[0]==='P') logObj.amount = -1 * logObj.amount;
   if (!logObj.memId || logObj.req[0] === 'P') {logObj.name = getAccountName(acc, members);}
   else {logObj.name = members[logObj.memId].firstName+' '+members[logObj.memId].lastName}
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
   let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
   logObj.text = (logObj.req[0]==='P' ? logObj.note || '' : ` ${venue} ${text}`);
-  // logObj.text = request.names[logObj.req] + (logObj.req==='P' ? '' : ` ${name} ${venue}`);
-  // logit('logObj post', logObj)
   return logObj;
 };
 
@@ -109,8 +105,7 @@ const tranformLogRec = (logObj, memNames)=>{
   logObj.name = name;
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
   let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.req==='P' ? logObj.note || '' : ` ${venue} ${text}`);
-  // logObj.text = request.names[logObj.req] + (logObj.req==='P' ? '' : ` ${name} ${venue}`);
+  logObj.text = (logObj.req[0]==='P' ? logObj.note || '' : ` ${venue} ${text}`);
   return logObj;
 };
 
@@ -152,14 +147,15 @@ const makeGetAccountLog = (accId)=> createSelector(
     getMemberNames,
     (accLog, memNames)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
-      // logit('getAccountLogs '+accId, {accLog})
-      aLogs = aLogs.filter((lg)=>lg[4]!=='P' || (lg[5]!==null && lg[5]!==0))
+      logit('getAccountLogs '+accId, {accLog})
+      aLogs = aLogs.filter((lg)=>lg[4][0]!=='P' || (lg[5]!==null && lg[5]!==0))
+        .filter((lg)=>lg[4][0] !== 'S') // ignore subscriptions
         .filter((lg)=>!limit || lg[0] < limit)
         .map((log)=>{
           let [dat, who, walkId, memId, req, amount, note] = log;
           return tranformLogRec({dat, who, walkId, memId, req, amount, note}, memNames);
       });
-      // logit('getAccountLogs '+accId, aLogs);
+      logit('gotAccountLogs '+accId, aLogs);
       return aLogs;
     });
 
@@ -195,9 +191,9 @@ const makeGetAccountDebt = (accId)=> createSelector(
       // logs = logs.map((log, i)=>{
       balance -= log.amount;
       // logit('log '+accId, {log, balance});
-      if (!currentFound && log.req !== 'P' && log.walkId > walkPast)currentFound = true
+      if (!currentFound && log.req[0] !== 'P' && log.walkId > walkPast)currentFound = true
       if (!currentFound && balance === 0)lastHistory = i;
-      if (log.req === 'P' && balance === 0){
+      if (log.req[0] === 'P' && balance === 0){
         zeroPoints.push(i);
         lastZeroPoint = i;
       }

@@ -14,9 +14,6 @@
 
     .edit-button {
       grid-area: edit;
-      // grid-row: 1;
-      // grid-column: 1;
-      // justify-content: flex-start;
     }
 
     .form {
@@ -46,7 +43,6 @@
       flex-direction: row;
 
       &.hidden {
-        // display: none;
         visibility: hidden;
       }
     }
@@ -62,6 +58,14 @@
     .item-input {
       margin-top: 5px;
       width: 300px;
+
+      .subscription {
+        width: 47px;
+      }
+
+      .bacs {
+        margin-left: 20px;
+      }
 
       &.due input {
         background-color: #ff6;

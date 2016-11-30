@@ -11,16 +11,10 @@ import TextInput from 'react-textarea-autosize';
 
 import {Panel} from '../../utility/AJNPanel'
 import {getSubsStatus} from '../../../utilities/subsStatus'
-// import {getSubsDue, getSubsLate} from '../../../utilities/DateUtilities';
 import {properCaseName, properCaseAddress, normalizePhone} from '../../utility/normalizers';
 
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'EditMemberData');
-
-// export const fields= [ "address", "name", "phone", "email", "mobile", "nextOfKin", "medical",
-//           "memberStatus", "lastName", "firstName" , "account" , "memberId" ,
-//           "status" , "subscription" , "accountId"] // all the fields in your form
-
 
 let renderField = (field) => {
   console.log('renderField', field);
@@ -44,31 +38,26 @@ let renderTextArea = (field) => {
     </span>
   )
 }
-// renderField='input';
-// const subscriptionButton = (props)=>{
-//   const { input: {  value: subsCurrent, onChange}, _delete, editMode, subsDueForYear, meta, style={}, ...other } = props;
-//   style.marginLeft = 225;
-//   console.log('subscriptionButton',{ _delete, editMode, subsDueForYear, other})
-//   return (
-//     <TooltipButton label='Paid' onClick={()=>onChange(subsDueForYear)} {...other} style={style} tiptext={'subs paid for '+subsDueForYear} visible={editMode && !_delete && (subsCurrent !== subsDueForYear)} />
-//   )
-//
-// }
+
 const subscriptionButton = (props)=>{
-  const { input: {  onChange}, _delete, editMode, subsStatus, subsPaid, meta, style={}, ...other } = props;
+  const { input: {  onChange}, _delete, editMode, subsStatus, subsPaid, subscription, _bacs, meta, style={}, ...other } = props;
   // if (!subsStatus.due) return null;
-  style.marginLeft = 80;
+  // style.marginLeft = 80;
+  style.whiteSpace = 'nowrap';
   // logit('subscriptionButton',{ _delete, editMode, subsStatus, other})
   // const change = ()=>{
   //   onChange(subsStatus.year);
   //   subsPaid(subsStatus.fee);
   // }
-  return (
-    <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`}
-        onClick={()=>{onChange(subsStatus.year); subsPaid(subsStatus.fee);}}
-        {...other}
-        style={style}
-        visible={editMode && !_delete && subsStatus.due} />
+  return ( (editMode && !_delete && subsStatus.showSubsButton && subscription !== subsStatus.year) &&
+    <span stype={{whiteSpace: 'nowrap'}}>
+      <span className="bacs"> bacs <Field name="_bacs" component="input" type="checkbox"/> </span>
+      <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`}
+      onClick={()=>{onChange(subsStatus.year); subsPaid(subsStatus.fee, _bacs);}}
+      {...other}
+      style={style} />
+      {/* // visible={editMode && !_delete && subsStatus.due} /> */}
+    </span>
   )
 
 }
@@ -97,8 +86,6 @@ const deleteButtons = (props)=>{
   )
 
 }
-// const Panel = (props)=>(<div className={props.className} style={{boxSizing: 'border-box', padding: 10, marginBottom: 16, border: '1px solid #bce8f1', borderRadius: 2, backgroundColor: 'rgb(255, 255, 255)'}}>{props.children}</div>)
-// const PanelHeader = (props)=>(<div className={props.className} style={{boxSizing: 'border-box', fontSize: '2rem', display: 'flex', alignItems: 'center', fontWeight: 600, margin: '-11px -11px 10px', padding: 'inherit', borderRadius: '2px 2px 0 0', color:'#31708f', backgroundColor: '#d9edf7'}}>{props.children}</div>)
 
 let EditMemberData = (props)=>{
 
@@ -114,12 +101,8 @@ let EditMemberData = (props)=>{
             newMember,
             // subsDueForYear, __subsStatus,
            } = props;
-    const {firstName, lastName, subscription, memberStatus, suspended, _delete, } = formValues||{};
+    const {firstName, lastName, subscription, memberStatus, suspended, _delete, _bacs} = formValues||{};
 
-    // const saveChanges = (values)=>{
-    //   logit('saveChanges', values);
-    //   membersEditSaveChanges({doc: values, origDoc: props.members});
-    // }
     const saveChangesX = (values)=>{
       logit('saveChangesX', {values, props});
       // handleSubmit(saveChanges);
@@ -135,7 +118,7 @@ let EditMemberData = (props)=>{
       membersEditSaveChanges({doc, origDoc: props.member});
 
     }
-    var subsPaid = (fee)=>props.dispatch(change(props.form, '_subspaid', fee));
+    var subsPaid = (fee, bacs)=>props.dispatch(change(props.form, '_subspaid', fee, bacs));
     const subsStatus = getSubsStatus({subscription, memberStatus}); // {due: true, year: 2016, fee: 15, status: 'late'}
     var title = (<div style={{width:'100%'}}>
       { firstName } { lastName } {dirty ? '(changed)' : ''}
@@ -145,10 +128,8 @@ let EditMemberData = (props)=>{
     let clss = classnames({['form-horizontal user-details modal-body ']:true, suspended: suspended, deleted: _delete},  memberStatus).toLowerCase();
     return (
       <Panel className={"show-member-details "+(editMode ? 'editmode' : 'showMode')} header={title}>
-        {/* <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>props.setShowEditMemberModal(true)} visible={showMode} /> */}
         <div className={clss}>
           <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
-          {/* <form className={clss} name="user-details" autoComplete="off" onSubmit={onSubmit} > */}
           <fieldset className="form" disabled={showMode} size={40}>
           <div className="form-line">
               <label className="item-label">firstName</label>
@@ -170,18 +151,15 @@ let EditMemberData = (props)=>{
               <label className="item-label">email</label>
               <Field component={renderField} name='email' type="email"  />
           </div>
-          <div className="form-line">
+          <div className="form-line sub">
               <label className="item-label">mobile</label>
               <Field component={renderField} name='mobile' type="text"/>
           </div>
           <div className={"form-line"+(memberStatus==='Guest' || memberStatus==='HLM'?' hidden':'')}>
               <label className="item-label">subscription</label>
-              {/* <Field component={renderField} name="subscription" className={__subsStatus} type="text"  size={5}>
-                <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsDueForYear}} /> */}
-                <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
-                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, subsStatus, subsPaid}} />
-
-              </Field>
+                  <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
+                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, _bacs, subsStatus, subscription, subsPaid}} />
+                  </Field>
           </div>
 
           <div className="form-line">
@@ -237,10 +215,7 @@ const mapStateToProps = function mapStateToProps(state, props){
   member = member ? i.thaw(member) : {};
   if (member && !('suspended' in member))member.suspended = false;
   const newProps = {
-    initialValues: {_delete:false, _subspaid: 0, ...member}, // will pull state into form's initialValues
-    // subsDueForYear: subsDue,
-    // __subsStatus: subs === subsDue ? 'OK': (subs <= subsLate? 'Late':'Due'),
-    // __subsDue: !(member && subs === subsDue ),
+    initialValues: {_delete:false, _subspaid: 0, _bacs: false, ...member}, // will pull state into form's initialValues
     enableReinitialize: true,
     newMember,
     ...other,

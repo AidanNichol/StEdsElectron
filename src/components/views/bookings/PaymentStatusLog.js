@@ -50,7 +50,7 @@ export function payment(props){
     logit('keydown', amount, note, event);
     if ( event.which === 13 && amount) {
       event.preventDefault();
-      props.accountUpdatePayment(props.accId, parseInt(amount), note);
+      props.accountUpdatePayment(props.accId, parseInt(amount), note, bacs, parseInt(amount)===props.owing);
       if (amountTarget)amountTarget.value = ''; if (noteTarget)noteTarget.value='';
     }
   };
@@ -59,8 +59,12 @@ export function payment(props){
   let amountChange = (event)=> { amount = event.target.value; amountTarget=event.target;};
   let noteChange = (event)=> { note = event.target.value; noteTarget=event.target;};
   let paidInFull = (event)=> {
-    props.accountUpdatePayment(props.accId, props.owing);
+    props.accountUpdatePayment(props.accId, props.owing, note, bacs, true);
     event.target.value = '';
+  };
+  let bacs = false;
+  let paidByBACS = (event)=> {
+    bacs = event.target.value;
   };
   logit('props', props)
   return (
@@ -73,6 +77,7 @@ export function payment(props){
       }
       <TooltipContent className='payment-boxes' tiptext='Enter paid amount and press enter' visible>
         <span className="pay-box">
+          bacs <input className="checkbox" type="checkbox" alt="bacs"  onChange={paidByBACS} />
           <span>Pay &nbsp; <input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
           <span> Note &nbsp; <input size="21" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
           {/* <span>&nbsp;</span> */}

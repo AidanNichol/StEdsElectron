@@ -24,8 +24,8 @@ export default function* membersSaga(){
       logit('doc', Object.isExtensible(doc), Object.isSealed(doc), Object.isFrozen(doc))
       if (_deleted || _delete)doc._deleted = true;
       doc = i.thaw(doc);
-      var {_subspaid, ...xDoc} = doc;
-      logit('stripped', {_subspaid, xDoc})
+      var {_subspaid, _bacs=false, ...xDoc} = doc;
+      logit('stripped', {_subspaid, _bacs, xDoc})
       doc = xDoc;
       doc.account = doc.accountId;
       delete doc._subspaid;
@@ -65,7 +65,7 @@ export default function* membersSaga(){
       // res = yield call([db, db.put], doc);
       logit('subspaid?', _subspaid, doc)
       if (_subspaid !== undefined){
-        yield put({type: 'ACCOUNT_UPDATE_SUBSCRIPTION_PAYMENT', accId:doc.accountId, memId: doc.memberId, amount: _subspaid })
+        yield put({type: 'ACCOUNT_UPDATE_SUBSCRIPTION_PAYMENT', accId:doc.accountId, memId: doc.memberId, amount: _subspaid, bacs: _bacs })
       }
       yield call(docUpdateSaga, doc);
       logit('update', 'done')

@@ -19,7 +19,8 @@ function* updatePaymentToAccount(action, type){
     doer = yield select((state)=>state.signin.memberId);
     var acc = yield select(getAccount, action.accId);
       // var funds = (acc.funds || 0) + action.amount;
-    var log = pushLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note);
+      if (action.bacs)type += 'B';
+    var log = pushLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note, action.inFull);
     var newAcc = i.set(acc, 'log', log);
     // var newAcc = acc.set('log', log);
     yield call(docUpdateSaga, newAcc, action);
@@ -29,14 +30,14 @@ function* addTaggedPayment(action){
   logit('addTaggedPayment', action);
   if (action.reType === request.WAITLIST)return;
   if (action.amount === 0)return;
-  yield call(updatePaymentToAccount, action);
+  yield call(updatePaymentToAccount, action, 'P');
 }
 
 function* deleteTaggedPayment(action){
   logit('deleteTaggedPayment', action);
     doer = yield select((state)=>state.signin.memberId);
     var acc = yield select(getAccount, action.accId);
-    var j = acc.log.findIndex((log)=>(log[4]==='P' && log[3]===action.memId && log[2]===action.walkId) );
+    var j = acc.log.findIndex((log)=>(log[4][0]==='P' && log[3]===action.memId && log[2]===action.walkId) );
     if (j === -1)return;
     // var funds = (acc.funds || 0) - acc.log[i].amount;
     var log = [].concat((j > 0 ? acc.log.slice(0, j-1) : []), (j < acc.log.length-1 ?  acc.log.slice(j+1) : []));

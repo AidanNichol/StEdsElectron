@@ -12,7 +12,7 @@ var logit = Logit('color:blue; background:yellow;', 'changlog');
 
 function mapDispatchToProps(dispatch) {
   return {
-    accountUpdatePayment: (accId, amount, note='')=>{dispatch({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount, note});},
+    accountUpdatePayment: (accId, amount, note='', bacs=false, inFull)=>{dispatch({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount, note, bacs, inFull});},
   };
 }
 

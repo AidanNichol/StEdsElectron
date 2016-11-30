@@ -26,7 +26,7 @@ export function datetimeIsToday(datStr){
 }
 export var getSubsDue = function() {
 		var year = _today.getFullYear();
-		var dat = new XDate(_today).setDate(1).setMonth(11);// month is 0 based
+		var dat = new XDate(_today).setDate(1).setMonth(10);// month is 0 based
 		if (_today.valueOf() > dat.valueOf())year += 1;
 		return year;
 	};
