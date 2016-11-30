@@ -68,7 +68,7 @@ export const getAccountLogByDateAndType = createSelector(
         if (startDate && (dat < startDate) )return;
         if (endDate && (dat > endDate) )return;
         if (req !== reqType) return;
-        if (note && note.includes('BACS'))req = req + 'B'
+        if (note && note.includes('BACS') && req.length === 1)req = req + 'B'
         if (amount < 0){
           req = req+'C';
           amount *= -1;

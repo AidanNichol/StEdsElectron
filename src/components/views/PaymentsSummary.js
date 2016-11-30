@@ -1,14 +1,14 @@
 /* jshint quotmark: false */
 import { connect } from 'react-redux';
 import {getAllDebts, getWalkLogsByDate, getAccountLogByDateAndType} from '../containers/PaymentsFunctions'
-import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
+import {saveSummary} from 'ducks/paymentssummary-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
 import XDate from 'xdate';
 
 import React from 'react';
 import {Panel} from 'components/utility/AJNPanel'
-// import TooltipButton from '../utility/TooltipButton.js';
+import TooltipButton from 'components/utility/TooltipButton.js';
 // import TooltipContent from '../utility/TooltipContent.js';
 import {Icon} from 'ducks/walksDuck'
 // import {Lock} from 'ducks/lock-duck'
@@ -31,7 +31,7 @@ function Payments({doc}){
     logit('payments', doc);
     var {aLogs, bLogs, tots,
     closingDebt, closingCredit,
-    openingDebt, openingCredit, startDate, endDate} = doc;
+    openingDebt, openingCredit, startDispDate, endDispDate} = doc;
     var calcNew = {debt: openingDebt, credit: openingCredit};
     logit('calcNew', calcNew)
 
@@ -58,16 +58,17 @@ function Payments({doc}){
     var title = (<h4>Payments Made</h4>);
     return (
     <Panel className="payments-summary" header={title} style={{margin:20}} >
-      {startDate ||'?? ??? ??:??'} to {endDate}
+      {startDispDate ||'?? ??? ??:??'} to {endDispDate}
+      <section>
       <div className="summary grid">
-          <div className="block cO">
+          <div>
             <AccLine title="Opening Credit" item={openingCredit}/>
           </div>
-          <div className="block dO">
+          <div>
             <AccLine title="Opening Debt" item={openingDebt}/>
           </div>
-          <div className="block c1">&nbsp; </div>
-          <div className="block d1">
+          <div>&nbsp; </div>
+          <div>
             <AccLineTot factor='' title="Bus Bookings Made" item='B'/>
             <AccLineTot factor='' title="Car Bookings Made" item='C'/>
             <AccLineTot factor='-' title="Bus Bookings Cancelled" item='BX'/>
@@ -81,19 +82,19 @@ function Payments({doc}){
             <AccLineTot factor='-' title="Payments Refunded(BACS)" item='PBC'/>
             <AccLine factor='-' title="Net Payments" item={netPayments}/>
           </div>
-          <div className="block c2">
+          <div>
           {/* <CreditUsed/> */}
             <AccLine factor='－' opt title="Net Credit Used" item={creditsUsed}/>
             <AccLine factor='+' opt title="Net Credit Issused" item={-creditsUsed}/>
           </div>
-          <div className="block d2">
+          <div>
             <AccLine factor='-' opt title="Net Credit Used" item={creditsUsed}/>
             <AccLine factor='+' opt title="Net Credit Issued" item={-creditsUsed}/>
           </div>
-          <div className="block cC">
+          <div>
             <AccLine title="Closing Credit" item={closingCredit}/>
           </div>
-          <div className="block dC">
+          <div>
             <AccLine title="Closing Debt" item={-closingDebt}/>
             {-closingDebt!==calcDebt && <AccLine title="Calculated Closing Debt" className="error" item={calcDebt}/>}
           </div>
@@ -102,6 +103,11 @@ function Payments({doc}){
               <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
           </div>
       </div>
+      <div className="buttons">
+      <TooltipButton icon="bank" onClick={this.show.bind(this)} tiptext={this.props.tiptext} visible/>
+
+      </div>
+      </section>
       <div className="all-debts">
       {/* <Lock /> */}
 
@@ -119,8 +125,7 @@ function Payments({doc}){
 
 function mapDispatchToProps(dispatch) {
   return {
-    showMemberBookings: (accId)=>{dispatch(setPage({page: 'bookings', memberId: accId, accountId: accId}))},
-    accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
+    saveSummary: (doc)=>{dispatch(saveSummary(doc))},
   };
 }
 
@@ -149,10 +154,11 @@ const mapStateToProps = function(state) {
     openingCredit,
     openingDebt,
     aLogs, bLogs, tots,
-    startDate: startDate && (new XDate(startDate).toString('dd MMM HH:mm')),
-    endDate: (new XDate(endDate).toString('dd MMM HH:mm')),
+    endDate, startDate,
+    startDispDate: startDate && (new XDate(startDate).toString('dd MMM HH:mm')),
+    endDispDate: (new XDate(endDate).toString('dd MMM HH:mm')),
     type: 'paymentSummary',
-    _id: 'S'+endDate.substr(0, 16),
+    _id: 'BP'+endDate.substr(0, 16),
   }
   // fs.writeFileSync(`${__dirname}/../../../tests/paymentsSummary${endDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   logit('logs doc', doc, __dirname);

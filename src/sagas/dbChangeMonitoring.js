@@ -6,7 +6,7 @@ import { eventChannel, END, buffers } from 'redux-saga'
 
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'SyncDoc');
-const collections = {'M': 'member', 'W': 'walk', 'A': 'account'};
+const collections = {'M': 'member', 'W': 'walk', 'A': 'account', B: 'bank'};
 
 // lastSeq = 138;
 

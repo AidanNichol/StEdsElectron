@@ -64,11 +64,14 @@ export default function Payments(props){
   return (
     <Panel className="payments" header={title} style={{margin:20}} >
       <div className="all-debts">
-        <Lock />
-        {/* <TooltipButton label="Summary" onClick={()=>{showSummary=true; logit('showSummary', showSummary)}} tiptext='Show Payment Summary' visible/> */}
-        <MyModal >
-        <PaymentsSummary />
-        </MyModal>
+        <div className="buttons">
+          <Lock />
+          {/* <TooltipButton label="Summary" onClick={()=>{showSummary=true; logit('showSummary', showSummary)}} tiptext='Show Payment Summary' visible/> */}
+          <MyModal icon="bank"  tiptext='View payments summary'>
+          <PaymentsSummary />
+          </MyModal>
+
+        </div>
         {/* //inside the render
         <a onClick={()=>{this.refs.modal.show()}}>Open Modal</a>
         <Modal ref="modal"
@@ -79,9 +82,9 @@ export default function Payments(props){
         <div>hey</div>
 
         </Modal> */}
-        <div className="header">
+        {/* <div className="header">
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>
-        </div>
+        </div> */}
         {
           debts.map((data) => {console.log('payment', data);return <MemberBill data={data} key={data.accId} {...{accountUpdatePayment, showMemberBookings}}/>})
         }

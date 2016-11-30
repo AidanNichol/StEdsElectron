@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
+import TooltipButton from './TooltipButton.js';
 const closeStyle = {
   background: '#606061',
   color: '#FFFFFF',
@@ -34,7 +35,7 @@ export default class App extends React.Component{
   render(){
     return (
       <div>
-      <a onClick={this.show.bind(this)}>Open Modal</a>
+      <TooltipButton icon={this.props.icon} onClick={this.show.bind(this)} tiptext={this.props.tiptext} visible/>
       <Modal
         isOpen={this.state.show}
         // onAfterOpen={afterOpenFn}

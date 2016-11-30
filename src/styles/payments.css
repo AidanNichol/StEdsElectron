@@ -39,7 +39,13 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     height: 100%;
-    // grid-template-columns: 1fr 1fr 1fr 1fr;
+
+    .buttons {
+      display: flex;
+      flex-direction: row;
+      padding-bottom: 4px;
+      max-width: 400px;
+    }
   }
 
   .overview,
@@ -76,6 +82,8 @@
   }
 
   .header {
+    width: 33%;
+
     span {
       font-size: 1.1em;
       font-weight: bold;
@@ -88,6 +96,8 @@
     padding-bottom: 4px;
     border: var(--border-color) thin solid;
     border-radius: var(--radius);
+    width: 33%;
+    max-width: 410px;
 
     .owed {
       font-size: 0.85em;
