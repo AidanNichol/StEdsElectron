@@ -34,20 +34,21 @@ export const signoutSuccess = () => ({type: SIGNOUT_SUCCESS});
 // import PouchDB from 'pouchdb';
 import { call, put, take } from 'redux-saga/effects.js';
 var authError = "";
-var remoteDb = `http://${DbSettings.remotehost}:5984/_users`;
-var localDb = DbSettings.localUsers;
+const remoteDb = `http://${DbSettings.remotehost}:5984/_users`;
+const localDb = DbSettings.localUsers;
+const adapter = DbSettings.adapter = 'websql';
 logit('user DBs', {remoteDb, localDb, reset: DbSettings.resetLocal})
-var _dbuSetupCompleted = require("utilities/pouchdb-seamless-auth")(PouchDB, localDb)
+var _dbuSetupCompleted = require("utilities/pouchdb-seamless-auth")(PouchDB, localDb, adapter)
     .then(()=> PouchDB.setSeamlessAuthRemoteDB(remoteDb))
     .then((resp)=>{logit('setSeamlessAuthRemoteDB OK', resp); return resp;})
     .catch((error)=>{logit('setSeamlessAuthRemoteDB Error', error)});
 
-var dbu = new PouchDB(localDb, {adapter: 'websql'});
-if (DbSettings.resetLocal){
+var dbu = new PouchDB(localDb, {adapter});
+if (DbSettings.resetLocalUser){
   dbu.destroy()
     .then(()=>{
-      setSettings(`database.${getSettings('database.current')}.resetLocal`, false)
-      dbu = new PouchDB(localDb, {adapter: 'websql'});
+      setSettings(`database.${getSettings('database.current')}.resetLocalUser`, false)
+      dbu = new PouchDB(localDb, {adapter});
     })
 }
 

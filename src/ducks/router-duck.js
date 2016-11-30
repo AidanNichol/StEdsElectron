@@ -1,4 +1,5 @@
 import * as i from 'icepick';
+import { getSettings, setSettings} from 'ducks/settings-duck';
 import Logit from '../factories/logit.js';
 const logit = Logit('color:white; background:blue;', 'Router:duck');
 
@@ -17,7 +18,11 @@ export const ROUTER_INITIALIZED = 'ROUTER_INITIALIZED';
 export const setPage = (payload) => ({type: SET_PAGE, ...payload});
 export const setUser = (user, account) => ({type: SET_USER, user, account});
 export const routerInitialized = () => ({type: SET_USER});
-
+if (getSettings('clearRouter')){
+  setSettings('clearRouter', false);
+  localStorage.removeItem('stEdsSignin');
+  localStorage.removeItem('stEdsRouter');
+}
 
 //---------------------------------------------------------------------
 //          Reducers
