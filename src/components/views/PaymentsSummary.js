@@ -5,16 +5,15 @@ import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
 import XDate from 'xdate';
-import fs from 'fs';
 
 import React from 'react';
-import {Panel} from '../utility/AJNPanel'
+import {Panel} from 'components/utility/AJNPanel'
 // import TooltipButton from '../utility/TooltipButton.js';
 // import TooltipContent from '../utility/TooltipContent.js';
 import {Icon} from 'ducks/walksDuck'
 // import {Lock} from 'ducks/lock-duck'
 
-import Logit from '../../factories/logit.js';
+import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Summary');
 
 
@@ -155,7 +154,7 @@ const mapStateToProps = function(state) {
     type: 'paymentSummary',
     _id: 'S'+endDate.substr(0, 16),
   }
-  fs.writeFileSync(`${__dirname}/../../../tests/paymentsSummary${endDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
+  // fs.writeFileSync(`${__dirname}/../../../tests/paymentsSummary${endDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   logit('logs doc', doc, __dirname);
   return { doc };
 }

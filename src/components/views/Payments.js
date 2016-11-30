@@ -1,8 +1,11 @@
 /* jshint quotmark: false */
 import React from 'react';
 import {Panel} from '../utility/AJNPanel'
+import MyModal from '../utility/AJNModal'
 import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
+import PaymentsSummary from './PaymentsSummary'
+// import showNewWindow from 'utilities/showNewWindow.js';
 import {Icon} from 'ducks/walksDuck'
 import {Lock} from 'ducks/lock-duck'
 
@@ -27,7 +30,6 @@ function MemberBill(props){
       accountUpdatePayment(data.accId, -data.balance);
       event.target.value = '';
     };
-
     var details = data.debt.filter((bkng)=>bkng.outstanding).map((bkng)=>
         <div className='walk-detail' key={bkng.dat}>{bkng.dispDate}<Icon type={bkng.req} width="16"/>  {bkng.text}{bkng.name &&(<span className="name">[{bkng.name}]</span>)} </div>
     );
@@ -55,13 +57,28 @@ function MemberBill(props){
 
 export default function Payments(props){
 
-    logit('payments', props);
-    var {debts, accountUpdatePayment, showMemberBookings} = props;
-    var title = (<h4>Payments Due</h4>);
-    return (
+  // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
+  logit('payments', props);
+  var {debts, accountUpdatePayment, showMemberBookings} = props;
+  var title = (<h4>Payments Due</h4>);
+  return (
     <Panel className="payments" header={title} style={{margin:20}} >
       <div className="all-debts">
-      <Lock />
+        <Lock />
+        {/* <TooltipButton label="Summary" onClick={()=>{showSummary=true; logit('showSummary', showSummary)}} tiptext='Show Payment Summary' visible/> */}
+        <MyModal >
+        <PaymentsSummary />
+        </MyModal>
+        {/* //inside the render
+        <a onClick={()=>{this.refs.modal.show()}}>Open Modal</a>
+        <Modal ref="modal"
+        className="simple-modal your-class"
+        closeOnOuterClick={false}>
+
+        <a className="close" onClick={()=>{this.refs.modal.hide()}}>X</a>
+        <div>hey</div>
+
+        </Modal> */}
         <div className="header">
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>
         </div>
