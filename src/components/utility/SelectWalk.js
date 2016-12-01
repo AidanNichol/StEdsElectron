@@ -24,7 +24,7 @@ var SelectWalk = React.createClass({
           let dispDate = new XDate(walk.walkDate).toString('dd MMM');
           let venue = walk.venue.replace(/\(.*\)/, '')
           let style = {
-            width: 100,
+            width: `${100/walks.length}%`,
             backgroundColor: currentWalk === walk.walkId ? '#87bbe7' : '#d9edf7',
             whiteSpace: 'nowrap',
             overflow: 'hidden',

@@ -6,7 +6,7 @@ import { eventChannel, END, buffers } from 'redux-saga'
 
 import Logit from '../factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'SyncDoc');
-const collections = {'M': 'member', 'W': 'walk', 'A': 'account', B: 'bank'};
+const collections = {M: 'member', W: 'walk', A: 'account', BP: 'bankPayments', BS: 'bankSubscriptions'};
 
 // lastSeq = 138;
 
@@ -36,8 +36,9 @@ export default function * monitorChanges () {
     const change = yield take(channel); // Blocks until the promise resolves
     logit('change', change);
     if (change.deleted){
-      var collection = collections[change.id[0]];
-      logit('collection', collection);
+      const req = change.id.match(/$([A-Z]+)/)[0];
+      var collection = collections[req];
+      logit('collection', req, collection);
       if (collection){
         yield put({type: `delete_${collection}_doc`, id: change.id});
       }
@@ -46,35 +47,3 @@ export default function * monitorChanges () {
     else yield put({type: `change_${change.doc.type}_doc`, doc: change.doc});
   }
 }
-
-
-// export default  function * monitorChanges() {
-//   var info = yield call([db, db.info]);
-//   logit('info cps', info);
-//   let lastSeq = info.update_seq;
-//   let count = 0;
-//
-//   while(1){
-//     try{
-//       var changes = yield call([db, db.changes], { since: lastSeq, continuous: true, limit: 1, include_docs: true, heartbeat: 20000 });
-//       logit('changes cps', changes, lastSeq);
-//       if (changes && changes.results.length > 0){
-//         for(let i = 0; i < changes.results.length; i++){
-//           var change=changes.results[i];
-//           if (change.deleted){
-//             var collection = collections[change.id[0]];
-//             if (collection){
-//               yield put({type: `delete_${collection}_doc`, id: change.id});
-//             }
-//           }
-//           else yield put({type: `change_${change.doc.type}_doc`, doc: change.doc, count: count});
-//           lastSeq = changes.last_seq;
-//         }
-//       }
-//       else yield call(delay, 3000);
-//     }catch (error){
-//       logit('change-error', error);
-//       yield put({type: 'monitor-changes-error', err: error})
-//     }
-//   }
-// }

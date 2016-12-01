@@ -11,19 +11,22 @@ div.panel-title {
 
 .bus-list .panel-contents {
   display: grid;
-  grid-template-rows: 60px;
-  grid-template-columns: 2fr 1fr 20px 2fr;
+  grid-template-rows: 80px;
+  grid-template-columns: 3fr 20px 2fr;
   grid-template-areas:
-    "select lock xx print"
-    "booked booked xx others ";
+    "select xx buttons"
+    "booked xx others ";
 
   .walk-select {
     grid-area: select;
+    border: green thick solid;
   }
 
-  .print-buttons {
-    grid-area: print;
-    align-self: center;
+  .buttons {
+    grid-area: buttons;
+    display: flex;
+    flex-direction: row;
+    padding-top: 5px;
 
     &:focus {
       outline-width: 0;
@@ -32,11 +35,6 @@ div.panel-title {
     img {
       height: 40px;
     }
-  }
-
-  .lock {
-    grid-area: lock;
-    align-self: center;
   }
 
   .booked-members {

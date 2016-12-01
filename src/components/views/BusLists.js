@@ -57,10 +57,13 @@ export default function BusLists(props){
     return (
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
-        <Lock />
-        {/*<div className="errorMsg">{this.state.msg}</div>*/}
-        <PrintButton report='busList' tiptext='Print All  Walks PDF' />
-        {/* <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div> */}
+        <div className="buttons">
+          <Lock />
+          {/*<div className="errorMsg">{this.state.msg}</div>*/}
+          <PrintButton report='busList' tiptext='Print All  Walks PDF' />
+          {/* <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div> */}
+
+        </div>
         <div className="booked-members">
           {
             bookings.map((bkng)=>
