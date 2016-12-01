@@ -23,7 +23,13 @@ var SelectWalk = React.createClass({
         {walks.map(function(walk) {
           let dispDate = new XDate(walk.walkDate).toString('dd MMM');
           let venue = walk.venue.replace(/\(.*\)/, '')
-          let style = {width: 100, backgroundColor: currentWalk === walk.walkId ? '#87bbe7' : '#d9edf7'}
+          let style = {
+            width: 100,
+            backgroundColor: currentWalk === walk.walkId ? '#87bbe7' : '#d9edf7',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }
           return (
                 <button  style={style} key={'Y' + walk.walkId} onClick={()=>{setCurrentWalk(walk.walkId)}} >{dispDate}<br/>{venue}</button>
           );

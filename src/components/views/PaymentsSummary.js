@@ -5,6 +5,7 @@ import {saveSummary} from 'ducks/paymentssummary-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
 import XDate from 'xdate';
+import fs from 'fs'
 
 import React from 'react';
 import {Panel} from 'components/utility/AJNPanel'
@@ -103,10 +104,10 @@ function Payments({doc}){
               <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
           </div>
       </div>
-      <div className="buttons">
+      {/* <div className="buttons">
       <TooltipButton icon="bank" onClick={this.show.bind(this)} tiptext={this.props.tiptext} visible/>
 
-      </div>
+      </div> */}
       </section>
       <div className="all-debts">
       {/* <Lock /> */}
@@ -160,7 +161,7 @@ const mapStateToProps = function(state) {
     type: 'paymentSummary',
     _id: 'BP'+endDate.substr(0, 16),
   }
-  // fs.writeFileSync(`${__dirname}/../../../tests/paymentsSummary${endDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
+  fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   logit('logs doc', doc, __dirname);
   return { doc };
 }

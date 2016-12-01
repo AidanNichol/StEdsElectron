@@ -16,40 +16,41 @@ const closeStyle = {
   boxShadow: '1px 1px 3px #000',
   cursor: 'pointer'
 }
-export default class App extends React.Component{
+var AJNModal = React.createClass({
 
-  constructor(){
-    super()
-    this.state = {}
-  }
+  getInitialState: function() {
+    return { modalIsOpen: false };
+  },
 
-  show(){
-    this.setState({show: true})
-  }
+  openModal(){
+    this.setState({modalIsOpen: true})
+  },
 
-  close(){
-    this.setState({show: false})
-  }
+  closeModal(){
+    this.setState({modalIsOpen: false})
+  },
 
 
   render(){
     return (
       <div>
-      <TooltipButton icon={this.props.icon} onClick={this.show.bind(this)} tiptext={this.props.tiptext} visible/>
+      <TooltipButton icon={this.props.icon} onClick={this.openModal} tiptext={this.props.tiptext} visible/>
+      <button onClick={this.openModal}>Open Modal</button>
       <Modal
-        isOpen={this.state.show}
+        isOpen={this.state.modalIsOpen}
         // onAfterOpen={afterOpenFn}
-        onRequestClose={this.close.bind(this)}
+        onRequestClose={this.closeModal}
         // closeTimeoutMS={n}
         // style={customStyle}
         contentLabel="Modal"
       >
 
-      <a style={closeStyle} onClick={this.close.bind(this)}>X</a>
+      <a style={closeStyle} onClick={this.closeModal}>X</a>
       {this.props.children}
 
       </Modal>
       </div>
     )
   }
-}
+})
+export default AJNModal;

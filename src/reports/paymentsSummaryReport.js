@@ -42,7 +42,8 @@ export function paymentsSummaryReport(payload){
     doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
     doc.font(bold).fontSize(14).text(title, 30, 30+(20-height14)/2, {align:'center'});
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height4)/2, {align: 'right'})
-    doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
+    // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
+    doc.fontSize(14).text(`${payload.startDate} to ${payload.endDate}`, 30, 30+(20+height14)/2, {align: 'center'})
 });
 
   reportBody(payload, doc);
