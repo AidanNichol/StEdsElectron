@@ -103,6 +103,7 @@
   },
   "homepage": "https://github.com/AidanNichol/StEdsElectron",
   "dependencies": {
+    "@blueprintjs/core": "^1.1.0",
     "argv": "0.0.2",
     "babel-polyfill": "^6.16.0",
     "babel-runtime": "^6.11.6",
@@ -127,6 +128,7 @@
     "pouchdb-authentication": "^0.5.4",
     "pouchdb-seed-design": "^0.3.0",
     "react": "^15.3.2",
+    "react-addons-css-transition-group": "^15.4.1",
     "react-dom": "^15.3.2",
     "react-input-autosize": "^1.1.0",
     "react-json-tree": "^0.10.0",

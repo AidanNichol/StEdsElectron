@@ -1,7 +1,9 @@
 // import React from 'react';
 import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
-import {changeLog, payment} from '../views/bookings/PaymentStatusLog.js';
+import {changeLog} from '../views/bookings/PaymentStatusLog.js';
+import {PaymentsBoxes} from 'components/views/bookings/PaymentsBoxes';
+import {setUiState, getUiState} from 'ducks/uiState-duck'
 import {getAccDebt} from './PaymentsFunctions.js';
 // import { createSelector } from 'reselect'
 // import {request} from '../../sagas/walksSaga.js';
@@ -12,7 +14,9 @@ var logit = Logit('color:blue; background:yellow;', 'changlog');
 
 function mapDispatchToProps(dispatch) {
   return {
-    accountUpdatePayment: (accId, amount, note='', bacs=false, inFull)=>{dispatch({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount, note, bacs, inFull});},
+    accountUpdatePayment: (accId, amount, note='', paymentType, inFull)=>{dispatch({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount, note, paymentType, inFull});},
+    changePaymentType: (value)=>dispatch(setUiState('paymentType', value)),
+    setHelp: (help)=>{dispatch(setUiState('help', help))}
   };
 }
 
@@ -27,12 +31,14 @@ const mapStateToProps = function(state, {accId}) {
   return {
             // members,
             logs,
-            accId, credit, owing
+            accId, credit, owing,
+            helpIsOpen: getUiState(state, 'help'),
+            paymentType: getUiState(state, 'paymentType'),
       };
 
 }
 
-export  const Payment = connect(mapStateToProps, mapDispatchToProps)(payment);
+export  const Payment = connect(mapStateToProps, mapDispatchToProps)(PaymentsBoxes);
 
 
 export  const ChangeLog = connect(mapStateToProps)(changeLog);

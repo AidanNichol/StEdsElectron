@@ -1,15 +1,24 @@
 @import './watermark.css';
+
+.pt-dialog {
+  dt {
+    font-weight: bold;
+    color: #111;
+    font-size: 1.2em;
+  }
+}
+
 #steds_bookings {
   & .mems1.panel-body .panel-contents {
-    grid-template-columns: 400px 470px;
+    grid-template-columns: 400px auto;
   }
 
   & .mems2.panel-body .panel-contents {
-    grid-template-columns: 500px 470px;
+    grid-template-columns: 500px auto;
   }
 
   & .mems3.panel-body .panel-contents {
-    grid-template-columns: 600px 470px;
+    grid-template-columns: 600px auto;
   }
 
   & .panel-body .panel-contents {
@@ -33,9 +42,17 @@
       margin-left: 10px;
       min-height: 1px;
       margin-top: 10px;
+      max-height: 60px;
+      display: flex;
+      flex-direction: row;
+      align-content: center;
+      align-items: center;
 
       .payment-boxes {
-        display: inline-block;
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        align-items: center;
       }
 
       .pay-box {
@@ -44,9 +61,51 @@
         padding-right: 0;
         background: rgb(238, 238, 238);
         border: rgb(170, 170, 170) solid 2px;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        align-items: center;
+
+        .Select {
+          /*max-height: 24px;*/
+          width: 180px;
+          /*overflow: hidden;
+          white-space: nowrap;*/
+
+          .Select-control {
+            background-color: rgb(238, 238, 238);
+          }
+
+          .Select-menu-outer {
+            min-height: 215px;
+            margin-bottom: 10px;
+          }
+
+          .Select-menu {
+            min-height: 210px;
+          }
+
+          .disabled {
+            color: #ccc;
+          }
+
+          .Select-multi-value-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+          }
+
+          .icon {
+            height: 16px;
+          }
+        }
 
         span {
           padding-right: 0;
+        }
+
+        .pt-icon-help {
+          cursor: pointer;
         }
       }
     }
@@ -55,6 +114,7 @@
       grid-column: 2;
       grid-row: 1 / span 2;
       padding-bottom: 10px;
+      max-width: 470px;
     }
   }
 

@@ -10,6 +10,7 @@ import createLogger from 'redux-logger';
 import sagaMonitor from './sagas/sagaMonitor.js';
 import {monitorReplications} from './ducks/replication-duck'
 import {routerDefaultState} from './ducks/router-duck'
+import {defaultAccountsState} from 'reducers/accounts-reducer'
 import {lockDefaultState} from './ducks/lock-duck'
 import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
@@ -26,10 +27,11 @@ const defaultState = i.freeze({
   membersList: memberslistDefault,
   signin: {name: null, roles: [], memberId: ''},
   walks: {list: {}},
-  accounts: {list: {}},
+  accounts: defaultAccountsState,
   controller: {addToWaitList: false},
   router: routerDefaultState,
   lock: lockDefaultState,
+  uiState: {},
 });
 export const configureStore = (initalState = defaultState)=>{
   if (!initalState)initalState = defaultState;

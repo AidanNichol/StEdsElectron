@@ -3,7 +3,8 @@ import Logit from '../factories/logit.js';
 import {setPage} from '../ducks/router-duck.js';
 var logit = Logit('color:white; background:black;', 'Accounts:Reducer');
 
-  export default function(state = {list: {}, current:{}}, action) {
+  export const defaultAccountsState = {list: {}, current:{}};
+  export default function(state = defaultAccountsState, action) {
     switch(action.type) {
 
     case 'ACCOUNT_DOCS_LOAD':
@@ -22,7 +23,6 @@ var logit = Logit('color:white; background:black;', 'Accounts:Reducer');
     case 'ACCOUNT_SELECTED':
       logit('action', action, state.list);
       return i.set(state, 'current', action.value);
-      // return state.set('current', action.value);
 
     // case 'ACCOUNT_SELECTED_SHOW_BOOKINGS':
     //   logit('action', action, state.list);

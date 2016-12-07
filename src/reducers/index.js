@@ -4,16 +4,17 @@ import {reducer as formReducer} from 'redux-form';
 // import {properCaseName, properCaseAddress, normalizePhone} from '../components/utility/normalizers.js';
 
 // Reducers
-import members from '../reducers/members-reducers.js';
-import walks from '../ducks/walksDuck.js';
-import accounts from '../reducers/accounts-reducer.js';
-// import membersList from '../reducers/memberslist-reducers.js';
-import membersList from '../ducks/memberslist-duck';
-import {reducer as signinReducer } from '../ducks/signin-duck.js';
-import controller from '../reducers/controller-reducers.js';
-import replicator from '../ducks/replication-duck.js';
-import {reducer as router} from '../ducks/router-duck.js';
-import {reducer as lockReducer} from '../ducks/lock-duck.js';
+import members from 'reducers/members-reducers';
+import walks from 'ducks/walksDuck';
+import accounts from 'reducers/accounts-reducer';
+// import membersList from 'reducers/memberslist-reducers';
+import membersList from 'ducks/memberslist-duck';
+import {reducer as signinReducer } from 'ducks/signin-duck';
+import controller from 'reducers/controller-reducers';
+import replicator from 'ducks/replication-duck';
+import {reducer as router} from 'ducks/router-duck';
+import {reducer as uiState} from 'ducks/uiState-duck';
+import {reducer as lockReducer} from 'ducks/lock-duck';
 console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
@@ -26,6 +27,7 @@ var reducers = combineReducers({
     signin: signinReducer,
     replicator,
     router,
+    uiState,
     // routing: routerReducer,
     // form: form,
     form: formReducer
