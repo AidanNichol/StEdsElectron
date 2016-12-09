@@ -5,6 +5,7 @@ import {HelpDialog} from 'components/help/HelpDialog';
 import TooltipButton from 'components/utility/TooltipButton.js';
 import TooltipContent from 'components/utility/TooltipContent.js';
 import classNames from 'classnames';
+import styled from 'styled-components';
 import Select from 'react-select';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:black; background:yellow;', 'MySelect2');
@@ -17,14 +18,14 @@ const OPTIONS = [{type:"P", title:"Paid cash"},
 {type:"+X", title:"Remove Credit"},
 ];
 
-export const PaymentsBoxes = React.createClass({
+const PaymentsBoxesUnstyled = React.createClass({
 
-  getInitialState () {
-    return {paymentType: OPTIONS[0], accId: undefined};
-  },
-  setValue (paymentType) {
-    this.setState({ paymentType });
-  },
+  // getInitialState () {
+  //   return {paymentType: OPTIONS[0], accId: undefined};
+  // },
+  // setValue (paymentType) {
+  //   this.setState({ paymentType });
+  // },
   render () {
     const IconOption = ({option, className, onSelect, onFocus, isFocused})=> {
       const handleMouseDown = (event)=> {
@@ -68,8 +69,8 @@ export const PaymentsBoxes = React.createClass({
       if ( event.which === 13 && amount) {
         event.preventDefault();
         amount = parseInt(amount);
-        if (this.state.paymenType.type[1] === 'X')amount = -amount;
-        accountUpdatePayment(accId, amount, note, this.state.paymenType.type, amount===owing);
+        if (paymentType.type[1] === 'X')amount = -amount;
+        accountUpdatePayment(accId, amount, note, paymentType.type, amount===owing);
         if (amountTarget)amountTarget.value = ''; if (noteTarget)noteTarget.value='';
       }
     };
@@ -83,7 +84,7 @@ export const PaymentsBoxes = React.createClass({
     };
 
     return (
-      <div className="payment" >
+      <div className={this.props.className} >
         {credit ? <span className="credit">Credit £{credit}</span> : null}
         {/* {(!owing) || setPaymentType[0] != "P" || setPaymentType[1] !== 1 ? null : */}
         {!owing? null :
@@ -92,9 +93,9 @@ export const PaymentsBoxes = React.createClass({
           </span>
         }
         <div className='payment-boxes' >
-          <span className="pay-box">
-          <Select
-          // className="pt-select"
+          {/* <span className="pay-box"> */}
+          <MySelect
+            // className="pt-select"
             onChange={changePaymentType}
             optionComponent={IconOption}
             options={OPTIONS}
@@ -103,11 +104,11 @@ export const PaymentsBoxes = React.createClass({
             value={this.props.paymentType || OPTIONS[0]}
             valueComponent={IconValue}          />
           <TooltipContent tiptext='Enter paid amount and press enter' visible>
-          <span> &nbsp;£ &nbsp;<input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
-          <span> Note &nbsp; <input size="30" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
+            <span> &nbsp;£ &nbsp;<input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
+            <span> Note &nbsp; <input size="30" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
           </TooltipContent>
           <span className="pt-icon-standard pt-icon-help" onClick={()=>setHelp(true)}>&nbsp;</span>
-          </span>
+          {/* </span> */}
           <HelpDialog setHelp={setHelp} isOpen={helpIsOpen}>
             <PaymentHelp />
           </HelpDialog>
@@ -118,31 +119,70 @@ export const PaymentsBoxes = React.createClass({
 
   }
 });
+export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
+  grid-column: 2;
+  grid-row: 3;
+  min-height: 1px;
+  margin-top: 10px;
+  max-height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  margin-left: 10px;
 
-// const IconOption = React.createClass({
-//   handleMouseDown (event) {
-//     event.preventDefault();
-//     event.stopPropagation();
-//     this.props.onSelect(this.props.option, event);
-//   },
-//   handleMouseEnter (event) {
-//     this.props.onFocus(this.props.option, event);
-//   },
-//   handleMouseMove (event) {
-//     if (this.props.isFocused) return;
-//     this.props.onFocus(this.props.option, event);
-//   },
-//   render () {
-//     logit('IconOption', this.props)
-//     return (
-//       <div className={this.props.className}
-//         onMouseDown={(this.props.option.type !== '+X' || credit) && this.handleMouseDown}
-//         onMouseEnter={this.handleMouseEnter}
-//         onMouseMove={this.handleMouseMove}
-//         title={this.props.option.title}>
-//         <Icon type={this.props.option.type}/>
-//         {this.props.option.title}
-//       </div>
-//     );
-//   }
-// });
+  * + * {
+    margin-left: 10px;
+  }
+
+  .payment-boxes {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    background: rgb(238, 238, 238);
+    border: rgb(170, 170, 170) solid 2px;
+    border-radius: 4px;
+    padding: 5px;
+    padding-right: 0;
+  }
+
+    span {
+      padding-right: 0;
+    }
+
+    .pt-icon-help {
+      cursor: pointer;
+    }
+  }
+`;
+
+const MySelect = styled(Select)`
+  width: 180px;
+
+  .Select-control {
+    background-color: rgb(238, 238, 238);
+  }
+
+  .Select-menu-outer {
+    min-height: 215px;
+    margin-bottom: 10px;
+  }
+
+  .Select-menu {
+    min-height: 210px;
+  }
+
+  .disabled {
+    color: #ccc;
+  }
+
+  .Select-multi-value-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .icon {
+    height: 16px;
+  }
+`;

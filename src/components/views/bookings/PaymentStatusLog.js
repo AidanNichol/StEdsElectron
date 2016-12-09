@@ -25,6 +25,7 @@ export function changeLog(props) {
         <span className="logAmount">Inc.</span>
         <span className="logBal">Balance</span>
       </div>
+      <div style={{overflow: 'auto', maxHeight: 500}}>
       {
         (props.logs||[]).map((log, i)=>{
           let rCl = classNames({logData: true, logRec: true, outstanding: log.outstanding, historic: log.historic});
@@ -33,9 +34,9 @@ export function changeLog(props) {
           return (<div key={i} className={rCl}>
             <span className="logDate">{log.dispDate}</span>
             <span className="logText">
-              <Icon type={log.req} />
-              {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }
-              <span className="text">{log.text}</span>
+            <Icon type={log.req} />
+            {log.req !== 'P' && log.name && (<span className="name">[{log.name}] </span>) }
+            <span className="text">{log.text}</span>
             </span>
             <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
             <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
@@ -43,6 +44,7 @@ export function changeLog(props) {
             </div>)
           })
         }
+      </div>
     </div>
   );
 }
