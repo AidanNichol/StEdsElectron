@@ -136,7 +136,8 @@ const mapStateToProps = function(state) {
   // startDate = '2016-11-04T23:00:00'; endDate = '2016-11-06T23:00:00'; openingCredit=72; openingDebt=268;
   // startDate = '2016-11-06T23:00:00'; endDate = '2016-11-18T09:00:00'; openingCredit=72; openingDebt=212;
   // startDate = '2016-11-18T09:00:00'; endDate = '2016-11-21T09:00:00'; openingCredit=56; openingDebt=140;
-  startDate = '2016-11-21T09:00:00'; openingCredit=40; openingDebt=96;
+  // startDate = '2016-11-21T09:00:00'; endDate = '2016-12-01T09:27:24'; openingCredit=40; openingDebt=96;
+  startDate = '2016-12-01T09:27:24'; openingCredit=52; openingDebt=112;
   if (!endDate)endDate = getLogTime();
   const {credits, debts} = getAllDebts(state);
 
