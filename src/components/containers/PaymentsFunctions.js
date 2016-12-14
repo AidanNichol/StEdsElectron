@@ -7,7 +7,7 @@ import {getTodaysDate} from 'utilities/DateUtilities.js';
 var _today = getTodaysDate();
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Functions');
-var limit;
+// var limit;
 // limit = '2016-11-04T23:00:00';
 // limit = '2016-11-06T23:00:00';
 // limit = '2016-11-18T09:00:00';
@@ -113,7 +113,8 @@ const tranformLogRec = (logObj, memNames)=>{
 const makeGetWalkLogs = (walkId) => createSelector(
     (state)=>state.walks.list[walkId],
     getMemberNames,
-    (walk, memNames)=>{
+    (state)=>state.paymentsSummary.paymentsLogsLimit,
+    (walk, memNames, limit)=>{
       let map = {};
       (walk.log||[]).forEach((log)=>{
         let [dat, who, memId, req, text] = log;
@@ -146,9 +147,10 @@ const emptyLog = [];
 const makeGetAccountLog = (accId)=> createSelector(
     (state)=>(state.accounts.list[accId] && state.accounts.list[accId].log) || emptyLog ,
     getMemberNames,
-    (accLog, memNames)=>{
+    (state)=>state.paymentsSummary.paymentsLogsLimit,
+    (accLog, memNames, limit)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
-      logit('getAccountLogs '+accId, {accLog})
+      // logit('getAccountLogs '+accId, {accLog})
       aLogs = aLogs.filter((lg)=>lg[4][0]!=='P' || (lg[5]!==null && lg[5]!==0))
         .filter((lg)=>lg[4][0] !== 'S') // ignore subscriptions
         .filter((lg)=>!limit || lg[0] < limit)
@@ -156,7 +158,7 @@ const makeGetAccountLog = (accId)=> createSelector(
           let [dat, who, walkId, memId, req, amount, note] = log;
           return tranformLogRec({dat, who, walkId, memId, req, amount, note}, memNames);
       });
-      logit('gotAccountLogs '+accId, aLogs);
+      // logit('gotAccountLogs '+accId, aLogs);
       return aLogs;
     });
 
@@ -214,7 +216,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
             // log.outstanding = true;
             let cancelled = arr.slice(0,i).filter((l)=>{
               const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
-              logit('cancelled', {log, l, cancelled})
+              // logit('cancelled', {log, l, cancelled})
               return l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
             }).length > 0
             // log.outstanding = log.outstanding && !cancelled
@@ -241,7 +243,9 @@ var logCmp = (a, b) => logColl.compare(a.dat, b.dat);
 
 // get the names of the members on this account
 const getAccountName = (accountDoc, members)=>{
-  if (!accountDoc || !accountDoc.members)return '????';
+  if (!accountDoc || !accountDoc.members || !accountDoc.members.reduce){
+    logit('bad accountDoc', accountDoc);
+    return '????';}
   let nameMap = accountDoc.members.reduce((value, memId)=>{
     let mem = members[memId] || {firstName: '????', lastName: memId};
     let lName = mem.lastName;
@@ -260,7 +264,7 @@ const getWalkLogs = (state)=>{
     _walkData[walkId] = {venue: state.walks.list[walkId].venue.replace(/\(.*\)/, ''), fee: state.walks.list[walkId].fee};
   });
   getCombinedWalkLogs = makeGetCombinedWalkLogs();
-  logit('create _getWalkLogs', _getWalkLogs);
+  // logit('create _getWalkLogs', _getWalkLogs);
 };
 
 export const getAccDebt = (accId, state)=>{
@@ -287,7 +291,7 @@ export const getAllDebts = (state)=>{
   var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 
   debts = debts.sort(nameCmp);
-  logit('debts', debts);
+  // logit('debts', debts);
   return {debts, credits};
 };
 export const showStats = ()=>{

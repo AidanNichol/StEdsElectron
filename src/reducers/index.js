@@ -15,6 +15,7 @@ import replicator from 'ducks/replication-duck';
 import {reducer as router} from 'ducks/router-duck';
 import {reducer as uiState} from 'ducks/uiState-duck';
 import {reducer as lockReducer} from 'ducks/lock-duck';
+import {reducer as paymentsSummary} from 'ducks/paymentssummary-duck';
 console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
@@ -23,6 +24,7 @@ var reducers = combineReducers({
     walks,
     accounts,
     membersList,
+    paymentsSummary,
     lock: lockReducer,
     signin: signinReducer,
     replicator,

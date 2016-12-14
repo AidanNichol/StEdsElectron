@@ -2,7 +2,7 @@
 import { connect } from 'react-redux';
 import {getAllDebts, getWalkLogsByDate, getAccountLogByDateAndType} from '../containers/PaymentsFunctions'
 import {saveSummary} from 'ducks/paymentssummary-duck.js';
-import {setPage} from 'ducks/router-duck.js';
+// import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
 import XDate from 'xdate';
 import fs from 'fs'
@@ -27,7 +27,7 @@ const BkngLogRec = ({log})=>(
   )
 
 
-function Payments({doc}){
+function Payments({doc, bankMoney}){
 
     logit('payments', doc);
     var {aLogs, bLogs, tots,
@@ -37,13 +37,13 @@ function Payments({doc}){
     logit('calcNew', calcNew)
 
     const AccLineTot = ({title, factor='', item, className=''}) =>{
-      logit('AccLineTot', {title, factor, amount: tots[item]&&tots[item][1], item, tots})
+      // logit('AccLineTot', {title, factor, amount: tots[item]&&tots[item][1], item, tots})
       if (!tots[item])return null;
       return (<div className={"line detail "+className}><div className="title">{title.replace(/ /g, ' ')} ({tots[item][0]})</div><div className="value">{factor}£<span>{tots[item][1]}</span></div></div>)
     }
     const AccLine = ({title, factor='', item, opt, className=''}) =>{
       if (opt && item <=0 )return null;
-      logit('AccLine', {title, factor, item})
+      // logit('AccLine', {title, factor, item})
       return (<div className={"line "+className} ><div className="title">{title.replace(/ /g, ' ')}</div><div className="value">{factor}£<span>{item}</span></div></div>)
     }
 
@@ -55,7 +55,7 @@ function Payments({doc}){
     const netBACS = (tots.PB ? tots.PB[1] : 0) - (tots.PBC ? tots.PBC[1] : 0)
     const netPayments = netCashAndCheques + netBACS;
     const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
-    logit('creditsUsed', creditsUsed)
+    // logit('creditsUsed', creditsUsed)
     var title = (<h4>Payments Made</h4>);
     return (
     <Panel className="payments-summary" header={title} style={{margin:20}} >
@@ -104,20 +104,23 @@ function Payments({doc}){
               <AccLine title="Cash & Cheques to Bank" className="bank" item={netCashAndCheques}/>
           </div>
       </div>
-      {/* <div className="buttons">
-      <TooltipButton icon="bank" onClick={this.show.bind(this)} tiptext={this.props.tiptext} visible/>
+      <div className="buttons">
+      <TooltipButton icon="bank" onClick={()=>{bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
 
-      </div> */}
+      </div>
       </section>
       <div className="all-debts">
-      {/* <Lock /> */}
-
+        {/* <Lock /> */}
+        <div>
         {
           aLogs.map((log,i) => {return <AccLogRec {...{log, i}} key={'logAcc'+i} />})
         }
+        </div>
+        <div>
         {
           bLogs.map((log, i) => {return <BkngLogRec {...{log, i}} key={'logBkng'+i} />})
         }
+        </div>
       </div>
     </Panel>
   )
@@ -126,18 +129,28 @@ function Payments({doc}){
 
 function mapDispatchToProps(dispatch) {
   return {
-    saveSummary: (doc)=>{dispatch(saveSummary(doc))},
+    bankMoney: (doc)=>dispatch(saveSummary(doc)),
   };
 }
 
 const mapStateToProps = function(state) {
   var startDate, endDate, openingCredit=0, openingDebt=0;
-  // endDate = '2016-11-04T23:00:00';
+
+  // endDate = '2016-11-04T23:00:00';startDate = '2016-10-01T00:00:00';
   // startDate = '2016-11-04T23:00:00'; endDate = '2016-11-06T23:00:00'; openingCredit=72; openingDebt=268;
   // startDate = '2016-11-06T23:00:00'; endDate = '2016-11-18T09:00:00'; openingCredit=72; openingDebt=212;
   // startDate = '2016-11-18T09:00:00'; endDate = '2016-11-21T09:00:00'; openingCredit=56; openingDebt=140;
   // startDate = '2016-11-21T09:00:00'; endDate = '2016-12-01T09:27:24'; openingCredit=40; openingDebt=96;
-  startDate = '2016-12-01T09:27:24'; openingCredit=52; openingDebt=112;
+  // startDate = '2016-12-01T09:27:24'; openingCredit=52; openingDebt=112;
+// const endDates = {
+//   ['2016-11-06T23:00:00']: '2016-11-18T09:00:00',
+//   ['2016-11-18T09:00:00']: '2016-11-21T09:00:00',
+//   ['2016-11-21T09:00']: '2016-12-01T09:27:24',}
+  startDate = state.paymentsSummary.lastPaymentsBanked;
+  endDate = state.paymentsSummary.paymentsLogsLimit;
+  openingCredit = state.paymentsSummary.openingCredit;
+  openingDebt = -state.paymentsSummary.openingDebt;
+  logit('range data', {startDate, endDate,openingCredit, openingDebt})
   if (!endDate)endDate = getLogTime();
   const {credits, debts} = getAllDebts(state);
 
@@ -162,8 +175,8 @@ const mapStateToProps = function(state) {
     type: 'paymentSummary',
     _id: 'BP'+endDate.substr(0, 16),
   }
-  fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   logit('logs doc', doc, __dirname);
+  fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   return { doc };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Payments);

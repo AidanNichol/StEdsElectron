@@ -17,7 +17,7 @@ var logit = Logit('color:blue; background:yellow;', 'Payments:View');
 function MemberBill(props){
 
     var {data, accountUpdatePayment, showMemberBookings} = props;
-    logit('props', props);
+    // logit('props', props);
     let handleKeydown = (event)=> {
       var amount = parseInt(event.target.value);
       if ( event.which === 13 && amount > 0) {
@@ -58,7 +58,7 @@ function MemberBill(props){
 export default function Payments(props){
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
-  logit('payments', props);
+  // logit('payments', props);
   var {debts, accountUpdatePayment, showMemberBookings} = props;
   var title = (<h4>Payments Due</h4>);
   return (
@@ -86,7 +86,7 @@ export default function Payments(props){
           <span className="who">Details</span><span className="owed">Owed</span><span className="paid">Paid</span>
         </div> */}
         {
-          debts.map((data) => {console.log('payment', data);return <MemberBill data={data} key={data.accId} {...{accountUpdatePayment, showMemberBookings}}/>})
+          debts.map((data) => {return <MemberBill data={data} key={data.accId} {...{accountUpdatePayment, showMemberBookings}}/>})
         }
       </div>
     </Panel>
