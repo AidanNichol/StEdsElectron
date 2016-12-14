@@ -4,14 +4,7 @@ const electron = require('electron');
 // const {Menu} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-import {getSettings} from 'ducks/settings-duck'
-import { spawn } from "child_process"
-import * as path from "path"
 
-
-// import app from 'app';
-// import BrowserWindow from 'browser-window';
-// const crashReporter = electron.crashReporter;
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer';
 const POUCHDB_INSPECTOR = "hbhhpaojmpfimakffndmpmpndcmonkfa";
 // var ESI = require('electron-single-instance');
@@ -29,7 +22,7 @@ let mainWindow,
       webPreferences: {experimentalFeatures: true}
     };
 
-    const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+    const shouldQuit = app.makeSingleInstance(() => {
       // Someone tried to run a second instance, we should focus our window.
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore()
@@ -82,7 +75,7 @@ function createWindow() {
 
     // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
-    getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
+    // getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
     // require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
@@ -106,44 +99,7 @@ function createLoadingScreen() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-});
-
 app.on('ready', ()=>{
   createLoadingScreen();
   createWindow();
 })
-
-// function run(args: string[], done: Function): void {
-//   const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
-//   console.log("Spawning `%s` with args `%s`", updateExe, args)
-//   spawn(updateExe, args, {
-//     detached: true
-//   })
-//     .on("close", done)
-// }
-//
-// export default function handleStartupEvent(): boolean {
-//   if (process.platform !== "win32") {
-//     return false
-//   }
-//
-//   const cmd = process.argv[1]
-//   console.log("Processing squirrel command `%s`", cmd)
-//   const target = path.basename(process.execPath)
-//   if (cmd === "--squirrel-install" || cmd === "--squirrel-updated") {
-//     run(['--createShortcut=' + target + ''], app.quit)
-//     return true
-//   }
-//   else if (cmd === "--squirrel-uninstall") {
-//     run(['--removeShortcut=' + target + ''], app.quit)
-//     return true
-//   }
-//   else if (cmd === "--squirrel-obsolete") {
-//     app.quit()
-//     return true
-//   }
-//   else {
-//     return false
-//   }
-// }

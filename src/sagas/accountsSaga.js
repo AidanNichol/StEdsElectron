@@ -2,7 +2,7 @@ import * as i from 'icepick';
 import { call, put, take, select, fork } from 'redux-saga/effects.js';
 import docUpdateSaga from '../sagas/docUpdateSaga.js';
 import {request} from '../ducks/walksDuck'
-import {pushLog} from '../utilities/docLogging.js';
+import {pushAccLog} from '../utilities/docLogging.js';
 import Logit from '../factories/logit.js';
 
 var logit = Logit('color:white; background:blue;', 'Accounts:Saga');
@@ -20,7 +20,7 @@ function* updatePaymentToAccount(action, type){
     var acc = yield select(getAccount, action.accId);
       // var funds = (acc.funds || 0) + action.amount;
       if (action.bacs)type += 'B';
-    var log = pushLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note, action.inFull);
+    var log = pushAccLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note, action.inFull);
     var newAcc = i.set(acc, 'log', log);
     // var newAcc = acc.set('log', log);
     yield call(docUpdateSaga, newAcc, action);

@@ -5,9 +5,8 @@ import { createSelector } from 'reselect'
 // import * as actions from '../actions/walks-actions.js';
 import { call, take, select, put } from 'redux-saga/effects.js';
 import docUpdateSaga from '../sagas/docUpdateSaga.js';
-import {pushLog} from '../utilities/docLogging.js';
+import {pushWalkLog} from '../utilities/docLogging.js';
 import Logit from '../factories/logit.js';
-import path from 'path'
 var logit = Logit('color:white; background:black;', 'Walks:Duck');
 
 import {now, getTodaysDate} from '../utilities/DateUtilities.js';
@@ -103,7 +102,7 @@ const WALK_SELECTED = 'walks/selected'
 //         Icon Component
 //---------------------------------------------------------------------
  export function Icon({type, className, ...rest}){
-   const loc = path.resolve(__dirname, '../../assets')
+
    return <img className={(className||'')+' icon'} {...rest} src={`../assets/icon-${type}.svg`} />
  }
 
@@ -236,7 +235,7 @@ function annotateBooking(walk, changes){
   if (curAnnotation === reqAnnotation) return false; // no change necessary
   annotations = (reqAnnotation.length === 0 ? i.unset(annotations, memId) : i.set(annotations, memId, reqAnnotation));
   logit('setting', {changes, reqAnnotation, annotations})
-  var log = pushLog(walk.log, purge, doer, memId, 'A', reqAnnotation,);
+  var log = pushWalkLog(walk.log, purge, doer, memId, 'A', reqAnnotation,);
   var newDoc = i.chain(walk).set('annotations', annotations).set('log', log).value();
   logit('newDoc', newDoc)
   return newDoc;
@@ -257,10 +256,10 @@ function updateBooking(walk, changes){
   if (reqType === request.CANCELLED && (curType === request.NONE || curType.length > 1)) return false;
   var txt = '';
   if (reqType === request.CANCELLED){
-    if (walk.lastCancel < _today && !purge && reqType != request.WAITLIST) reqType = curType+request.LATE;
+    if (walk.lastCancel < _today && !purge && curType === request.BOOKED) reqType = curType+request.LATE;
     else reqType = curType+request.CANCELLED;
   }
-  var newLog = pushLog(walk.log, purge, doer, memId, reqType,txt);
+  var newLog = pushWalkLog(walk.log, purge, doer, memId, reqType,txt);
   var newDoc = {...walk, booked: {...walk.booked, [memId]: reqType}, log: newLog};
   if (reqType === request.CANCELLED)delete newDoc.booked[memId];
   logit('newDoc', newDoc)
