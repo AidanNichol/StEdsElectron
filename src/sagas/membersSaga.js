@@ -49,7 +49,7 @@ export default function* membersSaga(){
         logit('newAccount', Object.isExtensible(newAccount), Object.isSealed(newAccount), Object.isFrozen(newAccount))
         logit('newAccount', Object.isExtensible(newAccount.members), Object.isSealed(newAccount.members), Object.isFrozen(newAccount.members))
         logit('account', newAccount);
-        if (!newAccount.members.includes(doc.members)) newAccount.members = newAccount.members.push(doc.memberId);
+        if (!newAccount.members.includes(doc.memberId))newAccount.members.push(doc.memberId);
         logit('account', newAccount);
         // res = yield call([db, db.put], newAccount);
         yield call(docUpdateSaga, newAccount);
