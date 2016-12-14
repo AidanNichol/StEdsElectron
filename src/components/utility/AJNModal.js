@@ -35,7 +35,6 @@ var AJNModal = React.createClass({
     return (
       <div>
       <TooltipButton icon={this.props.icon} onClick={this.openModal} tiptext={this.props.tiptext} visible/>
-      <button onClick={this.openModal}>Open Modal</button>
       <Modal
         isOpen={this.state.modalIsOpen}
         // onAfterOpen={afterOpenFn}

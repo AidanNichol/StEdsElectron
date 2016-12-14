@@ -22,6 +22,17 @@
   border-collapse: collapse;
   width: 100%;
 
+  section {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .all-debts {
+    display: flex;
+    flex-direction: row;
+  }
+
+
   .summary.grid {
     display: grid;
     grid-template-columns: 1fr 2fr;

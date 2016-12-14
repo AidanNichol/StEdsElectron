@@ -12,6 +12,7 @@ import {monitorReplications} from './ducks/replication-duck'
 import {routerDefaultState} from './ducks/router-duck'
 import {defaultAccountsState} from 'reducers/accounts-reducer'
 import {lockDefaultState} from './ducks/lock-duck'
+import {summaryPaymentsDefaultState} from 'ducks/paymentssummary-duck'
 import {defaultState as memberslistDefault} from './ducks/memberslist-duck'
 import {remoteCouch} from './services/remoteCouch'
 import {getSettings} from 'ducks/settings-duck'
@@ -31,6 +32,7 @@ const defaultState = i.freeze({
   controller: {addToWaitList: false},
   router: routerDefaultState,
   lock: lockDefaultState,
+  paymentsSummary: summaryPaymentsDefaultState,
   uiState: {},
 });
 export const configureStore = (initalState = defaultState)=>{

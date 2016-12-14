@@ -8,6 +8,7 @@ import accountsSaga from '../sagas/accountsSaga.js';
 import reportsSaga from '../sagas/reportsSaga'
 import {signinSaga} from '../ducks/signin-duck.js';
 import {lockSaga} from '../ducks/lock-duck.js';
+import {paymentsummarySaga} from 'ducks/paymentssummary-duck';
 import * as sgnn from '../ducks/signin-duck.js';
 // import {signinSaga} from './sagas/signinSaga.js';
 // import * as sgnn from './sagas/signinSaga.js';
@@ -22,6 +23,7 @@ export default function * rootSaga() {
     spawn(lockSaga),
     spawn(accountsSaga),
     spawn(reportsSaga),
+    spawn(paymentsummarySaga),
     // call(initialSaga),
   ]);
 }
