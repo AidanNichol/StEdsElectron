@@ -35,7 +35,7 @@
     "watch:build": "watch 'npm run build:dist' .",
     "dev": "npm-run-all -l -s build:copyfiles build:html build:package -p watch:js watch:css ",
     "devm": "npm-run-all -p -l dev open:dev",
-    "test": "NODE_PATH=src ava"
+    "test": "jest"
   },
   "build": {
     "appId": "co.uk.stedwardsfellwalkers.bookings",
@@ -154,6 +154,7 @@
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
     "babel-eslint": "^7.0.0",
+    "babel-jest": "^17.0.2",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-dev-expression": "^0.2.1",
     "babel-plugin-module-resolver": "^2.2.0",
@@ -171,6 +172,7 @@
     "electron-builder": "^8.5.3",
     "electron-connect": "^0.6.0",
     "electron-packager": "^8.1.0",
+    "enzyme": "^2.6.0",
     "eslint": "^3.10.0",
     "eslint-import-resolver-babel-module": "^2.2.1",
     "eslint-plugin-import": "^2.0.1",
@@ -178,6 +180,7 @@
     "eslint-plugin-react": "^6.3.0",
     "glob": "^7.1.1",
     "ignore-styles": "^5.0.1",
+    "jest": "^17.0.3",
     "json-loader": "^0.5.4",
     "main-bower-files": "^2.13.1",
     "npm-run-all": "^3.1.1",
@@ -187,6 +190,8 @@
     "postcss-inline-comment": "^3.0.0",
     "postcss-nested": "^1.0.0",
     "precss": "^1.4.0",
+    "react-addons-test-utils": "^15.4.1",
+    "react-test-renderer": "^15.4.1",
     "rimraf": "^2.5.4",
     "svgstore": "^1.1.0",
     "timekeeper": "^1.0.0",
