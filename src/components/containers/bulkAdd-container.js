@@ -25,30 +25,22 @@ const getBookings = createSelector(
     (state)=>state.members,
     (state)=>state.accounts.list,
     (walk, members, accounts)=>{
-       let bookings = Object.keys(walk.booked)
-           .filter((memId)=>walk.booked[memId] === request.BOOKED)
-           .map((memId)=>{
-             if (!members[memId])console.error('memberId not found')
-             let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
-            //  let name = members[memId].firstName+' '+members[memId].lastName;
-             let dat;
-             for (let log of walk.log) {
-               if (log[2] === memId){
-                 dat = log[0];
-                 break;
-               }
-             }
+      let bookings = Object.keys(walk.bookings)
+       .filter((memId)=>walk.bookings[memId].status.length === 1)
+       .map((memId)=>{
+        if (!members[memId])console.error('memberId not found')
+        let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
+        let logs = walk.bookings[memId].logs;
+        let dat = logs[logs.length-1].dat;
 
-             let accId = members[memId].accountId;
-             let accLog = accounts[accId].log || [];
-             let amount = walk.fee;
-             let paid = accLog.reduce((value, log)=>
-               value || (log[4]==='P' && log[3]===memId && log[2]===walk.walkId ),
-               false);
-             return {dat, memId, accId, name, paid, amount};
-           });
+        let accId = members[memId].accountId;
+        let accLog = accounts[accId].logs || [];
+        let amount = walk.fee;
 
-       return bookings.sort(datCmp);
+        return {dat, memId, accId, name, amount};
+      });
+
+      return bookings.sort(datCmp);
      }
 );
 

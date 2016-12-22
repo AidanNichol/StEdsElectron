@@ -18,10 +18,8 @@ var doer;
 function* updatePaymentToAccount(action, type){
     doer = yield select((state)=>state.signin.memberId);
     var acc = yield select(getAccount, action.accId);
-      // var funds = (acc.funds || 0) + action.amount;
-      if (action.bacs)type += 'B';
-    var log = pushAccLog(acc.log, false, doer, action.walkId, action.memId, type, action.amount, action.note, action.inFull);
-    var newAcc = i.set(acc, 'log', log);
+    var log = pushAccLog(acc.logs, false, doer, action.walkId, action.memId, type, action.amount, action.note, action.inFull);
+    var newAcc = i.set(acc, 'logs', log);
     // var newAcc = acc.set('log', log);
     yield call(docUpdateSaga, newAcc, action);
 }

@@ -37,18 +37,20 @@ export const getWalkLogsByDate = createSelector(
   (state, startDate)=>startDate,
   (state, startDate, endDate)=>endDate,
   (walks, members, startDate, endDate)=>{
+    logit('getWalkLogsByDate:start', {walks, members, startDate, endDate})
     let logs = [];
-    Object.keys(walks).forEach((walk)=>{
-      (walks[walk].log||[]).forEach((log)=>{
-        let [dat, who, memId, req, text] = log;
-        if (startDate && (dat < startDate) )return;
-        if (endDate && (dat > endDate) )return;
-        if (req === 'A')return;
-        let amount =  Math.abs((_walkData[walk] ? _walkData[walk].fee || 8 : 8) * request.chargeFactor(req));
-        logs.push(tranformSummaryLogRec({dat, who, memId, req, amount, walkId: walk, text}, members));
-      });
-
-    });
+    for(let walkId of Object.keys(walks)){
+      for(let memId of Object.keys(walks[walkId].bookings)||[]){
+        for(let log of walks[walkId].bookings[memId].logs||[]){
+          let {dat, who, req, type='W', annotation: text} = log;
+          if (startDate && (dat < startDate) )continue;
+          if (endDate && (dat > endDate) )continue;
+          if (req === 'A')continue;
+          let amount =  Math.abs((_walkData[walkId] ? _walkData[walkId].fee || 8 : 8) * request.chargeFactor(req));
+          logs.push(tranformSummaryLogRec({dat, who, type, memId, req, amount, walkId, text}, members));
+        }
+      }
+    }
     logit('_getWalkLogsByDate ', logs);
     return logs.sort(logCmp);
   }
@@ -59,22 +61,16 @@ export const getAccountLogByDateAndType = createSelector(
   (state)=>state.members,
   (state, startDate)=>startDate,
   (state, startDate, endDate)=>endDate,
-  (state, startDate, endDate, reqType)=>reqType,
-  (accs, members, startDate, endDate, reqType)=>{
+  (accs, members, startDate, endDate)=>{
     let logs = []
-    logit('getAccountLogsByDateAndType', {accs, members, startDate, endDate, reqType})
+    logit('getAccountLogsByDateAndType', {accs, members, startDate, endDate})
     Object.keys(accs).forEach((acc)=>{
-      (accs[acc].log||[]).forEach((log)=>{
-        let [dat, who, walkId, memId, req, amount, note] = log;
+      (accs[acc].logs||[]).forEach((log)=>{
+        let {dat, who, walkId, memId, req, amount, type, note} = log;
         if (startDate && (dat < startDate) )return;
         if (endDate && (dat > endDate) )return;
-        if (req !== reqType) return;
-        if (note && note.includes('BACS') && req.length === 1)req = req + 'B'
-        if (amount < 0){
-          req = req+'C';
-          amount *= -1;
-        }
-        logs.push(tranformSummaryLogRec({dat, who, walkId, memId, req, amount, note}, members, accs[acc]));
+        if (type !== 'A' || req === 'S') return;
+        logs.push(tranformSummaryLogRec({dat, who, type, walkId, memId, req, amount, text: note}, members, accs[acc]));
       });
     });
     logit('getAccountLogsByDateAndType ', logs);
@@ -83,13 +79,13 @@ export const getAccountLogByDateAndType = createSelector(
 );
 
 const tranformSummaryLogRec = (logObj, members, acc)=>{
-  // logit('logObj pre ', logObj)
+  if (!logObj.req) logit('logObj reqless ', logObj)
   let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
-  if (!logObj.memId || logObj.req[0] === 'P') {logObj.name = getAccountName(acc, members);}
+  if (!logObj.memId || logObj.type === 'A') {logObj.name = getAccountName(acc, members);}
   else {logObj.name = members[logObj.memId].firstName+' '+members[logObj.memId].lastName}
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
   let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.req[0]==='P' ? logObj.note || '' : ` ${venue} ${text}`);
+  logObj.text = (logObj.type==='A' ? logObj.text || '' : ` ${venue} ${text}`);
   return logObj;
 };
 
@@ -98,6 +94,7 @@ var _acc = {};
 var _walkData = {};
 
 const tranformLogRec = (logObj, memNames)=>{
+  logObj = i.thaw(logObj);
   let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
   // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
   logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
@@ -106,7 +103,7 @@ const tranformLogRec = (logObj, memNames)=>{
   logObj.name = name;
   logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
   let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.req[0]==='P' ? logObj.note || '' : ` ${venue} ${text}`);
+  logObj.text = (logObj.type==='A' ? logObj.note || '' : ` ${venue} ${text}`);
   return logObj;
 };
 
@@ -115,13 +112,13 @@ const makeGetWalkLogs = (walkId) => createSelector(
     getMemberNames,
     (state)=>state.paymentsSummary.paymentsLogsLimit,
     (walk, memNames, limit)=>{
+      logit('_getWalkLogs:start', {walk,limit})
       let map = {};
-      (walk.log||[]).forEach((log)=>{
-        let [dat, who, memId, req, text] = log;
-        if (limit && dat >= limit)return;
-        if (!map[memId])map[memId] = [];
-        map[memId].push(tranformLogRec({dat, who, memId, req, walkId, text}, memNames));
-      });
+      for(let memId of Object.keys(walk.bookings)){
+        map[memId] = (walk.bookings[memId].logs||[])
+            .filter((log)=>!limit || log.dat < limit)
+            .map((log)=>tranformLogRec({...log, walkId: walk.walkId, memId, type:'W'}, memNames));
+      }
       logit('_getWalkLogs '+walk.walkId, map);
       return map;
 });
@@ -145,19 +142,18 @@ const makeGetCombinedWalkLogs = ()=>createSelector(
 );
 const emptyLog = [];
 const makeGetAccountLog = (accId)=> createSelector(
-    (state)=>(state.accounts.list[accId] && state.accounts.list[accId].log) || emptyLog ,
+    (state)=>i.thaw((state.accounts.list[accId] && state.accounts.list[accId].logs) || emptyLog) ,
     getMemberNames,
     (state)=>state.paymentsSummary.paymentsLogsLimit,
     (accLog, memNames, limit)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
       // logit('getAccountLogs '+accId, {accLog})
-      aLogs = aLogs.filter((lg)=>lg[4][0]!=='P' || (lg[5]!==null && lg[5]!==0))
-        .filter((lg)=>lg[4][0] !== 'S') // ignore subscriptions
-        .filter((lg)=>!limit || lg[0] < limit)
-        .map((log)=>{
-          let [dat, who, walkId, memId, req, amount, note] = log;
-          return tranformLogRec({dat, who, walkId, memId, req, amount, note}, memNames);
-      });
+      aLogs = aLogs
+        .filter((lg)=>lg.type==='W' || lg.req==='A' || (lg.amount && lg.amount!==0)) // ignore zero payments
+        .filter((lg)=>lg.type!=='A' || lg.req !== 'S') // ignore subscriptions
+        .filter((lg)=>!limit || lg.dat < limit)
+        .map((log)=>tranformLogRec(log, memNames));
+      // });
       // logit('gotAccountLogs '+accId, aLogs);
       return aLogs;
     });
@@ -194,9 +190,9 @@ const makeGetAccountDebt = (accId)=> createSelector(
       // logs = logs.map((log, i)=>{
       balance -= log.amount;
       // logit('log '+accId, {log, balance});
-      if (!currentFound && log.req[0] !== 'P' && log.walkId > walkPast)currentFound = true
+      if (!currentFound && log.type === 'W' && log.walkId > walkPast)currentFound = true
       if (!currentFound && balance === 0)lastHistory = i;
-      if (log.req[0] === 'P' && balance === 0){
+      if (log.type === 'A' && balance === 0){
         zeroPoints.push(i);
         lastZeroPoint = i;
       }
@@ -294,6 +290,34 @@ export const getAllDebts = (state)=>{
   // logit('debts', debts);
   return {debts, credits};
 };
+
+// //-----------------------------------------------------------------
+// //
+// //  Helper Functions
+// //
+// //-----------------------------------------------------------------
+//
+// export const convertAccLogToNewFormat = (log)=>{
+//   logit('converting',log)
+//   // if (typeof log === 'object') return log;
+//   let [dat, who, walkId, memId, req, amount, note] = log;
+//   let newLog = {dat, who, type: 'P', req, amount};
+//   if (note && note.length > 1)newLog.note = note
+//   if (walkId && walkId.length > 1)newLog.walkId = walkId
+//   if (memId && memId.length > 1)newLog.memId = memId
+//   logit('converted',{log, newLog})
+//   return newLog;
+// }
+//
+// export const convertWalkLogToNewFormat = (log)=>{
+//   if (typeof log === 'object') return log;
+//   let [dat, who,memId, req, note] = log
+//   let newLog = {dat, who, type: 'W', req, memId, note};
+//   return newLog;
+// }
+
+
+
 export const showStats = ()=>{
   if (_getWalkLogs.length===0)return;
   var table = {

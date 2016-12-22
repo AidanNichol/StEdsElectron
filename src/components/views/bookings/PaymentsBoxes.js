@@ -62,7 +62,7 @@ const PaymentsBoxesUnstyled = React.createClass({
             </span>
     );
 
-    const {accId, owing, credit, accountUpdatePayment, changePaymentType, paymentType, setHelp, helpIsOpen} = this.props
+    const {accId, owing, credit, accountUpdatePayment, changePaymentType, paymentType='P', setHelp, helpIsOpen} = this.props
     if (!accId) return null
     let handleKeydown = (event)=> {
       logit('keydown', amount, note, event);

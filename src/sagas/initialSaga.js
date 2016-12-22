@@ -1,11 +1,12 @@
-import db from '../services/bookingsDB.js';
+import db from 'services/bookingsDB.js';
 import { call, put } from 'redux-saga/effects.js';
 // import * as actions from '../actions/controller-actions.js';
-import {walksDocsLoaded} from '../ducks/walksDuck'
-import {getLastAvailableDate, getTodaysDate} from '../utilities/DateUtilities.js';
-import {resignin} from '../ducks/signin-duck'
+import {walksDocsLoaded} from 'ducks/walksDuck'
+import docUpdateSaga from 'sagas/docUpdateSaga.js';
+import {getLastAvailableDate, getTodaysDate} from 'utilities/DateUtilities.js';
+import {resignin} from 'ducks/signin-duck'
 
-import Logit from '../factories/logit.js';
+import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'Initial:Saga');
 
 
@@ -38,8 +39,7 @@ export default function* (){
     let docs = data.rows
                   .filter(row => row.doc.type === 'walk')
                   .map(row => {
-                    if (!row.doc.booked)row.doc.booked = {};
-                    if (!row.doc.annotations)row.doc.annotations = {};
+                    if (!row.doc.bookings)row.doc.bookings = {};
                     return row.doc});
 
     const filterPrevWalks = {
@@ -50,8 +50,15 @@ export default function* (){
     };
     logit('filterPrevWalks', filterPrevWalks);
     data = yield call([db, db.allDocs], filterPrevWalks);
-    docs = data.rows.filter(row => row.doc.type === 'walk').map(row => row.doc).concat(docs);
-
+    docs = data.rows
+      .filter(row => row.doc.type === 'walk')
+      .map(row => row.doc)
+      .filter((doc)=>!docs[doc.walkId])
+      .concat(docs);
+    // for(let doc of docs) {
+    //     let newDoc = reformatWalkDoc(doc)
+    //     yield call(docUpdateSaga, newDoc)
+    // }
     yield put(walksDocsLoaded(docs));
   };
 

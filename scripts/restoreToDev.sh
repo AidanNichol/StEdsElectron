@@ -1,2 +1,2 @@
-# ~/github/couchdb-backup/couchdb-backup.sh -r -H 127.0.0.1 -d devbookings -f bookings.json -u aidan -p admin
-couchbackup --url http://sandy:54ndR@@nicholware.com:5984 --db bookings > backup/2016-12-09prod.json
+# ~/github/couchdb-backup/couchdb-backup.sh -b -H nicholware.com -d bookings -f bookings.json
+cat ./backup/2016-12-22prod.json | couchrestore --url http://127.0.0.1:5984 --db devbookings

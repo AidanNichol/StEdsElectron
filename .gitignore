@@ -24,7 +24,7 @@ public/bootstrap*
 test.js
 /test
 /testx
-
+/backup
 temp*.json
 /stedsBooking-darwin-x64
 /dist
