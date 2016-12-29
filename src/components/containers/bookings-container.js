@@ -28,7 +28,7 @@ const getSortedMemebersList = createSelector(
 const makeGetBookingsSummary = () => createSelector(
     (walk)=>walk,
     (walk)=>{
-       let totals = Object.keys(walk.booked||{}).reduce((value, memId)=>{value[request.no[walk.booked[memId]]]++; return value}, [0,0,0,0]);
+       let totals = Object.keys(walk.bookings||{}).reduce((value, memId)=>{value[request.no[walk.bookings[memId].status]]++; return value}, [0,0,0,0]);
        let available = walk.capacity - totals[0];
        let display = ''+available + (totals[1] > 0 ? ` (-${totals[1]})` : '');
        return {available:available-totals[1], display};
@@ -85,9 +85,11 @@ const mapStateToProps = function(store) {
       let walk = store.walks.list[walkId];
       if (!getBookingsSummary[walkId])getBookingsSummary[walkId] = makeGetBookingsSummary(walkId);
       let accBookings = accountMembers.map((memId)=>{
-        let annotation = (walk.annotations || {})[memId] || '';
-        if (annotation !== '')annotation = `(${annotation})`;
-        if (walk.booked[memId]) return {memId, status:walk.booked[memId], annotation};
+        if (walk.bookings[memId]) {
+          let annotation = walk.bookings[memId].annotation || '';
+          if (annotation !== '')annotation = `(${annotation})`;
+          return {memId, status:walk.bookings[memId].status, annotation};
+        }
         else return {memId, status: request.NONE };
     });
     // logit('bookings', accBookings);

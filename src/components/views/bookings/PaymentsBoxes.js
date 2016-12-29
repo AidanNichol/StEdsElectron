@@ -61,16 +61,17 @@ const PaymentsBoxesUnstyled = React.createClass({
               {value.title}
             </span>
     );
-
-    const {accId, owing, credit, accountUpdatePayment, changePaymentType, paymentType, setHelp, helpIsOpen} = this.props
+    const {accId, owing, credit, accountUpdatePayment, changePaymentType, setHelp, helpIsOpen} = this.props
+    const paymentType = this.props.paymentType || OPTIONS[0];
+    logit('PaymentsBoxes:props', paymentType, this.props)
     if (!accId) return null
     let handleKeydown = (event)=> {
       logit('keydown', amount, note, event);
       if ( event.which === 13 && amount) {
         event.preventDefault();
         amount = parseInt(amount);
-        if (paymentType.type[1] === 'X')amount = -amount;
-        accountUpdatePayment(accId, amount, note, paymentType.type, amount===owing);
+        // if (paymentType.type[1] === 'X')amount = -amount;
+        accountUpdatePayment(accId, amount, note, paymentType.type, paymentType.type[1] === 'X' && amount===owing);
         if (amountTarget)amountTarget.value = ''; if (noteTarget)noteTarget.value='';
       }
     };
@@ -95,7 +96,7 @@ const PaymentsBoxesUnstyled = React.createClass({
         <div className='payment-boxes' >
           {/* <span className="pay-box"> */}
           <MySelect
-            // className="pt-select"
+            className="pt-select"
             onChange={changePaymentType}
             optionComponent={IconOption}
             options={OPTIONS}
@@ -161,6 +162,7 @@ const MySelect = styled(Select)`
   width: 180px;
 
   .Select-control {
+    width: 200px;
     background-color: rgb(238, 238, 238);
   }
 

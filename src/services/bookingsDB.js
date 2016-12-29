@@ -41,10 +41,11 @@ logit('localDb', localDb, adapter)
 
 // db = new PouchDB('http://localhost:5984/bookings', {user: 'aidan', password: 'admin'});
 // db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
-db = new PouchDB(localDb, {adapter});
+// db = new PouchDB(localDb, {adapter});
 
 db = new PouchDB(localDb, {adapter});
 if (DbSettings.resetLocalBookings){
+  logit('destroying', localDb)
   db.destroy()
     .then(()=>{
       setSettings(`database.${getSettings('database.current')}.resetLocalBookings`, false)

@@ -19,7 +19,7 @@ var logit = Logit('color:blue; background:yellow;', 'Payments:Summary');
 
 
 const AccLogRec = ({log})=>{return (
-    <div className='walk-detail'>{log.dispDate} <span>£{log.amount}</span>  {log.text && ` [${log.text}] `}<span className="name">{log.name}</span> </div>
+    <div className='walk-detail'>{log.dispDate}<Icon type={log.req} width="16"/>  <span className="amount">£{log.amount}</span> <span className="name">{log.name}</span> {log.text && ` [${log.text}] `} </div>
   )}
 
 const BkngLogRec = ({log})=>(
@@ -52,8 +52,9 @@ function Payments({doc, bankMoney}){
     const netBookings = (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0)
                       - (tots.BX ? tots.BX[1] : 0) - (tots.CX ? tots.CX[1] : 0);
     const netCashAndCheques =  (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0)
-    const netBACS = (tots.PB ? tots.PB[1] : 0) - (tots.PBC ? tots.PBC[1] : 0)
-    const netPayments = netCashAndCheques + netBACS;
+    const netBACS = (tots.T ? tots.T[1] : 0) - (tots.TX ? tots.TX[1] : 0)
+    const netCredit = (tots['+'] ? tots['+'][1] : 0) - (tots['+X'] ? tots['+X'][1] : 0)
+    const netPayments = netCashAndCheques + netBACS+netCredit;
     const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
     // logit('creditsUsed', creditsUsed)
     var title = (<h4>Payments Made</h4>);
@@ -78,9 +79,11 @@ function Payments({doc, bankMoney}){
             <AccLineTot factor='-' title="Car Cancelled (no credit)" item='CL'/>
             <AccLine factor='+' title="Net Bookings" item={netBookings}/>
             <AccLineTot factor='' title="Payments Received" item='P'/>
-            <AccLineTot factor='' title="Payments Received(BACS)" item='PB'/>
-            <AccLineTot factor='-' title="Payments Refunded" item='PC'/>
-            <AccLineTot factor='-' title="Payments Refunded(BACS)" item='PBC'/>
+            <AccLineTot factor='' title="Payments Received(BACS)" item='T'/>
+            <AccLineTot factor='-' title="Payments Refunded" item='PX'/>
+            <AccLineTot factor='-' title="Payments Refunded(BACS)" item='TX'/>
+            <AccLineTot factor='' title="Credits Awarded" item='+'/>
+            <AccLineTot factor='-' title="Credits Removed" item='+X'/>
             <AccLine factor='-' title="Net Payments" item={netPayments}/>
           </div>
           <div>
@@ -154,8 +157,9 @@ const mapStateToProps = function(state) {
   if (!endDate)endDate = getLogTime();
   const {credits, debts} = getAllDebts(state);
 
-  var aLogs = getAccountLogByDateAndType(state, startDate, endDate, 'P');
+  var aLogs = getAccountLogByDateAndType(state, startDate, endDate);
   var bLogs = getWalkLogsByDate(state, startDate, endDate);
+  logit('preTots', {aLogs, bLogs})
   var tots = [...bLogs, ...aLogs].reduce((tot, lg)=>{
     if (!tot[lg.req])tot[lg.req] = [0, 0];
     tot[lg.req][0]++;

@@ -64,7 +64,7 @@ var Bookings = React.createClass({
         {accNames.map((member, i)=> ( <div className={mCl[i]} key={member.memId}>{member.firstName }</div> ))}
         </div>
         {walks.map((walk)=>(
-          <div className="walk" key={'WWW'+walk.walkId}>
+          <div className="walk" key={'XYZ'+walk.walkId}>
           <div className="date">{walk.walkDate}<br/>{walk.venue} {closeit(walk)}</div>
           <div className="avail">{walk.status.display}</div>
           {

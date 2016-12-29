@@ -7,6 +7,7 @@
     // in CommonJS
     "node": true,
     "es6": true,
+    "jest": true,
   },
   // React
   "plugins": [

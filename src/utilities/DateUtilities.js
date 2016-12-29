@@ -6,8 +6,8 @@ var _today = XDate.today();
 export var getTodaysDate = function() {
 		return _today.toString('yyyy-MM-dd');
 	};
-export var getLogTime = function() {
-		return new XDate().toString('i');
+export var getLogTime = function(_today = new Date()) {
+		return new XDate(_today).toString('i');
 	};
 export var now = function() {
 		return new XDate().toString('yyyy-MM-dd HH:mm');

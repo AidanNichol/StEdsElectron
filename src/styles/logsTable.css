@@ -6,11 +6,19 @@
     color: #31708f;
     background-color: #d9edf7;
     border-bottom: #bce8f1 solid thin;
+
+    span {
+      text-align: center;
+    }
   }
 
   .logRec {
     display: flex;
     align-items: center;
+
+    &.inbalance {
+      border-bottom: black thin solid;
+    }
   }
 
   .logRec.outstanding {
@@ -25,10 +33,6 @@
   }
 }
 
-.logHeader span {
-  text-align: center;
-}
-
 .logData {
   .logAmount {
     text-align: right;
@@ -38,6 +42,21 @@
   .logBal {
     text-align: right;
     padding-right: 2em;
+
+    display: inline-block;
+    min-width: 5em;
+
+    &.credit {
+      position: relative;
+      right: -18px;
+      &:after {
+        content: ' Cr';
+      }
+    }
+
+    &.owing {
+      color: red;
+    }
   }
 
   &.historic {
@@ -57,6 +76,8 @@ span.logText {
   min-width: 200px;
   max-width: 200px;
   overflow: hidden;
+  text-overflow: ellipsis;
+
   white-space: nowrap;
 
   .text {
@@ -69,16 +90,14 @@ span.logText {
   }
 }
 
-span.logAmount {
+span.amount {
   display: inline-block;
-  min-width: 3em;
+  text-align: right;
+  min-width: 1.5em;
 }
 
-span.logBal {
+span.logAmount {
   display: inline-block;
-  min-width: 5em;
-
-  &.owing {
-    color: red;
-  }
+  text-align: right;
+  min-width: 3em;
 }

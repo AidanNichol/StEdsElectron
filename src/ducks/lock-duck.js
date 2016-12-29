@@ -95,10 +95,9 @@ export function * lockSaga () {
 const LockIcon = ({locked, lockClicked, animate, className, ...rest})=>{
   logit('lockIcon', {locked, animate, rest})
   return ( lockSettings.enabled &&
-    <div className={className+' lock'}>
+    <div className={className+' lock'} onClick={()=>lockClicked(locked)} {...rest}>
       <span>Click Me First</span>
-      <img src={`../assets/icon-${locked? '':'un'}locked.svg`}
-       onClick={()=>lockClicked(locked)} {...rest} />
+      <img src={`../assets/icon-${locked? '':'un'}locked.svg`} />
      </div>);
 }
 const mapStateToProps = (state, {className='', ...rest})=>({
@@ -109,7 +108,7 @@ const mapStateToProps = (state, {className='', ...rest})=>({
 })
 function mapDispatchToProps(dispatch) {
   return {
-    lockClicked: (locked)=> dispatch(locked ? unlock() : lock()),
+    lockClicked: (locked)=> {logit('lock clicked', locked);dispatch(locked ? unlock() : lock())},
   }
 }
 export const Lock = connect(mapStateToProps, mapDispatchToProps)(LockIcon)

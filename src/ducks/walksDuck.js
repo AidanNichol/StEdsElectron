@@ -4,12 +4,12 @@ import { createSelector } from 'reselect'
 // import { createReducer } from 'redux-act';
 // import * as actions from '../actions/walks-actions.js';
 import { call, take, select, put } from 'redux-saga/effects.js';
-import docUpdateSaga from '../sagas/docUpdateSaga.js';
-import {pushWalkLog} from '../utilities/docLogging.js';
-import Logit from '../factories/logit.js';
+import docUpdateSaga from 'sagas/docUpdateSaga.js';
+import {pushWalkLog, pushWalkAnnotationLog} from 'utilities/docWalkLogging.js';
+import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'Walks:Duck');
 
-import {now, getTodaysDate} from '../utilities/DateUtilities.js';
+import {now, getTodaysDate} from 'utilities/DateUtilities.js';
 var _today = getTodaysDate();
 
 export const request = {
@@ -35,7 +35,7 @@ export const request = {
     BX: 'Cancelled',
     BL: 'Cancelled Late', // no credit
     C: 'Car', // no credit
-    CL: 'Car Cancelled Late', // no credit
+    CL: 'Car Cancelled Late',
     CX: 'Car Cancelled',
     A: 'Annotate',
     L: 'LATE',
@@ -62,10 +62,15 @@ export const request = {
     WL: 0,
     BX: -1,
     BL: 0, // no credit
+    '+': -1,
     P: -1,
+    T: -1,
+    '+X': 1,
+    PX: 1,
+    TX: 1,
     C: 0.5,
     CX: -0.5,
-    CL: 0, // no credit
+    CL: -0.5,
     A: 0,
 
   },
@@ -140,9 +145,7 @@ logit('loaded', null);
             bookable.push(doc._id);
             getBookingsSummaryFn[doc._id] = makeGetBookingsSummary(doc._id);
           }
-          if (!doc.booked)doc.booked={};
-          if (!doc.annotations)doc.annotations={};
-          if (!doc.log)doc.log=[];
+          if (!doc.bookings)doc.bookings={};
           list[doc._id] = doc;
         });
         logit('newstate', {list, bookable});
@@ -171,7 +174,7 @@ logit('loaded', null);
   }
 
 
-var doer;
+var who;
 
 //---------------------------------------------------------------------
 //          Utilities
@@ -179,7 +182,7 @@ var doer;
 const makeGetBookingsSummary = () => createSelector(
     (walk)=>walk,
     (walk)=>{
-       let totals = Object.keys(walk.booked||{}).reduce((value, memId)=>{value[request.no[walk.booked[memId]]]++; return value}, [0,0,0,0]);
+       let totals = Object.keys(walk.bookings||{}).reduce((value, memId)=>{value[request.no[walk.bookings[memId].status]]++; return value}, [0,0,0,0]);
        let free = walk.capacity - totals[0];
        let display = ''+free + (totals[1] > 0 ? ` (-${totals[1]})` : '');
        return {free, available:free-totals[1], display};
@@ -201,12 +204,14 @@ export function getBookingsSummary(walk){
 export function* walksSaga(args){
   const mapAction = {[WALK_UPDATE_BOOKING]: updateBooking, [WALK_ANNOTATE_BOOKING]: annotateBooking, [WALK_CLOSE_BOOKINGS]: closeWalk}
   logit('loaded', {args, mapAction});
+  // yield take(DOCS_LOADED);
+  // walks = yield select
   // try{
     while(true){ // eslint-disable-line no-constant-condition
       logit('waiting for','WALK_UPDATE_BOOKING' );
       let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING, WALK_CLOSE_BOOKINGS]);
       logit('took', action)
-      doer = yield select((state)=>state.signin.memberId || '???');
+      who = yield select((state)=>state.signin.memberId || '???');
       let walk = yield select((state, walkId)=>state.walks.list[walkId], action.walkId);
       // let newWalk = yield call(action.type === WALK_UPDATE_BOOKING ? updateBooking : annotateBooking, walk, action);
       let newWalk = yield call(mapAction[action.type], walk, action);
@@ -223,45 +228,47 @@ export function* walksSaga(args){
 
 function annotateBooking(walk, changes){
   logit('annotateBooking', walk, changes)
-  var annotations = walk.annotations || {};
   var memId = changes.memId;
   if (!memId){
     logit('walksSaga Error ', {memId, changes});
     return;
   }
+  var booking = i.thaw(walk.bookings[memId]) || {};
   var reqAnnotation = changes.text;
-  var purge = changes.purge;
-  var curAnnotation = annotations[memId] || '';
+  var curAnnotation = booking.annotation || '';
   if (curAnnotation === reqAnnotation) return false; // no change necessary
-  annotations = (reqAnnotation.length === 0 ? i.unset(annotations, memId) : i.set(annotations, memId, reqAnnotation));
-  logit('setting', {changes, reqAnnotation, annotations})
-  var log = pushWalkLog(walk.log, purge, doer, memId, 'A', reqAnnotation,);
-  var newDoc = i.chain(walk).set('annotations', annotations).set('log', log).value();
+  if (reqAnnotation.length === 0 )delete booking.annotation;
+  else booking.annotation = reqAnnotation;
+  logit('setting', {changes, reqAnnotation, booking})
+  booking.logs = pushWalkAnnotationLog(booking.logs, {who, memId, req: 'A', note: reqAnnotation});
+  var newDoc = i.setIn(walk, ['bookings', memId], booking);
   logit('newDoc', newDoc)
   return newDoc;
 }
 
 function updateBooking(walk, changes){
   logit('updateBooking', walk, changes)
-  var booked = walk.booked;
   var memId = changes.memId;
   if (!memId){
     logit('walksSaga Error ', {memId, changes});
     return;
   }
+  var booking = i.thaw(walk.bookings[memId]) || {};
   var reqType = changes.reqType;
   var purge = changes.purge;
-  var curType = booked[memId] || request.NONE;
+  var curType = booking.status || request.NONE;
   if (curType === reqType) return false; // no change necessary
-  if (reqType === request.CANCELLED && (curType === request.NONE || curType.length > 1)) return false;
-  var txt = '';
+  if (reqType === request.CANCELLED && (curType === request.NONE || curType[1] === 'X')) return false;
   if (reqType === request.CANCELLED){
-    if (walk.lastCancel < _today && !purge && curType === request.BOOKED) reqType = curType+request.LATE;
+    if (walk.lastCancel < _today && !purge && curType === request.BOOKED) {
+      reqType = curType+request.LATE;
+      booking.paid = true;
+    }
     else reqType = curType+request.CANCELLED;
   }
-  var newLog = pushWalkLog(walk.log, purge, doer, memId, reqType,txt);
-  var newDoc = {...walk, booked: {...walk.booked, [memId]: reqType}, log: newLog};
-  if (reqType === request.CANCELLED)delete newDoc.booked[memId];
+  booking.status = reqType;
+  booking.logs = pushWalkLog(booking.logs, {who, req: reqType});
+  var newDoc = i.setIn(walk, ['bookings', memId], booking);
   logit('newDoc', newDoc)
   return newDoc;
 }

@@ -39,6 +39,7 @@
   align-items: center;
   justify-content: center;
   width: 64px;
+  cursor: pointer;; 
 
   img {
     grid-area: one;

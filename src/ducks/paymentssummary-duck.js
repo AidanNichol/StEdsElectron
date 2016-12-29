@@ -37,6 +37,7 @@ export function reducer(state = summaryPaymentsDefaultState, action) {
     '2016-11-18T09:00:00': '2016-11-21T09:00:00',
     '2016-11-21T09:00:00': '2016-12-01T09:27:24',
     '2016-12-01T09:27:24': '2016-12-05T09:00:00',
+    '2016-12-05T09:00:00': '2016-12-16T12:00:00',
   }
   switch(action.type) {
     case change_bankPayment_doc:
@@ -67,8 +68,11 @@ export function * paymentsummarySaga () {
   let data, doc;
   data = yield call([db, db.allDocs], {descending: true, limit: 1, include_docs: true, startkey: 'BP9999999', endkey: 'BP00000000' });
   logit('load datasummaries', data)
-  doc = data.rows[0].doc;
-  yield put({type: change_bankPayment_doc, doc});
+  if (data.rows.length >  0){
+    doc = data.rows[0].doc;
+    yield put({type: change_bankPayment_doc, doc});
+
+  }
 
   while (true) { // eslint-disable-line no-constant-condition
     let res;
