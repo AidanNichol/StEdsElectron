@@ -240,7 +240,7 @@ function annotateBooking(walk, changes){
   if (reqAnnotation.length === 0 )delete booking.annotation;
   else booking.annotation = reqAnnotation;
   logit('setting', {changes, reqAnnotation, booking})
-  booking.logs = pushWalkAnnotationLog(walk.logs, {who, memId, req: 'A', note: reqAnnotation});
+  booking.logs = pushWalkAnnotationLog(booking.logs, {who, memId, req: 'A', note: reqAnnotation});
   var newDoc = i.setIn(walk, ['bookings', memId], booking);
   logit('newDoc', newDoc)
   return newDoc;

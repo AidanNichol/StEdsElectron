@@ -40,14 +40,23 @@ export const getWalkLogsByDate = createSelector(
     logit('getWalkLogsByDate:start', {walks, members, startDate, endDate})
     let logs = [];
     for(let walkId of Object.keys(walks)){
+      let walk = walks[walkId];
       for(let memId of Object.keys(walks[walkId].bookings)||[]){
+        let forefited = false;
         for(let log of walks[walkId].bookings[memId].logs||[]){
-          let {dat, who, req, type='W', annotation: text} = log;
-          if (startDate && (dat < startDate) )continue;
-          if (endDate && (dat > endDate) )continue;
-          if (req === 'A')continue;
-          let amount =  Math.abs((_walkData[walkId] ? _walkData[walkId].fee || 8 : 8) * request.chargeFactor(req));
-          logs.push(tranformSummaryLogRec({dat, who, type, memId, req, amount, walkId, text}, members));
+          if (startDate && (log.dat < startDate) )continue;
+          if (endDate && (log.dat > endDate) )continue;
+          if (log.req === 'A')continue;
+
+          log = {...log, walkId: walk.walkId, memId, type:'W'};
+          log.amount = Math.abs((walk.fee || 8) * request.chargeFactor(log.req));
+          if (log.req === 'BL')forefited = true;
+          else if (forefited) log.amount = 0;
+          log.name = members[log.memId].firstName+' '+members[log.memId].lastName
+          log.dispDate = new XDate(log.dat).toString('dd MMM HH:mm');
+          let text = log.note && log.note.length > 0 ? `(${log.note})` : ''
+          log.text = ` ${walk.venue} ${text}`;
+          logs.push(log);
         }
       }
     }
@@ -66,11 +75,17 @@ export const getAccountLogByDateAndType = createSelector(
     logit('getAccountLogsByDateAndType', {accs, members, startDate, endDate})
     Object.keys(accs).forEach((acc)=>{
       (accs[acc].logs||[]).forEach((log)=>{
-        let {dat, who, walkId, memId, req, amount, type, note} = log;
-        if (startDate && (dat < startDate) )return;
-        if (endDate && (dat > endDate) )return;
-        if (type !== 'A' || req === 'S') return;
-        logs.push(tranformSummaryLogRec({dat, who, type, walkId, memId, req, amount, text: note}, members, accs[acc]));
+        if (startDate && (log.dat < startDate) )return;
+        if (endDate && (log.dat > endDate) )return;
+        if (log.type !== 'A' || log.req === 'S') return;
+        if (log.type && log.type !== 'A') return log;
+        log= {...log, type: 'A'}
+        log.name = getAccountName(accs[acc], members);
+        // log = i.thaw(log);
+        log.amount = Math.abs(log.amount * request.chargeFactor(log.req));
+        log.dispDate = new XDate(log.dat).toString('dd MMM HH:mm');
+        log.text = log.note || ''
+        logs.push(expandAccLogRec(log));
       });
     });
     logit('getAccountLogsByDateAndType ', logs);
@@ -78,33 +93,22 @@ export const getAccountLogByDateAndType = createSelector(
   }
 );
 
-const tranformSummaryLogRec = (logObj, members, acc)=>{
-  if (!logObj.req) logit('logObj reqless ', logObj)
-  let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
-  if (!logObj.memId || logObj.type === 'A') {logObj.name = getAccountName(acc, members);}
-  else {logObj.name = members[logObj.memId].firstName+' '+members[logObj.memId].lastName}
-  logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
-  let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.type==='A' ? logObj.text || '' : ` ${venue} ${text}`);
-  return logObj;
-};
+
 
 var _getWalkLogs = [];
 var _acc = {};
 var _walkData = {};
 
-const tranformLogRec = (logObj, memNames)=>{
-  logObj = i.thaw(logObj);
-  let venue = logObj.walkId ? (_walkData[logObj.walkId] ? _walkData[logObj.walkId].venue : logObj.walkId) : '';
-  // if (!logObj.amount) logObj.amount = _walkData[logObj.walkId].fee * request.chargeFactor(logObj.req);
-  logObj.amount = (logObj.amount || (_walkData[logObj.walkId] ? _walkData[logObj.walkId].fee || 8 : 8)) * request.chargeFactor(logObj.req);
-  // else logObj.amount *= -1;
-  let name = logObj.memId ? memNames[logObj.memId] : '';
-  logObj.name = name;
-  logObj.dispDate = new XDate(logObj.dat).toString('dd MMM HH:mm');
-  let text = logObj.text && logObj.text.length > 0 ? `(${logObj.text})` : ''
-  logObj.text = (logObj.type==='A' ? logObj.note || '' : ` ${venue} ${text}`);
-  return logObj;
+const expandAccLogRec = (log)=>{
+  if (log.type !== 'A') return log;
+  // log = i.thaw(log);
+  log.amount = log.amount * request.chargeFactor(log.req);
+  // log.name = log.memId ? memNames[log.memId] : '';
+  log.dispDate = new XDate(log.dat).toString('dd MMM HH:mm');
+  // let text = log.text && log.text.length > 0 ? `(${log.text})` : ''
+  log.text = log.note || ''
+
+  return log;
 };
 
 const makeGetWalkLogs = (walkId) => createSelector(
@@ -115,9 +119,20 @@ const makeGetWalkLogs = (walkId) => createSelector(
       logit('_getWalkLogs:start', {walk,limit})
       let map = {};
       for(let memId of Object.keys(walk.bookings)){
-        map[memId] = (walk.bookings[memId].logs||[])
-            .filter((log)=>!limit || log.dat < limit)
-            .map((log)=>tranformLogRec({...log, walkId: walk.walkId, memId, type:'W'}, memNames));
+        map[memId] = [];
+        let forefited = false;
+        for(let log of walk.bookings[memId].logs||[]){
+          if (limit && log.dat >= limit) continue;
+          log = {...log, walkId: walk.walkId, memId, type:'W'};
+          log.amount = (walk.fee || 8) * request.chargeFactor(log.req);
+          if (log.req === 'BL')forefited = true;
+          else if (forefited) log.amount = 0;
+          log.name = log.memId ? memNames[log.memId] : '';
+          log.dispDate = new XDate(log.dat).toString('dd MMM HH:mm');
+          let text = log.note && log.note.length > 0 ? `(${log.note})` : ''
+          log.text = ` ${walk.venue} ${text}`;
+          map[memId].push(log);
+        }
       }
       logit('_getWalkLogs '+walk.walkId, map);
       return map;
@@ -148,14 +163,22 @@ const makeGetAccountLog = (accId)=> createSelector(
     (accLog, memNames, limit)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
       // logit('getAccountLogs '+accId, {accLog})
-      aLogs = aLogs
-        .filter((lg)=>lg.type==='W' || lg.req==='A' || (lg.amount && lg.amount!==0)) // ignore zero payments
-        .filter((lg)=>lg.type!=='A' || lg.req !== 'S') // ignore subscriptions
-        .filter((lg)=>!limit || lg.dat < limit)
-        .map((log)=>tranformLogRec(log, memNames));
-      // });
-      // logit('gotAccountLogs '+accId, aLogs);
-      return aLogs;
+      let logs = [];
+      for (let log of i.thaw(aLogs)){
+        if ((log.type==='W' || log.req==='A') && !log.amount) continue; // ignore zero payments
+        if (log.req === 'S') continue; // ignore subscriptions
+        if (limit && log.dat >= limit) continue;
+        if (log.type === 'A'){
+          // log = i.thaw(log);
+          log.amount = log.amount * request.chargeFactor(log.req);
+          log.name = log.memId ? memNames[log.memId] : '';
+          log.dispDate = new XDate(log.dat).toString('dd MMM HH:mm');
+          // let text = log.text && log.text.length > 0 ? `(${log.text})` : ''
+          log.text = log.note || ''
+        }
+        logs.push(log);
+      }
+      return logs;
     });
 
 const makeGetAccountDebt = (accId)=> createSelector(
