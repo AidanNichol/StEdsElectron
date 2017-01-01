@@ -15,7 +15,7 @@ const getAccount = (state, id)=>{
 var doer;
 
 
-function* updatePaymentToAccount(action, type){
+function* updatePaymentToAccount(action){
     doer = yield select((state)=>state.signin.memberId);
     var acc = yield select(getAccount, action.accId);
     var log = pushAccLog(acc.logs, doer, action);
@@ -24,26 +24,14 @@ function* updatePaymentToAccount(action, type){
     yield call(docUpdateSaga, newAcc, action);
 }
 
-// function* addTaggedPayment(action){
-//   logit('addTaggedPayment', action);
-//   if (action.reType === request.WAITLIST)return;
-//   if (action.amount === 0)return;
-//   yield call(updatePaymentToAccount, action, 'P');
-// }
-//
-// function* deleteTaggedPayment(action){
-//   logit('deleteTaggedPayment', action);
-//     doer = yield select((state)=>state.signin.memberId);
-//     var acc = yield select(getAccount, action.accId);
-//     var j = acc.log.findIndex((log)=>(log[4][0]==='P' && log[3]===action.memId && log[2]===action.walkId) );
-//     if (j === -1)return;
-//     // var funds = (acc.funds || 0) - acc.log[i].amount;
-//     var log = [].concat((j > 0 ? acc.log.slice(0, j-1) : []), (j < acc.log.length-1 ?  acc.log.slice(j+1) : []));
-//     var newAcc = i.set(acc, 'log', log);
-//     // var newAcc = acc.set('log', log);
-//     yield call(docUpdateSaga, newAcc, action);
-// }
-
+function* copyCloneableToAccount(action, type){
+    doer = yield select((state)=>state.signin.memberId);
+    var acc = yield select(getAccount, action.accId);
+    var log = pushAccLog(acc.logs, doer, action);
+    var newAcc = i.set(acc, 'logs', log);
+    // var newAcc = acc.set('log', log);
+    yield call(docUpdateSaga, newAcc, action);
+}
 
 export default function* accountsSaga(){
   logit('updatePaymentToAccount', 'loaded');

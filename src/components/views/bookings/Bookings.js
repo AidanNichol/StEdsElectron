@@ -15,7 +15,7 @@ var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
 
 var Bookings = React.createClass({
   render: function() {
-    var {accNames, walks, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
+    var {accNames, walks, cloneables, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
     var accId = account.accId;
     logit('props', this.props);
 
@@ -50,7 +50,7 @@ var Bookings = React.createClass({
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
     var _today = getTodaysDate();
-    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId)}>X</button>)};
+    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId, cloneables)}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
         <div className="select">

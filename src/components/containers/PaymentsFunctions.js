@@ -61,7 +61,7 @@ export const getWalkLogsByDate = createSelector(
       }
     }
     logit('_getWalkLogsByDate ', logs);
-    return logs.sort(logCmp);
+    return logs.sort(logCmpDate);
   }
 );
 
@@ -89,7 +89,7 @@ export const getAccountLogByDateAndType = createSelector(
       });
     });
     logit('getAccountLogsByDateAndType ', logs);
-    return logs.sort(logCmp);
+    return logs.sort(logCmpDate);
   }
 );
 
@@ -162,6 +162,7 @@ const makeGetAccountLog = (accId)=> createSelector(
     (state)=>state.paymentsSummary.paymentsLogsLimit,
     (accLog, memNames, limit)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
+      if (typeof aLogs === 'object')aLogs = Object.values(aLogs);
       // logit('getAccountLogs '+accId, {accLog})
       let logs = [];
       for (let log of i.thaw(aLogs)){
@@ -209,9 +210,10 @@ const makeGetAccountDebt = (accId)=> createSelector(
     let currentFound = false
     let zeroPoints = [-1]
     let lastZeroPoint = -1;
-    logs = logs.sort(logCmp).map((log, i)=>{
+    logs = i.thaw(logs).sort(logCmpDate).map((log, i)=>{
       // logs = logs.map((log, i)=>{
-      balance -= log.amount;
+      if (i>0 && logs[i-1].dat === log.dat && log.type === 'W')log.duplicate = true
+      else balance -= log.amount;
       // logit('log '+accId, {log, balance});
       if (!currentFound && log.type === 'W' && log.walkId > walkPast)currentFound = true
       if (!currentFound && balance === 0)lastHistory = i;
@@ -222,7 +224,9 @@ const makeGetAccountDebt = (accId)=> createSelector(
       if (balance >= 0) lastOK = i;
       return {...log, zeroPoint: balance === 0, balance};
     });
-    logs = logs.map((log, i)=>({...log, historic: (i <= lastHistory) }));
+    logs = logs
+            .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
+            .filter(log=>!log.duplicate);
     let debt = [];
     if (balance < 0){
       let due = balance;
@@ -232,13 +236,9 @@ const makeGetAccountDebt = (accId)=> createSelector(
         .reverse()
         .map((log, i, arr)=>{
           if (due < 0 && request.billable(log.req)){
-            // log.outstanding = true;
             let cancelled = arr.slice(0,i).filter((l)=>{
-              const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
-              // logit('cancelled', {log, l, cancelled})
               return l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
             }).length > 0
-            // log.outstanding = log.outstanding && !cancelled
             log.outstanding = !cancelled
             if (!cancelled) due += Math.min(-due, log.amount)
 
@@ -258,7 +258,12 @@ const makeGetAccountDebt = (accId)=> createSelector(
 );
 
 var logColl = new Intl.Collator();
-var logCmp = (a, b) => logColl.compare(a.dat, b.dat);
+// var logCmpDate = (a, b) => logColl.compare(a.dat, b.dat);
+var logCmpDate = (a, b) => {
+  let res = logColl.compare(a.dat, b.dat);
+  if (res === 0) res = logColl.compare(a.type, b.type);
+  return res;
+}
 
 // get the names of the members on this account
 const getAccountName = (accountDoc, members)=>{
@@ -314,30 +319,17 @@ export const getAllDebts = (state)=>{
   return {debts, credits};
 };
 
-// //-----------------------------------------------------------------
-// //
-// //  Helper Functions
-// //
-// //-----------------------------------------------------------------
-//
-// export const convertAccLogToNewFormat = (log)=>{
-//   logit('converting',log)
-//   // if (typeof log === 'object') return log;
-//   let [dat, who, walkId, memId, req, amount, note] = log;
-//   let newLog = {dat, who, type: 'P', req, amount};
-//   if (note && note.length > 1)newLog.note = note
-//   if (walkId && walkId.length > 1)newLog.walkId = walkId
-//   if (memId && memId.length > 1)newLog.memId = memId
-//   logit('converted',{log, newLog})
-//   return newLog;
-// }
-//
-// export const convertWalkLogToNewFormat = (log)=>{
-//   if (typeof log === 'object') return log;
-//   let [dat, who,memId, req, note] = log
-//   let newLog = {dat, who, type: 'W', req, memId, note};
-//   return newLog;
-// }
+export const getAllCloneables = (state)=>{
+  let clones={};
+  Object.keys(state.accounts.list).forEach((accId)=>{
+  // ["A989", "A2008", 'A2009', 'A1158'].forEach((accId)=>{
+    let clone = getAccDebt(accId, state).logs;
+    clone = clone.filter(log=>log.cloneable);
+    if (clone.length>0)clones[accId] = clone;
+  });
+
+  return clones;
+};
 
 
 
