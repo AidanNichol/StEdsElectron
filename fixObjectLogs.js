@@ -18,9 +18,9 @@ async function loadAccs(){
 
     let docs = data.rows
           .filter(row => row.doc.type === 'account')
-          .filter(row => typeof row.doc.log === 'object')
+          .filter(row => typeof row.doc.logs === 'object')
           .map(row => {
-            row.doc.log = Object.values(row.doc.log);
+            row.doc.logs = Object.values(row.doc.logs);
             return row.doc;
           }
         )
