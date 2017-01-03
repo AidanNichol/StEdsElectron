@@ -162,7 +162,7 @@ const makeGetAccountLog = (accId)=> createSelector(
     (state)=>state.paymentsSummary.paymentsLogsLimit,
     (accLog, memNames, limit)=>{
       let aLogs = accLog.asMutable ? accLog.asMutable() : [...accLog];
-      // logit('getAccountLogs '+accId, {accLog})
+      logit('getAccountLogs '+accId, {accLog, limit})
       let logs = [];
       for (let log of i.thaw(aLogs)){
         if ((log.type==='W' || log.req==='A') && !log.amount) continue; // ignore zero payments
@@ -234,7 +234,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
           if (due < 0 && request.billable(log.req)){
             // log.outstanding = true;
             let cancelled = arr.slice(0,i).filter((l)=>{
-              const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
+              // const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
               // logit('cancelled', {log, l, cancelled})
               return l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId
             }).length > 0
@@ -252,7 +252,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
         .reverse()
         .filter((log)=>log.req==='B' || log.req==='C' || log.req==='L');
     }
-    // logit('logs '+accId, {balance, debt, logs, accName, sortname});
+    logit('logs '+accId, {balance, debt, logs, accName, sortname});
     return  {accId, balance, debt, logs, lastHistory, zeroPoints,lastZeroPoint, accName, sortname};
 }
 );

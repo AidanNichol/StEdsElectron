@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:black; background:yellow;', 'MySelect2');
+var logit = Logit('color:black; background:yellow;', 'payments:boxes');
 
 const OPTIONS = [{type:"P", title:"Paid cash"},
 {type:"PX", title:"Refund Payment"},
@@ -40,7 +40,6 @@ const PaymentsBoxesUnstyled = React.createClass({
         if (isFocused) return;
         onFocus(option, event);
       };
-        logit('IconOption', this.props)
         const disabled = (option.type === '+X' && !credit)
 
         return (
@@ -66,7 +65,7 @@ const PaymentsBoxesUnstyled = React.createClass({
     logit('PaymentsBoxes:props', paymentType, this.props)
     if (!accId) return null
     let handleKeydown = (event)=> {
-      logit('keydown', amount, note, event);
+      logit('keydown', {amount, note, event});
       if ( event.which === 13 && amount) {
         event.preventDefault();
         amount = parseInt(amount);

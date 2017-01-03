@@ -74,16 +74,6 @@ export const request = {
     A: 0,
 
   },
-  // icons:{
-  //   B: (<i className='fa fa-2x fa-bus'></i>),
-  //   C: (<i className='fa fa-2x fa-car'></i>),
-  //   W: (<i className='fa fa-2x fa-clock-o'></i>),
-  // },
-  // icon: {
-  //     B: 'fa fa-bus ',
-  //     W: 'fa fa-clock-o ',
-  //     C: 'fa fa-car ',
-  // },
 
   getIcon: (req, extra)=>request.icon[req]+(extra || null) || '',
   getName: (req)=>request.names[req] || '?',

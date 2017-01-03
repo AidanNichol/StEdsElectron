@@ -39,17 +39,28 @@
     padding-right: 1em;
   }
 
+  &:hover {
+    span.logText {
+      overflow: auto;
+      background-color: rgb(234, 236, 238);
+
+      .text {
+        white-space: normal;
+      }
+    }
+  }
+
   .logBal {
     text-align: right;
     padding-right: 2em;
-
     display: inline-block;
     min-width: 5em;
 
     &.credit {
       position: relative;
       right: -18px;
-      &:after {
+
+      &::after {
         content: ' Cr';
       }
     }
@@ -73,11 +84,10 @@ span.logDate {
 span.logText {
   padding-left: 5px;
   display: inline-block;
-  min-width: 200px;
-  max-width: 200px;
+  min-width: 175px;
+  max-width: 175px;
   overflow: hidden;
   text-overflow: ellipsis;
-
   white-space: nowrap;
 
   .text {

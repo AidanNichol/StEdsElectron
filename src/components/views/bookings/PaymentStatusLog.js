@@ -27,21 +27,21 @@ class TheTable extends React.Component {
   render() {
     return (
     <div style={{overflow: 'auto', maxHeight: 500}}>
-    {
-      (this.props.logs||[]).map((log, i)=>{
-        let rCl = classNames({logData: true, logRec: true, outstanding: log.outstanding, historic: log.historic, inbalance: log.balance===0});
-        let aCl = classNames({logData: true, logAmount: true, logPay: log.req==='P', fee: log.req!=='P' && log.amount<0, credit: log.amount>0});
-        let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});
-        return (<div key={i} className={rCl}>
-          <span className="logDate">{log.dispDate}</span>
-          <span className="logText">
-          <Icon type={log.req} />
-          {log.type !== 'A' && log.name && (<span className="name">[{log.name}] </span>) }
-          <span className="text">{log.text}</span>
-          </span>
-          <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
-          <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
-          <span className={bCl}>{log.balance}</span>
+      {
+        (this.props.logs||[]).map((log, i)=>{
+          let rCl = classNames({logData: true, logRec: true, outstanding: log.outstanding, historic: log.historic, inbalance: log.balance===0});
+          let aCl = classNames({logData: true, logAmount: true, logPay: log.req==='P', fee: log.req!=='P' && log.amount<0, credit: log.amount>0});
+          let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});
+          return (<div key={i} className={rCl}>
+            <span className="logDate">{log.dispDate}</span>
+            <Icon type={log.req} />
+            <span className="logText">
+              {log.type !== 'A' && log.name && (<span className="name">[{log.name}] </span>) }
+              <span className="text">{log.text}</span>
+            </span>
+            <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
+            <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
+            <span className={bCl}>{log.balance}</span>
           </div>)
         })
       }

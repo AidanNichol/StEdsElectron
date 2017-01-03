@@ -19,7 +19,7 @@ var logit = Logit('color:blue; background:yellow;', 'Payments:Summary');
 
 
 const AccLogRec = ({log})=>{return (
-    <div className='walk-detail'>{log.dispDate}<Icon type={log.req} width="16"/>  <span className="amount">£{log.amount}</span> <span className="name">{log.name}</span> {log.text && ` [${log.text}] `} </div>
+    <div className='walk-detail'>{log.dispDate}<Icon type={log.req} width="16"/>  <span className="amount">£{Math.abs(log.amount)}</span> <span className="name">{log.name}</span> {log.text && ` [${log.text}] `} </div>
   )}
 
 const BkngLogRec = ({log})=>(
@@ -163,7 +163,7 @@ const mapStateToProps = function(state) {
   var tots = [...bLogs, ...aLogs].reduce((tot, lg)=>{
     if (!tot[lg.req])tot[lg.req] = [0, 0];
     tot[lg.req][0]++;
-    tot[lg.req][1] += lg.amount;
+    tot[lg.req][1] += Math.abs(lg.amount);
     return tot;
   }, {});
 
