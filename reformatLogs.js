@@ -9,7 +9,7 @@ var db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await db.destroy();
     db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await db.compact();
-    var data = fs.readFileSync('./backup/2016-12-22prod.json')
+    var data = fs.readFileSync('./backup/2017-01-03prod.json')
     var docs =JSON.parse(data);
     console.log(docs.length)
     docs.forEach((doc, i)=>{
@@ -108,8 +108,8 @@ const reformatAccDoc = (doc)=>{
     logs.push(newLog);
   }
   doc.logs = logs;
-  // delete doc.log;
-  if (doc._id==='A853')console.log('reformatWalkDoc:doc', prettyFormat(doc))
+  delete doc.log;
+  // if (doc._id==='A853')console.log('reformatWalkDoc:doc', prettyFormat(doc))
   return doc;
 };
 
@@ -134,9 +134,9 @@ const reformatWalkDoc = (doc)=>{
   // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:doc', prettyFormat(doc))
   // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:bookings', prettyFormat(bookings.M825))
   // console.log('bookings',bookings)
-  // delete doc.log;
-  // delete doc.booked;
-  // delete doc.annotations;
+  delete doc.log;
+  delete doc.booked;
+  delete doc.annotations;
   doc.bookings = bookings;
   return doc;
 
