@@ -109,7 +109,7 @@ export const updateWalkBookings = (walkId, accId, memId, reqType) => ({type: WAL
 export const annotateWalkBookings = (walkId, memId, text) => ({type:WALK_ANNOTATE_BOOKING, walkId, memId, text});
 export const annotateOpenDialog = (walkId, memId) => ({type:WALK_ANNOTATE_OPEN_DIALOG, walkId, memId});
 export const annotateCloseDialog = () => ({type:WALK_ANNOTATE_CLOSE_DIALOG});
-export const closeWalkBookings = (walkId) => ({type:WALK_CLOSE_BOOKINGS, walkId});
+export const closeWalkBookings = (walkId, cloneables) => ({type:WALK_CLOSE_BOOKINGS, walkId, cloneables});
 export const updateBookableWalks = (walkId) => ({type:WALK_UPDATE_BOOKABLE, walkId});
 export const walksDocsLoaded = (docs) => ({type: DOCS_LOADED, docs})
 export const walksSelected = (walkId) => ({type: WALK_SELECTED, walkId})
@@ -207,7 +207,10 @@ export function* walksSaga(args){
       let newWalk = yield call(mapAction[action.type], walk, action);
       if (newWalk)yield call(docUpdateSaga, newWalk, action);
       if (action.type === WALK_ANNOTATE_BOOKING)yield put(annotateCloseDialog())
-      if (action.type === WALK_CLOSE_BOOKINGS)yield put(updateBookableWalks(action.walkId))
+      if (action.type === WALK_CLOSE_BOOKINGS){
+        yield put(updateBookableWalks(action.walkId))
+        yield call(copyCloneableToAccount, action)
+      }
     }
 
 
@@ -264,6 +267,19 @@ function updateBooking(walk, changes){
 }
 
 function closeWalk(walk, action){
+  return walk;
   logit('closeWalk', walk, action)
   return {...walk, closed: true};
+}
+
+function* copyCloneableToAccount(action){
+  let {cloneables} = action;
+  for(let accId of Object.keys(cloneables)){
+    var acc = yield select(state=>state.accounts.list[accId]);
+    const logs = cloneables[accId].map(log=>{delete log.cloneable; log.clone=true; return log;})
+    var newAcc = i.set(acc, 'logs', [...acc.logs, ...logs]);
+    logit('copyCloneableToAccount', {action, newAcc})
+    // var newAcc = acc.set('log', log);
+    yield call(docUpdateSaga, newAcc, action);
+  }
 }

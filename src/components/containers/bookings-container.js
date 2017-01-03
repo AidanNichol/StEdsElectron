@@ -8,6 +8,7 @@ import {dispatchIfUnlocked} from '../../ducks/lock-duck.js';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, closeWalkBookings, request} from '../../ducks/walksDuck'
 import {actionCreators as mlActionCreators} from '../../ducks/memberslist-duck'
+import {getAllCloneables} from './PaymentsFunctions'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import {getSubsStatus} from '../../utilities/subsStatus'
@@ -47,7 +48,7 @@ function mapDispatchToProps(dispatch) {
   return {
     walkUpdateBooking: (walkId, accId, memId, reqType)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, reqType)),
     walkCancelBooking: (walkId, accId, memId)=>dispatchIfUnlocked(dispatch, updateWalkBookings(walkId, accId, memId, 'X')),
-    closeWalkBookings: (walkId)=>dispatch(closeWalkBookings(walkId)),
+    closeWalkBookings: (walkId, cloneables)=>dispatch(closeWalkBookings(walkId, cloneables)),
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
             dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
@@ -92,11 +93,14 @@ const mapStateToProps = function(store) {
         }
         else return {memId, status: request.NONE };
     });
+
     // logit('bookings', accBookings);
     // logit('summary', getBookingsSummary[walkId](walk));
     return {walkId: walkId, walkDate: walkId.substr(1), venue: walk.venue.replace(/\(.*\)/, ''), status: getBookingsSummary[walkId](walk), bookings: accBookings};
   })
   var {_id:accId, credit, owing} = accountCurrent;
+  var cloneables = getAllCloneables(store);
+  logit("cloneables", cloneables);
 
   return {
             // members,
@@ -105,6 +109,7 @@ const mapStateToProps = function(store) {
             accNames,
             actions,
             options,
+            cloneables,
             // accountSelected,
             bookingsAdmin: isUserAuthorized(['bookings']),
             annotate: store.walks.annotate,
