@@ -18,8 +18,8 @@ export const ROUTER_INITIALIZED = 'ROUTER_INITIALIZED';
 export const setPage = (payload) => ({type: SET_PAGE, ...payload});
 export const setUser = (user, account) => ({type: SET_USER, user, account});
 export const routerInitialized = () => ({type: SET_USER});
-if (getSettings('clearRouter')){
-  setSettings('clearRouter', false);
+if (getSettings('router.clear')){
+  setSettings('router.clear', false);
   localStorage.removeItem('stEdsSignin');
   localStorage.removeItem('stEdsRouter');
 }
@@ -27,7 +27,10 @@ if (getSettings('clearRouter')){
 //---------------------------------------------------------------------
 //          Reducers
 //---------------------------------------------------------------------
-export var routerDefaultState = (localStorage.getItem('stEdsRouter') ? JSON.parse(localStorage.getItem('stEdsRouter'))
+
+export var routerDefaultState = (
+  getSettings('router.enabled') && localStorage.getItem('stEdsRouter') ?
+        JSON.parse(localStorage.getItem('stEdsRouter'))
         : {page: null, memberId: null, accountId: null, initialized: false, walkId: null});
 
 const setAndSaveState = (state, payload)=>{

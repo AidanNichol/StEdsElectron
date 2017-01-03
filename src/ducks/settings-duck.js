@@ -5,6 +5,7 @@ var logit = Logit('color:white; background:brown;', 'DBbookings');
 settings.defaults({
   lock: {enabled: true, delay:5000},
   debug: {devtoolsOpen: false, database: false, reduxLogger: false},
+  router: {clear: true, enabled: false},
   database: {current: 'production',
     production: {localname: 'stEdsBookings', resetLocalBookings: false,  adapter: 'websql',
         remotename: 'bookings', remotehost: 'nicholware.com',
@@ -15,12 +16,10 @@ settings.defaults({
         localUsers: 'devUsers', resetLocalUser: false}
   },
   clearRouter:true,
+  advanced: false
 })
 settings.configure({prettify: true})
 settings.applyDefaultsSync();
-  // const mode = settings.getSync('database.current');
-  // const db = settings.getSync(`database.${mode}`);
-  // logit('settings db', {mode, db})
 settings.deleteSync('database.developement.resetLocal');
 settings.deleteSync('database.production.resetLocal');
 export const mode = settings.getSync('database.current');
