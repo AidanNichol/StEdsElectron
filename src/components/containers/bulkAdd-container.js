@@ -48,8 +48,8 @@ const getWaitingList = createSelector(
     (state, id)=>state.walks.list[id],
     (state)=>state.members,
     (walk, members)=>{
-       let bookings = Object.keys(walk.booked)
-           .filter((memId)=>walk.booked[memId] === request.WAITLIST)
+       let bookings = Object.keys(walk.bookings)
+           .filter((memId)=>walk.bookings[memId].status === request.WAITLIST)
            .map((memId)=>{
              if (!members[memId])console.error('memberId not found')
              let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';

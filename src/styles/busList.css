@@ -48,6 +48,7 @@ div.panel-title {
 
 .bus-list {
   .booked-members {
+    max-height: 500px;
     display: grid;
     grid-template-rows: repeat(18, 1fr);
     grid-template-columns: repeat(3, 1fr);

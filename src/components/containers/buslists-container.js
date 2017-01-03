@@ -29,22 +29,22 @@ const makeGetBookings = (requestType)=> createSelector(
     (state,id)=>state.walks.list[id],
     (state)=>state.members,
     (walk, members)=>{
-      let annotations = walk.annotations || {};
-      logit('annotations', annotations)
       var nameColl = new Intl.Collator();
       var nameCmp = (a, b) => nameColl.compare(members[a].lastName+members[a].firstName, members[b].lastName+members[b].firstName);
-      let bookings = Object.keys(walk.booked)
+      logit('makeGetBookings', walk.bookings, requestType)
+      let bookings = Object.keys(walk.bookings)
            .filter((memId)=>{
              if (!members[memId])console.error('memberId not found', memId, walk)
-             return walk.booked[memId] === requestType})
+             return walk.bookings[memId].status === requestType})
            .sort(nameCmp)
            .map((memId)=>{
+             let booking = walk.bookings[memId];
              if (!members[memId])console.error('memberId not found')
              let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
             //  let name = members[memId].firstName+' '+members[memId].lastName;
-             let annotation = (annotations[memId] ? ` (${annotations[memId]})` : '')
+             let annotation = (booking.annotation ? ` (${booking.annotation})` : '')
              if (members[memId].memberStatus === 'Guest')annotation += ' *G*';
-             return { memId, name, annotation, type: walk.booked[memId], requestType};
+             return { memId, name, annotation, type: booking.status, requestType};
            });
       logit('getBookings', bookings);
       return bookings;
@@ -57,8 +57,8 @@ export const getWaitingList = createSelector(
     (state, id)=>state.walks.list[id],
     (state)=>state.members,
     (walk, members)=>{
-       let bookings = Object.keys(walk.booked)
-           .filter((memId)=>walk.booked[memId] === request.WAITLIST)
+       let bookings = Object.keys(walk.bookings)
+           .filter((memId)=>walk.bookings[memId].status === request.WAITLIST)
            .map((memId)=>{
              if (!members[memId])console.error('memberId not found')
              let name = members[memId] ? members[memId].firstName+' '+members[memId].lastName : '????? !!!!!!';
