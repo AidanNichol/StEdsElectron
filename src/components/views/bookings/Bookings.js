@@ -7,6 +7,7 @@ import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
 import {Lock} from '../../../ducks/lock-duck'
 import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
+// import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';
 // import ChangeLog from '..//utility/ChangeLog.js';
@@ -15,7 +16,7 @@ var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
 
 var Bookings = React.createClass({
   render: function() {
-    var {accNames, walks, cloneables, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
+    var {accNames, walks, fixables, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
     var accId = account.accId;
     logit('props', this.props);
 
@@ -50,38 +51,39 @@ var Bookings = React.createClass({
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
     var _today = getTodaysDate();
-    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId, cloneables)}>X</button>)};
+    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId, fixables)}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
-        <div className="select">
-        <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
-        {accNames.map((member)=>( <h5 key={member.memId}>{ member.firstName } { member.lastName }</h5> ))}
-        </div>
-        <div className="bTable">
-        <div className="heading">
-        <div className="title date">Date<br/>Venue</div>
-        <div className="title avail">Available</div>
-        {accNames.map((member, i)=> ( <div className={mCl[i]} key={member.memId}>{member.firstName }</div> ))}
-        </div>
-        {walks.map((walk)=>(
-          <div className="walk" key={'XYZ'+walk.walkId}>
-          <div className="date">{walk.walkDate}<br/>{walk.venue} {closeit(walk)}</div>
-          <div className="avail">{walk.status.display}</div>
-          {
-            walk.bookings.map((booking, i)=>
-            request.bookable(booking.status) ?
-            newBooking(walk.walkId, booking.memId, walk.status.available > 0, i) :
-            oldBooking(walk.walkId, booking.memId, booking.status, booking.annotation, i) )
-          }
+          <div className="select">
+            <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
+            {accNames.map((member)=>( <h5 key={member.memId}>{ member.firstName } { member.lastName }</h5> ))}
+          </div>
+          <div className="bTable">
+            <div className="heading">
+              <div className="title date">Date<br/>Venue</div>
+              <div className="title avail">Available</div>
+              {accNames.map((member, i)=> ( <div className={mCl[i]} key={member.memId}>{member.firstName }</div> ))}
+            </div>
+            {walks.map((walk, w)=>(
+              <div className="walk" key={w+'XYZ'+walk.walkId}>
+                <div className="date">{walk.walkDate}<br/>{walk.venue} {closeit(walk)}</div>
+                <div className="avail">{walk.status.display}</div>
+                {
+                  walk.bookings.map((booking, i)=>
+                    request.bookable(booking.status) ?
+                    newBooking(walk.walkId, booking.memId, walk.status.available > 0, i) :
+                    oldBooking(walk.walkId, booking.memId, booking.status, booking.annotation, i) )
+                }
+              </div>
+
+            ))}
+            <AnnotateBooking {...annotate}/>
+            <Lock />
           </div>
 
-        ))}
-        <AnnotateBooking {...annotate}/>
-        <Lock />
-        </div>
-
-        <ChangeLog accId={accId}/>
-        <Payment accId={accId}/>
+          <ChangeLog accId={accId}/>
+          {/* <ChangeLogM accId={accId}/> */}
+          <Payment accId={accId}/>
         </Panel>
 
       );

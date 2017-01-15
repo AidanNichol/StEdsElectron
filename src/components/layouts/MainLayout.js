@@ -14,9 +14,12 @@ import {ReplicationStatus} from '../views/header/ReplicationStatus'
 import {isUserAuthorized} from '../../services/auth.js';
 import MembersListContainer from '../containers/members-list-container.js';
 import BookingsContainer from '../containers/bookings-container.js';
-import BulkAddContainer from '../containers/bulkAdd-container.js';
+import ShowConflicts from '../views/ShowConflicts.js';
+import ShowAccountConflicts from '../views/ShowAccountConflicts.js';
 import BusListsContainer from '../containers/buslists-container.js';
 import PaymentsContainer from '../containers/Payments-container.js';
+import PaymentsContainerM from 'components/containers/PaymentsMade-mobx';
+
 var packageJson = require('../../../package.json');
 
 const version = packageJson.version;
@@ -27,7 +30,9 @@ const loadPage = (curPage, loading)=>{
   switch(curPage) {
     case 'membersList': return (<MembersListContainer />);
     case 'bookings': return (<BookingsContainer />);
-    case 'bulkadd': return (<BulkAddContainer />);
+    case 'showconflicts': return (<ShowConflicts />);
+    // case 'showaccountconflicts': return (<ShowAccountConflicts />);
+    case 'showaccountconflicts': return (<PaymentsContainerM />);
     case 'buslists': return (<BusListsContainer />);
     case 'payments': return (<PaymentsContainer />);
     case 'none': return(<div>Welcome to St.Edwards Booking System - please login.</div>)
@@ -46,19 +51,20 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   logit('currentPage', curPage)
   return (
         <div>
-        <div className="mainPage" >
-        <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
-        <ReplicationStatus className="devlinks"/>
-        <span className="version">v {version}</span>
-        <Signin />
-        {/*<Shortcuts className="shortcuts"/>*/}
-        {/*<DisplayErrors />*/}
-        <div className="nav">
-        <Link page="bookings" name="Bookings" show={bookingsAdmin} />
-        <Link page="buslists" name="Buslist" show={bookingsAdmin}/>
+          <div className="mainPage" >
+            <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
+            <ReplicationStatus className="devlinks"/>
+            <span className="version">v {version}</span>
+            <Signin />
+            {/*<Shortcuts className="shortcuts"/>*/}
+            {/*<DisplayErrors />*/}
+            <div className="nav">
+              <Link page="bookings" name="Bookings" show={bookingsAdmin} />
+              <Link page="buslists" name="Buslist" show={bookingsAdmin}/>
 
-        <Link page="bulkadd" name="BulkAdd" show={bookingsAdmin}/>
-        <Link page="payments" name="Payments" show={bookingsAdmin}/>
+              <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
+              <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/>
+              <Link page="payments" name="Payments" show={bookingsAdmin}/>
         {/* <Link page="paymentsSummary" name="Payments Summary" show={bookingsAdmin}/> */}
         <Link page="membersList" name="Members" show={memberAdmin}/>
         </div>

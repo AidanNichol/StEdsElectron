@@ -19,9 +19,10 @@ function nothingEarlier(log, logRec){
 }
 
 const isRequestReversal = (req1, req2)=>{
+  const X=true, L=true;
   if (req1[0] !== req2[0])return false;
-  if (req1.length === 1 && req2[1] === 'X') return true;
-  if (req2.length === 1 && req1[1] === 'X') return true;
+  if (req1.length === 1 && {X, L}[req2[1]]) return true;
+  if (req2.length === 1 && {X, L}[req1[1]]) return true;
   return false;
 }
 export function pushWalkLog(log=[], data, _today = new Date()){
@@ -30,11 +31,11 @@ export function pushWalkLog(log=[], data, _today = new Date()){
   // if this request is a reversal of recent request then simply cancel the previous
   // log record rather than clutter the log with two records
   var logLast = log[log.length-1];
-  logit('pushWalkLog', {logRec, logLast,  earlier: nothingEarlier(log, logRec)})
+  logit('pushWalkLog', {logRec, logLast, reversal: isRequestReversal(logRec.req, logLast.req),  earlier: nothingEarlier(log, logRec)})
   if (
     isRequestReversal(logRec.req, logLast.req)
      && logLast.dat.substr(0, 10) === logRec.dat.substr(0, 10)  // same day
-     && nothingEarlier(log, logRec)
+    //  && nothingEarlier(log, logRec)
    ){ // reverse previous request
      logit('reverse:previous', {logLast, logRec})
     return log.slice(0, -1);

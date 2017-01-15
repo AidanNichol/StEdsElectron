@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
 import {inject, observer} from 'mobx-react'
-import Payments from '../views/Payments.js';
+import Payments from '../views/PaymentsDue';
 import {getAllDebts, showStats} from './PaymentsFunctions'
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:Container');
+var logit = Logit('color:blue; background:yellow;', 'Payments:Mobx');
 
 
 function mapDispatchToProps(dispatch) {
@@ -15,16 +15,17 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const mapStateToProps = function(state) {
+const mapStateToProps = function(store, props) {
 
-  var debts = getAllDebts(state).debts;
+  var debts = store.AS.allDebts.debts;
   showStats();
   logit('debts', debts);
-  var props = {
+  var nprops = {
     test: 'anything',
             debts,
       };
-    return props;
+    return nprops;
 
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Payments);
+const mobxPayments = inject(mapStateToProps)(observer(Payments))
+export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);

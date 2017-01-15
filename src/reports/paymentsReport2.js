@@ -1,11 +1,11 @@
 import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:black;', 'printPayments:report');
+import AS from 'mobx/AccountsStore';
 
 
 const margin = 30;
 
 // import db from 'services/bookingsDB';
-import {getAllDebts} from '../components/containers/PaymentsFunctions';
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
 const italic = 'Times-Italic';
@@ -52,7 +52,7 @@ export function paymentsDueReport(doc, state, yStart){
   // doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
    x=doc.x; y=doc.y;
   logit('x,y', {x,y})
-  let {debts} = getAllDebts(state);
+  let { debts} = AS.allDebts;
 
   debts.forEach((data, i) =>{
     debts[i].debt = data.debt.filter((bkng)=>bkng.outstanding);
@@ -87,8 +87,8 @@ export function paymentsDueReport(doc, state, yStart){
     data.debt.filter((bkng)=>bkng.outstanding).forEach((bkng)=>{
       doc.font(normal).fontSize(12).text(bkng.dispDate, x, y)
       .image(`${__dirname}/../assets/icon-${bkng.req}.jpg`, x+67, y-3, { height: detailH*.9})
-      doc.font(normal).fontSize(12).text(bkng.text, x+77, y)
-      .font(italic).fontSize(10).text(bkng.name||' ', doc.x, y)
+      doc.font(normal).fontSize(12).text(bkng.text, x+77, y, {continued: true})
+      .font(italic).fontSize(10).text(bkng.name? ` [${bkng.name}]` : ' ')
       y += detailH;
     } );
     y += gapH;

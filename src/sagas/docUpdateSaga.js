@@ -1,12 +1,14 @@
 import db from '../services/bookingsDB.js';
 import { call, put } from 'redux-saga/effects.js';
 import {dbChange} from '../ducks/replication-duck'
+
 var styles = {
   walk: 'color:white; background:black;',
   account: 'color:white; background:blue;',
   member: 'color:white; background:green;',
   default: 'color:black; background:cyan;',
 };
+
 var style = styles['default'];
 const logit = function logit(...Y) {
   console.log('%c%s: %c %s ', style, 'docUpdateSaga', style+'font-weight:bold', ...Y);

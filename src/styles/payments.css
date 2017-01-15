@@ -28,23 +28,35 @@
 
   .overview {
     .walk-detail {
-      width: 200px;
+      width: 180px;
       padding-right: 5px;
     }
   }
 
+  .reciptsContainer,
   .all-debts {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
     height: 100%;
+  }
 
+  .all-payments {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    height: 100%;
+  }
+
+  .all-payments,
+  .all-debts {
     .buttons {
       display: flex;
       flex-direction: row;
       padding-bottom: 4px;
-      max-width: 400px;
+      max-width: 280px;
     }
   }
 
@@ -93,11 +105,12 @@
   .debtor {
     color: var(--header-text-color);
     margin-bottom: 5px;
+    margin-right: 5px;
     padding-bottom: 4px;
     border: var(--border-color) thin solid;
     border-radius: var(--radius);
-    width: 33%;
-    max-width: 410px;
+    width: 310px;
+    max-width: 310px;
 
     .owed {
       font-size: 0.85em;
@@ -106,7 +119,18 @@
   }
 
   .details {
+    position: relative;
     padding: 3px 20px;
+
+    .text {
+      position: relative;
+      top: 5px;
+      min-width: 130px;
+      max-width: 130px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
 
     .name {
       font-size: 0.9em;

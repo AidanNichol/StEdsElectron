@@ -38,6 +38,7 @@ export function reducer(state = summaryPaymentsDefaultState, action) {
     '2016-11-21T09:00:00': '2016-12-01T09:27:24',
     '2016-12-01T09:27:24': '2016-12-05T09:00:00',
     '2016-12-05T09:00:00': '2016-12-16T12:00:00',
+    '2016-12-16T12:00:00': '2017-01-05T15:00:00',
   }
   switch(action.type) {
     case change_bankPayment_doc:

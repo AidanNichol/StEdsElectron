@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import {setPage} from '../../ducks/router-duck.js';
 import {getBookingsSummary} from '../../ducks/walksDuck'
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
+import {summaryReport} from 'reports/summaryReport2'
 
 import BusLists from '../views/BusLists.js';
 // import {accountSelected} from '../actions/accounts-actions.js';
@@ -85,6 +86,7 @@ function mapDispatchToProps(dispatch) {
 
 
 const mapStateToProps = function(state) {
+  // summaryReport();
   // get the data for the select name component
   const id = state.router.walkId;
   let walkId = (id && id[0]) === 'W' ? id : state.walks.bookable[0];

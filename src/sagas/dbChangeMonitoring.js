@@ -5,6 +5,16 @@ import { eventChannel, END, buffers } from 'redux-saga'
 
 
 import Logit from '../factories/logit.js';
+import WS from 'mobx/WalksStore'
+import MS from 'mobx/MembersStore'
+import AS from 'mobx/AccountsStore'
+
+var store = {
+  walk: WS,
+  account: AS,
+  member: MS,
+};
+
 var logit = Logit('color:white; background:navy;', 'SyncDoc');
 const collections = {M: 'member', W: 'walk', A: 'account', BP: 'bankPayments', BS: 'bankSubscriptions'};
 
@@ -34,16 +44,23 @@ export default function * monitorChanges () {
 
   while (true) { // eslint-disable-line no-constant-condition
     const change = yield take(channel); // Blocks until the promise resolves
-    logit('change', change);
+    var collection = (change.doc && change.doc.type) || collections[change.id.match(/$([A-Z]+)/)[0]];
+    logit('change', {change, collection});
+    if (store[collection]){
+      store[collection].changeDoc(change)
+    }
     if (change.deleted){
       const req = change.id.match(/$([A-Z]+)/)[0];
-      var collection = collections[req];
+      collection = collections[req];
       logit('collection', req, collection);
       if (collection){
         yield put({type: `delete_${collection}_doc`, id: change.id});
       }
 
     }
-    else yield put({type: `change_${change.doc.type}_doc`, doc: change.doc});
+    else {
+      collection = change.doc.type;
+      yield put({type: `change_${change.doc.type}_doc`, doc: change.doc})
+    };
   }
 }

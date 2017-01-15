@@ -6,7 +6,8 @@ var logit = Logit('color:yellow; background:black;', 'reports:saga');
 // import fs from 'fs';
 // import {actions} from '../ducks/memberslist-duck';
 import{membershipListReport} from '../reports/membershipListPDF2';
-import{summaryReport} from '../reports/summaryReport';
+// import{summaryReport} from '../reports/summaryReport';
+import{summaryReport} from '../reports/summaryReport2';
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 import { take, select, put, call } from 'redux-saga/effects';

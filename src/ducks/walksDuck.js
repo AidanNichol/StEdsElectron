@@ -1,6 +1,7 @@
 import * as i from 'icepick';
 import React from 'react';
 import { createSelector } from 'reselect'
+import {uniq} from 'lodash'
 // import { createReducer } from 'redux-act';
 // import * as actions from '../actions/walks-actions.js';
 import { call, take, select, put } from 'redux-saga/effects.js';
@@ -85,6 +86,7 @@ export const request = {
 
 const CHANGE_WALK_DOC = 'change_walk_doc'
 const WALK_UPDATE_BOOKING = 'walks/update_booking'
+const WALK_RESET_LATE_CANCELLATION = 'walks/reset_late_cancellation'
 const WALK_ANNOTATE_OPEN_DIALOG = 'walks/annotate_open_dialog'
 const WALK_ANNOTATE_CLOSE_DIALOG = 'walks/annotate_close_dialog'
 const WALK_ANNOTATE_BOOKING = 'walks/annotate_booking'
@@ -106,6 +108,7 @@ const WALK_SELECTED = 'walks/selected'
 //---------------------------------------------------------------------
 
 export const updateWalkBookings = (walkId, accId, memId, reqType) => ({type: WALK_UPDATE_BOOKING, walkId, accId, memId, reqType});
+export const resetLateCancellation = (walkId, memId) => ({type: WALK_RESET_LATE_CANCELLATION, walkId, memId});
 export const annotateWalkBookings = (walkId, memId, text) => ({type:WALK_ANNOTATE_BOOKING, walkId, memId, text});
 export const annotateOpenDialog = (walkId, memId) => ({type:WALK_ANNOTATE_OPEN_DIALOG, walkId, memId});
 export const annotateCloseDialog = () => ({type:WALK_ANNOTATE_CLOSE_DIALOG});
@@ -138,6 +141,7 @@ logit('loaded', null);
           if (!doc.bookings)doc.bookings={};
           list[doc._id] = doc;
         });
+        bookable = uniq(bookable)
         logit('newstate', {list, bookable});
         var current = bookable[0];
         return i.assign(state, {list, bookable, current, annotate: {}});
@@ -154,6 +158,8 @@ logit('loaded', null);
         return i.set(state, 'annotate', {dialogOpen: true, walkId: action.walkId, memId: action.memId})
       case WALK_ANNOTATE_CLOSE_DIALOG:
         return i.setIn(state, ['annotate', 'dialogOpen'], false)
+      case WALK_RESET_LATE_CANCELLATION:
+
       case WALK_UPDATE_BOOKABLE:
 
         return i.set(state, 'bookable', Object.keys(state.list).filter((docId)=>!state.list[docId].closed && state.list[docId].firstBooking <= _now))
@@ -192,14 +198,14 @@ export function getBookingsSummary(walk){
 //---------------------------------------------------------------------
 
 export function* walksSaga(args){
-  const mapAction = {[WALK_UPDATE_BOOKING]: updateBooking, [WALK_ANNOTATE_BOOKING]: annotateBooking, [WALK_CLOSE_BOOKINGS]: closeWalk}
+  const mapAction = {[WALK_UPDATE_BOOKING]: updateBooking, [WALK_RESET_LATE_CANCELLATION]: resetCancellation,[WALK_ANNOTATE_BOOKING]: annotateBooking, [WALK_CLOSE_BOOKINGS]: closeWalk}
   logit('loaded', {args, mapAction});
   // yield take(DOCS_LOADED);
   // walks = yield select
   // try{
     while(true){ // eslint-disable-line no-constant-condition
       logit('waiting for','WALK_UPDATE_BOOKING' );
-      let action = yield take([WALK_UPDATE_BOOKING, WALK_ANNOTATE_BOOKING, WALK_CLOSE_BOOKINGS]);
+      let action = yield take([WALK_UPDATE_BOOKING, WALK_RESET_LATE_CANCELLATION, WALK_ANNOTATE_BOOKING, WALK_CLOSE_BOOKINGS]);
       logit('took', action)
       who = yield select((state)=>state.signin.memberId || '???');
       let walk = yield select((state, walkId)=>state.walks.list[walkId], action.walkId);
@@ -209,7 +215,7 @@ export function* walksSaga(args){
       if (action.type === WALK_ANNOTATE_BOOKING)yield put(annotateCloseDialog())
       if (action.type === WALK_CLOSE_BOOKINGS){
         yield put(updateBookableWalks(action.walkId))
-        yield call(copyCloneableToAccount, action)
+        yield call(copyFixableLogsToAccount, action)
       }
     }
 
@@ -266,20 +272,34 @@ function updateBooking(walk, changes){
   return newDoc;
 }
 
+function resetCancellation(walk, changes){
+  logit('resetCancellation', walk, changes)
+  var memId = changes.memId;
+  var booking = i.thaw(walk.bookings[memId]) || {};
+  var reqType = changes.reqType;
+  if (booking.status !== request.BUS_CANCELLED_LATE) return false
+  reqType = request.BUS_CANCELLED;
+  booking.status = reqType;
+  const bReq = booking.logs[booking.logs.length-1].req
+  if (bReq !== request.BUS_CANCELLED_LATE) return false
+  booking.logs[booking.logs.length-1].req = request.BUS_CANCELLED;
+  var newDoc = i.setIn(walk, ['bookings', memId], booking);
+  logit('newDoc', newDoc)
+  return newDoc;
+}
+
 function closeWalk(walk, action){
-  return walk;
   logit('closeWalk', walk, action)
   return {...walk, closed: true};
 }
 
-function* copyCloneableToAccount(action){
-  let {cloneables} = action;
-  for(let accId of Object.keys(cloneables)){
+function* copyFixableLogsToAccount(action){
+  let {fixables} = action;
+  for(let accId of Object.keys(fixables)){
     var acc = yield select(state=>state.accounts.list[accId]);
-    const logs = cloneables[accId].map(log=>{delete log.cloneable; log.clone=true; return log;})
-    var newAcc = i.set(acc, 'logs', [...acc.logs, ...logs]);
-    logit('copyCloneableToAccount', {action, newAcc})
-    // var newAcc = acc.set('log', log);
+    const logs = fixables[accId].map(log=>{delete log.fixable; log.clone=true; return log;})
+    var newAcc = i.set(acc, 'logs', fixables[accId]);
+    logit('copyFixableLogsToAccount', {id: acc._id, action, acc, logs, newAcc})
     yield call(docUpdateSaga, newAcc, action);
   }
 }

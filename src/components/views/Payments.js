@@ -34,17 +34,17 @@ function MemberBill(props){
         <div className='walk-detail' key={bkng.dat}>{bkng.dispDate}<Icon type={bkng.req} width="16"/>  {bkng.text}{bkng.name &&(<span className="name">[{bkng.name}]</span>)} </div>
     );
     return (<div className="debtor" >
-              <div className="overview">
-                <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
-                {/*<span className="owed">£{(-data.balance).toFixed(2)}</span>*/}
-                {/*<span>*/}
-                  {/*<span className="owed">*/}
-                    <TooltipButton className="owed" label={`£${(-data.balance).toFixed(2)}`} onClick={paidInFull} tiptext='Paid Full Amount' visible/>
-                  {/*</span>*/}
+      <div className="overview">
+        <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
+        {/*<span className="owed">£{(-data.balance).toFixed(2)}</span>*/}
+        {/*<span>*/}
+        {/*<span className="owed">*/}
+        <TooltipButton className="owed" label={`£${(-data.balance).toFixed(2)}`} onClick={paidInFull} tiptext='Paid Full Amount' visible/>
+        {/*</span>*/}
 
-                  <TooltipContent tiptext='Enter paid amount and press enter' visible>
-                    <span className="paid">£<input type="text" onKeyDown={handleKeydown} /></span>
-                  </TooltipContent>
+        <TooltipContent tiptext='Enter paid amount and press enter' visible>
+          <span className="paid">£<input type="text" onKeyDown={handleKeydown} /></span>
+        </TooltipContent>
 
                 {/*</span>*/}
               </div>
@@ -58,7 +58,7 @@ function MemberBill(props){
 export default function Payments(props){
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
-  // logit('payments', props);
+  logit('payments props', props);
   var {debts, accountUpdatePayment, showMemberBookings} = props;
   var title = (<h4>Payments Due</h4>);
   return (

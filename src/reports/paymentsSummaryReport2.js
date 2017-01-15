@@ -4,7 +4,6 @@ import XDate from 'xdate';
 import jetpack from 'fs-jetpack';
 
 const home =process.env.HOME || process.env.HOMEPATH;
-console.log('home', home)
 const margin=30;
 const calcLineHeights = (doc)=>{
   const h14 = doc.fontSize(14).text( ' ', margin, 80).y - 80;
@@ -30,7 +29,6 @@ export function paymentsSummaryReport(payload){
 
   let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
   // let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
-  console.log('name', {docname})
   const margin = 30;
   var doc = new PDFDocument({size: 'A4', margins: {top:20, bottom: 20, left:margin, right: margin}, autoFirstPage: false});
   doc.pipe(fs.createWriteStream(docname) )
@@ -44,7 +42,7 @@ export function paymentsSummaryReport(payload){
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height4)/2, {align: 'right'})
     // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
     doc.fontSize(14).text(`${payload.startDate} to ${payload.endDate}`, 30, 30+(20+height14)/2, {align: 'center'})
-});
+  });
 
   reportBody(payload, doc);
   doc.end();
@@ -54,76 +52,86 @@ export function paymentsSummaryReport(payload){
 const reportBody = (payload, doc)=>{
   doc.addPage();
   doc.font(normal)
-
   const [nameH, detailH, gapH] = calcLineHeights(doc);
 
   const {
       closingCredit,
       closingDebt,
       openingCredit,
-      openingDebt,
+      openingDebt, payments,
       aLogs, bLogs, tots,
     } = payload;
-    const creditsUsed = openingCredit - closingCredit;
-    const netBookings = (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0)
-                      - (tots.BX ? tots.BX[1] : 0) - (tots.CX ? tots.CX[1] : 0);
-    const netCashAndCheques =  (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0)
-    const netBACS = (tots.PB ? tots.PB[1] : 0) - (tots.PBC ? tots.PBC[1] : 0)
-    const netPayments = netCashAndCheques + netBACS;
-    const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
+  const creditsUsed = openingCredit - closingCredit;
+  const netBookings = (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0)
+                    - (tots.BX ? tots.BX[1] : 0) - (tots.CX ? tots.CX[1] : 0);
+  const netCashAndCheques =  (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0)
+  const netBACS = (tots.PB ? tots.PB[1] : 0) - (tots.PBC ? tots.PBC[1] : 0)
+  const netPayments = netCashAndCheques + netBACS;
+  const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
 
-    const pWidth = doc.page.width;
-    const pHeight = doc.page.height;
-    const boxPad = 6;
-    var colW = (pWidth - 2* margin)/3;
-    const gutter = 12, indent= 20;
-    let x, yPostSumm, y=60,firstY,
-        cX=margin+boxPad, dX= margin + colW +gutter,
-        dW=2*colW - boxPad - gutter, cW=colW - boxPad - gutter;
+  const pWidth = doc.page.width;
+  const pHeight = doc.page.height;
+  const boxPad = 6;
+  var colW = (pWidth - 2* margin)/3;
+  const gutter = 12, indent= 20;
+  let x, yPostSumm, y=60,firstY,
+      cX=margin+boxPad, dX= margin + colW +gutter,
+      dW=2*colW - boxPad - gutter, cW=colW - boxPad - gutter;
 
-    const AccLineTot = ({y, x, wd, title, factor='', item}) =>{
-      if (!tots[item])return y;
-      // console.log('AccLineTot', {item, tots});
-      doc.fontSize(12).fillColor('blue').text(`${title} (${tots[item][0]})`, x + indent, y).text(`${factor}£${tots[item][1]}`, x, y, {width: wd - 2*indent, align: 'right'})
-      return y+ detailH;
+
+  const AccLineTot = ({y, x, wd, title, factor='', item}) =>{
+    if (!tots[item])return y;
+    // console.log('AccLineTot', {item, tots});
+    doc.fontSize(12).fillColor('blue').text(`${title} (${tots[item][0]})`, x + indent, y).text(`${factor}£${tots[item][1]}`, x, y, {width: wd - 2*indent, align: 'right'})
+    return y+ detailH;
+  }
+  const AccLine = ({y,x,wd, title, font=normal, factor='', item, opt}) =>{
+    if (opt && item <=0 )return y;
+    doc.font(font).fontSize(12).fillColor('black').text(title, x, y).text(`${factor}£${item}`, x, y, {width: wd, align: 'right'})
+    // if (x === dX)y += detailH + gapH;
+    return y += (x === dX ? detailH + gapH : 0);
+  }
+
+  const printLogRec = (log, x, y)=>{
+    doc.font(normal).fontSize(10).text(log.dispDate, x , y)
+      .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+55, y-3, { height: detailH*.9})
+      .fontSize(12).text(`${log.text} `, x+68 , y, {continued: true})
+      .font(italic).fontSize(10).text(log.name? `[${log.name}] ` : '');
+    doc.text(`£${log.amount}`, x, y, {width: colW, align:'right'})
+    return y+detailH;
+  }
+
+  const printPayments = (acc) => {
+    console.log('printPayments', acc)
+    y += 3;
+    let payments = acc.logs.filter(log=>log.paid)
+    let startY = y;
+    let accHeight = 4 + detailH*(1+payments.length);
+    if (pHeight - y - margin - accHeight<= 0) {
+      console.log()
+      x+= colW + gutter;
+      // y = yPostSumm
+      y = firstY + 3;
+      if (x + colW>pWidth ){
+        y= 60; yPostSumm = y
+        x = margin;
+        doc.addPage();
+      }
     }
-    const AccLine = ({y,x,wd, title, font=normal, factor='', item, opt}) =>{
-      if (opt && item <=0 )return y;
-      doc.font(font).fontSize(12).fillColor('black').text(title, x, y).text(`${factor}£${item}`, x, y, {width: wd, align: 'right'})
-      // if (x === dX)y += detailH + gapH;
-      return y += (x === dX ? detailH + gapH : 0);
-    }
+    doc.roundedRect(x-2,y-4, colW+4, detailH+4, 3).fillAndStroke('#ccc', '#888').fillColor('black')
+    doc.fontSize(12).text(acc.sortname, x, y, {align:'left', width: colW});
+    doc.fontSize(12).text(`£${acc.paymentsMade}`, x, y, {width: colW, align:'right'})
+    y += detailH+4;
 
-    const printLogRec = (log, x, y)=>{
-      doc.font(normal).fontSize(10).text(log.dispDate, x , y)
-        .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+55, y-3, { height: detailH*.9})
-        .fontSize(12).text(`${log.name} `, x+68 , y, {continued: true})
-        .font(italic).fontSize(10).text(log.text? `[${log.text}] ` : '');
-      doc.font(normal).fontSize(12).text(`£${log.amount}`, x, y, {width: colW, align:'right'})
-      return y+detailH;
-    }
-
-    const printLog = (title, logs) => {
-      y += 3;
-      let yPostSumm = y;
-      doc.fontSize(12).text(title, x, y, {align:'center', width: colW});
-      doc.rectAnnotation(x,y-4, colW, detailH+4)
-      y += detailH+4;
-
-      logs.forEach((log) => {
-        y = printLogRec (log, x, y)
-        if (pHeight - y - margin -detailH<= 0) {
-          x+= colW + gutter;
-          // y = yPostSumm
-          y = firstY
-          if (x + colW>pWidth ){
-            y= 60; yPostSumm = y
-            x = margin;
-            doc.addPage();
-          }
-        }
-      });
-      return ;
+    payments.forEach((log) => {
+      y = printLogRec (log, x, y)
+    });
+    console.log(acc.sortname, {startY, accHeight, n: payments.length, endY: startY+accHeight, y, pHeight, margin, detailH})
+  }
+    const printAccs = (accs)=>{
+      accs.forEach(acc=>{
+        printPayments(acc)
+      })
     }
 
     y += nameH+gapH;
@@ -162,6 +170,7 @@ const reportBody = (payload, doc)=>{
     colW = (pWidth - 2* margin - gutter)/2;
     yPostSumm;
 
-    printLog('Payments', aLogs)
-    printLog('Bookings', bLogs)
+    printAccs(payments)
+    // printLog('Payments', aLogs)
+    // printLog('Bookings', bLogs)
   }

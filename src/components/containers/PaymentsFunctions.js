@@ -182,7 +182,7 @@ const makeGetAccountLog = (accId)=> createSelector(
       return logs;
     });
 
-const makeGetAccountDebt = (accId)=> createSelector(
+const makeGetaccountStatus = (accId)=> createSelector(
   getCombinedWalkLogs,
   (state)=>_acc[accId].getLog(state),
   (state)=>state.accounts.list[accId] || {members:[]},
@@ -208,18 +208,25 @@ const makeGetAccountDebt = (accId)=> createSelector(
     let lastHistory = -1
     let walkPast = 'W'+_today
     let currentFound = false
-    let zeroPoints = [-1]
-    let lastZeroPoint = -1;
+    let mostRecentWalk = '';
+    // let zeroPoints = [-1]
+    // let lastZeroPoint = -1;
     logs = i.thaw(logs).sort(logCmpDate).map((log, i)=>{
       // logs = logs.map((log, i)=>{
       if (i>0 && logs[i-1].dat === log.dat && log.type === 'W')log.duplicate = true
       else balance -= log.amount;
       // logit('log '+accId, {log, balance});
-      if (!currentFound && log.type === 'W' && log.walkId > walkPast)currentFound = true
-      if (!currentFound && balance === 0)lastHistory = i;
+      if (!currentFound && log.type === 'W'){
+        if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
+        if (log.walkId > walkPast)currentFound = true
+      }
+      if (!currentFound && balance === 0){
+        lastHistory = i;
+        log.mostRecentWalk = mostRecentWalk;
+      }
       if (log.type === 'A' && balance === 0){
-        zeroPoints.push(i);
-        lastZeroPoint = i;
+        // zeroPoints.push(i);
+        // lastZeroPoint = i;
       }
       if (balance >= 0) lastOK = i;
       return {...log, zeroPoint: balance === 0, balance};
@@ -227,6 +234,7 @@ const makeGetAccountDebt = (accId)=> createSelector(
     logs = logs
             .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
+    // fixupAccLogs(thisAcc, logs);
     let debt = [];
     if (balance < 0){
       let due = balance;
@@ -255,11 +263,34 @@ const makeGetAccountDebt = (accId)=> createSelector(
         .reverse()
         .filter((log)=>log.req==='B' || log.req==='C' || log.req==='L');
     }
-    logit('logs '+accId, {balance, debt, logs, accName, sortname});
-    return  {accId, balance, debt, logs, lastHistory, zeroPoints,lastZeroPoint, accName, sortname};
+    // logit('logs '+accId, {balance, debt, logs, accName, sortname});
+    // return  {accId, balance, debt, logs, lastHistory, zeroPoints,lastZeroPoint, accName, sortname};
+    return  {accId, balance, debt, logs, lastHistory, accName, sortname};
 }
 );
+const fixupAccLogs = (acc, logs)=>{
+  // make sure the inFull flag in account records is set correctly
+  let newLogs = acc.logs;
+  let index={}
+  for(let log of logs){
+    index[`${log.dat}${log.type}`] = log.balance===0;
+  }
+  for(let [ind,log] of acc.logs.entries()){
+    let {dat, type, inFull} = log;
+    if (index[dat+type] === inFull)continue;
+    newLogs = i.splice(newLogs, ind, 1, {...log, inFull: index[dat+type]})
+  }
+  var clones = logs.filter(log=>log.cloneable);
+  if (clones.length>0){
+    clones = clones.map(log=>{delete log.cloneable; log.clone=true; return log;})
+    newLogs = i.splice(newLogs, newLogs.length, 0, clones);
+  }
 
+  if (newLogs!==acc.logs){
+    logit('fixupAccLogs changes made', {id:acc._id, old: acc.logs, new: newLogs, logs})
+    return i.sort(newLogs, logCmpDate);
+  }
+}
 var logColl = new Intl.Collator();
 // var logCmpDate = (a, b) => logColl.compare(a.dat, b.dat);
 var logCmpDate = (a, b) => {
@@ -300,7 +331,7 @@ export const getAccDebt = (accId, state)=>{
   if (!_acc[accId]){
     _acc[accId] = {};
     _acc[accId].getLog = makeGetAccountLog(accId);
-    _acc[accId].getDebt = makeGetAccountDebt(accId);
+    _acc[accId].getDebt = makeGetaccountStatus(accId);
   }
   return _acc[accId].getDebt(state);
 };
@@ -322,17 +353,18 @@ export const getAllDebts = (state)=>{
   return {debts, credits};
 };
 
-export const getAllCloneables = (state)=>{
+export const getAllFixableLogs = createSelector(
+  (state)=>state,
+  (state)=>{
   let clones={};
   Object.keys(state.accounts.list).forEach((accId)=>{
   // ["A989", "A2008", 'A2009', 'A1158'].forEach((accId)=>{
-    let clone = getAccDebt(accId, state).logs;
-    clone = clone.filter(log=>log.cloneable);
-    if (clone.length>0)clones[accId] = clone;
+    let logs = getAccDebt(accId, state).logs;
+    if (logs)clones[accId] = logs;
   });
 
   return clones;
-};
+});
 
 
 

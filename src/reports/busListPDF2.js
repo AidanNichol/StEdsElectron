@@ -42,7 +42,7 @@ export function busListReport(doc, state){
 
     data.forEach((bkng, i)=> {
       const annotate = bkng.annotation && bkng.annotation !== '';
-      doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, x, y, {contimue: annotate})
+      doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, x, y, {continue: annotate})
       if (annotate) {
         doc.fontSize(9).font(italic).fillColor('blue').text(`${bkng.annotation||' '}`, {align: 'right', width: colW}).fillColor('black')
       }

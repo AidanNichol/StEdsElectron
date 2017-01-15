@@ -1,24 +1,36 @@
-var prettyFormat = require('pretty-format')
+import Logit from 'factories/logit.js';
+var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
+
+// var prettyFormat = require('pretty-format')
 var PouchDB  = require('pouchdb');
 import fs from 'fs'
 // var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
-var db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
 
 (async function() {
   try {
+    var livedb = new PouchDB('http://nicholware.com:5984/bookings', {});
+    console.log('reading live')
+    var data = await livedb.allDocs({include_docs: true})
+    var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
+    console.log('docs', docs.length)
+    var db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await db.destroy();
     db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await db.compact();
-    var data = fs.readFileSync('./backup/2017-01-03prod.json')
-    var docs =JSON.parse(data);
-    console.log(docs.length)
+    // var data = fs.readFileSync('./backup/2017-01-08prod.json')
+    // var docs =JSON.parse(data);
+    console.log('read live. docs:',docs.length)
     docs.forEach((doc, i)=>{
       // console.log(i, doc.type, docs.length)
       if (doc.type==='walk')docs[i] = reformatWalkDoc(doc)
       if (doc.type==='account')docs[i] = reformatAccDoc(doc)
     })
     // console.log(docs)
-    await db.bulkDocs(docs)
+    // let res = await db.bulkDocs(docs)
+    let res = await db.bulkDocs(docs, {new_edits: false})
+    console.log('result', res)
+    const info = await db.info()
+    console.log('info', info)
 
   } catch (e) {
     console.error('error', e);

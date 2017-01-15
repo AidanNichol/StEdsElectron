@@ -1,12 +1,16 @@
 import 'babel-polyfill'
 import React from 'react';
 import { render } from 'react-dom';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux';
+import { Provider as MobxProvider } from 'mobx-react';
 import {configureStore} from './store.js';
 import MainLayout from './components/layouts/MainLayout.js';
 import {template} from './menu/menu.js'
 import {remote} from 'electron';
 import {opts} from 'factories/logit.js';
+import WS from 'mobx/WalksStore'
+import MS from 'mobx/MembersStore'
+import AS from 'mobx/AccountsStore'
 console.log('logit:opts', opts)
 
 const Menu = remote.Menu;
@@ -24,8 +28,10 @@ if (navigator.onLine) {
 const store = configureStore();
 console.log('store', store);
 render(
-        <Provider store={store}>
-          <MainLayout />
-        </Provider>
+        <ReduxProvider store={store}>
+          <MobxProvider {...{MS, AS, WS}}>
+            <MainLayout />
+          </MobxProvider>
+        </ReduxProvider>
         , document.getElementById('root')
 );

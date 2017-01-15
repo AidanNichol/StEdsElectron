@@ -13,11 +13,31 @@
   }
 
   .logRec {
+    position: relative;
     display: flex;
     align-items: center;
 
     &.inbalance {
       border-bottom: black thin solid;
+    }
+
+    .edit_button {
+      position: relative;
+      left: -1.5em;
+      display: none;
+      overflow: visible;
+      white-space: nowrap;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+      }
+    }
+
+    &:hover {
+      .edit_button {
+        display: inline-block;
+      }
     }
   }
 
@@ -39,14 +59,12 @@
     padding-right: 1em;
   }
 
-  &:hover {
-    span.logText {
-      overflow: auto;
-      background-color: rgb(234, 236, 238);
+  span.logText:hover {
+    overflow: auto;
+    background-color: rgb(234, 236, 238);
 
-      .text {
-        white-space: normal;
-      }
+    .text {
+      white-space: normal;
     }
   }
 

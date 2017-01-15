@@ -2,6 +2,7 @@ import Logit from '../factories/logit.js';
 import fs from 'fs';
 import svg2png from 'svg2png'
 var logit = Logit('color:yellow; background:black;', 'printCredits:report');
+import AS from 'mobx/AccountsStore';
 
 const calcLineHeights = (doc)=>{
   const h14 = doc.fontSize(14).text( ' ', margin, 80).y - 80;
@@ -13,7 +14,7 @@ const calcLineHeights = (doc)=>{
 const margin = 30;
 
 // import db from 'services/bookingsDB';
-import {getAllDebts} from '../components/containers/PaymentsFunctions';
+// import {getAllDebts} from '../components/containers/PaymentsFunctions';
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
 const italic = 'Times-Italic';
@@ -21,7 +22,7 @@ const italic = 'Times-Italic';
 logit('env', process.env)
 logit('dirname', __dirname)
 let icons = {};
-export function creditsOwedReport(doc, state){
+export function creditsOwedReport(doc){
   doc.addPage()
   doc.font(normal)
   const pWidth = doc.page.width;
@@ -41,7 +42,7 @@ export function creditsOwedReport(doc, state){
   }
 
   const balanceCols = (credits)=>{
-    let sizes = credits.map((data)=>nameH+gapH+(data.logs.length - data.lastZeroPoint)*detailH);
+    let sizes = credits.map((data)=>nameH+gapH+(data.logs.length - data.logs.length)*detailH);
     logit('sizes', sizes)
     let tot = 0;
     let sumSizes = sizes.map((item)=>{let st = tot;tot+=item; return st})
@@ -60,7 +61,16 @@ export function creditsOwedReport(doc, state){
   // doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
    x=doc.x; y=doc.y;
   logit('x,y', {x,y})
-  let { credits} = getAllDebts(state);
+  let { credits} = AS.allDebts;
+  credits = credits.map(acc=>{
+    let logs = [];
+    for(let log of acc.logs.reverse()){
+      if (log.balance === 0)break;
+      logs.unshift(log)
+    }
+    acc.logs = logs;
+    return acc;
+  })
   logit('credits', credits);
   let [bal, space] = balanceCols(credits);
   const yOff = pHeight - space - margin - detailH;
@@ -84,12 +94,12 @@ export function creditsOwedReport(doc, state){
     doc.text(`£${data.balance}`, x, y, {align: 'right', width: colW});
     doc.fontSize(12);
     y += nameH
-    data.logs.slice(data.lastZeroPoint+1).forEach((log)=>{
+    data.logs.forEach((log)=>{
       doc.font(normal).fontSize(12)
           .text(log.dispDate, x, y)
           .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
-          .text(log.text, x+77, y);
-      log.req !== 'P' && doc.font(italic).fontSize(10).text(log.name||' ', doc.x, y);
+          .text(log.text, x+79, y, {continued: true});
+      doc.font(italic).fontSize(10).text(log.req !== 'P' ? (log.name? ` [${log.name}]`:' ') : ' ');
       y += detailH
     });
     y+=gapH;
