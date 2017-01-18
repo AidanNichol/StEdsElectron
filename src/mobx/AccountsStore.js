@@ -1,5 +1,6 @@
-import { observable, computed, action, toJS, asMap, runInAction, reaction} from 'mobx';
+import { observable, computed, action, toJS, runInAction, reaction} from 'mobx';
 import db from 'services/bookingsDB';
+import XDate from 'xdate';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:AccountsStore');
 import {_loading} from 'mobx/symbols'
@@ -7,7 +8,7 @@ import Account from './Account'
 class AccountsStore {
 
 
-  @observable accounts = asMap({});
+  accounts = observable.map({});
   @observable activeAccount;
   @observable loaded = false;
   @observable lastPaymentsBanked = ''
@@ -46,6 +47,11 @@ class AccountsStore {
       }
     );
   }
+
+  @computed get periodStartDate(){
+    return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM')
+  }
+
   getLastPaymentsBanked = ()=>{return toJS(this.lastPaymentsBanked)}
 
   @computed get allDebts() {
@@ -80,7 +86,7 @@ class AccountsStore {
     let account = this.accounts.get(doc._id)
     logit('changeDoc', {deleted, doc, account, ...rest})
     if (deleted){
-      if (doc._rev === account._rev)delete this.accounts.delete(doc._id)
+      if (doc._rev === account._rev)this.accounts.delete(doc._id)
       return;
     }
     if (!account){
@@ -89,6 +95,7 @@ class AccountsStore {
     if (doc._rev === account._rev) return; // we already know about this
     account.updateDocument(doc)
   }
+
   @action loadAccounts = async () => {
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'A', endkey: 'A99999999' });

@@ -1,4 +1,6 @@
 import React from 'react';
+import {observable, action } from 'mobx';
+import {observer} from 'mobx-react';
 import {Icon} from '../../../ducks/walksDuck'
 import {PaymentHelp} from 'components/help/PaymentHelp';
 import {HelpDialog} from 'components/help/HelpDialog';
@@ -17,8 +19,17 @@ const OPTIONS = [{type:"P", title:"Paid cash"},
 {type:"+", title:"Add Credit"},
 {type:"+X", title:"Remove Credit"},
 ];
+export class UiStatus {
+  @observable helpIsOpen = false;
+  @observable paymentType ;
 
-const PaymentsBoxesUnstyled = React.createClass({
+  self = this;
+  @action.bound changePaymentType(type){logit('changePaymentType', type, this);this.paymentType = type;}
+  @action.bound showHelp(){this.helpIsOpen = true;}
+  @action.bound hideHelp(){this.helpIsOpen = false;}
+}
+export const uiStatus = new UiStatus;
+const PaymentsBoxesUnstyled = observer(React.createClass({
 
   // getInitialState () {
   //   return {paymentType: OPTIONS[0], accId: undefined};
@@ -60,8 +71,8 @@ const PaymentsBoxesUnstyled = React.createClass({
               {value.title}
             </span>
     );
-    const {accId, owing, credit, accountUpdatePayment, changePaymentType, setHelp, helpIsOpen} = this.props
-    const paymentType = this.props.paymentType || OPTIONS[0];
+    const {accId, owing, credit, accountUpdatePayment} = this.props
+    const paymentType = uiStatus.paymentType || OPTIONS[0];
     logit('PaymentsBoxes:props', paymentType, this.props)
     if (!accId) return null
     let handleKeydown = (event)=> {
@@ -72,6 +83,7 @@ const PaymentsBoxesUnstyled = React.createClass({
         // if (paymentType.type[1] === 'X')amount = -amount;
         accountUpdatePayment(accId, amount, note, paymentType.type, paymentType.type[1] === 'X' && amount===owing);
         if (amountTarget)amountTarget.value = ''; if (noteTarget)noteTarget.value='';
+        uiStatus.changePaymentType(undefined)
       }
     };
     let amount = '', note = '';
@@ -96,20 +108,20 @@ const PaymentsBoxesUnstyled = React.createClass({
           {/* <span className="pay-box"> */}
           <MySelect
             className="pt-select"
-            onChange={changePaymentType}
+            onChange={uiStatus.changePaymentType.bind(uiStatus)}
             optionComponent={IconOption}
             options={OPTIONS}
             clearable={false}
             menuBuffer={800}
-            value={this.props.paymentType || OPTIONS[0]}
+            value={uiStatus.paymentType || OPTIONS[0]}
             valueComponent={IconValue}          />
           <TooltipContent tiptext='Enter paid amount and press enter' visible>
             <span> &nbsp;£ &nbsp;<input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange}/> </span>
             <span> Note &nbsp; <input size="30" type="text" onKeyDown={handleKeydown} onChange={noteChange}/> &nbsp;</span>
           </TooltipContent>
-          <span className="pt-icon-standard pt-icon-help" onClick={()=>setHelp(true)}>&nbsp;</span>
+          <span className="pt-icon-standard pt-icon-help" onClick={()=>uiStatus.showHelp()}>&nbsp;</span>
           {/* </span> */}
-          <HelpDialog setHelp={setHelp} isOpen={helpIsOpen}>
+          <HelpDialog setHelp={uiStatus.hideHelp.bind(uiStatus)} isOpen={uiStatus.helpIsOpen}>
             <PaymentHelp />
           </HelpDialog>
         </div>
@@ -118,7 +130,7 @@ const PaymentsBoxesUnstyled = React.createClass({
     );
 
   }
-});
+}));
 export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   grid-column: 2;
   grid-row: 3;

@@ -2,7 +2,7 @@ import R from 'ramda';
 import {merge} from 'lodash'
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Walk');
-import { observable, computed, action, asMap, autorun} from 'mobx';
+import { observable, computed, action, autorun} from 'mobx';
 import {Booking} from 'mobx/Booking'
 
 export default class Walk {
@@ -10,7 +10,7 @@ export default class Walk {
    type='walk'
   @observable _conflicts
   @observable annotations
-  @observable bookings = asMap({})
+  bookings = observable.map({})
   @observable capacity
   @observable closed = false;
   @observable fee
@@ -23,15 +23,38 @@ export default class Walk {
 
   constructor(walk) {
     autorun(() => logit('autorun', this.report, this));
-    Object.entries(walk.bookings || {}).forEach(([memId, booking])=>this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk})))
-    delete walk.logs;
-    merge(this, walk)
+    // Object.entries(walk.bookings || {}).forEach(([memId, booking])=>this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk})))
+    // delete walk.logs;
+    // merge(this, walk)
+    this.updateDocument(walk)
 
   }
 
   getWalk = ()=>{
     const {fee, venue, _id} = this;
     return {fee, venue, _id};
+  }
+
+  @computed get shortname(){return this.venue.split(/[ -]/, 2)[0]}
+
+  @computed get code(){
+    let code = this.shortname[0]+this.shortname.substr(1).replace(/[aeiou]/ig, '');
+    if (code.length > 4)code = code.substr(0,2)+code.substr(-2);
+    return code;
+  }
+
+  @computed get names(){
+    return {venue: this.venue, shortname: this.shortname, code: this.code};
+  }
+
+  @computed get bookingTotals(){
+    let totals = {B:0, W:0}
+    this.bookings.values().map(({status})=>{
+      /^[BW]$/.test(status) && totals[status]++;
+    })
+    let free = this.capacity - totals.B;
+    let display = ''+free + (totals.W > 0 ? ` (-${totals.W})` : '');
+    return {booked: totals.B, waitlist: totals.W, free, available:free-totals.W, display};
   }
 
   @computed get walkLogsByMembers() {
@@ -54,11 +77,18 @@ export default class Walk {
 		return `Walk: ${this._id} ${this.venue}`;
 	}
 
-  @action updateDocument = walk=>{
-    let changed = false;
-    merge(this, walk);
-    return changed;
+  @action updateDocument = walkDoc=>{
+      // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
+    Object.entries(walkDoc.bookings || {}).forEach(([memId, booking])=>{
+      if (this.bookings.has(memId))this.bookings.get(memId).updateBooking(booking)
+      else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk}));
+    })
+    const deleted = R.difference(this.bookings.keys(), Object.keys(walkDoc.bookings));
+    deleted.forEach(memId=>this.bookings.delete(memId))
+    merge(this, walkDoc)
+    return;
   }
+
   /*-------------------------------------------------*/
   /*                                                 */
   /*         Replication Conflicts                   */

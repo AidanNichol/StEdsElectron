@@ -243,7 +243,7 @@ const makeGetaccountStatus = (accId)=> createSelector(
         .slice(lastOK+1)
         .reverse()
         .map((log, i, arr)=>{
-          if (due < 0 && request.billable(log.req)){
+          if (due < 0 && log.amount > 0 && request.billable(log.req)){
             let cancelled = arr.slice(0,i).filter((l)=>{
 
               // const cancelled = l.req.length>1 && l.req[1]==='X' && l.memId === log.memId && l.walkId===log.walkId

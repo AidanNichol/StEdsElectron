@@ -1,7 +1,8 @@
 import {merge} from 'lodash'
+import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Booking');
-import { observable, computed, asMap} from 'mobx';
+import { observable, computed, action} from 'mobx';
 import {BookingLog} from 'mobx/BookingLog'
 import MS from 'mobx/MembersStore'
 // import {_walk} from 'mobx/symbols'
@@ -10,7 +11,7 @@ import MS from 'mobx/MembersStore'
 export class Booking{
   @observable status = '';
   @observable annotation = '';
-  @observable logs = asMap({})
+  logs = observable.shallowMap({})
   memId
 
   constructor(booking, memId, accessors){
@@ -27,6 +28,20 @@ export class Booking{
     const member = MS.members.get(this.memId)
     const {accountId, firstName} = member;
     return {memId: this.memId, accountId, firstName};
+  }
+
+
+  @action updateBooking = bookingDoc=>{
+    // const added = R.difference(bookingDoc.logs.map(log=>log.dat), this.logs.keys());
+    (bookingDoc.logs || []).forEach(log=>{
+      if (this.logs.has(log.dat))this.logs.get(log.dat).updateLog(log)
+      else this.logs.set(log.dat, new BookingLog(log));
+    });
+    const deleted = R.difference(this.logs.keys(), bookingDoc.logs.map(log=>log.dat));
+    deleted.forEach(dat=>this.logs.delete(dat))
+    delete bookingDoc.logs;
+    merge(this, bookingDoc);
+    return;
   }
 
   @computed get mergeableLogs(){

@@ -61,6 +61,6 @@ export default function * monitorChanges () {
     else {
       collection = change.doc.type;
       yield put({type: `change_${change.doc.type}_doc`, doc: change.doc})
-    };
+    }
   }
 }

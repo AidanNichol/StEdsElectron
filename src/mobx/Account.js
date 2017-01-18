@@ -5,7 +5,6 @@ import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
 import { observable, computed, action} from 'mobx';
-import { _account} from 'mobx/symbols'
 import MS from 'mobx/MembersStore'
 import WS from 'mobx/WalksStore'
 import DS from 'mobx/DateStore'
@@ -27,10 +26,12 @@ export class AccLog{
     let amount = this.amount * request.chargeFactor(this.req);
     return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
   }
-  constructor(log, account){
-    merge(this, log)
-    // this[_account] = account
+  constructor(log){
+    this.updateLog(log);
+    // merge(this, log)
   }
+
+  @action updateLog = (data) => {merge(this, data)}
 }
 
 export default class Account {
@@ -38,14 +39,15 @@ export default class Account {
    type='account'
   @observable _conflicts=[]
   @observable members=[]
-  @observable logs=mobx.asMap({})
+  logs = observable.shallowMap({})
   accountId
 
-  constructor(account, accessors) {
+  constructor(accountDoc, accessors) {
     // autorun(() => !store[_loading] && logit('autorun', this.report, store[_loading]));
-    (account.logs || []).forEach(log=>this.logs.set(log.dat, new AccLog(log, this)))
-    delete account.logs;
-    merge(this, account)
+    (accountDoc.logs || []).forEach(log=>this.logs.set(log.dat, new AccLog(log)))
+    delete accountDoc.logs;
+    merge(this, accountDoc)
+    // this.updateDocument(accountDoc);
     merge(this, accessors);
     logit('getLastPaymentsBanked', this.getLastPaymentsBanked())
   }
@@ -78,15 +80,17 @@ export default class Account {
 		return `Account: ${this._id} ${this.venue}`;
 	}
 
-  @action updateDocument(account){
-    let changed = false;
-    for(let [key, val] of Object.entries(account)){
-      if (this[key] != val){
-        this[key] = val;
-        changed = true;
-      }
-    }
-    return changed;
+  @action updateDocument = accountDoc=>{
+    // const added = R.difference(accountDoc.logs.map(log=>log.dat), this.logs.keys());
+    (accountDoc.logs || []).forEach(log=>{
+      if (this.logs.has(log.dat))this.logs.get(log.dat).updateLog(log)
+      else this.logs.set(log.dat, new AccLog(log));
+    });
+    const deleted = R.difference(this.logs.keys(), accountDoc.logs.map(log=>log.dat));
+    deleted.forEach(dat=>this.logs.delete(dat))
+    delete accountDoc.logs;
+    merge(this, accountDoc);
+    return;
   }
 
   @action deletePayment(dat){
@@ -100,6 +104,16 @@ export default class Account {
       .filter(log=>log.req!=='A' && log.req!=='S')
       .filter(log=>!limit || log.dat < limit)
       .map(log=>log.mergeableLog())
+  }
+
+  @computed get accountFrame(){
+    const members = new Map(
+      this.members.map(memId=>{
+        return [memId, {memId, name: MS.members.get(memId).firstName}]
+      })
+      .sort(cmpName)
+    );
+    return {accId: this._id, members, sortname: this.sortname}
   }
 
   @computed get accountStatus() {
@@ -127,31 +141,30 @@ export default class Account {
         if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
         if (log.walkId > walkPast)currentFound = true
       }
-      if (log.type === 'A' && log.dat > startDate)cashReceivedThisPeriod += Math.abs(log.amount) * (log.req.length > -1? 1 : 1);
+      if (log.type === 'A' && log.dat > startDate)cashReceivedThisPeriod += Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
       if (!currentFound && balance === 0){
         lastHistory = i;
         log.mostRecentWalk = mostRecentWalk;
       }
       if (balance >= 0 && log.dat < startDate) lastOK = i;
-      return {...log, zeroPoint: balance === 0, balance};
+      return {...log, zeroPoint: balance === 0, balance, activeThisPeriod};
     });
     logs = logs
             .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
     // fixupAccLogs(thisAcc, logs);
-    // if (cashReceivedThisPeriod !== 0)logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
+    if (this._id === 'A1194')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let paymentsMade = cashReceivedThisPeriod;
     let debt = [];
     if (balance < 0 || cashReceivedThisPeriod){
       let due = balance;
-      // logit('getdebt', balance, logs)
+      if (this._id === 'A1194') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
       logs = logs
-        // .slice(lastOK+1)
         .reverse()
         .map((log, i)=>{
           if (i>=logs.length-lastOK-1)return log;
           // if (balance === 0)hitBalancePoint = true;
-          if (due < 0 && request.billable(log.req)){
+          if (due < 0 && log.amount > 0 && request.billable(log.req)){
 
             log.outstanding = !log.cancelled
             if (!log.cancelled) due += Math.min(-due, log.amount)
@@ -162,11 +175,11 @@ export default class Account {
               && log.req.length === 1 && !log.cancelled){
             log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
             cashReceivedThisPeriod -= log.paid;
-            // logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
+            if (this._id === 'A1194')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
           }
-          // logit('getdebt log', due, log)
+          if (this._id === 'A1194')logit('getdebt log', due, log)
           let owing = Math.min(-log.amount, -balance);
-          // logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
+          if (this._id === 'A1194')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
           return {...log, owing};
         })
         .reverse() ;
@@ -240,6 +253,7 @@ export default class Account {
 
 }
 const getRev = (rev)=> parseInt(rev.split('-')[0]);
-var logColl = new Intl.Collator();
-var logCmpDate = (a, b) => logColl.compare(a[0], b[0]);
-var cmpDate = (a, b) => logColl.compare(a.dat, b.dat);
+var coll = new Intl.Collator();
+var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
+const cmpName = (a, b)=>coll.compare(a.name, b.name);
+var cmpDate = (a, b) => coll.compare(a.dat, b.dat);

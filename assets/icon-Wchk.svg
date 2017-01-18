@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="24" height="24" viewBox="0, 0, 24, 24">
+  <g id="icon-Wchk" transform="translate(0, 0)">
+    <g display="none">
+      <path d="M1.947,1.161 L22.412,1.161 L22.412,22.152 L1.947,22.152 L1.947,1.161 z" fill="#FFFFFF" display="none"/>
+    </g>
+    <g>
+      <path d="M5.894,3.002 L18.833,3.002 C20.49,3.002 21.833,4.345 21.833,6.002 L21.833,18.678 C21.833,20.335 20.49,21.678 18.833,21.678 L5.894,21.678 C4.237,21.678 2.894,20.335 2.894,18.678 L2.894,6.002 C2.894,4.345 4.237,3.002 5.894,3.002 z" fill="#FFFFFF"/>
+      <path d="M5.894,3.002 L18.833,3.002 C20.49,3.002 21.833,4.345 21.833,6.002 L21.833,18.678 C21.833,20.335 20.49,21.678 18.833,21.678 L5.894,21.678 C4.237,21.678 2.894,20.335 2.894,18.678 L2.894,6.002 C2.894,4.345 4.237,3.002 5.894,3.002 z" fill-opacity="0" stroke="#EF0548" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

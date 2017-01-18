@@ -1,21 +1,22 @@
 // import {getSettings} from 'ducks/settings-duck';
-import { observable, computed, action, runInAction, asMap, autorun} from 'mobx';
+import { observable, action, runInAction, reaction} from 'mobx';
 import db from 'services/bookingsDB';
 import Member from './Member'
-import R from 'ramda';
+// import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:MembersStore');
 
 class MembersStore {
 
 
-  @observable members = asMap({});
+  members = observable.map({});
   @observable activeMember;
   @observable loaded = false;
 
   constructor() {
     this.activeMember = null;
     this.loadMembers();
+    reaction(()=>this.activeMember, d=>logit('activeWalk set:', d))
   }
   @action addMember = member=>{
     this.members.set(member._id, new Member(member))

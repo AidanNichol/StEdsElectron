@@ -1,4 +1,4 @@
-import { observable, computed, action, asMap, runInAction, reaction, toJS} from 'mobx';
+import { observable, computed, action, runInAction, reaction, toJS} from 'mobx';
 import db from 'services/bookingsDB';
 // import {getSettings} from 'ducks/settings-duck';
 import R from 'ramda';
@@ -12,7 +12,7 @@ import Walk from './Walk'
 class WalksStore {
 
 
-  @observable walks = asMap({});
+  walks = observable.map({});
   @observable activeWalk;
   @observable loaded = false;
 
@@ -77,8 +77,8 @@ class WalksStore {
       return
     }
     if (doc._rev === walk._rev) return; // we already know about this
-    // walk.updateDocument(doc)
-    this.addWalk(doc)
+    walk.updateDocument(doc)
+    // this.addWalk(doc)
     // logit('changedDoc', toJS(walk))
   }
 

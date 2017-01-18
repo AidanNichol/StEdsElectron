@@ -45,7 +45,6 @@ export function summaryReport(payload, state){
 
   var doc = new PDFDocument({size: 'A4', margins: {top:marginV, bottom: marginV, left:marginH, right: marginH}, autoFirstPage: false});
   doc.pipe(fs.createWriteStream(docname) )
-  var title = 'St.Edwards Fellwalkers: Bus Lists';
   doc.on('pageAdded', ()=>{
     const height14 = doc.fontSize(14).currentLineHeight()
     const height4 = doc.fontSize(4).currentLineHeight()
@@ -54,12 +53,13 @@ export function summaryReport(payload, state){
     doc.font(bold).fontSize(14).text(title, 30, marginV+(20-height14)/2, {align:'center'});
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,marginV+(20-height4)/2, {align: 'right'})
   });
+  title = 'St.Edwards Fellwalkers: Walk Day List';
+  walkDayBookingSheet(doc)
+  var title = 'St.Edwards Fellwalkers: Bus Lists';
   busListReport(doc, state);
   title = 'St.Edwards Fellwalkers: Credits & Payments';
   const yStart = creditsOwedReport(doc, state);
   paymentsDueReport(doc, state, yStart);
-  title = 'St.Edwards Fellwalkers: Walk Day List';
-  walkDayBookingSheet(doc)
   // // title = 'St.Edwards Fellwalkers: Credits Owed';
   doc.end();
   return docname.substr(home.length+1);

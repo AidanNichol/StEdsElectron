@@ -10,7 +10,14 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const mapStateToProps = (store) => ({logs: store.AS.allDebts.payments});
+const mapStateToProps = (store) => {
+  const accs = store.AS.allAccountsStatus.filter(acc=>acc.activeThisPeriod).sort(nameCmp);
+  const totalPaymentsMade = accs.reduce((sum, log)=>sum+log.paymentsMade, 0);
+  return ({accs, totalPaymentsMade, startDate: store.AS.periodStartDate});
+}
 
 const mobxPayments = inject(mapStateToProps)(Payments)
 export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);
+
+var nameColl = new Intl.Collator();
+var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);

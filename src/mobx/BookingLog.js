@@ -2,7 +2,7 @@ import {request} from 'ducks/walksDuck'
 import {merge} from 'lodash'
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Walk');
-import { observable, computed} from 'mobx';
+import { observable, computed, action} from 'mobx';
 import {dateDisplay} from 'mobx/DateStore'
 
 export class BookingLog{
@@ -11,9 +11,11 @@ export class BookingLog{
   who;
   machine = '';
   constructor(log, accessors){
-    merge(this, log);
     merge(this, accessors);
-}
+    this.updateLog(log)
+  }
+
+  @action updateLog = (log)=>{merge(this, log);}
 
   @computed get mergeableLog(){
     const walk = this.getWalk();

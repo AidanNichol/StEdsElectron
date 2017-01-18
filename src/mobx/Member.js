@@ -1,3 +1,4 @@
+import {merge} from 'lodash'
 import { observable, computed, action, runInAction, autorun} from 'mobx';
 
 
@@ -40,14 +41,8 @@ export default class Member {
     return account.members.length > 1 ? this.firstName : '';
   }
   @action updateDocument = member=>{
-    let changed = false;
-    for(let [key, val] of Object.entries(member)){
-      if (this[key] != val){
-        this[key] = val;
-        changed = true;
-      }
-    }
-    return changed;
+    merge(this, member)
+    return;
   }
   @action saveDocument = async (fields) => {
     const data = await fetchDataFromUrl();

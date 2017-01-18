@@ -12,7 +12,7 @@ import {getAllFixableLogs} from './PaymentsFunctions'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import {getSubsStatus} from '../../utilities/subsStatus'
-import {resetUiState} from 'ducks/uiState-duck'
+// import {resetUiState} from 'ducks/uiState-duck'
 import { createSelector } from 'reselect'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'bookings:Container');
@@ -52,7 +52,7 @@ function mapDispatchToProps(dispatch) {
     accountSelected: (acc)=>{
             logit('accountSelected', acc);
             dispatch(mlActionCreators.membersListSetDisplayedMember(acc.memId));
-            dispatch(resetUiState());
+            // dispatch(resetUiState());
             dispatch(setPage({page:'bookings', memberId: acc.memId, accountId: acc.accountId}));
           },
     // accountUpdatePayment: (accId, amount)=>dispatchIfUnlocked(dispatch, ({type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount})),

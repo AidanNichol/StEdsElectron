@@ -32,5 +32,6 @@ export class DateStore {
 	}
 }
 const dateStore = new DateStore();
+// const dateStore = new DateStore('2017-01-13');
 
 export default dateStore;

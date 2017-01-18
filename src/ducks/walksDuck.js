@@ -80,7 +80,7 @@ export const request = {
   getName: (req)=>request.names[req] || '?',
   chargeFactor: (req)=>(request.factor[req]),
   bookable: (value)=>(value !== 'B' && value !== 'W' && value !== 'C'),
-  billable: (value)=>(value === 'B' || value === 'BL' || value === 'C' || value === 'CL'),
+  billable: (value)=>(value === 'B' || value === 'BL' || value === 'C'),
 
 };
 
