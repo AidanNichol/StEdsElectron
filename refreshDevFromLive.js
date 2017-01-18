@@ -3,71 +3,40 @@
 
 // var prettyFormat = require('pretty-format')
 var PouchDB  = require('pouchdb');
-import fs from 'fs'
+// import fs from 'fs'
 // var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
 
 (async function() {
   try {
-    var db = new PouchDB('http://nicholware.com:5984/bookings', {});
+    var livedb = new PouchDB('http://nicholware.com:5984/bookings', {});
     console.log('reading live')
-    var data = await db.allDocs({include_docs: true})
+    var data = await livedb.allDocs({include_docs: true})
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
-    fs.writeFileSync('./backup/preReformatLive.json')
-    await loadWalks(db);
-    await loadAccs(db);
-    // let res = await db.bulkDocs(docs, {new_edits: false})
-    // console.log('result', res)
+    var db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
+    await db.destroy();
+    db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
+    await db.compact();
+    // var data = fs.readFileSync('./backup/2017-01-08prod.json')
+    // var docs =JSON.parse(data);
+    console.log('read live. docs:',docs.length)
+    docs.forEach((doc, i)=>{
+      // console.log(i, doc.type, docs.length)
+      if (doc.type==='walk')docs[i] = reformatWalkDoc(doc)
+      if (doc.type==='account')docs[i] = reformatAccDoc(doc)
+    })
+    // console.log(docs)
+    // let res = await db.bulkDocs(docs)
+    let res = await db.bulkDocs(docs, {new_edits: false})
+    console.log('result', res)
     const info = await db.info()
     console.log('info', info)
 
   } catch (e) {
     console.error('error', e);
   }
-  // finally {
-  //
-  // }
-
   console.log("Yey, story successfully loaded!");
 }());
-
-async function loadWalks(db){
-  try {
-    let data = await db.allDocs({ startkey: "W0000", endkey: "W9999", include_docs: true });
-
-    let docs = data.rows
-          .filter(row => row.doc.type === 'walk')
-          .map(row => {
-            if (!row.doc.booked)row.doc.booked = {};
-            if (!row.doc.annotations)row.doc.annotations = {};
-            let newDoc = reformatWalkDoc(row.doc)
-            return newDoc})
-
-    // console.log(docs)
-    await db.bulkDocs(docs)
-  } catch (e) {
-    console.error('error', e);
-  }
-}
-
-
-async function loadAccs(db){
-  try {
-    let data = await db.allDocs({ startkey: "A0000", endkey: "A9999", include_docs: true });
-
-    let docs = data.rows
-          .filter(row => row.doc.type === 'account')
-          .map(row => {
-            if (!row.doc.log)row.doc.log = [];
-            let newDoc = reformatAccDoc(row.doc)
-            return newDoc})
-
-    // console.log(docs)
-    await db.bulkDocs(docs)
-  } catch (e) {
-    console.error('error', e);
-  }
-}
 
 const reformatAccDoc = (doc)=>{
   let logs =[];
