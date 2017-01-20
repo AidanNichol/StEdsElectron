@@ -1,10 +1,10 @@
 /* jshint quotmark: false */
 import React from 'react';
 import {Panel} from '../utility/AJNPanel'
-import MyModal from '../utility/AJNModal'
-// import TooltipButton from '../utility/TooltipButton.js';
+// import MyModal from '../utility/AJNModal'
+import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
-import PaymentsSummary from './PaymentsSummary'
+// import PaymentsSummary from './PaymentsSummary'
 import {MemberRecipt as MemberBill} from './PaymentsMade'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import {Lock} from 'ducks/lock-duck'
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:View');
+var logit = Logit('color:blue; background:yellow;', 'Payments:Due');
 
 const enterPayment = ({accId, accountUpdatePayment})=>{
   let handleKeydown = (event)=> {
@@ -70,17 +70,17 @@ export default function Payments(props){
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
   logit('payments props', props);
-  var {debts, accountUpdatePayment, showMemberBookings} = props;
+  var {debts, accountUpdatePayment, showMemberBookings, showPaymentsMade} = props;
   var title = (<h4>Payments Due</h4>);
   return (
     <Panel className="payments" header={title} style={{margin:20}} >
       <div className="all-debts">
         <div className="buttons">
           <Lock />
-          {/* <TooltipButton label="Summary" onClick={()=>{showSummary=true; logit('showSummary', showSummary)}} tiptext='Show Payment Summary' visible/> */}
-          <MyModal icon="bank"  tiptext='View payments summary'>
+          <TooltipButton label="Summary" onClick={showPaymentsMade} tiptext='Show Payments Made' visible/>
+          {/* <MyModal icon="bank"  tiptext='View payments summary'>
             <PaymentsSummary />
-          </MyModal>
+          </MyModal> */}
 
         </div>
 

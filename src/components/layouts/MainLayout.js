@@ -18,7 +18,7 @@ import ShowConflicts from '../views/ShowConflicts.js';
 import ShowAccountConflicts from '../views/ShowAccountConflicts.js';
 import BusListsContainer from '../containers/buslists-container.js';
 import PaymentsContainer from '../containers/Payments-container.js';
-import PaymentsContainerM from 'components/containers/PaymentsMade-mobx';
+import PaymentsContainerM from 'components/containers/Payments-mobx';
 
 var packageJson = require('../../../package.json');
 
@@ -32,9 +32,9 @@ const loadPage = (curPage, loading)=>{
     case 'bookings': return (<BookingsContainer />);
     case 'showconflicts': return (<ShowConflicts />);
     // case 'showaccountconflicts': return (<ShowAccountConflicts />);
-    case 'showaccountconflicts': return (<PaymentsContainerM />);
+    case 'payments': return (<PaymentsContainerM />);
     case 'buslists': return (<BusListsContainer />);
-    case 'payments': return (<PaymentsContainer />);
+    // case 'payments': return (<PaymentsContainer />);
     case 'none': return(<div>Welcome to St.Edwards Booking System - please login.</div>)
     default: return (<BookingsContainer />);
   }
@@ -62,8 +62,8 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
               <Link page="bookings" name="Bookings" show={bookingsAdmin} />
               <Link page="buslists" name="Buslist" show={bookingsAdmin}/>
 
-              <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
-              <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/>
+              {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
+              <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
               <Link page="payments" name="Payments" show={bookingsAdmin}/>
         {/* <Link page="paymentsSummary" name="Payments Summary" show={bookingsAdmin}/> */}
         <Link page="membersList" name="Members" show={memberAdmin}/>

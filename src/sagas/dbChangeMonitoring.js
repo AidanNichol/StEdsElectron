@@ -9,10 +9,11 @@ import WS from 'mobx/WalksStore'
 import MS from 'mobx/MembersStore'
 import AS from 'mobx/AccountsStore'
 
-var store = {
-  walk: WS,
-  account: AS,
-  member: MS,
+var storeFn = {
+  walk: WS.changeDoc,
+  account: AS.changeDoc,
+  member: MS.changeDoc,
+  paymentSummary: AS.changeBPdoc,
 };
 
 var logit = Logit('color:white; background:navy;', 'SyncDoc');
@@ -46,8 +47,8 @@ export default function * monitorChanges () {
     const change = yield take(channel); // Blocks until the promise resolves
     var collection = (change.doc && change.doc.type) || collections[change.id.match(/$([A-Z]+)/)[0]];
     logit('change', {change, collection});
-    if (store[collection]){
-      store[collection].changeDoc(change)
+    if (storeFn[collection]){
+      storeFn[collection](change.doc) // update Mobx store
     }
     if (change.deleted){
       const req = change.id.match(/$([A-Z]+)/)[0];

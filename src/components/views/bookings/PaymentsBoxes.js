@@ -1,6 +1,6 @@
 import React from 'react';
 import {observable, action } from 'mobx';
-import {observer} from 'mobx-react';
+import {observer, toJS} from 'mobx-react';
 import {Icon} from '../../../ducks/walksDuck'
 import {PaymentHelp} from 'components/help/PaymentHelp';
 import {HelpDialog} from 'components/help/HelpDialog';
@@ -19,12 +19,13 @@ const OPTIONS = [{type:"P", title:"Paid cash"},
 {type:"+", title:"Add Credit"},
 {type:"+X", title:"Remove Credit"},
 ];
-export class UiStatus {
+class UiStatus {
   @observable helpIsOpen = false;
   @observable paymentType ;
 
   self = this;
   @action.bound changePaymentType(type){logit('changePaymentType', type, this);this.paymentType = type;}
+  @action.bound resetPaymentType(){this.paymentType = undefined;logit('resetPaymentType', toJS(this))}
   @action.bound showHelp(){this.helpIsOpen = true;}
   @action.bound hideHelp(){this.helpIsOpen = false;}
 }

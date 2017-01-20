@@ -6,7 +6,8 @@ import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
 import {Lock} from '../../../ducks/lock-duck'
-import {ChangeLog, Payment} from '../../containers/PaymentStatusLog-container.js';
+import {Payment} from '../../containers/PaymentStatusLog-container.js';
+// import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
 import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';
@@ -50,7 +51,7 @@ var Bookings = React.createClass({
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
     var _today = getTodaysDate();
-    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId, fixables)}>X</button>)};
+    const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId, fixables)} style={{marginLeft:3}}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
           <div className="select">
@@ -65,7 +66,7 @@ var Bookings = React.createClass({
             </div>
             {walks.map((walk, w)=>(
               <div className="walk" key={w+'XYZ'+walk.walkId}>
-                <div className="date">{walk.walkDate}<br/>{walk.venue} {closeit(walk)}</div>
+                <div className="date">{walk.walkDate}{closeit(walk)}<br/>{walk.venue}</div>
                 <div className="avail">{walk.status.display}</div>
                 {
                   walk.bookings.map((booking, i)=>
@@ -80,7 +81,7 @@ var Bookings = React.createClass({
             <Lock />
           </div>
 
-          <ChangeLog accId={accId}/>
+          {/* <ChangeLog accId={accId}/> */}
           <ChangeLogM accId={accId}/>
           <Payment accId={accId}/>
         </Panel>

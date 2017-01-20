@@ -141,28 +141,29 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-const mapStoreToProps = function({AS}) {
-  var startDate, endDate, openingCredit=0, openingDebt=0;
-  startDate = AS.lastPaymentsBanked;
-  endDate = AS.paymentsLogsLimit;
-  openingCredit = AS.openingCredit;
-  openingDebt = -AS.openingDebt;
-  if (!endDate)endDate = getLogTime();
+export const mapStoreToProps = function({AS}) {
+  var openingCredit=AS.openingCredit,
+      openingDebt=-AS.openingDebt,
+      startDate = AS.lastPaymentsBanked,
+      endDate = AS.paymentsLogsLimit || getLogTime();
   logit('range data', {startDate, endDate,openingCredit, openingDebt})
   const accountsStatus = mobx.toJS(AS.allAccountsStatus);
-  const filterCurrent = (type, logs)=>logs.filter(log=>log.type===type).filter(({dat})=> dat>startDate && dat < endDate);
-logit('accountsStatus', accountsStatus)
-  var buyCredits = flatten(accountsStatus.filter(acc=>acc.extraCash));
-  var aLogs = flatten(accountsStatus.map(acc=>filterCurrent('A', acc.logs)));
-  var bLogs = flatten(accountsStatus.map(acc=>filterCurrent('W', acc.logs)));
+  // const filterCurrent = (type, logs)=>logs.filter(log=>log.type===type).filter(({dat})=> dat>startDate && dat < endDate);
+  const filterCurrentLogs = (logs)=>logs.filter(({dat})=> dat>startDate && dat < endDate);
+  logit('accountsStatus', accountsStatus)
+  // var buyCredits = flatten(accountsStatus.filter(acc=>acc.extraCash));
+  // var aLogs = flatten(accountsStatus.map(acc=>filterCurrent('A', acc.logs)));
+  // var bLogs = flatten(accountsStatus.map(acc=>filterCurrent('W', acc.logs)));
+  var cLogs = flatten(accountsStatus.map(acc=>filterCurrentLogs(acc.logs)));
   // var bLogs = flatten(accountsStatus.map(acc=>acc.logs.filter(log=>log.type==='W').filter(({dat})=> dat>startDate && dat < endDate)));
   var payments = accountsStatus.filter(acc=>acc.paymentsMade > 0)
   // var payments = accountsStatus.filter(acc=>acc.paymentsMade > 0).map(acc=>{let logs = filterCurrent('W', acc.logs); acc.logs = logs; return acc});
   // var pLogs = flatten(payments.map(acc=>acc.logs.filter(log=>log.type==='W').filter(({dat})=> dat>startDate && dat < endDate)));
-  var pLogs = flatten(payments.map(acc=>filterCurrent('W', acc.logs)));
-  var extra = difference(bLogs, payments);
-  logit('preTots', {aLogs, bLogs, buyCredits, extra, pLogs})
-  var tots = [...bLogs, ...aLogs].reduce((tot, lg)=>{
+  // var pLogs = flatten(payments.map(acc=>filterCurrent('W', acc.logs)));
+  // var extra = difference(bLogs, payments);
+  // logit('preTots', {aLogs, bLogs, buyCredits, extra, pLogs})
+  // var tots = [...bLogs, ...aLogs].reduce((tot, lg)=>{
+  var tots = cLogs.reduce((tot, lg)=>{
     if (!tot[lg.req])tot[lg.req] = [0, 0];
     tot[lg.req][0]++;
     tot[lg.req][1] += Math.abs(lg.amount);
@@ -174,9 +175,11 @@ logit('accountsStatus', accountsStatus)
     closingDebt: accountsStatus.filter(acc=>acc.balance < 0).reduce((sum, item)=>sum+item.balance, 0),
     openingCredit,
     openingDebt,
-    payments,
-    aLogs, bLogs, tots,
     endDate, startDate,
+    payments,
+    // aLogs, bLogs,
+    cLogs,
+    tots,
     startDispDate: startDate && (new XDate(startDate).toString('dd MMM HH:mm')),
     endDispDate: (new XDate(endDate).toString('dd MMM HH:mm')),
     type: 'paymentSummary',
@@ -185,7 +188,7 @@ logit('accountsStatus', accountsStatus)
   logit('logs doc', doc, __dirname);
   fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   logit('write report');
-  paymentsSummaryReport(doc)
-  return { doc };
+  // paymentsSummaryReport(doc)
+  return  doc;
 }
 export default connect(()=>({}), mapDispatchToProps)(inject(mapStoreToProps)(Payments));

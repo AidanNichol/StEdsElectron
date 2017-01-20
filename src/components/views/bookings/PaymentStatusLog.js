@@ -78,7 +78,7 @@ export function changeLog(props) {
     <div className={"logsTable "+(props.className || '')}>
       <div className="logHeader">
         <span className="logDate">Date</span>
-        <Icon type='?' style={{opacity:0, }} />
+        <Icon type='Blank' style={{opacity:0, }} />
         <span className="logText">Event</span>
         <span style={{width: 8, display: 'inline-block'}}>&nbsp;</span>
         <span className="logAmount">Exp.</span>

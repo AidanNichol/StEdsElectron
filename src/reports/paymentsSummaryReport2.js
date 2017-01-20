@@ -1,3 +1,5 @@
+import Logit from 'factories/logit.js';
+var logit = Logit('color:yellow; background:black;', 'Report:PaymentSummary');
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
 import XDate from 'xdate';
@@ -25,6 +27,7 @@ export function paymentsSummaryReport(payload){
   if (homefs.exists('Documents')) documents = homefs.cwd('Documents');
   if (homefs.exists('My Documents')) documents = homefs.cwd('My Documents');
   const docs = documents.dir('StEdwards').dir('PaymentSummary').cwd()
+  logit('payload', payload);
   console.log(homefs.cwd(), documents.cwd(), docs)
 
   let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
@@ -58,8 +61,11 @@ const reportBody = (payload, doc)=>{
       closingCredit,
       closingDebt,
       openingCredit,
-      openingDebt, payments,
-      aLogs, bLogs, tots,
+      openingDebt,
+      endDate,
+      startDate,
+      payments,
+      tots,
     } = payload;
   const creditsUsed = openingCredit - closingCredit;
   const netBookings = (tots.B ? tots.B[1] : 0) + (tots.C ? tots.C[1] : 0)

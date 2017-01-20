@@ -49,6 +49,7 @@ class AccountsStore {
   }
 
   @computed get periodStartDate(){
+    logit('periodStartDate', this.lastPaymentsBanked, this)
     return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM')
   }
 
@@ -82,6 +83,13 @@ class AccountsStore {
     return clones;
   }
 
+  @action changeBPdoc = (doc)=>{
+    logit('changeBPdoc', doc)
+    this.lastPaymentsBanked = doc.endDate
+    this.openingCredit = doc.closingCredit
+    this.openingDebt =doc.closingDebt
+  }
+
   @action changeDoc = ({deleted, doc, ...rest})=>{
     let account = this.accounts.get(doc._id)
     logit('changeDoc', {deleted, doc, account, ...rest})
@@ -94,6 +102,13 @@ class AccountsStore {
     }
     if (doc._rev === account._rev) return; // we already know about this
     account.updateDocument(doc)
+  }
+
+  @action bankMoney = async (doc)=>{
+    logit('bankMoney', {doc})
+    const data = await db.put(doc);
+    this.changeBPdoc(doc);
+
   }
 
   @action loadAccounts = async () => {
@@ -110,14 +125,7 @@ class AccountsStore {
     const dataBP = await db.allDocs({descending: true, limit: 1, include_docs: true, startkey: 'BP9999999', endkey: 'BP00000000' });
     logit('load datasummaries', dataBP)
     runInAction('update state after fetching data', () => {
-      if (dataBP.rows.length >  0){
-        let doc = dataBP.rows[0].doc;
-        this.lastPaymentsBanked = doc.endDate
-        this.openingCredit = doc.closingCredit
-        this.openingDebt =doc.closingDebt
-        // this.paymentsLogsLimit = endDates[doc.endDate]};
-      }
-
+      if (dataBP.rows.length >  0) this.changeBPdoc(dataBP.rows[0].doc);
     })
 
     logit('conflictingAccounts', this.conflictingAccounts)
