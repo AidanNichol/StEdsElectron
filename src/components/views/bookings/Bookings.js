@@ -7,7 +7,7 @@ import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
 import {Lock} from '../../../ducks/lock-duck'
 import {Payment} from '../../containers/PaymentStatusLog-container.js';
-// import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
+import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
 import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';

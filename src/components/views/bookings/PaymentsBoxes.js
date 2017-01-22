@@ -1,6 +1,6 @@
 import React from 'react';
-import {observable, action } from 'mobx';
-import {observer, toJS} from 'mobx-react';
+import {observable, toJS, action } from 'mobx';
+import {observer} from 'mobx-react';
 import {Icon} from '../../../ducks/walksDuck'
 import {PaymentHelp} from 'components/help/PaymentHelp';
 import {HelpDialog} from 'components/help/HelpDialog';

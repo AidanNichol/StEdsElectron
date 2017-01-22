@@ -1,6 +1,7 @@
 import db from '../services/bookingsDB.js';
 import { call, put } from 'redux-saga/effects.js';
-import {dbChange} from '../ducks/replication-duck'
+// import {dbChange} from '../ducks/replication-duck'
+import {state} from 'ducks/replication-mobx';
 
 var styles = {
   walk: 'color:white; background:black;',
@@ -26,7 +27,8 @@ export default function* docUpdateSaga(doc, action){
     yield put({type: `change_${newDoc.type}_doc`, doc: newDoc});
     const info = yield call([db, db.info]);
     logit('info', info);
-    yield put(dbChange(info.update_seq))
+    // yield put(dbChange(info.update_seq))
+    state.dbChange(info);
 
 
 

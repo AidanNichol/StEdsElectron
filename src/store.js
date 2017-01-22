@@ -8,7 +8,8 @@ import rootSaga from './sagas/rootSaga'
 import initialSaga from './sagas/initialSaga.js';
 import createLogger from 'redux-logger';
 import sagaMonitor from './sagas/sagaMonitor.js';
-import {monitorReplications} from './ducks/replication-duck'
+// import {monitorReplications} from './ducks/replication-duck'
+import {monitorReplications} from './ducks/replication-mobx'
 import {routerDefaultState} from './ducks/router-duck'
 import {defaultAccountsState} from 'reducers/accounts-reducer'
 import {lockDefaultState} from './ducks/lock-duck'
@@ -55,7 +56,8 @@ export const configureStore = (initalState = defaultState)=>{
   );
   console.log('store', store.getState());
 
-  sagaMiddleware.run(monitorReplications, remoteCouch);
+  // sagaMiddleware.run(monitorReplications, remoteCouch);
+  monitorReplications(remoteCouch);
 
   sagaMiddleware.run(initialSaga);
 

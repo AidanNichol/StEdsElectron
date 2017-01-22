@@ -53,9 +53,10 @@ const mapStateToPropsChangeLog = function(state, {accId}) {
 
   return {
     accId,
-            logs,
-            startDate,
-      };
+    className: 'redux',
+    logs,
+    startDate,
+  };
 
 }
 

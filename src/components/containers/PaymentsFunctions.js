@@ -191,7 +191,7 @@ const makeGetaccountStatus = (accId)=> createSelector(
   (wLogs, aLogs, thisAcc, accName, members)=>{
     if (thisAcc.members.length===0 || !members[thisAcc.members[0]])
     {
-      console.error('bad Acount record', thisAcc, members)
+      console.error('bad Account record', thisAcc, members)
       return;
     }
     // logit('account '+accId, thisAcc);

@@ -9,15 +9,16 @@ import {Signin} from '../../ducks/signin-duck.js';
 import {setPage} from '../../ducks/router-duck.js';
 import {actionCreators} from '../../ducks/memberslist-duck';
 // import {Shortcuts} from '../../views/logon/Logon.js';
-import {ReplicationStatus} from '../views/header/ReplicationStatus'
+// import {ReplicationStatus} from '../views/header/ReplicationStatus'
+import {ReplicationStatus} from 'ducks/replication-mobx'
 // import store from '../../store';
 import {isUserAuthorized} from '../../services/auth.js';
 import MembersListContainer from '../containers/members-list-container.js';
 import BookingsContainer from '../containers/bookings-container.js';
 import ShowConflicts from '../views/ShowConflicts.js';
-import ShowAccountConflicts from '../views/ShowAccountConflicts.js';
+// import ShowAccountConflicts from '../views/ShowAccountConflicts.js';
 import BusListsContainer from '../containers/buslists-container.js';
-import PaymentsContainer from '../containers/Payments-container.js';
+// import PaymentsContainer from '../containers/Payments-container.js';
 import PaymentsContainerM from 'components/containers/Payments-mobx';
 
 var packageJson = require('../../../package.json');
