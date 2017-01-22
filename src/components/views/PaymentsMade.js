@@ -54,10 +54,10 @@ span {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
 
-  &.newBkng {
-    background-color: rgb(171, 206, 232);
-  }
+&.newBkng {
+  background-color: rgb(233, 251, 239);
 }
 
 .name {
@@ -110,6 +110,7 @@ export const MemberRecipt = styled(memberRecipt)`
       font-size: 1.1em;
       font-weight: bold;
       padding-right: 5px;
+      cursor: pointer;
     }
 
     .owed {

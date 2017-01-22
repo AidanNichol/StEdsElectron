@@ -159,7 +159,6 @@ logit('loaded', null);
       case WALK_ANNOTATE_CLOSE_DIALOG:
         return i.setIn(state, ['annotate', 'dialogOpen'], false)
       case WALK_RESET_LATE_CANCELLATION:
-
       case WALK_UPDATE_BOOKABLE:
 
         return i.set(state, 'bookable', Object.keys(state.list).filter((docId)=>!state.list[docId].closed && state.list[docId].firstBooking <= _now))

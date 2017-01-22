@@ -153,12 +153,12 @@ export default class Account {
             .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
     // fixupAccLogs(thisAcc, logs);
-    if (this._id === 'A1194')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
+    if (this._id === 'A1164')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let paymentsMade = cashReceivedThisPeriod;
     let debt = [];
     if (balance < 0 || cashReceivedThisPeriod){
       let due = balance;
-      if (this._id === 'A1194') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
+      if (this._id === 'A1164') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
       logs = logs
         .reverse()
         .map((log, i)=>{
@@ -175,11 +175,11 @@ export default class Account {
               && log.req.length === 1 && !log.cancelled){
             log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
             cashReceivedThisPeriod -= log.paid;
-            if (this._id === 'A1194')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
+            if (this._id === 'A1164')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
           }
-          if (this._id === 'A1194')logit('getdebt log', due, log)
+          if (this._id === 'A1164')logit('getdebt log', due, log)
           let owing = Math.min(-log.amount, -balance);
-          if (this._id === 'A1194')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
+          if (this._id === 'A1164')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
           return {...log, owing};
         })
         .reverse() ;

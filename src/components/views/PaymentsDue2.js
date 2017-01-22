@@ -143,6 +143,7 @@ export const MemberRecipt = styled(memberRecipt)`
       font-size: 1.1em;
       font-weight: bold;
       padding-right: 5px;
+      cursor: pointer;
     }
 
     .owed {
@@ -173,7 +174,7 @@ export const payments = observer((props)=>{
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
   logit('payments props', props, uiState);
-  var {accs,  debts, showPaymentsMade, className, showMemberBookings, accountUpdatePayment} = props;
+  var {accs,  showPaymentsMade, className, showMemberBookings, accountUpdatePayment} = props;
   var title = ( <h4> Payments Due </h4>);
   return (
     <Panel className={"paymentsDue "+className} header={title} style={{margin:20}} >
