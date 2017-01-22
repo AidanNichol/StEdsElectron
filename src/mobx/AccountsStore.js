@@ -90,22 +90,23 @@ class AccountsStore {
     this.openingDebt =doc.closingDebt
   }
 
-  @action changeDoc = ({deleted, doc, ...rest})=>{
-    let account = this.accounts.get(doc._id)
-    logit('changeDoc', {deleted, doc, account, ...rest})
+  @action changeDoc = ({deleted, doc, _id, ...rest})=>{
+    let account = this.accounts.get(_id)
+    logit('changeDoc', {deleted, doc, account, rest})
     if (deleted){
       if (doc._rev === account._rev)this.accounts.delete(doc._id)
       return;
     }
     if (!account){
       this.addAccount(doc);
+      return;
     }
     if (doc._rev === account._rev) return; // we already know about this
     account.updateDocument(doc)
   }
 
-  @action bankMoney = async (doc)=>{
-    logit('bankMoney', {doc})
+  @action bankMoney = async ({doc})=>{
+    logit('bankMoney', doc)
     const data = await db.put(doc);
     this.changeBPdoc(doc);
 

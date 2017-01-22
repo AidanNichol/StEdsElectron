@@ -22,11 +22,11 @@ class MembersStore {
     this.members.set(member._id, new Member(member))
   }
 
-  @action changeDoc = ({deleted, doc, ...rest})=>{
-    let member = this.members.get(doc._id)
-    logit('changeDoc', {deleted, doc, member, ...rest})
+  @action changeDoc = ({deleted, doc, _id, ...rest})=>{
+    let member = this.members.get(_id)
+    logit('changeDoc', {deleted, doc, member, rest})
     if (deleted){
-      if (doc._rev === member._rev)delete this.members[doc._id]
+      if (doc._rev === member._rev)this.members.delete(_id)
       return;
     }
     if (!member){

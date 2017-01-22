@@ -45,10 +45,11 @@ export default function * monitorChanges () {
 
   while (true) { // eslint-disable-line no-constant-condition
     const change = yield take(channel); // Blocks until the promise resolves
+    if (change.id[0] === '_' || (change.doc && !change.doc.type))continue;
     var collection = (change.doc && change.doc.type) || collections[change.id.match(/$([A-Z]+)/)[0]];
     logit('change', {change, collection});
     if (storeFn[collection]){
-      storeFn[collection](change.doc) // update Mobx store
+      storeFn[collection](change) // update Mobx store
     }
     if (change.deleted){
       const req = change.id.match(/$([A-Z]+)/)[0];

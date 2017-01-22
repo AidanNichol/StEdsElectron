@@ -65,11 +65,11 @@ class WalksStore {
     walks.filter(walk => walk.type === 'walk').map( walk=>this.addWalk(walk) );
   }
 
-  @action changeDoc = ({deleted, doc, ...rest})=>{
-    let walk = this.walks[doc._id]
-    // logit('changeDoc', {deleted, doc, walk, ...rest})
+  @action changeDoc = ({deleted, doc, _id, ...rest})=>{
+    logit('changeDoc', {deleted, doc, rest})
+    let walk = this.walks.get(_id)
     if (deleted){
-      if (doc._rev === walk._rev)delete this.walks[doc._id]
+      if (doc._rev === walk._rev)this.walks.delete(doc._id)
       return;
     }
     if (!walk){
