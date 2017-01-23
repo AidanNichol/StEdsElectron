@@ -54,9 +54,17 @@ export class Booking{
       return log;
     });
     let cancelled;
+    let billable = /^B|BL|C$/.test(this.status)
     logs = logs.reverse().map(log=>{
       if (log.req === 'BX')cancelled = true;
       if (log.req === 'B' && cancelled)log.cancelled = true;
+      if (log.req === 'B' || log.req === 'C'){
+        log.billable = billable;
+        billable = false;
+        log.owing = Math.abs(log.amount);
+        log.paid = {P: 0, T: 0, '+': 0};
+      }
+      else log.owing = 0;
       return log;
     }).reverse();
     return logs;

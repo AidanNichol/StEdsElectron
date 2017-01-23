@@ -131,22 +131,67 @@ export default class Account {
     let mostRecentWalk = '';
     // let zeroPoints = [-1]
     // let lastZeroPoint = -1;
+    let latestOKbooking = -1;
+    let paid;
     logs = logs.sort(cmpDate).map((log, i)=>{
-      if (i>0 && logs[i-1].dat === log.dat && log.type === 'W')log.duplicate = true
-      else balance -= log.amount;
-      // logit('log '+accId, {log, balance});
-      if (log.dat > startDate)activeThisPeriod = true;
-      if (!currentFound && log.type === 'W'){
-        if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
-        if (log.walkId > walkPast)currentFound = true
+      if (i>0 && logs[i-1].dat === log.dat && log.type === 'W'){
+        log.duplicate = true;
+        return log;
       }
-      if (log.type === 'A' && log.dat > startDate)cashReceivedThisPeriod += Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
+      if (balance > 0 && log.type === 'W' && log.billable){
+        paid = Math.min(balance, Math.abs(log.owing));
+        log.paid['+'] += paid;
+        log.owing -= paid;
+      }
+      balance -= log.amount;
+      log.balance = balance;
+      // logit('log '+accId, {log, balance});
+      if (log.dat > startDate){
+        activeThisPeriod = true;
+        log.activeThisPeriod = true;
+      }
+      if (log.type === 'W'){
+        if (!currentFound && log.type === 'W'){
+          if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
+          if (log.walkId > walkPast)currentFound = true
+        }
+        if (balance < 0 && !log.cancelled && log.amount > 0) log.outstanding = true;
+        else {
+          latestOKbooking = i;
+          if (balance >)
+      }
+      if (log.type === 'A'){
+        let available = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
+        if (log.dat > startDate && log.req[0] === 'P')cashReceivedThisPeriod += available;
+        if (this._id === 'A1164')logit('logs debug '+this._id, {i, latestOKbooking, available, activeThisPeriod});
+        for (var j = latestOKbooking+1; j < i; j++) {
+          let logB = logs[j];
+          if (logB.type !== 'W' || logB.owing <= 0 || available <= 0)continue;
+          if (this._id === 'A1164')logit('logs paid '+this._id, {j, type: logB.type, logB, cashReceivedThisPeriod});
+          paid = Math.min(Math.abs(available), Math.abs(logB.owing));
+          available -= paid;
+          logB.owing -= paid;
+          logB.paid[log.req] += paid;
+          if (logB.owing === 0){
+            logB.outstanding = false;
+            latestOKbooking = j;
+          }
+          if (activeThisPeriod){
+            logB.activeThisPeriod = true;
+            if (log.req[0] === 'P')cashReceivedThisPeriod -= paid;
+          }
+
+        }
+      }
       if (!currentFound && balance === 0){
         lastHistory = i;
         log.mostRecentWalk = mostRecentWalk;
       }
       if (balance >= 0 && log.dat < startDate) lastOK = i;
-      return {...log, zeroPoint: balance === 0, balance, activeThisPeriod};
+      if (this._id === 'A1164')logit('logs dubug '+this._id, {i, log, cashReceivedThisPeriod});
+
+      return log;
+      // return {...log, zeroPoint: balance === 0, balance};
     });
     logs = logs
             .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
@@ -155,34 +200,34 @@ export default class Account {
     if (this._id === 'A1164')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let paymentsMade = cashReceivedThisPeriod;
     let debt = [];
-    if (balance < 0 || cashReceivedThisPeriod){
-      let due = balance;
-      if (this._id === 'A1164') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
-      logs = logs
-        .reverse()
-        .map((log, i)=>{
-          if (i>=logs.length-lastOK-1)return log;
-          // if (balance === 0)hitBalancePoint = true;
-          if (due < 0 && log.amount > 0 && request.billable(log.req)){
-
-            log.outstanding = !log.cancelled
-            if (!log.cancelled) due += Math.min(-due, log.amount)
-
-          }
-          else log.outstanding = false;
-          if (log.type==='W' && cashReceivedThisPeriod > 0 && !log.outstanding
-              && log.req.length === 1 && !log.cancelled){
-            log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
-            cashReceivedThisPeriod -= log.paid;
-            if (this._id === 'A1164')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
-          }
-          if (this._id === 'A1164')logit('getdebt log', due, log)
-          let owing = Math.min(-log.amount, -balance);
-          if (this._id === 'A1164')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
-          return {...log, owing};
-        })
-        .reverse() ;
-    }
+    // if (balance < 0 || cashReceivedThisPeriod){
+    //   let due = balance;
+    //   if (this._id === 'A1164') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
+    //   logs = logs
+    //     .reverse()
+    //     .map((log, i)=>{
+    //       if (i>=logs.length-lastOK-1)return log;
+    //       // if (balance === 0)hitBalancePoint = true;
+    //       if (due < 0 && log.amount > 0 && request.billable(log.req)){
+    //
+    //         log.outstanding = !log.cancelled
+    //         if (!log.cancelled) due += Math.min(-due, log.amount)
+    //
+    //       }
+    //       else log.outstanding = false;
+    //       if (log.type==='W' && cashReceivedThisPeriod > 0 && !log.outstanding
+    //           && log.req.length === 1 && !log.cancelled){
+    //         log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
+    //         cashReceivedThisPeriod -= log.paid;
+    //         if (this._id === 'A1164')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
+    //       }
+    //       if (this._id === 'A1164')logit('getdebt log', due, log)
+    //       let owing = Math.min(-log.amount, -balance);
+    //       if (this._id === 'A1164')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
+    //       return {...log, owing};
+    //     })
+    //     .reverse() ;
+    // }
     if (balance !== 0) debt = logs.slice(lastOK+1).filter((log)=>log.outstanding);
     // logit('logs final', {accId: this._id, balance, debt, logs, lastHistory, accName: this.name, sortname});
     return  {accId: this._id, balance, activeThisPeriod, paymentsMade, debt, logs, lastHistory, extraCash: cashReceivedThisPeriod, accName: this.name, sortname:this.sortname};
