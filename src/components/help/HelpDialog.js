@@ -5,7 +5,7 @@ export const HelpDialog = (props)=>{
   const {setHelp, isOpen, children} = props;
   return (
   <Dialog
-    style={{width: 720}}
+    style={{width: 720, top: 0}}
     isOpen={isOpen}
     iconName="help"
     onClose={()=>setHelp(false)}
