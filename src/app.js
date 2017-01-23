@@ -1,6 +1,7 @@
 // import 'babel-polyfill'
 // import './helpers.js'
 const electron = require('electron');
+import {getSettings} from 'ducks/settings-duck'
 // const {Menu} = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -55,9 +56,9 @@ function createWindow() {
       installExtension(REDUX_DEVTOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log('An error occurred: ', err));
-      installExtension(POUCHDB_INSPECTOR)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
+      // installExtension(POUCHDB_INSPECTOR)
+      // .then((name) => console.log(`Added Extension:  ${name}`))
+      // .catch((err) => console.log('An error occurred: ', err));
     }
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -76,7 +77,8 @@ function createWindow() {
     // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
     // getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
-    // require('electron-debug')({showDevTools: true});
+    mainWindow.webContents.openDevTools();
+    require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {
