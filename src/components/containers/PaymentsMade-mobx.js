@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import {inject} from 'mobx-react'
-import Payments from '../views/PaymentsMade';
+import Payments from 'components/views/PaymentsMade';
 import {setPage} from 'ducks/router-duck.js';
 
 

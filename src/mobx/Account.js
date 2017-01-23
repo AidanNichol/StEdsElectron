@@ -49,7 +49,6 @@ export default class Account {
     merge(this, accountDoc)
     // this.updateDocument(accountDoc);
     merge(this, accessors);
-    logit('getLastPaymentsBanked', this.getLastPaymentsBanked())
   }
 
   @computed get name() {

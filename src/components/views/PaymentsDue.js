@@ -1,11 +1,11 @@
 /* jshint quotmark: false */
 import React from 'react';
-import {Panel} from '../utility/AJNPanel'
-// import MyModal from '../utility/AJNModal'
-import TooltipButton from '../utility/TooltipButton.js';
-import TooltipContent from '../utility/TooltipContent.js';
+import {Panel} from 'components/utility/AJNPanel'
+// import MyModal from 'components/utility/AJNModal'
+import TooltipButton from 'components/utility/TooltipButton.js';
+import TooltipContent from 'components/utility/TooltipContent.js';
 // import PaymentsSummary from './PaymentsSummary'
-import {MemberRecipt as MemberBill} from './PaymentsMade'
+import {MemberRecipt as MemberBill} from 'components/views/PaymentsMade'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
 // import {Icon} from 'ducks/walksDuck'

@@ -83,7 +83,7 @@ export default class Walk {
       if (this.bookings.has(memId))this.bookings.get(memId).updateBooking(booking)
       else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk}));
     })
-    const deleted = R.difference(this.bookings.keys(), Object.keys(walkDoc.bookings));
+    const deleted = R.difference(this.bookings.keys(), Object.keys(walkDoc.bookings||{}));
     deleted.forEach(memId=>this.bookings.delete(memId))
     merge(this, walkDoc)
     return;
