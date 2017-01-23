@@ -26,7 +26,7 @@ class AccountsStore {
   }
 
   @computed get conflictingAccounts() {
-    return this.accounts.values().filter((entry)=>entry._conflicts.length > 0)
+    return this.accounts.values().filter((entry)=>(entry._conflicts||[]).length > 0)
   }
 
   @action addAccount = account=>{
@@ -118,10 +118,10 @@ class AccountsStore {
     /* required in strict mode to be allowed to update state: */
     logit('allDocs', data)
     runInAction('update state after fetching data', () => {
-      this.addAccounts(data.rows.map(row=>row.doc))
+      this.addAccounts(data.rows.map(row=>row.doc));
 
       this.loaded = true;
-      logit('AccountStore', this, this.accounts)
+      logit('AccountStore', this, this.accounts);
     })
     const dataBP = await db.allDocs({descending: true, limit: 1, include_docs: true, startkey: 'BP9999999', endkey: 'BP00000000' });
     logit('load datasummaries', dataBP)
@@ -129,16 +129,16 @@ class AccountsStore {
       if (dataBP.rows.length >  0) this.changeBPdoc(dataBP.rows[0].doc);
     })
 
-    logit('conflictingAccounts', this.conflictingAccounts)
-    for(let account of this.conflictingAccounts){
-      // account._conflicts = account._conflicts.sort((a,b)=>getRev(b)-getRev(a))
-      let confs = await db.get(account._id, {open_revs: account._conflicts, include_docs:true})
-      logit('conflicting docs', confs)
-      runInAction('addConflicting docs', ()=>{
-        this.accounts.get(account._id).conflicts = confs.map((row)=>row.ok);
-        logit('account:with conflicts', this.accounts.get(account._id))
-      })
-    }
+    // logit('conflictingAccounts', this.conflictingAccounts)
+    // for(let account of this.conflictingAccounts){
+    //   // account._conflicts = account._conflicts.sort((a,b)=>getRev(b)-getRev(a))
+    //   let confs = await db.get(account._id, {open_revs: account._conflicts, include_docs:true})
+    //   logit('conflicting docs', confs)
+    //   runInAction('addConflicting docs', ()=>{
+    //     this.accounts.get(account._id).conflicts = confs.map((row)=>row.ok);
+    //     logit('account:with conflicts', this.accounts.get(account._id))
+    //   })
+    // }
   }
 }
 

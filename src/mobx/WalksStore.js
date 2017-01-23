@@ -33,7 +33,7 @@ class WalksStore {
   }
 
   @computed get conflictingWalks() {
-    return this.walks.values().filter((entry)=>entry._conflicts.length>0)
+    return this.walks.values().filter((entry)=>(entry._conflicts||[]).length>0)
   }
 
   @computed get allWalkLogsByAccount(){
@@ -93,16 +93,16 @@ class WalksStore {
       this.loaded = true;
       logit('WalkStore', this, this.walks)
     })
-    logit('conflictingWalks', this.conflictingWalks)
-    for(let walk of this.conflictingWalks){
-      walk._conflicts = walk._conflicts.sort((a,b)=>getRev(b)-getRev(a))
-      let confs = await db.get(walk._id, {open_revs: walk._conflicts, include_docs:true})
-      logit('conflicting docs', confs)
-      runInAction('addConflicting docs', ()=>{
-        this.walks[walk._id].conflicts = confs.map((row)=>row.ok);
-        logit('walk:with conflicts', this.walks[walk._id])
-      })
-    }
+    // logit('conflictingWalks', this.conflictingWalks)
+    // for(let walk of this.conflictingWalks){
+    //   walk._conflicts = walk._conflicts.sort((a,b)=>getRev(b)-getRev(a))
+    //   let confs = await db.get(walk._id, {open_revs: walk._conflicts, include_docs:true})
+    //   logit('conflicting docs', confs)
+    //   runInAction('addConflicting docs', ()=>{
+    //     this.walks[walk._id].conflicts = confs.map((row)=>row.ok);
+    //     logit('walk:with conflicts', this.walks[walk._id])
+    //   })
+    // }
   }
 }
 var coll = new Intl.Collator();
