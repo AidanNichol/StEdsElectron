@@ -76,8 +76,8 @@ function createWindow() {
 
     // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
     // Open the DevTools.
-    // getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
-    mainWindow.webContents.openDevTools();
+    getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
     require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.

@@ -3,8 +3,10 @@
 
 // var prettyFormat = require('pretty-format')
 var PouchDB  = require('pouchdb');
+import XDate from 'xdate'
 import fs from 'fs'
 var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
+const dat = new XDate().toString('MMM-dd HH:mm');
 
 (async function() {
   try {
@@ -12,7 +14,7 @@ var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
     var data = await db.allDocs({include_docs: true})
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
-    fs.writeFileSync('./backup/preReformatDev.json')
+    fs.writeFileSync(`./backup/preRevertDev${dat}.json`)
     await loadWalks(db);
     await loadAccs(db);
     // let res = await db.bulkDocs(docs, {new_edits: false})
@@ -39,7 +41,7 @@ async function loadWalks(db){
           .map(row => {
             if (!row.doc.booked)row.doc.booked = {};
             if (!row.doc.annotations)row.doc.annotations = {};
-            let newDoc = reformatWalkDoc(row.doc)
+            let newDoc = revertWalkDoc(row.doc)
             return newDoc})
 
     // console.log(docs)
@@ -58,7 +60,7 @@ async function loadAccs(db){
           .filter(row => row.doc.type === 'account')
           .map(row => {
             if (!row.doc.log)row.doc.log = [];
-            let newDoc = reformatAccDoc(row.doc)
+            let newDoc = revertAccDoc(row.doc)
             return newDoc})
 
     // console.log(docs)
@@ -68,56 +70,41 @@ async function loadAccs(db){
   }
 }
 
-const reformatAccDoc = (doc)=>{
+const revertAccDoc = (doc)=>{
   let logs =[];
-  for(let log of doc.log||[]){
-    let [dat, who, , , req, amount, note] = log;
-    if (!who||who==='???')who='M1180';
-    if (note && note !== ''){
-      if (/Credit/i.test(note))req = '+';
-      if (/BACS/i.test(note))req = 'T';
-    }
-    if (amount < 0){
-      amount *= -1;
-      req = req+"X";
-    }
-    var newLog = {dat, who, req, amount, type:'A'};
-    if (note && note !== '')newLog.note = note;
-    // if (memId && memId !== '')newLog.memId = memId;
-    // if (walkId && walkId !== '')newLog.walkId = walkId;
+  for(let log of doc.logs||[]){
+    let {dat, who, req, amount, note} = log;
+    if (req[1]==='X')amount *= -1;
+    req = 'P';
+    if (note && note === '')note = undefined;
+    let newLog = [dat, who, null, null, req, amount, note];
     logs.push(newLog);
   }
-  doc.logs = logs;
-  delete doc.log;
-  // if (doc._id==='A853')console.log('reformatWalkDoc:doc', prettyFormat(doc))
+  doc.log = logs;
+  delete doc.logs;
+  // if (doc._id==='A853')console.log('revertWalkDoc:doc', prettyFormat(doc))
   return doc;
 };
 
-const reformatWalkDoc = (doc)=>{
-  let bookings = {};
-  // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:doc', doc,bookings);
+const revertWalkDoc = (doc)=>{
+  let booked = {};
+  let log = [];
+  let annotations = {}
+  // if (doc._id==='W2016-12-17')console.log('revertWalkDoc:doc', doc,bookings);
 
-  for(let memId of Object.keys(doc.bookings||{})){
-    bookings[memId] = {status: doc.booked[memId], logs:[]}
+  for(let [memId, booking] of Object.entries(doc.bookings||{})){
+    if (booking.annotation)annotations[memId] = booking.annotations;
+    if (booking.logs)log = log.concat(booking.logs.map(log=>{
+      let {dat, who, req, note} = log;
+      return [dat, who, memId, req, note];
+    }));
+    booked[memId] = booking.status;
   }
-  // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:doc', doc,bookings);
-  for(let log of doc.log||[]){
-    let [dat, who, memId, req, note] = log
-    let newLog = {dat, who, req}
-    if (note && note!=='')newLog.note = note;
-    if (!bookings[memId])bookings[memId] = {status: 'BX',  logs: []};
-    bookings[memId].logs.push(newLog);
-  }
-  for(let memId of Object.keys(doc.annotations||{})){
-    bookings[memId].annotation = doc.annotations[memId];
-  }
-  // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:doc', prettyFormat(doc))
-  // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:bookings', prettyFormat(bookings.M825))
-  // console.log('bookings',bookings)
-  delete doc.log;
-  delete doc.booked;
-  delete doc.annotations;
-  doc.bookings = bookings;
+
+  delete doc.bookings;
+  doc.booked = booked;
+  doc.log = log;
+  doc.annotations = annotations;
   return doc;
 
 }

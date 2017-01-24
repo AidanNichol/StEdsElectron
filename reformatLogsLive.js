@@ -1,5 +1,7 @@
 // import Logit from 'factories/logit.js';
 // var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
+import XDate from 'xdate'
+const dat = new XDate().toString('MMM-dd HH:mm');
 
 // var prettyFormat = require('pretty-format')
 var PouchDB  = require('pouchdb');
@@ -13,9 +15,9 @@ import fs from 'fs'
     var data = await db.allDocs({include_docs: true})
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
-    fs.writeFileSync('./backup/preReformatLive.json')
-    await loadWalks(db);
-    await loadAccs(db);
+    fs.writeFileSync(`./backup/preReformatLive-${dat}.json`)
+    // await loadWalks(db);
+    // await loadAccs(db);
     // let res = await db.bulkDocs(docs, {new_edits: false})
     // console.log('result', res)
     const info = await db.info()

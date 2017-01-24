@@ -15,7 +15,6 @@ settings.defaults({
         user: 'aidan', password: 'admin',
         localUsers: 'devUsers', resetLocalUser: false}
   },
-  clearRouter:true,
   advanced: false
 })
 settings.configure({prettify: true})
