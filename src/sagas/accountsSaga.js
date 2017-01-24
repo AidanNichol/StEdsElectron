@@ -27,9 +27,10 @@ function* updatePaymentToAccount(action){
 function* deletePaymentToAccount(action){
     doer = yield select((state)=>state.signin.memberId);
     var acc = yield select(getAccount, action.accId);
+    logit('deletePaymentToAccount', action.accId, acc)
     var dat = action.dat
-    var log = acc.logs.filter(log=>log.dat!=dat);
-    var newAcc = i.set(acc, 'logs', log);
+    var logs = acc.logs.filter(log=>log.dat!=dat);
+    var newAcc = i.set(acc, 'logs', logs);
     // var newAcc = acc.set('log', log);
     yield call(docUpdateSaga, newAcc, action);
 }

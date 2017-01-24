@@ -58,11 +58,11 @@ export class Booking{
     logs = logs.reverse().map(log=>{
       if (log.req === 'BX')cancelled = true;
       if (log.req === 'B' && cancelled)log.cancelled = true;
-      if (log.req === 'B' || log.req === 'C'){
+      if ((log.req === 'B' || log.req === 'C') && !log.cancelled){
         log.billable = billable;
         billable = false;
         log.owing = Math.abs(log.amount);
-        log.paid = {P: 0, T: 0, '+': 0};
+        log.paid = {P: 0, T: 0, C: 0};
       }
       else log.owing = 0;
       return log;

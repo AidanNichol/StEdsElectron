@@ -46,7 +46,7 @@ class TheTable extends React.Component {
     return (
     <div style={{overflow: 'auto', maxHeight: 500}}>
       {
-        logs.map((log, i)=>{
+        logs.filter(log=>!log.hideable).map((log, i)=>{
           let rCl = classNames({logData: true, logRec: true, outstanding: log.outstanding, historic: log.historic, inbalance: log.balance===0});
           let aCl = classNames({logData: true, logAmount: true, logPay: log.req==='P', fee: log.req!=='P' && log.amount<0, credit: log.amount>0});
           let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});

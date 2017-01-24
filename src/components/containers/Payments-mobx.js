@@ -17,11 +17,11 @@ const uiState = observable({
   showPaymentsDue: ()=>{uiState.displayingDue = true},
   showPaymentsMade: ()=>{uiState.displayingDue = false},
 })
-const xxx = autorun(()=>logit('Changed Displaying. Now showing:', uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade'))
+autorun(()=>logit('Changed Displaying. Now showing:', uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade'))
 function mapDispatchToProps(dispatch) {
   return {
     showMemberBookings: (accId)=>{dispatch(setPage({page: 'bookings', memberId: accId, accountId: accId}))},
-    accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
+    // accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
   };
 }
 
@@ -40,6 +40,10 @@ const mapStateToProps = function(store) {
     debts: accs.filter(acc=>acc.balance < 0),
     bankMoney: store.AS.bankMoney,
     doc: buildDoc(store),
+    accountUpdatePayment: (accId, amount,  inFull)=>{
+      var account = accId && store.AS.accounts.get(accId);
+      account.makePaymentToAccount({accId, amount, note: '', paymentType: 'P', inFull});
+    },
   });
 }
 const Frame = observer((props)=>(

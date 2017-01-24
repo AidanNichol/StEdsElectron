@@ -6,7 +6,8 @@ import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
 import {request, Icon} from '../../../ducks/walksDuck'
 import {Lock} from '../../../ducks/lock-duck'
-import {Payment} from '../../containers/PaymentStatusLog-container.js';
+// import {Payment} from '../../containers/PaymentStatusLog-container.js';
+import {PaymentsBoxes} from 'components/containers/PaymentsBoxes-mobx';
 import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
 import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking} from './annotateBooking'
@@ -83,7 +84,7 @@ var Bookings = React.createClass({
 
           {/* <ChangeLog accId={accId}/> */}
           <ChangeLogM accId={accId}/>
-          <Payment accId={accId}/>
+          <PaymentsBoxes accId={accId}/>
         </Panel>
 
       );

@@ -22,12 +22,12 @@ const uiState = observable({
   toggleNewBookings: ()=>uiState.showAll = !uiState.showAll
 })
 
-const enterPayment = ({accId, accountUpdatePayment, className})=>{
+const enterPayment = ({accId, accountUpdatePayment, due, className})=>{
   let handleKeydown = (event)=> {
     var amount = parseInt(event.target.value);
     if ( event.which === 13 && amount > 0) {
       event.preventDefault();
-      accountUpdatePayment(accId, amount);
+      accountUpdatePayment(accId, amount, amount === due);
       event.target.value = '';
     }
   };
@@ -49,7 +49,7 @@ const EnterPayment = styled(enterPayment)`
 
 
 const detail =  observer(({bkng, className})=>{
-  const cls = classnames({detail: true, [className]: true, newBkng: !bkng.paid})
+  const cls = classnames({detail: true, [className]: true, newBkng: !bkng.owing})
   return (
   <div className={cls} key={bkng.dat}>
     {bkng.dispDate}
@@ -58,7 +58,7 @@ const detail =  observer(({bkng, className})=>{
       { bkng.name && <span className='name'>[{bkng.name}]</span> }
       {bkng.text}
     </span>
-    {bkng.paid && <span className="paid">£{bkng.paid}</span>}
+    {bkng.paid && <span className="paid">£{bkng.owing}</span>}
   </div>
 )});
 
@@ -98,7 +98,7 @@ const memberRecipt = observer((props)=>{
   logit('props', props);
 
   let paidInFull = (event)=> {
-    accountUpdatePayment(data.accId, -data.balance);
+    accountUpdatePayment(data.accId, -data.balance, true);
     event.target.value = '';
   };
 
@@ -108,7 +108,7 @@ const memberRecipt = observer((props)=>{
         <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
         <TooltipButton className="owed" label={`£${(-data.balance)}`} onClick={paidInFull} tiptext='Paid Full Amount' visible/>
         {/* <TooltipButton className="owed" label={`£${-data.balance}`} visible/>} */}
-        <EnterPayment {...{accountUpdatePayment, accId: data.accId}} />
+        <EnterPayment {...{accountUpdatePayment, accId: data.accId, due: -data.balance}} />
         {/* {enterPayment({accountUpdatePayment, accId: data.accId})} */}
       </div>
       {data.logs.filter((bkng)=>bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}

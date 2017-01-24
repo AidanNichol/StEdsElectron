@@ -1,10 +1,12 @@
 import mobx from 'mobx'
 import {request} from 'ducks/walksDuck'
 import {merge} from 'lodash'
+import db from 'services/bookingsDB';
+import {state} from 'ducks/replication-mobx';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
-import { observable, computed, action} from 'mobx';
+import { observable, computed, toJS, action} from 'mobx';
 import MS from 'mobx/MembersStore'
 import WS from 'mobx/WalksStore'
 import DS from 'mobx/DateStore'
@@ -22,7 +24,7 @@ export class AccLog{
   amount = 0;
   note='';
 
-  mergeableLog(){
+  mergeableLog = ()=>{
     let amount = this.amount * request.chargeFactor(this.req);
     return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
   }
@@ -81,6 +83,7 @@ export default class Account {
 
   @action updateDocument = accountDoc=>{
     // const added = R.difference(accountDoc.logs.map(log=>log.dat), this.logs.keys());
+
     (accountDoc.logs || []).forEach(log=>{
       if (this.logs.has(log.dat))this.logs.get(log.dat).updateLog(log)
       else this.logs.set(log.dat, new AccLog(log));
@@ -92,9 +95,29 @@ export default class Account {
     return;
   }
 
+  @action dbUpdate = async ()=>{
+    logit('DB Update start', this)
+    let {_conflicts, ...newDoc} = toJS(this);
+    newDoc.logs = Object.values(newDoc.logs)
+    logit('DB Update', newDoc, _conflicts, this)
+    const res = await db.put(newDoc);
+    this._rev =  res.rev;
+    const info = await db.info();
+    logit('info', info);
+    state.dbChange(info);
+  }
+
+  @action makePaymentToAccount({paymentType: req, amount, note, inFull}){
+      // doer = yield select((state)=>state.signin.memberId);
+      const who = 'M1180';
+      var logRec = {dat:DS.logTime, who, req, type: 'A', amount, note, inFull};
+      this.logs.set(logRec.dat, new AccLog(logRec));
+      this.dbUpdate();
+  }
+
   @action deletePayment(dat){
-      this.logs = this.logs.filter(log=>log.dat!=dat);
-      // yield call(docUpdateSaga, newAcc, action);
+      this.logs.delete(dat);
+      this.dbUpdate();
   }
 
   @computed get accountLogs(){
@@ -123,9 +146,11 @@ export default class Account {
     // logit('accountStatus:logs', bookingLogs,logs)
     let balance = 0;
     let cashReceivedThisPeriod = 0;
+    let cashAvailable = 0;
     let activeThisPeriod = false;
     let lastOK = -1;
     let lastHistory = -1
+    let lastHideable = -1
     let walkPast = 'W'+DS.now.substr(0,10);
     let currentFound = false
     let mostRecentWalk = '';
@@ -139,8 +164,11 @@ export default class Account {
         return log;
       }
       if (balance > 0 && log.type === 'W' && log.billable){
-        paid = Math.min(balance, Math.abs(log.owing));
-        log.paid['+'] += paid;
+        paid = Math.min(balance - cashAvailable, Math.abs(log.owing));
+        log.paid.C += paid;
+        log.owing -= paid;
+        paid = Math.min(cashAvailable, Math.abs(log.owing));
+        log.paid.P += paid;
         log.owing -= paid;
       }
       balance -= log.amount;
@@ -155,19 +183,23 @@ export default class Account {
           if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
           if (log.walkId > walkPast)currentFound = true
         }
-        if (balance < 0 && !log.cancelled && log.amount > 0) log.outstanding = true;
-        else {
-          latestOKbooking = i;
-          if (balance >)
+        if (log.billable){
+          if (balance < 0 && !log.cancelled && log.amount > 0) log.outstanding = true;
+          else latestOKbooking = i;
+        }
       }
       if (log.type === 'A'){
         let available = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
-        if (log.dat > startDate && log.req[0] === 'P')cashReceivedThisPeriod += available;
-        if (this._id === 'A1164')logit('logs debug '+this._id, {i, latestOKbooking, available, activeThisPeriod});
+        if (log.dat > startDate && log.req[0] === 'P'){
+          cashAvailable += available;
+          cashReceivedThisPeriod += available;
+        }
+        if (this._id === 'A1194')logit('logs accountTYpe '+this._id, {i, latestOKbooking, available, activeThisPeriod});
         for (var j = latestOKbooking+1; j < i; j++) {
           let logB = logs[j];
+          if (this._id === 'A1194')logit('checking walk '+this._id, {j, type: logB.type,owing: logB.owing, available});
           if (logB.type !== 'W' || logB.owing <= 0 || available <= 0)continue;
-          if (this._id === 'A1164')logit('logs paid '+this._id, {j, type: logB.type, logB, cashReceivedThisPeriod});
+          if (this._id === 'A1194')logit('logs paid '+this._id, {j, type: logB.type, logB, cashAvailable});
           paid = Math.min(Math.abs(available), Math.abs(logB.owing));
           available -= paid;
           logB.owing -= paid;
@@ -178,7 +210,7 @@ export default class Account {
           }
           if (activeThisPeriod){
             logB.activeThisPeriod = true;
-            if (log.req[0] === 'P')cashReceivedThisPeriod -= paid;
+            if (log.req[0] === 'P')cashAvailable -= paid;
           }
 
         }
@@ -186,23 +218,23 @@ export default class Account {
       if (!currentFound && balance === 0){
         lastHistory = i;
         log.mostRecentWalk = mostRecentWalk;
+        if (mostRecentWalk <= WS.lastClosed)lastHideable = i;
       }
       if (balance >= 0 && log.dat < startDate) lastOK = i;
-      if (this._id === 'A1164')logit('logs dubug '+this._id, {i, log, cashReceivedThisPeriod});
+      if (this._id === 'A1194')logit('logs done '+this._id, {i, log,latestOKbooking, cashReceivedThisPeriod});
 
       return log;
       // return {...log, zeroPoint: balance === 0, balance};
     });
     logs = logs
-            .map((log, i)=>({...log, historic: (i <= lastHistory), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
+            .map((log, i)=>({...log, historic: (i <= lastHistory), hideable: (i <= lastHideable), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
     // fixupAccLogs(thisAcc, logs);
-    if (this._id === 'A1164')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
-    let paymentsMade = cashReceivedThisPeriod;
+    if (this._id === 'A1194')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let debt = [];
     // if (balance < 0 || cashReceivedThisPeriod){
     //   let due = balance;
-    //   if (this._id === 'A1164') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
+    //   if (this._id === 'A1194') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
     //   logs = logs
     //     .reverse()
     //     .map((log, i)=>{
@@ -219,18 +251,18 @@ export default class Account {
     //           && log.req.length === 1 && !log.cancelled){
     //         log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
     //         cashReceivedThisPeriod -= log.paid;
-    //         if (this._id === 'A1164')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
+    //         if (this._id === 'A1194')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
     //       }
-    //       if (this._id === 'A1164')logit('getdebt log', due, log)
+    //       if (this._id === 'A1194')logit('getdebt log', due, log)
     //       let owing = Math.min(-log.amount, -balance);
-    //       if (this._id === 'A1164')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
+    //       if (this._id === 'A1194')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
     //       return {...log, owing};
     //     })
     //     .reverse() ;
     // }
     if (balance !== 0) debt = logs.slice(lastOK+1).filter((log)=>log.outstanding);
     // logit('logs final', {accId: this._id, balance, debt, logs, lastHistory, accName: this.name, sortname});
-    return  {accId: this._id, balance, activeThisPeriod, paymentsMade, debt, logs, lastHistory, extraCash: cashReceivedThisPeriod, accName: this.name, sortname:this.sortname};
+    return  {accId: this._id, balance, activeThisPeriod, paymentsMade: cashReceivedThisPeriod, debt, logs, lastHistory, extraCash: cashAvailable, accName: this.name, sortname:this.sortname};
   }
 
   @action fixupAccLogs() {

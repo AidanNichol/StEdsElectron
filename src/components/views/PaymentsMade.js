@@ -24,7 +24,10 @@ const uiState = observable({
 })
 
 const detail =  observer(({bkng, className})=>{
-  const cls = classnames({detail: true, [className]: true, newBkng: !bkng.paid})
+  const cls = classnames({detail: true, [className]: true, newBkng: bkng.activeThisPeriod && !(bkng.paid &&bkng.paid.P > 0 )});
+  const paid = [['C', 'Cr:'], ['T', 'T:'], ['P', '£']].map(([code, txt])=>{
+    return (bkng.paid && bkng.paid[code]) ? (<span className={'paid-'+code} key={code}>&nbsp;{txt+bkng.paid[code]}</span>) : null
+  })
   return (
   <div className={cls} key={bkng.dat}>
     {bkng.dispDate}
@@ -33,7 +36,7 @@ const detail =  observer(({bkng, className})=>{
       { bkng.name && <span className='name'>[{bkng.name}]</span> }
       {bkng.text}
     </span>
-    {bkng.paid && <span className="paid">£{bkng.paid}</span>}
+    <span className="paid">{paid}</span>
   </div>
 )});
 export const Detail = styled(detail)`
@@ -45,6 +48,13 @@ span {
   display: inline-block;
 }
 
+.paid-C {
+  color: brown;
+}
+
+.paid-T {
+  color: blue;
+}
 .text {
   display: inline-block;
   position: relative;
@@ -75,10 +85,13 @@ const memberRecipt = observer((props)=>{
       <div className={props.className+' member-rcpt'}>
         <div className="overview">
           <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
-          {data.paymentsMade && <TooltipButton className="owed" label={`£${(data.paymentsMade)}`} visible/>}
+          {data.paymentsMade > 0 ? <TooltipButton className="owed" label={`£${(data.paymentsMade)}`} visible/> : null}
 
         </div>
-        {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding || (uiState.showAll && bkng.type==='W' && bkng.activeThisPeriod)).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
+        {data.logs.filter(bkng=>bkng.type==='W' && bkng.activeThisPeriod )
+          .filter((bkng)=>(bkng.paid && bkng.paid.P > 0) || uiState.showAll)
+          .map(bkng=>{if (bkng.accId==='A2015')logit('A2105',bkng.text, bkng.paid, uiState.showAll, (bkng.paid && bkng.paid.P > 0)); return bkng})
+          .map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
         {/* {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))} */}
       </div>
     );

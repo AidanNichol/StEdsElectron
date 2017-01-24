@@ -1,7 +1,9 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
 import {Lock} from 'ducks/lock-duck'
-import {PrintButton} from 'sagas/reportsSaga';
+// import {PrintButton} from 'sagas/reportsSaga';
+import {PrintButton} from 'components/utility/PrintButton'
+import {summaryReport} from 'reports/summaryReport2'
 
 import SelectWalk from '../utility/SelectWalk.js';
 
@@ -60,7 +62,7 @@ export default function BusLists(props){
         <div className="buttons">
           <Lock />
           {/*<div className="errorMsg">{this.state.msg}</div>*/}
-          <PrintButton report='busList' tiptext='Print All  Walks PDF' />
+          <PrintButton  onClick={()=>summaryReport(null, props.state)} tiptext="Print All  Walks PDF" visible/>
           {/* <div><button type="button" onClick={()=>{logit('clicked', '');printBusList()}}>Print All  Walks PDF</button></div> */}
 
         </div>

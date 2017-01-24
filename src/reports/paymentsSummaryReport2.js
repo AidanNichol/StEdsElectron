@@ -28,7 +28,7 @@ export function paymentsSummaryReport(payload){
   if (homefs.exists('My Documents')) documents = homefs.cwd('My Documents');
   const docs = documents.dir('StEdwards').dir('PaymentSummary').cwd()
   logit('payload', payload);
-  console.log(homefs.cwd(), documents.cwd(), docs)
+  logit('',homefs.cwd(), documents.cwd(), docs)
 
   let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
   // let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
@@ -87,7 +87,7 @@ const reportBody = (payload, doc)=>{
 
   const AccLineTot = ({y, x, wd, title, factor='', item}) =>{
     if (!tots[item])return y;
-    // console.log('AccLineTot', {item, tots});
+    // logit('','AccLineTot', {item, tots});
     doc.fontSize(12).fillColor('blue').text(`${title} (${tots[item][0]})`, x + indent, y).text(`${factor}£${tots[item][1]}`, x, y, {width: wd - 2*indent, align: 'right'})
     return y+ detailH;
   }
@@ -103,18 +103,17 @@ const reportBody = (payload, doc)=>{
       .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+55, y-3, { height: detailH*.9})
       .fontSize(12).text(`${log.text} `, x+68 , y, {continued: true})
       .font(italic).fontSize(10).text(log.name? `[${log.name}] ` : '');
-    doc.text(`£${log.amount}`, x, y, {width: colW, align:'right'})
+    doc.text(`£${log.owing}`, x, y, {width: colW, align:'right'})
     return y+detailH;
   }
 
   const printPayments = (acc) => {
-    console.log('printPayments', acc)
+    logit('','printPayments', acc)
     y += 3;
-    let payments = acc.logs.filter(log=>log.paid)
+    let payments = acc.logs.filter(log=>log.activeThisPeriod && log.paid && log.paid.P > 0)
     let startY = y;
     let accHeight = 4 + detailH*(1+payments.length);
     if (pHeight - y - margin - accHeight<= 0) {
-      console.log()
       x+= colW + gutter;
       // y = yPostSumm
       y = firstY + 3;
@@ -132,7 +131,7 @@ const reportBody = (payload, doc)=>{
     payments.forEach((log) => {
       y = printLogRec (log, x, y)
     });
-    console.log(acc.sortname, {startY, accHeight, n: payments.length, endY: startY+accHeight, y, pHeight, margin, detailH})
+    logit('',acc.sortname, {startY, accHeight, n: payments.length, endY: startY+accHeight, y, pHeight, margin, detailH})
   }
     const printAccs = (accs)=>{
       accs.forEach(acc=>{

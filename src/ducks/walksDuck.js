@@ -214,7 +214,7 @@ export function* walksSaga(args){
       if (action.type === WALK_ANNOTATE_BOOKING)yield put(annotateCloseDialog())
       if (action.type === WALK_CLOSE_BOOKINGS){
         yield put(updateBookableWalks(action.walkId))
-        yield call(copyFixableLogsToAccount, action)
+        // yield call(copyFixableLogsToAccount, action)
       }
     }
 

@@ -32,6 +32,10 @@ class WalksStore {
     return walkIds;
   }
 
+  @computed get latestClosed(){
+    return this.walks.values.filter(walk=>walk.closed).map(walk=>walk._id).pop()
+  }
+
   @computed get conflictingWalks() {
     return this.walks.values().filter((entry)=>(entry._conflicts||[]).length>0)
   }

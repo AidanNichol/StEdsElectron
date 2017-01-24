@@ -15,6 +15,9 @@ export class BookingLog{
     this.updateLog(log)
   }
 
+  // @computed get totalPaid(){
+  //
+  // }
   @action updateLog = (log)=>{merge(this, log);}
 
   @computed get mergeableLog(){

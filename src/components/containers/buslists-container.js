@@ -111,6 +111,7 @@ const mapStateToProps = function(state) {
             bookings,
             cars,
             waitingList,
+            state,
             status: getBookingsSummary(state.walks.list[walkId]),
             amount: state.walks.list[walkId].fee,
             bookingsAdmin: isUserAuthorized(['bookings']),

@@ -23,7 +23,9 @@ export class DateStore {
 
 	@computed get prevDate() {return this.today.clone().addDays(-55).toString('yyyy-MM-dd');}
 	@computed get lastAvailableDate() {return this.today.clone().addDays(59).toString('yyyy-MM-dd');}
-
+	@computed get logTime() {
+			return new XDate().toString('i');
+		}
 	datetimeIsRecent(datStr){
 		return this.datetimeIsToday(datStr)
 	}
