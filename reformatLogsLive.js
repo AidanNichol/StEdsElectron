@@ -16,8 +16,8 @@ import fs from 'fs'
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
     fs.writeFileSync(`./backup/preReformatLive-${dat}.json`)
-    // await loadWalks(db);
-    // await loadAccs(db);
+    await loadWalks(db);
+    await loadAccs(db);
     // let res = await db.bulkDocs(docs, {new_edits: false})
     // console.log('result', res)
     const info = await db.info()
