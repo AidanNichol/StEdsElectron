@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {inject, observer} from 'mobx-react'
 import {observable, autorun} from 'mobx'
 import PaymentsDue from 'components/views/PaymentsDue2.js';
-import PaymentsMade from 'components/views/PaymentsMade.js';
+import PaymentsMade from 'components/views/PaymentsReceived.js';
 import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
 import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
