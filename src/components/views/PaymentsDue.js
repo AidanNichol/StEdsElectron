@@ -5,7 +5,7 @@ import {Panel} from 'components/utility/AJNPanel'
 import TooltipButton from 'components/utility/TooltipButton.js';
 import TooltipContent from 'components/utility/TooltipContent.js';
 // import PaymentsSummary from './PaymentsSummary'
-import {MemberRecipt as MemberBill} from 'components/views/PaymentsMade'
+import {MemberRecipt as MemberBill} from 'components/views/PaymentsReceived'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
 // import {Icon} from 'ducks/walksDuck'

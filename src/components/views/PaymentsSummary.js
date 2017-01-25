@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {observer, inject} from 'mobx-react';
 import mobx from 'mobx';
 import {saveSummary} from 'ducks/paymentssummary-duck.js';
-import {ShowRecipts} from 'components/views/paymentsMade';
+import {ShowRecipts} from 'components/views/PaymentsReceived';
 import {paymentsSummaryReport} from 'reports/paymentsSummaryReport2'
 // import {setPage} from 'ducks/router-duck.js';
 import {getLogTime} from 'utilities/DateUtilities.js';
