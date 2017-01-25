@@ -15,7 +15,7 @@ import fs from 'fs'
     var data = await db.allDocs({include_docs: true})
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
-    fs.writeFileSync(`./backup/preReformatLive-${dat}.json`)
+    fs.writeFileSync(`./backup/preReformatLive-${dat}.json`, JSON.stringify(docs))
     await loadWalks(db);
     await loadAccs(db);
     // let res = await db.bulkDocs(docs, {new_edits: false})
@@ -91,7 +91,7 @@ const reformatAccDoc = (doc)=>{
     logs.push(newLog);
   }
   doc.logs = logs;
-  delete doc.log;
+  // delete doc.log;
   // if (doc._id==='A853')console.log('reformatWalkDoc:doc', prettyFormat(doc))
   return doc;
 };
@@ -117,9 +117,9 @@ const reformatWalkDoc = (doc)=>{
   // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:doc', prettyFormat(doc))
   // if (doc._id==='W2016-12-17')console.log('reformatWalkDoc:bookings', prettyFormat(bookings.M825))
   // console.log('bookings',bookings)
-  delete doc.log;
-  delete doc.booked;
-  delete doc.annotations;
+  // delete doc.log;
+  // delete doc.booked;
+  // delete doc.annotations;
   doc.bookings = bookings;
   return doc;
 

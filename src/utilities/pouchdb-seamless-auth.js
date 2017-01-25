@@ -34,6 +34,7 @@ var cache;
 module.exports = function (thePouchDB, localDb, adapter = 'websql') {
   PouchDB = thePouchDB;
   local = new PouchDB(localDb, {adapter});
+  logit('local user', local, adapter);
 
   return Auth.useAsAuthenticationDB.call(local)
     .then(invalidateCache)

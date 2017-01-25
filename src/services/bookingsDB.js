@@ -61,7 +61,7 @@ logit('window', window);
 logit('PouchDB created', db);
 db.info().then(function(info) {logit('Bookings Info', info);});
 
-PouchDB.debug.disable();
+// PouchDB.debug.disable();
 getSettings('debug.database') && PouchDB.debug.enable('pouchdb:*');
 import pouchSeed from 'pouchdb-seed-design';
 import ddoc from '../services/designDocs'

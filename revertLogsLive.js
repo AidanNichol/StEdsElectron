@@ -5,8 +5,8 @@
 var PouchDB  = require('pouchdb');
 import XDate from 'xdate'
 import fs from 'fs'
-// var db = new PouchDB('http://nicholware.com:5984/bookings', {});
-var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
+var db = new PouchDB('http://nicholware.com:5984/bookings', {});
+// var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
 const dat = new XDate().toString('MMM-dd HH:mm');
 
 (async function() {
@@ -15,7 +15,7 @@ const dat = new XDate().toString('MMM-dd HH:mm');
     var data = await db.allDocs({include_docs: true})
     var docs =data.rows.filter(row=>row.doc).map(row=>row.doc);
     console.log('docs', docs.length)
-    fs.writeFileSync(`./backup/preRevertDev${dat}.json`)
+    fs.writeFileSync(`./backup/preRevertDev${dat}.json`, JSON.stringify(docs))
     await loadWalks(db);
     await loadAccs(db);
     // let res = await db.bulkDocs(docs, {new_edits: false})
@@ -47,6 +47,7 @@ async function loadWalks(db){
 
     // console.log(docs)
     await db.bulkDocs(docs)
+    console.log(`updated ${docs.length} walk documents`)
   } catch (e) {
     console.error('error', e);
   }
@@ -66,6 +67,8 @@ async function loadAccs(db){
 
     // console.log(docs)
     await db.bulkDocs(docs)
+    console.log(`updated ${docs.length} account documents`)
+
   } catch (e) {
     console.error('error', e);
   }
@@ -81,8 +84,8 @@ const revertAccDoc = (doc)=>{
     let newLog = [dat, who, null, null, req, amount, note];
     logs.push(newLog);
   }
-  doc.log = logs;
-  delete doc.logs;
+  doc.log = logs.sort(logCmpDate);
+  // delete doc.logs;
   // if (doc._id==='A853')console.log('revertWalkDoc:doc', prettyFormat(doc))
   return doc;
 };
@@ -102,10 +105,13 @@ const revertWalkDoc = (doc)=>{
     booked[memId] = booking.status;
   }
 
-  delete doc.bookings;
+  // delete doc.bookings;
   doc.booked = booked;
-  doc.log = log;
+  doc.log = log.sort(logCmpDate);
   doc.annotations = annotations;
   return doc;
 
 }
+var coll = new Intl.Collator();
+var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
+// var cmpDate = (a, b) => coll.compare(a.dat, b.dat);
