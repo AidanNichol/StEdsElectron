@@ -19,7 +19,7 @@ const mapStateToPropsChangeLog = function(store, {accId, ...props}) {
   logit('store', {store, accId, props})
   var account = accId && store.AS.accounts.get(accId);
   var logs = (account && account.accountStatus.logs) || [];
-  logit('store 2', logs, account.accountStatus)
+  logit('store 2', logs, account&&account.accountStatus)
 
   return {
     accId,
