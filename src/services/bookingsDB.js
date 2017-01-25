@@ -1,5 +1,5 @@
 /* global PouchDB */
-export var PouchDB  = require('pouchdb-browser');
+// export var PouchDB  = require('pouchdb-browser');
 
 // export var PouchDB  = require('pouchdb-core')
 //                   .plugin(require('pouchdb-adapter-websql'))
