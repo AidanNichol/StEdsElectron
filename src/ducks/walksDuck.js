@@ -266,7 +266,9 @@ function updateBooking(walk, changes){
   }
   booking.status = reqType;
   booking.logs = pushWalkLog(booking.logs, {who, req: reqType});
-  var newDoc = i.setIn(walk, ['bookings', memId], booking);
+  var newDoc;
+  if (booking.logs.length > 0)newDoc = i.setIn(walk, ['bookings', memId], booking);
+  else newDoc = i.set(walk, 'bookings', i.unset(walk.bookings, memId));
   logit('newDoc', newDoc)
   return newDoc;
 }
@@ -279,10 +281,14 @@ function resetCancellation(walk, changes){
   if (booking.status !== request.BUS_CANCELLED_LATE) return false
   reqType = request.BUS_CANCELLED;
   booking.status = reqType;
-  const bReq = booking.logs[booking.logs.length-1].req
-  if (bReq !== request.BUS_CANCELLED_LATE) return false
-  booking.logs[booking.logs.length-1].req = request.BUS_CANCELLED;
-  var newDoc = i.setIn(walk, ['bookings', memId], booking);
+  var newDoc;
+  if (booking.logs.length > 0){
+    const bReq = booking.logs[booking.logs.length-1].req
+    if (bReq !== request.BUS_CANCELLED_LATE) return false
+    booking.logs[booking.logs.length-1].req = request.BUS_CANCELLED;
+    newDoc = i.setIn(walk, ['bookings', memId], booking);
+      }
+  else newDoc = i.set(walk, 'bookings', i.unset(walk.bookings, memId));
   logit('newDoc', newDoc)
   return newDoc;
 }
@@ -292,13 +298,13 @@ function closeWalk(walk, action){
   return {...walk, closed: true};
 }
 
-function* copyFixableLogsToAccount(action){
-  let {fixables} = action;
-  for(let accId of Object.keys(fixables)){
-    var acc = yield select(state=>state.accounts.list[accId]);
-    const logs = fixables[accId].map(log=>{delete log.fixable; log.clone=true; return log;})
-    var newAcc = i.set(acc, 'logs', fixables[accId]);
-    logit('copyFixableLogsToAccount', {id: acc._id, action, acc, logs, newAcc})
-    yield call(docUpdateSaga, newAcc, action);
-  }
-}
+// function* copyFixableLogsToAccount(action){
+//   let {fixables} = action;
+//   for(let accId of Object.keys(fixables)){
+//     var acc = yield select(state=>state.accounts.list[accId]);
+//     const logs = fixables[accId].map(log=>{delete log.fixable; log.clone=true; return log;})
+//     var newAcc = i.set(acc, 'logs', fixables[accId]);
+//     logit('copyFixableLogsToAccount', {id: acc._id, action, acc, logs, newAcc})
+//     yield call(docUpdateSaga, newAcc, action);
+//   }
+// }
