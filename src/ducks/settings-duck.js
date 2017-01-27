@@ -1,8 +1,14 @@
 import settings from 'electron-settings'
 import Logit from '../factories/logit.js';
-var logit = Logit('color:white; background:brown;', 'DBbookings');
+var logit = Logit('color:white; background:brown;', 'electron:settings');
 
 settings.defaults({
+  user: {current: 'aidan',
+    sandy: {password: '', roles: ['bookings', 'steds']},
+    pat: {password: '', roles: ['bookings', 'steds']},
+    aidan: {password: '', roles: ['admin', 'steds']},
+    val: {password: '', roles: ['membership', 'steds']}, },
+
   lock: {enabled: true, delay:5000},
   debug: {devtoolsOpen: false, database: false, reduxLogger: false},
   router: {clear: true, enabled: false},
@@ -21,6 +27,7 @@ settings.configure({prettify: true})
 settings.applyDefaultsSync();
 settings.deleteSync('database.developement.resetLocal');
 settings.deleteSync('database.production.resetLocal');
+settings.deleteSync('clearRouter');
 export const mode = settings.getSync('database.current');
 export const DbSettings = settings.getSync(`database.${mode}`);
 logit('settings DbSettings', {mode, DbSettings})

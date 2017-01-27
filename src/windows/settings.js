@@ -42,7 +42,7 @@ const list = (val, base, name, obj)=>{
   return (<div key={base}>
     <span key={base+'S'}>{name}</span>
     <select key={base+'I'} type='checkbox' onChange={()=>dbSelected(base, inputValue)} ref={(input) => inputValue = input} defaultValue={val} >
-          { Object.keys(obj).filter((n)=>(typeof obj[n] === 'object')).map((n)=>(<option value={n}>{n}</option>))}
+      { Object.keys(obj).filter((n)=>(typeof obj[n] === 'object')).map((n)=>(<option key={n} value={n}>{n}</option>))}
           </select>
           <span className="base">{base}</span>
         </div>)
@@ -56,6 +56,7 @@ const objectTree = (obj, base, name)=>{
     number: numb,
     string: strng,
     boolean: bool,
+    'user.current': list,
     'database.current': list,
     'advanced': advancedBool,
     adapter: adapter,
@@ -69,6 +70,7 @@ const objectTree = (obj, base, name)=>{
           Object.keys(obj).map((name)=>{
             let val = obj[name]
             const baseN = base+name;
+            if (base === 'user.' && name !== data.user.current && name !== 'current')return null;
             if (base === 'database.' && name !== mode && name !== 'current')return null;
             if (!advanced && base === 'database.' && name !== mode)return null;
             if (!advanced && base === `database.${mode}.` && name.substr(0,5) !== 'reset')return null;
