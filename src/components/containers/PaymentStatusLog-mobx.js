@@ -10,11 +10,11 @@ var logit = Logit('color:blue; background:yellow;', 'mobx:PaymentStatusLog');
 
 function mapDispatchToPropsChangeLog(dispatch) {
   return {
-    accountDeletePayment: (accId, dat)=>{dispatch({type: 'ACCOUNT_DELETE_PAYMENT', accId, dat});},
+    // accountDeletePayment: (accId, dat)=>{dispatch({type: 'ACCOUNT_DELETE_PAYMENT', accId, dat});},
     resetLateCancellation: (walkId, memId)=>dispatch( resetLateCancellation(walkId, memId)),
   };
 }
-const mapStateToPropsChangeLog = function(store, {accId, ...props}) {
+const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
   var startDate = store.AS.lastPaymentsBanked;
   logit('store', {store, accId, props})
   var account = accId && store.AS.accounts.get(accId);
@@ -26,11 +26,11 @@ const mapStateToPropsChangeLog = function(store, {accId, ...props}) {
     logs,
     className: (props.className||'')+' mobx',
     startDate,
-    // accountDeletePayment: (accId, dat)=>{account.deletePayment(dat)},
+    accountDeletePayment: (accId, dat)=>{account.deletePayment(dat)},
     };
 
 }
 
 
-const ChangeLogX = inject(mapStateToPropsChangeLog)(observer(changeLog));
+const ChangeLogX = inject(mapStoreToPropsChangeLog)(observer(changeLog));
 export  const ChangeLogM = connect(()=>({}), mapDispatchToPropsChangeLog)(ChangeLogX);
