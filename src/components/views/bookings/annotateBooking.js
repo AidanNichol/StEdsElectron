@@ -16,9 +16,9 @@ function Annotate(props){
   return (
     <div className="logonX">
       Annotate {name} {venue}
-        <input defaultValue={text} onChange={change}/>
-        <button onClick={annotateCloseDialog}>Cancel</button>
-        <button onClick={save}>Save</button>
+      <input defaultValue={text} onChange={change}/>
+      <button onClick={annotateCloseDialog}>Cancel</button>
+      <button onClick={save}>Save</button>
     </div>
   );
 
