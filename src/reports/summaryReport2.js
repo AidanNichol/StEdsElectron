@@ -38,7 +38,7 @@ export function summaryReport(payload, state){
     logit('want to mkdir', docs)
     fs.mkdirSync(docs);
   }
-  let docname = docs+'/busSummary2.pdf';
+  let docname = docs+'/busSummary.pdf';
   logit('name', {docname})
   const marginH = 30;
   const marginV = 20;
