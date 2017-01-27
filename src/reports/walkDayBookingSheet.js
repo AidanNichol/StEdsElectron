@@ -206,7 +206,7 @@ export function walkDayBookingSheet(doc){
   const aHeadBox = makeHeadBox(sz-gap+2, detailH, r)
   y = pHeight - marginV - (detailH + 4*bw + 6)
   walkAvailability.forEach(({free, display}, i)=>{
-    const name = walknames[i].shortname;
+    const name = walknames[i+1].shortname;
     const x1 = x + sz*i
     logit('avail', {x1, sz,iw,bw,gap})
     doc.path(`M ${x1-2+r},${y-2} ${aHeadBox}`).lineWidth(1)
