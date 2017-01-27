@@ -1,4 +1,4 @@
-import { observable, computed, action, toJS, runInAction, reaction} from 'mobx';
+import { observable, computed, action, toJS, runInAction, autorun, reaction} from 'mobx';
 import db from 'services/bookingsDB';
 import XDate from 'xdate';
 import Logit from 'factories/logit.js';
@@ -22,6 +22,8 @@ class AccountsStore {
     if (accounts)this.addAccounts(accounts)
     else this.loadAccounts();
     reaction(()=>this.activeAccount, d=>logit('activeAccount set:', d))
+    autorun(() =>  logit('autorun loaded', this.loaded));
+    autorun(() =>  logit('autorun loading', this._loading));
     this[_loading] = false;
   }
 
@@ -31,7 +33,7 @@ class AccountsStore {
 
   @action addAccount = account=>{
     // logit('addAccount', account)
-    this.accounts.set(account._id, new Account(account,  {getLastPaymentsBanked: this.getLastPaymentsBanked}))
+    this.accounts.set(account._id, new Account(account,  {getLastPaymentsBanked: this.getLastPaymentsBanked, isLoading: ()=>!this.loaded}))
   }
   @action setActiveAccount = account=>{
     // logit('addAccount', account)
@@ -84,6 +86,7 @@ class AccountsStore {
   }
 
   @action changeBPdoc = (doc)=>{
+    if (doc.doc)doc = doc.doc;
     logit('changeBPdoc', doc)
     this.lastPaymentsBanked = doc.endDate
     this.openingCredit = doc.closingCredit
@@ -105,7 +108,7 @@ class AccountsStore {
     account.updateDocument(doc)
   }
 
-  @action bankMoney = async ({doc})=>{
+  @action bankMoney = async (doc)=>{
     logit('bankMoney', doc)
     const data = await db.put(doc);
     this.changeBPdoc(doc);

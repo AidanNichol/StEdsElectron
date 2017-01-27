@@ -6,7 +6,7 @@ import {state} from 'ducks/replication-mobx';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
-import { observable, computed, toJS, action} from 'mobx';
+import { observable, computed, toJS, reaction, action} from 'mobx';
 import MS from 'mobx/MembersStore'
 import WS from 'mobx/WalksStore'
 import DS from 'mobx/DateStore'
@@ -45,12 +45,12 @@ export default class Account {
   accountId
 
   constructor(accountDoc, accessors) {
-    // autorun(() => !store[_loading] && logit('autorun', this.report, store[_loading]));
+    merge(this, accessors);
+    reaction(()=>this.logs.size, (r) =>  logit('autorun',this.report, this.isLoading()));
     (accountDoc.logs || []).forEach(log=>this.logs.set(log.dat, new AccLog(log)))
     delete accountDoc.logs;
     merge(this, accountDoc)
     // this.updateDocument(accountDoc);
-    merge(this, accessors);
   }
 
   @computed get name() {
@@ -74,7 +74,7 @@ export default class Account {
   }
 
   @computed get report() {
-		return `Account: ${this._id} ${this.name}`;
+		return `Account: ${this._id} ${this.name} ${this.logs.size} ${this.logs.get(this.logs.keys().pop())}`;
 	}
 
   @action getConflictingDocs() {
@@ -163,6 +163,8 @@ export default class Account {
         log.duplicate = true;
         return log;
       }
+      if (log.req === 'A') {logit('A req', log);return log;}
+      if (log.req === 'S') {logit('S req', log);return log;}
       if (balance > 0 && log.type === 'W' && log.billable){
         paid = Math.min(balance - cashAvailable, Math.abs(log.owing));
         log.paid.C += paid;
@@ -170,6 +172,7 @@ export default class Account {
         paid = Math.min(cashAvailable, Math.abs(log.owing));
         log.paid.P += paid;
         log.owing -= paid;
+        if (log.owing === 0)log.outstanding = false;
       }
       balance -= log.amount;
       log.balance = balance;
@@ -188,7 +191,7 @@ export default class Account {
           else latestOKbooking = i;
         }
       }
-      if (log.type === 'A'){
+      if (log.type === 'A' && log.req != 'A'){
         let available = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
         if (log.dat > startDate && log.req[0] === 'P'){
           cashAvailable += available;
