@@ -1,3 +1,4 @@
+/* global PouchDB */
 import React from 'react';
 import db from '../services/bookingsDB';
 import styled from 'styled-components';
@@ -24,30 +25,46 @@ autorun(()=>logit('state changed', {...toJS(state)}))
 
 export async function monitorReplications () {
 	const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
-	// yield take('SIGNIN_SUCCESS');
-	if (!localStorage.getItem('stEdsSignin')) return;
-	// const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
+	try {
+		PouchDB.plugin(require('pouchdb-authentication'));
+		// yield take('SIGNIN_SUCCESS');
+		if (!localStorage.getItem('stEdsSignin')) return;
+		const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
 
-  const info = await db.info();
-  logit('info', info);
-	state.first_seq = info.update_seq;
-	state.last_seq = localStorage.getItem('stEdsReplSeq') || info.update_seq;
-	state.first_seq = state.last_seq;
-  db.sync(remoteCouch, {
-			live: true,
-			timeout: 60000,
-			retry: true
-		})
-		.on('change', (info)=>{
-			state.last_seq = info.change.last_seq;
-			localStorage.setItem('stEdsReplSeq', state.last_seq);
-		})
-		.on('paused', ()=>state.current = 'paused')
-		.on('active', (info)=>state.current = info.direction)
-		// .on('complete', ()=>emitter(END))
-		.on('error', (err)=>logit('error', err))
+		var remoteDB = new PouchDB(remoteCouch, {skip_setup: true});
+		var resp = await remoteDB.login(username, password, {
+			ajax: {
+				body: { name: username, password: password }
+			}
+		});
+		logit('login resp:', resp);
 
 
+		const info = await db.info();
+		logit('info', info);
+		state.first_seq = info.update_seq;
+		state.last_seq = localStorage.getItem('stEdsReplSeq') || info.update_seq;
+
+		state.first_seq = state.last_seq;
+		db.sync(remoteCouch, {
+				live: true,
+				timeout: 60000,
+				retry: true
+			})
+			.on('change', (info)=>{
+				state.last_seq = info.change.last_seq;
+				localStorage.setItem('stEdsReplSeq', state.last_seq);
+			})
+			.on('paused', ()=>state.current = 'paused')
+			.on('active', (info)=>state.current = info.direction)
+			// .on('complete', ()=>emitter(END))
+			.on('error', (err)=>logit('error', err));
+
+
+	}
+	catch(err){
+		logit('signin error', err, remoteCouch)
+	}
 }
 
 const replicationStatus = observer((props)=>{
