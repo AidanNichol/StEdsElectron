@@ -89,7 +89,7 @@ const mapStateToProps = function(state) {
   // summaryReport();
   // get the data for the select name component
   const id = state.router.walkId;
-  let walkId = (id && id[0]) === 'W' ? id : state.walks.bookable[0];
+  let walkId = (id && state.walks.bookable.includes(id) ? id : state.walks.bookable[0]);
   logit('prps',  id, walkId)
   // let walkId = state.walks.current;
   let members = getSortedMemebersList(state);
