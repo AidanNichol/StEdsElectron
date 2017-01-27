@@ -10,6 +10,31 @@ const logit = Logit('color:white; background:blue;', 'Signin:Duck');
 
 
 //---------------------------------------------------------------------
+//          Identify the machine this is running on
+//---------------------------------------------------------------------
+
+import {getMac}from 'getmac';
+let machine;
+getMac((err, macAddr)=>{
+  if (err)  throw err
+  machine = macAddr;
+  logit('machine', machine)
+})
+const getHash = data=>{
+  const crypto = require('crypto');
+  const hash1 = crypto.createHash('sha256');
+
+  hash1.update(data);
+  return hash1.digest('hex');
+
+}
+var data;
+data='some data to hash2'; logit('hash test', data, getHash(data));
+data='54ndR@'; logit('hash test', data, getHash(data));
+data='aidan'; logit('hash test', data, getHash(data));
+data='54ndR@'; logit('hash test', data, getHash(data));
+
+//---------------------------------------------------------------------
 //          Constants
 //---------------------------------------------------------------------
 export const SIGNIN_REQUESTED = 'SIGNIN_REQUESTED';
@@ -86,7 +111,7 @@ function* authorize(username, password){
     var data = yield call([dbu, dbu.get], 'org.couchdb.user:'+sess.userCtx.name);
     logit('data', data);
     var {name, roles, memberId} = data;
-    return {name, roles, memberId};
+    return {name, roles, memberId, machine};
   }
   catch(error){
     logit('error', error);
@@ -130,8 +155,8 @@ export const signinSaga = function* signinSaga(){
 //          Reducers
 //---------------------------------------------------------------------
 
-const defaultState = i.freeze({name: null, roles: [], memberId: ''});
-export function reducer(state = {name: null, roles: [], memberId: ''}, action) {
+const defaultState = i.freeze({name: null, roles: [], memberId: '', machine: ''});
+export function reducer(state = {name: null, roles: [], memberId: '', machine: ''}, action) {
   switch(action.type) {
     case SIGNIN_SUCCESS :
       return i.assign(state, action.data);

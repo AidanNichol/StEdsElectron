@@ -5,7 +5,8 @@ import {connect} from 'react-redux';
 import classnames from 'classnames';
 // import stats from 'main';
 // import {Logon} from '../views/logon/Logon.js';
-import {Signin} from '../../ducks/signin-duck.js';
+// import {Signin} from '../../ducks/signin-duck.js';
+import {SigninForm} from '../../ducks/signin-mobx.js';
 import {setPage} from '../../ducks/router-duck.js';
 import {actionCreators} from '../../ducks/memberslist-duck';
 // import {Shortcuts} from '../../views/logon/Logon.js';
@@ -56,7 +57,8 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
             <img className="logo" src={"../assets/St.Edwards.col4.png"} width="40px"/>
             <ReplicationStatus className="devlinks"/>
             <span className="version">v {version}</span>
-            <Signin />
+            <SigninForm />
+            {/* <Signin /> */}
             {/*<Shortcuts className="shortcuts"/>*/}
             {/*<DisplayErrors />*/}
             <div className="nav">
