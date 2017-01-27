@@ -5,6 +5,7 @@ import {walksDocsLoaded} from 'ducks/walksDuck'
 import docUpdateSaga from 'sagas/docUpdateSaga.js';
 import {getLastAvailableDate, getTodaysDate} from 'utilities/DateUtilities.js';
 import {resignin} from 'ducks/signin-duck'
+import {reLogin } from 'ducks/signin-mobx'
 
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:navy;', 'Initial:Saga');
@@ -73,8 +74,8 @@ export default function* (){
     ]
     // yield put(setPage({page:'bookings', accountId: 'A992', memberId: 'M992'})); // Mary Johnson
     yield put({type: 'INITIAL_LOAD_COMPLETED'});
-    yield call(resignin);
-
+    // yield call(resignin);
+    reLogin();
   // } catch(error){
   //   yield put({ type: 'INITIAL_SAGA_FAILED', error});
   // }
