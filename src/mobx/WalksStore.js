@@ -44,14 +44,14 @@ class WalksStore {
     // logit('allWalkLogsByAccount',this)
     let map = {}
     this.walks.values().forEach(walk=>{
-      // logit('allWalkLogsByAccount:walk', walk._id, walk.venue, walk.walkLogsByMembers)
+      logit('allWalkLogsByAccount:walk', walk._id, walk.venue, walk.walkLogsByMembers)
       Object.entries(walk.walkLogsByMembers).map(([memId, logs])=>{
         let member = MS.members.get(memId)
         let accId = member.accountId;
         if (!map[accId])map[accId] = logs;
         else map[accId] = R.concat(map[accId], logs)
       })
-      // logit('allWalkLogsByAccount:walk', walk._id, walk.venue)
+      logit('allWalkLogsByAccount:walk', walk._id, walk.venue)
     })
     return map;
   }
@@ -88,7 +88,8 @@ class WalksStore {
 
   @action loadWalks = async () => {
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
-    const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W2016-11-01', endkey: 'W2017-02-28' });
+    const endKey = 'W'+DS.lastAvailableDate;
+    const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W2016-11-01', endkey: endKey });
     /* required in strict mode to be allowed to update state: */
     logit('allDocs', data)
     runInAction('update state after fetching data', () => {
