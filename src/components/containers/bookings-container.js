@@ -8,7 +8,7 @@ import {dispatchIfUnlocked} from '../../ducks/lock-duck.js';
 var actions = {};
 import {updateWalkBookings, annotateOpenDialog, closeWalkBookings, request} from '../../ducks/walksDuck'
 import {actionCreators as mlActionCreators} from '../../ducks/memberslist-duck'
-import {getAllFixableLogs} from './PaymentsFunctions'
+// import {getAllFixableLogs} from './PaymentsFunctions'
 // import {accountSelected} from '../actions/accounts-actions.js';
 import {isUserAuthorized} from '../../services/auth.js';
 import {getSubsStatus} from '../../utilities/subsStatus'
@@ -101,8 +101,8 @@ const mapStateToProps = function(store) {
     return {walkId: walkId, walkDate: walkId.substr(1), venue: walk.venue.replace(/\(.*\)/, ''), status: getBookingsSummary[walkId](walk), bookings: accBookings};
   })
   var {_id:accId, credit, owing} = accountCurrent;
-  var fixables = getAllFixableLogs(store);
-  logit("fixables", fixables);
+  // var fixables = getAllFixableLogs(store);
+  // logit("fixables", fixables);
 
   return {
             // members,
@@ -111,7 +111,7 @@ const mapStateToProps = function(store) {
             accNames,
             actions,
             options,
-            fixables,
+            // fixables,
             // accountSelected,
             bookingsAdmin: isUserAuthorized(['bookings']),
             annotate: store.walks.annotate,
