@@ -1,4 +1,6 @@
 import * as i from 'icepick';
+import {observable} from 'mobx';
+import {merge} from 'lodash';
 // import {getSortedMembersList} from '../components/containers/members-list-container'
   const OPENED = 'members/list/opened';
   const SORT_BY = 'members/list/setSortBy';
@@ -11,6 +13,7 @@ import * as i from 'icepick';
   const CHANGE_DOC = 'member/change/doc';
   const PRINT_LIST = 'members/list/print';
 
+  export const memberslistState = observable({list: [], dispStart: 0, dispLength: 23, displayMember: 0, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false, resync: true});
   export const actions ={
     OPENED, SORT_BY, SET_PAGE, DISPLAYED_MEMBER, SET_EDIT_MODE, TOGGLE_EDIT_MODE,
     SAVE_CHANGES, NEW_MEMBER, CHANGE_DOC, PRINT_LIST
@@ -37,19 +40,27 @@ import * as i from 'icepick';
       case OPENED:
         return  i.assign(state, defaultState);
       case SORT_BY:
+        merge(memberslistState, {sortProp: payload, resync: true})
         return  i.assign(state, {sortProp: payload, resync: true});
       case SET_PAGE:
+        merge(memberslistState, { dispStart: payload.value, resync: payload.resync || false})
         return  i.assign(state, { dispStart: payload.value, resync: payload.resync || false});
       case DISPLAYED_MEMBER:
+      merge(memberslistState, {memberId: payload.memId, displayMember: payload.memId, resync: payload.resync})
         return  i.assign(state, {memberId: payload.memId, displayMember: payload.memId, resync: payload.resync});
       case NEW_MEMBER:
+        merge(memberslistState, {displayMember: 'new', showEditMemberModal: true, showModal: true})
         return i.assign(state, {displayMember: 'new', showEditMemberModal: true, showModal: true});
       case SET_EDIT_MODE:
+        memberslistState.showModal = payload;
         return  i.assign(state, {showEditMemberModal: payload});
       case TOGGLE_EDIT_MODE:
+        merge(memberslistState, )
+        memberslistState.showEditMemberModal = !memberslistState.showEditMemberModal;
         return  i.assign(state, {showEditMemberModal: !state.showEditMemberModal});
       case SAVE_CHANGES:
-      return  i.assign(state, {showModal: !state.showModal});
+        memberslistState.showModal = false;
+        return  i.assign(state, {showModal: !state.showModal});
       default: return state;
     }
   }
