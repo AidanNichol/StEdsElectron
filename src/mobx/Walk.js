@@ -4,6 +4,7 @@ import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Walk');
 import { observable, computed, action, autorun} from 'mobx';
 import {Booking} from 'mobx/Booking'
+import MS, {lastnameCmp} from 'mobx/MembersStore'
 
 export default class Walk {
    _id =  0;
@@ -69,6 +70,40 @@ export default class Walk {
     return map;
   }
 
+  @computed get busBookings() {return this.getBookings('B')}
+  @computed get carBookings() {return this.getBookings('C')}
+  @action getBookings = (requestType)=> {
+    logit('makeGetBookings', this.bookings, requestType)
+    let bookings = this.bookings.entries()
+      .filter(booking => booking.status === requestType)
+      .sort(lastnameCmp)
+      .map((booking, memId)=>{
+        let member = MS.members.get(memId);
+        let name = member.fullNameR;
+        //  let name = members[memId].firstName+' '+members[memId].lastName;
+        let annotation = (booking.annotation ? ` (${booking.annotation})` : '')
+        if (member.memberStatus === 'Guest')annotation += ' *G*';
+        return { memId, name, annotation, type: booking.status, requestType};
+      });
+      logit('getBookings', bookings);
+      return bookings;
+    }
+
+  @computed get waitingList() {
+    let bookings = this.bookings.entries()
+    .filter((booking)=>booking.status === 'W')
+    .map((booking, memId)=>{
+      let member = MS.members.get(memId);
+      let name = member.fullNameR;
+      let dat = booking.log.values().reverse()[0].dat;
+      return {dat, memId, name, waitlisted: true};
+    });
+
+    return bookings.sort(datCmp);
+  }
+
+
+
   @computed get report() {
 		return `Walk: ${this._id} ${this.venue}`;
 	}
@@ -133,6 +168,7 @@ export default class Walk {
 
 }
 const getRev = (rev)=> parseInt(rev.split('-')[0]);
-var logColl = new Intl.Collator();
-var logCmpDate = (a, b) => logColl.compare(a[0], b[0]);
-// var cmpDate = (a, b) => logColl.compare(a.dat, b.dat);
+var coll = new Intl.Collator();
+var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
+var datCmp = (a, b) => coll.compare(a.dat, b.dat);
+// var datColl = new Intl.Collator();
