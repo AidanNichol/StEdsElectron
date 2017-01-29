@@ -13,7 +13,7 @@ import {reducer as signinReducer } from 'ducks/signin-duck';
 import controller from 'reducers/controller-reducers';
 // import replicator from 'ducks/replication-duck';
 import {reducer as router} from 'ducks/router-duck';
-import {reducer as uiState} from 'ducks/uiState-duck';
+// import {reducer as uiState} from 'ducks/uiState-duck';
 import {reducer as lockReducer} from 'ducks/lock-duck';
 import {reducer as paymentsSummary} from 'ducks/paymentssummary-duck';
 console.log('signin reducer', signinReducer)
@@ -29,7 +29,7 @@ var reducers = combineReducers({
     signin: signinReducer,
     // replicator,
     router,
-    uiState,
+    // uiState,
     // routing: routerReducer,
     // form: form,
     form: formReducer

@@ -50,7 +50,7 @@ const subscriptionButton = (props)=>{
   //   subsPaid(subsStatus.fee);
   // }
   return ( (editMode && !_delete && subsStatus.showSubsButton && subscription !== subsStatus.year) &&
-    <span stype={{whiteSpace: 'nowrap'}}>
+    <span style={{whiteSpace: 'nowrap'}}>
       <span className="bacs"> bacs <Field name="_bacs" component="input" type="checkbox"/> </span>
       <TooltipButton label={`Paid £${subsStatus.fee} for ${subsStatus.year}`}
       onClick={()=>{onChange(subsStatus.year); subsPaid(subsStatus.fee, _bacs);}}
@@ -131,52 +131,52 @@ let EditMemberData = (props)=>{
         <div className={clss}>
           <TooltipButton className={memberAdmin ? 'edit-member ' : 'edit-member hidden' } label='Edit' onClick={()=>setShowEditMemberModal(true)} visible={showMode && memberAdmin} />
           <fieldset className="form" disabled={showMode} size={40}>
-          <div className="form-line">
+            <div className="form-line">
               <label className="item-label">firstName</label>
               <Field component={renderField} name="firstName" type="text" normalize={properCaseName} />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">lastName</label>
               <Field component={renderField} name='lastName' type="text" normalize={properCaseName} />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">address</label>
-            <Field component={renderTextArea} name="address" normalize={properCaseAddress} />
-          </div>
-          <div className="form-line">
+              <Field component={renderTextArea} name="address" normalize={properCaseAddress} />
+            </div>
+            <div className="form-line">
               <label className="item-label">phone</label>
               <Field component={renderField} name='phone' type="text" normalize={normalizePhone} />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">email</label>
               <Field component={renderField} name='email' type="email"  />
-          </div>
-          <div className="form-line sub">
+            </div>
+            <div className="form-line sub">
               <label className="item-label">mobile</label>
               <Field component={renderField} name='mobile' type="text"/>
-          </div>
-          <div className={"form-line"+(memberStatus==='Guest' || memberStatus==='HLM'?' hidden':'')}>
+            </div>
+            <div className={"form-line"+(memberStatus==='Guest' || memberStatus==='HLM'?' hidden':'')}>
               <label className="item-label">subscription</label>
-                  <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
-                  <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, _bacs, subsStatus, subscription, subsPaid}} />
-                  </Field>
-          </div>
+              <Field component={renderField} name="subscription" className={subsStatus.status} type="text"  size={5}>
+                <Field component={subscriptionButton} name='subscription' {...{editMode, _delete, _bacs, subsStatus, subscription, subsPaid}} />
+              </Field>
+            </div>
 
-          <div className="form-line">
+            <div className="form-line">
               <label className="item-label">nextOfKin</label>
               <Field component={renderTextArea} name="nextOfKin" />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">medical</label>
               <Field component={renderField} name="medical" type="text"  />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">Member Id</label>
-              <Field name="memberId" component={renderField} disabled={!newMember} type="text"  />
-          </div>
-          <div className="form-line">
+              <Field name="memberId" component={renderField} disabled type="text"  />
+            </div>
+            <div className="form-line">
               <label className="item-label">Account Id</label>
-              <Field component={renderField} name="accountId" disabled={!newMember} type="text"  />
+              <Field component={renderField} name="accountId" disabled type="text"  />
           </div>
           <div className="form-line">
               <label className="item-label">Status</label>

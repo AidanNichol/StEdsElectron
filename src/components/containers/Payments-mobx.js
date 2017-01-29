@@ -25,7 +25,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const mapStateToProps = function(store) {
+const mapStoreToProps = function(store) {
 
   var debts = store.AS.allDebts.debts;
   logit('debts', debts);
@@ -40,6 +40,7 @@ const mapStateToProps = function(store) {
     debts: accs.filter(acc=>acc.balance < 0),
     bankMoney: store.AS.bankMoney,
     doc: buildDoc(store),
+    // showMemberBookings: (accId)=>store.router.setPage({page: 'bookings', memberId: accId, accountId: accId}),
     accountUpdatePayment: (accId, amount,  inFull)=>{
       var account = accId && store.AS.accounts.get(accId);
       account.makePaymentToAccount({accId, amount, note: '', paymentType: 'P', inFull});
@@ -51,5 +52,5 @@ const Frame = observer((props)=>(
     {uiState.displayingDue ? <PaymentsDue {...props}/> : <PaymentsMade {...props}/>}
   </div>
 ))
-const mobxPayments = inject(mapStateToProps)(Frame)
+const mobxPayments = inject(mapStoreToProps)(Frame)
 export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);

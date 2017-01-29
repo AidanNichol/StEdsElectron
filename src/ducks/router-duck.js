@@ -1,5 +1,6 @@
 import * as i from 'icepick';
 import { getSettings, setSettings} from 'ducks/settings-duck';
+import {setRouterPage, setRouterUser} from 'ducks/router-mobx';
 import Logit from '../factories/logit.js';
 const logit = Logit('color:white; background:blue;', 'Router:duck');
 
@@ -44,8 +45,10 @@ export function reducer(state = routerDefaultState, action) {
   let {type, ...payload}  = action;
   switch(type) {
     case SET_PAGE:
+      setRouterPage(payload);
       return setAndSaveState(state, payload);
     case SET_USER:
+      setRouterUser(action.user, action.account);
       return setAndSaveState(state, {memberId: action.user, accountId: action.account});
     case ROUTER_INITIALIZED:
       return i.set(state, 'initialized', true);

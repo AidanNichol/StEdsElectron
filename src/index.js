@@ -11,6 +11,8 @@ import {opts} from 'factories/logit.js';
 import WS from 'mobx/WalksStore'
 import MS from 'mobx/MembersStore'
 import AS from 'mobx/AccountsStore'
+import {router} from 'ducks/router-mobx'
+import {state as signin} from 'ducks/signin-mobx'
 console.log('logit:opts', opts)
 
 const Menu = remote.Menu;
@@ -29,7 +31,7 @@ const store = configureStore();
 console.log('store', store);
 render(
         <ReduxProvider store={store}>
-          <MobxProvider {...{MS, AS, WS}}>
+          <MobxProvider {...{MS, AS, WS, router, signin}}>
             <MainLayout />
           </MobxProvider>
         </ReduxProvider>

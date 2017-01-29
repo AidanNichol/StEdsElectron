@@ -34,7 +34,7 @@ const defaultState = i.freeze({
   router: routerDefaultState,
   lock: lockDefaultState,
   paymentsSummary: summaryPaymentsDefaultState,
-  uiState: {},
+  // uiState: {},
 });
 export const configureStore = (initalState = defaultState)=>{
   if (!initalState)initalState = defaultState;

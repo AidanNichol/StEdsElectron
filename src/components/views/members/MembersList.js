@@ -76,33 +76,33 @@ class Memberslist extends React.Component {
     var title = (<h4>Membership Lists</h4>);
     return (
       <Panel header={title} className="member-list" id="steds_memberlist">
-          {/* <div className="list-index" hidden={showEditMemberModal}> */}
-            <div className='sort-buttons' hidden={showEditMemberModal}>
-              <TooltipButton key="name"  className={sortProp === 'name' ? 'active' : ''} onClick={()=>membersListSetSortBy('name')}>sort by Name</TooltipButton>
-              <TooltipButton key="number"  className={sortProp === 'id' ? 'active' : ''} onClick={()=>membersListSetSortBy('id')}>sort by Number</TooltipButton>
-            </div>
-            <div className="index" hidden={showEditMemberModal}>
-              {index}
-            </div>
-            {/* <Paginator max={max}
-              clues={clues} maxVisible={maxVisible}
-              currentPage={currentPage}
-              changePage={(page)=>membersListSetPage({page: page, value: (page - 1) * dispLength})} className={'by-' + sortProp}/> */}
-            <div className="names" hidden={showEditMemberModal}>
-              {members}
-            </div>
-          {/* </div> */}
-          {/* {!displayMember? null : */}
-            <EditMemberData className="details" {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}}
-                onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}
-                style={{minHeight: '100%'}}/>
-          {/* } */}
-          {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
-          <span className="action-buttons" hidden={showEditMemberModal}>
-            <PrintButton report='memberslist' payload={allList} placement='right' tiptext={`Print Membership List (Sorted by ${sortProp})`} />
-            {/* <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
-                (Sorted by ${sortProp})`} icon="Printer" /> */}
-            <TooltipButton icon="user-add" onClick={()=>createNewMember()} tiptext='Create a New Member' visible/>
+        {/* <div className="list-index" hidden={showEditMemberModal}> */}
+        <div className='sort-buttons' hidden={showEditMemberModal}>
+          <TooltipButton key="name"  className={sortProp === 'name' ? 'active' : ''} onClick={()=>membersListSetSortBy('name')}>sort by Name</TooltipButton>
+          <TooltipButton key="number"  className={sortProp === 'id' ? 'active' : ''} onClick={()=>membersListSetSortBy('id')}>sort by Number</TooltipButton>
+        </div>
+        <div className="index" hidden={showEditMemberModal}>
+          {index}
+        </div>
+        {/* <Paginator max={max}
+          clues={clues} maxVisible={maxVisible}
+          currentPage={currentPage}
+        changePage={(page)=>membersListSetPage({page: page, value: (page - 1) * dispLength})} className={'by-' + sortProp}/> */}
+        <div className="names" hidden={showEditMemberModal}>
+          {members}
+        </div>
+        {/* </div> */}
+        {/* {!displayMember? null : */}
+        <EditMemberData className="details" {...{member, newMember, showEditMemberModal, setShowEditMemberModal, membersEditSaveChanges, memberAdmin}}
+          onSubmit={showResults} onRequestHide={()=>setShowEditMemberModal(false)}
+          style={{minHeight: '100%'}}/>
+        {/* } */}
+        {/*<ShowMemberData {...{member, showEditMemberModal, setShowEditMemberModal, memberAdmin }} />*/}
+        <span className="action-buttons" hidden={showEditMemberModal}>
+          <PrintButton report='memberslist' payload={allList} placement='right' tiptext={`Print Membership List (Sorted by ${sortProp})`} />
+          {/* <TooltipButton onClick={()=>membersListPrint(allList)} placement='right' tiptext={`Print Membership List
+          (Sorted by ${sortProp})`} icon="Printer" /> */}
+          <TooltipButton icon="user-add" onClick={()=>createNewMember()} tiptext='Create a New Member' visible/>
           </span>
 
       </Panel>

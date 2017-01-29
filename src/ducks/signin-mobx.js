@@ -3,7 +3,7 @@ import {intersection, merge, pick} from 'lodash';
 import React from 'react';
 import {remoteCouch} from 'services/bookingsDB';
 import {getSettings, setSettings} from 'ducks/settings-duck';
-import {observable, action, runInAction, reaction, toJS} from 'mobx';
+import {observable, action, computed, runInAction, reaction, toJS} from 'mobx';
 import {observer} from 'mobx-react';
 import Logit from '../factories/logit.js';
 const logit = Logit('color:white; background:blue;', 'Signin:mobx');
@@ -13,17 +13,23 @@ const logit = Logit('color:white; background:blue;', 'Signin:mobx');
 //---------------------------------------------------------------------
 var lastAction='';
 var remoteDB = new PouchDB(remoteCouch, {skip_setup: true});
-export const state = observable({
-  name: '',
-  password: '',
-  authError: '',
-  loggedIn: false,
-  roles: [],
-});
+export class SigninState {
+  @observable name = '';
+  @observable password = '';
+  @observable authError = '';
+  @observable loggedIn = false;
+  @observable roles = [];
+  @computed get isBookingsAdmin(){return intersection(this.roles, ['_admin', 'admin', 'bookings']).length > 0;}
+  @computed get isMemberAdmin(){return intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0;}
+
+}
+export const state = new SigninState();
+
 reaction(()=>({loggedIn:state.loggedIn, authError: state.authError}), ()=>{
   const {loggedIn, name, roles, authError} = state;
   logit('state after '+lastAction, {loggedIn, name, roles: toJS(roles), authError})
 }, {delay:0})
+
 export const login = action(async (name, password)=>{
   try {
     // if (!localStorage.getItem('stEdsSignin')) return;
@@ -111,9 +117,6 @@ const getHash = data=>{
 //---------------------------------------------------------------------
 
 
-export function isUserAuthorized( okRoles=[]) {
-	return intersection(state.roles, ['_admin', 'admin', ...okRoles]).length > 0;
-}
 
 
 //---------------------------------------------------------------------

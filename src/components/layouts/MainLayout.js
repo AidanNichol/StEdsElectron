@@ -3,6 +3,7 @@ import React from 'react';
 // import { Link } from 'react-router';
 import {connect} from 'react-redux';
 import classnames from 'classnames';
+import {observer, inject} from 'mobx-react';
 // import stats from 'main';
 // import {Logon} from '../views/logon/Logon.js';
 // import {Signin} from '../../ducks/signin-duck.js';
@@ -13,7 +14,7 @@ import {actionCreators} from '../../ducks/memberslist-duck';
 // import {ReplicationStatus} from '../views/header/ReplicationStatus'
 import {ReplicationStatus} from 'ducks/replication-mobx'
 // import store from '../../store';
-import {isUserAuthorized} from '../../services/auth.js';
+// import {isUserAuthorized} from '../../services/auth.js';
 import MembersListContainer from '../containers/members-list-container.js';
 import BookingsContainer from '../containers/bookings-container.js';
 import ShowConflicts from '../views/ShowConflicts.js';
@@ -42,7 +43,7 @@ const loadPage = (curPage, loading)=>{
   }
 }
 var myPages = [];
-const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
+const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
   myPages = []
   const Link = ({page, show, name})=>{
     if (!show) return null;
@@ -79,7 +80,7 @@ const comp = ({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
 
         </div>
       );
-}
+});
 
 function mapDispatchToProps(dispatch) {
   const {membersListSetPage} = actionCreators;
@@ -90,15 +91,26 @@ function mapDispatchToProps(dispatch) {
     },
   }
 }
-
-const mapStateToProps = (state) => {
-  let curPage = myPages.includes(state.router.page) ? state.router.page : myPages[0];
-  if (!state.signin.name) curPage = 'none';
-  return {
-    bookingsAdmin: isUserAuthorized(['bookings']),
-    memberAdmin: isUserAuthorized(['membership', 'bookings']),
-    loading: state.controller.loading,
+function mapStoreToProps(store){
+  logit('store', store, myPages)
+  let curPage = myPages.includes(store.router.page) ? store.router.page : myPages[0];
+  if (!store.signin.loggedIn) curPage = 'none';
+  return ({
+    bookingsAdmin: store.signin.isBookingsAdmin,
+    memberAdmin: store.signin.isMemberAdmin,
     curPage: curPage,
+  })
+
+}
+const mapStateToProps = (state) => {
+  // let curPage = myPages.includes(state.router.page) ? state.router.page : myPages[0];
+  // if (!state.signin.name) curPage = 'none';
+  // logit('who is logged in', state.signin.name, curPage)
+  return {
+    // bookingsAdmin: isUserAuthorized(['bookings']),
+    // memberAdmin: isUserAuthorized(['membership', 'bookings']),
+    loading: state.controller.loading,
+    // curPage: curPage,
   }
 }
 
@@ -106,4 +118,4 @@ const mapStateToProps = (state) => {
 export  default connect(
   mapStateToProps,
   mapDispatchToProps
-)(comp)
+)(inject(mapStoreToProps)(observer(comp)));

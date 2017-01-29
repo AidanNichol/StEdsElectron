@@ -59,9 +59,9 @@ class WalksStore {
     // logit('raw walk', toJS(walk), this.walks.size);
     this.walks.set(walk._id, new Walk(toJS(walk)))
   }
-  @action setActiveWalk = walk=>{
-    logit('setActiveWalk', walk)
-    this.activeWalk = walk;
+  @action setActiveWalk = walkId=>{
+    logit('setActiveWalk', walkId)
+    this.activeWalk = walkId;
   }
 
   @action addWalks = walks=>{
@@ -116,6 +116,7 @@ var idCmp = (a, b) => coll.compare(a._id, b._id);
 const getRev = (rev)=> parseInt(rev.split('-')[0]);
 
 const walksStore = new WalksStore();
+export const setActiveWalk = (memId)=>walksStore.setActiveWalk(memId)
 
 export default walksStore;
 export { WalksStore };

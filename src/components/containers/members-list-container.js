@@ -1,6 +1,7 @@
 // import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import {observer, inject} from 'mobx-react';
 import MembersList from '../views/members/MembersList.js';
 // import * as actions from '../../actions/membersList-actions.js';
 import {actionCreators} from '../../ducks/memberslist-duck';
@@ -111,46 +112,50 @@ function mapDispatchToProps(dispatch) {
   return actions;
   // return bindActionCreators(actionCreators, dispatch);
 }
-const mapStateToProps = function(store) {
-  var members = store.members;
-  let allList = getSortedMembersList(store);
+const mapStoreToProps = function(store) {
+  return {memberAdmin: store.signin.isMemberAdmin}
+}
+
+const mapStateToProps = function(state) {
+  var members = state.members;
+  let allList = getSortedMembersList(state);
   var member, id;
-  if (store.membersList.displayMember === 'new') member= newMember(store);
+  if (state.membersList.displayMember === 'new') member= newMember(state);
   else {
-    id = store.membersList.displayMember || (store.router && store.router.memberId)
+    id = state.membersList.displayMember || (state.router && state.router.memberId)
     || (allList && allList.length > 0 && allList[0].memberId);
-    // store.membersList.displayMember = id;
+    // state.membersList.displayMember = id;
     member = members[id];
   }
-  //  if (store.membersList.displayMember) member = members[store.membersList.displayMember];
-  // else if (store.router.memberId) member = members[store.router.memberId];
-  // else member = store.membersList.displayMember;
-// logit('whatt!!', store.router, store.membersList.displayMember, id)
+  //  if (state.membersList.displayMember) member = members[state.membersList.displayMember];
+  // else if (state.router.memberId) member = members[state.router.memberId];
+  // else member = state.membersList.displayMember;
+// logit('whatt!!', state.router, state.membersList.displayMember, id)
   var props = {
-            members: store.members,
-            ...store.currentMember,
-            ...store.membersList,
-            dispStart: getDispStart(allList, id, store),
-            // syncPos: getDispStart(allList, id, store),
-            newMember: (store.membersList.displayMember === 'new'),
+            members: state.members,
+            ...state.currentMember,
+            ...state.membersList,
+            dispStart: getDispStart(allList, id, state),
+            // syncPos: getDispStart(allList, id, state),
+            newMember: (state.membersList.displayMember === 'new'),
             allList,
             newMemberTemplate,
-            memberIndex: getMemberIndex(store),
-            report: store.controller,
+            memberIndex: getMemberIndex(state),
+            report: state.controller,
             member,
             displayMember: id,
             // actions,
             memberAdmin: isUserAuthorized(['membership', 'bookings']),
             // listByName: ['membersList', 'listByName'],
-            // membersList: store.membersList,
+            // membersList: state.membersList,
       };
     // if (allList.length > 0 && !props.displayMember) {
     //   props.displayMember = allList[0].memberId;
     //   props.member=allList[0];
     // }
-    // logit('container', store, props);
+    // logit('container', state, props);
     return props;
 
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MembersList);
+export default connect(mapStateToProps, mapDispatchToProps)(inject(mapStoreToProps)(observer(MembersList)));
