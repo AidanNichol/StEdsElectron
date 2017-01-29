@@ -4,8 +4,9 @@ import classnames from 'classnames'
 import {Icon} from './Icon.js'
 
 import Logit from '../../factories/logit.js';
+import styled from 'styled-components';
 var logit = Logit('color:yellow; background:cyan;', 'TooltipButton');
-var TooltipButton = React.createClass({
+var TooltipButton = styled(React.createClass({
   propTypes: {
     // You can declare that a prop is a specific JS primitive. By default, these
     // are all optional.
@@ -26,7 +27,7 @@ var TooltipButton = React.createClass({
     };
   },
   render: function() {
-    var {img, icon, lable, label, placement, tiptext, visible, className, style, iconStyle, ...other} = this.props;
+    var {img, icon, lable, label, placement, tiptext, visible, className, iconStyle, ...other} = this.props;
     if (typeof visible != 'boolean') logit('props', this.props);
     if (lable)label = lable;
     if (!visible) return null;
@@ -35,24 +36,19 @@ var TooltipButton = React.createClass({
     //     {img ? <img src={img} /> : null }{label ? label : null}
     //   </button>
     // );
-    const clnm = classnames({[className]: className, button:true, ttbtn:false, ['hint--'+(placement||'top')]: tiptext, [' hint--rounded hint--medium']:tiptext})
-    style = {color: '#333',
-                   backgroundColor: '#e6e6e6',
-                   border: '1px solid #adadad',
-                   padding: '5px 8px',
-                   borderRadius: 4,
-                  //  boxShadow: 'inset 0 3px 5px rgb(0,0,0,.125)',
-                   marginLeft: 5,
-                   ...style,
-                  }
+    const clnm = classnames({[className]: className, button:true, ttbtn:false, ['hint--'+(placement||'top')]: tiptext, [' hint--rounded hint--medium']:tiptext});
     return (
-      <button className={clnm }
-          aria-label={tiptext} style={style}
-           {...other}>
+      <button className={clnm } aria-label={tiptext} {...other}>
            {icon ? <Icon name={icon} style={iconStyle}/> : null} {img ? <img src={img}  style={iconStyle}/> : null }{label ? label : this.props.children}
       </button>
 
     );
   },
-});
+}))`
+  color: #333;
+  background-color: #e6e6e6;
+  border: 1px solid #adadad;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin-left: 5px;`;
 export default TooltipButton;

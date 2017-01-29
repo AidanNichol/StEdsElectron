@@ -144,6 +144,9 @@ export const MemberRecipt = styled(memberRecipt)`
       font-weight: bold;
       padding-right: 5px;
       cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .owed {
@@ -154,21 +157,6 @@ export const MemberRecipt = styled(memberRecipt)`
     }
   }
 `
-
-  // const showRecipts = observer(({accs, showMemberBookings, accountUpdatePayment, className})=>{
-  //
-  //   const recipts = accs.filter(acc=>acc.balance < 0).map((data) => {return <MemberRecipt data={data} key={data.accId} {...{showMemberBookings, accountUpdatePayment}}/>})
-  //   return (<div className={className}>{recipts}</div>)
-  //
-  // });
-  // export const ShowRecipts = styled(showRecipts)`
-  // display: flex;
-  // flex-direction: column;
-  // flex-wrap: wrap;
-  // flex: 0 0 300px;
-  // justify-content: flex-start;
-  // height: 100%;
-  // `
 
 export const payments = observer((props)=>{
 
@@ -182,7 +170,7 @@ export const payments = observer((props)=>{
         <div className="buttons">
           <Lock />
           {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
-          <TooltipButton label="Payments Made" onClick={showPaymentsMade} tiptext='Show Payments Made' visible/>
+          <TooltipButton label="Payments Made" onClick={showPaymentsMade} tiptext='Show Payments Made' className='swap-mode' visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>
             <PaymentsSummary />
           </MyModal> */}
@@ -206,6 +194,13 @@ const Payments = styled(payments)`
 
   span {
     display: inline-block;
+  }
+
+  .swap-mode {
+    font-size: 0.9em;
+    max-width: 73px;
+    padding: 2px 4px;
+    background-color: rgb(186, 231, 245);
   }
 
   .all-payments {

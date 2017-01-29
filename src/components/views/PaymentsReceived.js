@@ -25,7 +25,7 @@ const uiState = observable({
 
 const detail =  observer(({bkng, className})=>{
   const cls = classnames({detail: true, [className]: true, newBkng: bkng.activeThisPeriod && !(bkng.paid &&bkng.paid.P > 0 )});
-  const paid = [['C', 'Cr:'], ['T', 'T:'], ['P', '£']].map(([code, txt])=>{
+  const paid = [['+', 'Cr:'], ['T', 'T:'], ['P', '£']].map(([code, txt])=>{
     return (bkng.paid && bkng.paid[code]) ? (<span className={'paid-'+code} key={code}>&nbsp;{txt+bkng.paid[code]}</span>) : null
   })
   return (
@@ -42,6 +42,8 @@ const detail =  observer(({bkng, className})=>{
 export const Detail = styled(detail)`
 position: relative;
 padding-left: 3px;
+padding-bottom: 0px;
+margin-bottom: 0px;
 /*padding-left: 3px;*/
 
 span {
@@ -52,6 +54,7 @@ span {
   color: brown;
 }
 
+.paid {margin: 2px;}
 .paid-T {
   color: blue;
 }
@@ -59,8 +62,8 @@ span {
   display: inline-block;
   position: relative;
   top: 5px;
-  min-width: 130px;
-  max-width: 130px;
+  min-width: 120px;
+  max-width: 120px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -124,6 +127,9 @@ export const MemberRecipt = styled(memberRecipt)`
       font-weight: bold;
       padding-right: 5px;
       cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .owed {
@@ -167,8 +173,8 @@ export const payments = observer((props)=>{
       <div className="all-payments">
         <div className="buttons">
           <Lock />
-          <TooltipButton label="Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' visible/>
-          <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/>
+          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='swap-mode' visible/>
+          <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='range' visible/>
           <PrintButton  onClick={()=>paymentsSummaryReport(doc)} tiptext="Print Summary Report" visible/>
           <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport(doc);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>
@@ -195,8 +201,23 @@ const Payments = styled(payments)`
   border-collapse: collapse;
   width: 100%;
 
+  .panel-header {
+    margin-bottom: 5px;
+  }
+
   span {
     display: inline-block;
+  }
+
+  .range,
+  .swap-mode {
+    font-size: 0.9em;
+    max-width: 73px;
+    padding: 2px 4px;
+  }
+
+  .swap-mode {
+    background-color: rgb(186, 231, 245);
   }
 
   .all-payments {

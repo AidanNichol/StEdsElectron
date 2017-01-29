@@ -62,7 +62,7 @@ export class Booking{
         log.billable = billable;
         billable = false;
         log.owing = Math.abs(log.amount);
-        log.paid = {P: 0, T: 0, C: 0};
+        log.paid = {P: 0, T: 0, '+': 0};
       }
       else log.owing = 0;
       return log;
