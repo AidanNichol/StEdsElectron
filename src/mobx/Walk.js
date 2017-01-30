@@ -103,6 +103,73 @@ export default class Walk {
   }
 
 
+  @action annotateBooking(memId, reqAnnotation){
+    logit('annotateBooking', memId, reqAnnotation)
+    if (!memId){
+      logit('walksSaga Error ', {memId, reqAnnotation});
+      return;
+    }
+    var booking = this.bookings.get(memId) || {};
+    var curAnnotation = booking.annotation || '';
+    if (curAnnotation === reqAnnotation) return; // no change necessary
+    if (reqAnnotation.length === 0 )delete booking.annotation;
+    else booking.annotation = reqAnnotation;
+    logit('setting', {changes, reqAnnotation, booking})
+    booking.logs = pushWalkAnnotationLog(booking.logs, {who, memId, req: 'A', note: reqAnnotation});
+    var newDoc = i.setIn(this, ['bookings', memId], booking);
+    logit('newDoc', newDoc)
+    return newDoc;
+  }
+
+  @action updateBooking(changes){
+    logit('updateBooking', this, changes)
+    var memId = changes.memId;
+    if (!memId){
+      logit('thissSaga Error ', {memId, changes});
+      return;
+    }
+    var booking = i.thaw(this.bookings[memId]) || {};
+    var reqType = changes.reqType;
+    var purge = changes.purge;
+    var curType = booking.status || request.NONE;
+    if (curType === reqType) return false; // no change necessary
+    if (reqType === request.CANCELLED && (curType === request.NONE || curType[1] === 'X')) return false;
+    if (reqType === request.CANCELLED){
+      if (this.lastCancel < _today && !purge && curType === request.BOOKED) {
+        reqType = curType+request.LATE;
+        booking.paid = true;
+      }
+      else reqType = curType+request.CANCELLED;
+    }
+    booking.status = reqType;
+    booking.logs = pushWalkLog(booking.logs, {who, req: reqType});
+    var newDoc;
+    if (booking.logs.length > 0)newDoc = i.setIn(this, ['bookings', memId], booking);
+    else newDoc = i.set(this, 'bookings', i.unset(this.bookings, memId));
+    logit('newDoc', newDoc)
+    return newDoc;
+  }
+
+  @action resetCancellation(this, memId){
+    logit('resetCancellation', memId)
+    var booking = this.bookings.get(memId) || {};
+    if (booking.status !== 'BL') return false
+    reqType = request.BUS_CANCELLED;
+    booking.status = 'BX';
+    if (booking.logs.length > 0){
+      const bLog = booking.logs.entries().reverse()[0]
+      if (bLog.req === 'BL') bLog.req = 'BX';
+    }
+    else this.bookings.delete(memId);
+    logit('newDoc', newDoc)
+    return;
+  }
+
+  @action closeWalk(){
+    this.closed = true;
+  }
+
+
 
   @computed get report() {
 		return `Walk: ${this._id} ${this.venue}`;
