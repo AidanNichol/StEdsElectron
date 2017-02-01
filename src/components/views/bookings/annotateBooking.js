@@ -1,52 +1,59 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {annotateWalkBookings, annotateCloseDialog} from '../../../ducks/walksDuck.js';
+import {observer, inject} from 'mobx-react';
+import {observable, action} from 'mobx';
+// import {connect} from 'react-redux';
+// import {annotateWalkBookings, annotateCloseDialog} from '../../../ducks/walksDuck.js';
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'Annotate:Bookings');
 
+class uiState {
+  @observable isOpen= false;
+  @observable booking;
+  @observable memId;
+  @observable note='';
+
+  @action open(booking, memId, note){
+    this.booking = booking;
+    this.memId = memId;
+    this.note = note;
+    this.isOpen = true;
+  }
+  @action close = ()=>{
+    this.isOpen = false;
+  }
+}
+const dialogState = new uiState();
+export const openAnnotationDialog = (booking, memId, note)=>dialogState.open(booking, memId, note);
+
 function Annotate(props){
-  var { memId, walkId, dialogOpen, venue, name, text, annotateCloseDialog,annotateWalkBookings } = props;
-  logit('props', props);
-  if (!dialogOpen) return (<span></span>)
-  var annotation = text;
-  const save = ()=>{annotateWalkBookings(walkId, memId, annotation )};
-  const change = (event)=>{annotation = event.target.value};
+  var { memId, note, isOpen} = dialogState;
+  const {saveAnnotation, venue} = props;
+  logit('props', props, dialogState);
+  if (!isOpen) return (<span />)
+  const save = ()=>{saveAnnotation(memId, note )};
+  const change = (event)=>{note = event.target.value};
 
 
   return (
     <div className="logonX">
       Annotate {name} {venue}
-      <input defaultValue={text} onChange={change}/>
-      <button onClick={annotateCloseDialog}>Cancel</button>
+      <input defaultValue={note} onChange={change}/>
+      <button onClick={dialogState.close}>Cancel</button>
       <button onClick={save}>Save</button>
     </div>
   );
 
 }
-
-
-function mapDispatchToProps(dispatch) {
-  return {
-    annotateCloseDialog: (...args) => (dispatch(annotateCloseDialog(...args))),
-    annotateWalkBookings: (...args) => (dispatch(annotateWalkBookings(...args))),
-  };
-}
-
-const mapStateToProps = (state, props) => {
-  let {memId, walkId, dialogOpen} = props || {};
-  var venue, name, text, thisWalk;
-  if (dialogOpen){
-    venue = state.walks.list[walkId].venue
-    name = state.members[memId].firstName
-    thisWalk = state.walks.list[walkId]
-    text = (thisWalk.annotations && thisWalk.annotations[memId]) || ''
-
+export const AnnotateBooking = inject((store)=>{
+  if (!dialogState.booking)return {};
+  logit('inject', store, dialogState)
+  const {_id, venue} = dialogState.booking.getWalk();
+  const walk = store.WS.walks.get(_id);
+  const saveAnnotation = (memId, note)=>{
+    walk.annotateBooking(dialogState.memId, note);
+    dialogState.close();
   }
-  logit('mapStateToProps', { memId, walkId, dialogOpen, venue, name, text })
-  return { memId, walkId, dialogOpen, venue, name, text }
-}
+  // NB we route this request via walk so it knows to update itself to DB
+  return {venue, saveAnnotation}
 
-export const AnnotateBooking = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Annotate)
+})(observer(Annotate));

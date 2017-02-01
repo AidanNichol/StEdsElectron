@@ -5,7 +5,6 @@ import {observable, autorun} from 'mobx'
 import PaymentsDue from 'components/views/PaymentsDue2.js';
 import PaymentsMade from 'components/views/PaymentsReceived.js';
 import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
-import {dispatchIfUnlocked} from 'ducks/lock-duck.js';
 import {setPage} from 'ducks/router-duck.js';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:Container');
@@ -41,10 +40,7 @@ const mapStoreToProps = function(store) {
     bankMoney: store.AS.bankMoney,
     doc: buildDoc(store),
     // showMemberBookings: (accId)=>store.router.setPage({page: 'bookings', memberId: accId, accountId: accId}),
-    accountUpdatePayment: (accId, amount,  inFull)=>{
-      var account = accId && store.AS.accounts.get(accId);
-      account.makePaymentToAccount({accId, amount, note: '', paymentType: 'P', inFull});
-    },
+
   });
 }
 const Frame = observer((props)=>(

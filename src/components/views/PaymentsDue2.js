@@ -10,7 +10,6 @@ import TooltipContent from '../utility/TooltipContent.js';
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
 import {Icon} from 'ducks/walksDuck'
-import {Lock} from 'ducks/lock-duck'
 import {observable} from 'mobx'
 import {observer} from 'mobx-react'
 
@@ -94,25 +93,16 @@ span {
 
 const memberRecipt = observer((props)=>{
 
-  var {data, showMemberBookings, accountUpdatePayment} = props;
+  var {data, showMemberBookings} = props;
   logit('props', props);
-
-  let paidInFull = (event)=> {
-    accountUpdatePayment(data.accId, -data.balance, true);
-    event.target.value = '';
-  };
 
   return (
     <div className={props.className+' member-rcpt'}>
       <div className="overview">
         <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
-        <TooltipButton className="owed" label={`£${(-data.balance)}`} onClick={paidInFull} tiptext='Paid Full Amount' visible/>
-        {/* <TooltipButton className="owed" label={`£${-data.balance}`} visible/>} */}
-        <EnterPayment {...{accountUpdatePayment, accId: data.accId, due: -data.balance}} />
-        {/* {enterPayment({accountUpdatePayment, accId: data.accId})} */}
+        <span className="owed">{`£${-data.balance}`}</span>
       </div>
       {data.logs.filter((bkng)=>bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
-      {/* {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))} */}
     </div>
   );
 });
@@ -155,21 +145,6 @@ export const MemberRecipt = styled(memberRecipt)`
   }
 `
 
-  // const showRecipts = observer(({accs, showMemberBookings, accountUpdatePayment, className})=>{
-  //
-  //   const recipts = accs.filter(acc=>acc.balance < 0).map((data) => {return <MemberRecipt data={data} key={data.accId} {...{showMemberBookings, accountUpdatePayment}}/>})
-  //   return (<div className={className}>{recipts}</div>)
-  //
-  // });
-  // export const ShowRecipts = styled(showRecipts)`
-  // display: flex;
-  // flex-direction: column;
-  // flex-wrap: wrap;
-  // flex: 0 0 300px;
-  // justify-content: flex-start;
-  // height: 100%;
-  // `
-
 export const payments = observer((props)=>{
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
@@ -180,7 +155,6 @@ export const payments = observer((props)=>{
     <Panel className={"paymentsDue "+className} header={title} style={{margin:20}} >
       <div className="all-payments">
         <div className="buttons">
-          <Lock />
           {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
           <TooltipButton label="Payments Made" onClick={showPaymentsMade} tiptext='Show Payments Made' visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>

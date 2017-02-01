@@ -1,5 +1,5 @@
 // import {getSettings} from 'ducks/settings-duck';
-import { observable, action, runInAction, reaction} from 'mobx';
+import { observable, computed, action, runInAction, reaction} from 'mobx';
 import db from 'services/bookingsDB';
 import Member from './Member'
 // import R from 'ramda';
@@ -10,20 +10,31 @@ class MembersStore {
 
 
   members = observable.map({});
-  @observable activeMember;
+  @observable activeMemberId;
   @observable loaded = false;
 
   constructor() {
-    this.activeMember = null;
+    this.activeMemberId = null;
     this.loadMembers();
-    reaction(()=>this.activeMember, d=>logit('activeMember set:', d))
+    reaction(()=>this.activeMemberId, d=>logit('activeMemberId set:', d))
+  }
+
+  @computed get activeMember(){
+    if (!this.activeMemberId)return {};
+    return this.members.get(this.activeMemberId);
+  }
+
+  @computed get selectNamesList(){
+    return this.members.values().map((member)=>{
+      return {value: member._id, memId: member._id, accId: member.accountId, label: member.fullNameR};
+    });
   }
   @action addMember = member=>{
     this.members.set(member._id, new Member(member))
   }
 
   @action setActiveMember = memberId=>{
-    this.activeMember = memberId;
+    this.activeMemberId = memberId;
   }
 
   @action changeDoc = ({deleted, doc, _id, ...rest})=>{
@@ -60,5 +71,6 @@ export var lastnameCmp = (a, b) => coll.compare(a.lastName+', '+a.firstName, b.l
 const membersStore = new MembersStore();
 
 export const setActiveMember = (memId)=>membersStore.setActiveMember(memId)
+export const getAccountForActiveMember = ()=> membersStore.activeMember.accountId;
 export default membersStore;
 export { MembersStore };

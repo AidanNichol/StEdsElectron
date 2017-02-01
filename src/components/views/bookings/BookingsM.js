@@ -1,51 +1,56 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
 import classnames from 'classnames';
+import {observable, action, toJS} from 'mobx';
 import {observer} from 'mobx-react';
 
 import {Panel} from '../../utility/AJNPanel'
 import SelectMember from '../../utility/RSelectMember.js';
-import {request, Icon} from '../../../ducks/walksDuck'
-import {Lock} from '../../../ducks/lock-duck'
+import {Icon} from '../../../ducks/walksDuck'
+import {Lock} from '../../../ducks/lock-mobx'
 // import {Payment} from '../../containers/PaymentStatusLog-container.js';
 import {PaymentsBoxes} from 'components/containers/PaymentsBoxes-mobx';
 // import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
 import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
-import {AnnotateBooking} from './annotateBooking'
+import {AnnotateBooking, openAnnotationDialog} from './annotateBooking'
 import {getTodaysDate} from '../../../utilities/DateUtilities.js';
 import Logit from '../../../factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
 
+
 var Bookings = observer(React.createClass({
   render: function() {
-    var {accNames, walks, closeWalkBookings, walkUpdateBooking, walkCancelBooking, annotateOpenDialog, accountSelected, account, annotate} = this.props;
-    var accId = account.accId;
-    logit('props', this.props);
 
-    var newBooking = (walkId, memId, avail, i)=>{
-      // logit('newBookings', {walkId,memId, avail, i})
-      let reqType = (avail ? request.BOOKED : request.WAITLIST);
+    var {openWalks, options, callIfUnlocked, account, accountSelected, closeWalkBookings} = this.props;
+    var accId = account._id;
+    logit('props', this.props);
+    var accNames = account.accountMembers || [];
+    var newBooking = (walk, memId, full, i)=>{
+      // logit('newBookings', {walkId,memId, full, i})
+      let reqType = (full ? 'W' : 'B');
       return (
         // <div className={'book member'+i} key={memId} onClick={()=>walkUpdateBooking(walkId, accId, memId, reqType)} >
         <div className={'bookingcell book member'+i} key={memId} >
-          <span className='hotspot fullwidth' onClick={()=>walkUpdateBooking(walkId, accId, memId, reqType)}><Icon type={reqType} /></span>
-          <span className='hotspot halfwidth' onClick={()=>walkUpdateBooking(walkId, accId, memId, request.WAITLIST)}><Icon type={request.WAITLIST} /></span>
-          <span className='hotspot halfwidth' onClick={()=>walkUpdateBooking(walkId, accId, memId, request.CAR)}><Icon type={request.CAR} /></span>
+          <span className='hotspot fullwidth' onClick={()=>callIfUnlocked(()=>walk.updateBookingRequest(memId, reqType))}><Icon type={reqType} /></span>
+          <span className='hotspot halfwidth' onClick={()=>callIfUnlocked(()=>walk.updateBookingRequest(memId, 'W'))}><Icon type='W' /></span>
+          <span className='hotspot halfwidth' onClick={()=>callIfUnlocked(()=>walk.updateBookingRequest(memId, 'C'))}><Icon type='C' /></span>
         </div>
-    )};
-    var oldBooking = (walkId, memId, status, anno, i) =>{
-        const width = status === 'W' ? ' halfwidth' : ' fullwidth'
-        return (
-          <div className={'bookingcell booked member'+i} style={{position: 'relative'}} key={memId} >
-                <Icon type={status} className='normal '/>
-                <span className='normal annotation'>{anno}</span>
-                <Icon className={'hotspot '+width} type={status+'X'} onClick={()=>walkCancelBooking(walkId, accId, memId, status)} />
-                {status === 'W' ?
-                <span className={'hotspot bookme fa-stack'+width} onClick={()=>walkUpdateBooking(walkId, accId, memId, request.BOOKED)}><Icon type='B' /></span> : null
-                }
-                <span className='hotspot fullwidth annotate' onClick={()=>annotateOpenDialog(walkId, memId)}><Icon type='A' /></span>
-          </div>
-        );
+      )
+    };
+    var oldBooking = (walk, booking, i) =>{
+      const {memId, status, annotation} = booking
+      const width = status === 'W' ? ' halfwidth' : ' fullwidth'
+      return (
+        <div className={'bookingcell booked member'+i} style={{position: 'relative'}} key={memId} >
+          <Icon type={status} className='normal '/>
+          <span className='normal annotation'>{annotation}</span>
+          <Icon className={'hotspot '+width} type={status+'X'} onClick={()=>callIfUnlocked(()=>walk.updateBookingRequest(memId, status+'X'))} />
+          {status === 'W' ?
+            <span className={'hotspot bookme fa-stack'+width} onClick={()=>callIfUnlocked(()=>walk.updateBookingRequest(memId, 'B'))}><Icon type='B' /></span> : null
+          }
+          <span className='hotspot fullwidth annotate' onClick={()=>openAnnotationDialog(booking, memId, annotation)}><Icon type='A' /></span>
+        </div>
+      );
     };
     var title = (<h4>Bookings</h4>);
     var bCl = classnames({bookings: true, ['mems'+accNames.length]: true});
@@ -57,8 +62,8 @@ var Bookings = observer(React.createClass({
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">
           <div className="select">
-            <SelectMember style={{width: "200px", marginTop: "20px"}} options={this.props.options} onSelected={accountSelected}/>
-            {accNames.map((member)=>( <h5 key={member.memId}>{ member.firstName } { member.lastName }</h5> ))}
+            <SelectMember style={{width: "200px", marginTop: "20px"}} options={options} onSelected={accountSelected}/>
+            <h5>{ account.name }</h5>
           </div>
           <div className="bTable">
             <div className="heading">
@@ -66,20 +71,21 @@ var Bookings = observer(React.createClass({
               <div className="title avail">Available</div>
               {accNames.map((member, i)=> ( <div className={mCl[i]} key={member.memId}>{member.firstName }</div> ))}
             </div>
-            {walks.map((walk, w)=>(
+            {openWalks.map((walk, w)=>(
               <div className="walk" key={w+'XYZ'+walk.walkId}>
                 <div className="date">{walk.walkDate}{closeit(walk)}<br/>{walk.venue}</div>
-                <div className="avail">{walk.status.display}</div>
+                <div className="avail">{walk.bookingTotals.display}</div>
                 {
-                  walk.bookings.map((booking, i)=>
-                    request.bookable(booking.status) ?
-                    newBooking(walk.walkId, booking.memId, walk.status.available > 0, i) :
-                    oldBooking(walk.walkId, booking.memId, booking.status, booking.annotation, i) )
+                  accNames.map(({memId, firstName}, i)=>{
+                    let booking = walk.bookings.get(memId);
+                    return !booking || booking.status.length > 1 ?
+                    newBooking(walk, memId, walk.bookingTotals.full, i) :
+                    oldBooking(walk, booking, i) })
                 }
               </div>
 
             ))}
-            <AnnotateBooking {...annotate}/>
+            <AnnotateBooking />
             <Lock />
           </div>
 

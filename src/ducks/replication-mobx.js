@@ -21,6 +21,7 @@ export const state = observable({
 })
 autorun(()=>logit('state changed', {...toJS(state)}))
 
+export const replicationDbChange = state.dbChange
 // Monitor replications is launched by store.js
 
 export async function monitorReplications () {

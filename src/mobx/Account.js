@@ -28,6 +28,7 @@ export class AccLog{
     let amount = this.amount * request.chargeFactor(this.req);
     return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
   }
+
   constructor(log){
     this.updateLog(log);
     // merge(this, log)
@@ -136,6 +137,12 @@ export default class Account {
       .sort(cmpName)
     );
     return {accId: this._id, members, sortname: this.sortname}
+  }
+  @computed get accountMembers(){
+    return toJS(this.members.map((memId)=>{
+      let mem = MS.members.get(memId);
+      return {memId: memId, firstName: mem.firstName, lastName: mem.lastName, suspended: mem.suspended, subs: mem.subsStatus.status};
+    }))
   }
 
   @computed get accountStatus() {
