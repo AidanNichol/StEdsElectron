@@ -8,6 +8,8 @@ var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
 import MS from 'mobx/MembersStore'
 import DS from 'mobx/DateStore'
 import Walk from './Walk'
+
+export let walksLoading;
 // import PouchDb from 'pouchdb'
 class WalksStore {
 
@@ -19,11 +21,12 @@ class WalksStore {
   constructor(walks) {
     this.activeWalk = null;
     if (walks)this.addWalks(walks)
-    else this.loadWalks();
+    else walksLoading = this.loadWalks();
     reaction(()=>this.activeWalk, d=>logit('activeWalk set:', d))
   }
   @computed get bookableWalksId(){
-    const walkIds = this.openWalks.filter(walk=>!walk.closed).map(walk=>walk._id);
+    const today = DS.todaysDate;
+    const walkIds = this.openWalks.filter(walk=>walk.walkDate >= today).map(walk=>walk._id);
     logit('bookableWalksId', walkIds)
     return walkIds;
   }
@@ -35,6 +38,16 @@ class WalksStore {
         .filter(walk=>today > walk.firstBooking)
     logit('bookableWalksId', walkIds)
     return walkIds;
+  }
+
+  @computed get recentWalksId(){
+    const no = 4;
+    const nextWalk = this.bookableWalksId[0];
+    const i = Math. max(this.walks.keys().indexOf(nextWalk)-no, 0);
+
+    const recent = [...this.walks.keys().slice(i, i+no), ...this.bookableWalksId];
+    logit('walkDay recent', recent, i, nextWalk, this.walks.keys());
+    return recent;
   }
 
   @computed get latestClosed(){
@@ -72,6 +85,10 @@ class WalksStore {
   @action addWalks = walks=>{
     // logit('walks', walks)
     walks.filter(walk => walk.type === 'walk').map( walk=>this.addWalk(walk) );
+  }
+
+  @action resetLateCancellation = (walkId, memId)=>{
+    this.walks.get(walkId).resetLateCancellation(memId);
   }
 
   @action changeDoc = ({deleted, doc, _id, ...rest})=>{

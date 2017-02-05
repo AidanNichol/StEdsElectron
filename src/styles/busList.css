@@ -95,6 +95,7 @@ div.panel-title {
       display: flex;
       justify-content: space-between;
       padding: 0;
+      cursor: pointer;
 
       .annotation {
         font-size: 0.7em;

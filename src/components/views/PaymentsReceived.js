@@ -11,7 +11,6 @@ import {PrintButton} from 'components/utility/PrintButton'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
 import {Icon} from 'ducks/walksDuck'
-import {Lock} from 'ducks/lock-duck'
 import {observable} from 'mobx'
 import {observer} from 'mobx-react'
 
@@ -19,7 +18,7 @@ import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'PaymentsMade:View');
 
 const uiState = observable({
-  showAll: false,
+  showAll: true,
   toggleNewBookings: ()=>uiState.showAll = !uiState.showAll
 })
 
@@ -172,9 +171,14 @@ export const payments = observer((props)=>{
     <Panel className={"paymentsMade "+className} header={title} style={{margin:20}} >
       <div className="all-payments">
         <div className="buttons">
+<<<<<<< HEAD
           <Lock />
           <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='swap-mode' visible/>
           <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='range' visible/>
+=======
+          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' classNmae='tab-select' visible/>
+          <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='show-range' visible/>
+>>>>>>> member-list-and-edit-to-mobx
           <PrintButton  onClick={()=>paymentsSummaryReport(doc)} tiptext="Print Summary Report" visible/>
           <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport(doc);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>
@@ -233,7 +237,19 @@ const Payments = styled(payments)`
       display: flex;
       flex-direction: row;
       padding-bottom: 4px;
-      /*max-width: 280px;*/
+      align-items: center;
+      justify-content: space-between;
+      width: 250px;
+
+      .show-range {
+        background-color: rgb(184, 226, 247);
+      }
+
+      .button {
+        max-width: 75px;
+        font-size: 0.85em;
+
+      }
     }
   }
 `;

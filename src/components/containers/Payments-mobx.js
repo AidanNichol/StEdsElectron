@@ -1,13 +1,13 @@
 import React from 'react'
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 import {inject, observer} from 'mobx-react'
 import {observable, autorun} from 'mobx'
 import PaymentsDue from 'components/views/PaymentsDue2.js';
 import PaymentsMade from 'components/views/PaymentsReceived.js';
 import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
-import {setPage} from 'ducks/router-duck.js';
+import {setRouterPage} from 'ducks/router-mobx.js';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:Container');
+var logit = Logit('color:blue; background:yellow;', 'Payments:mobx');
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 
@@ -17,12 +17,12 @@ const uiState = observable({
   showPaymentsMade: ()=>{uiState.displayingDue = false},
 })
 autorun(()=>logit('Changed Displaying. Now showing:', uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade'))
-function mapDispatchToProps(dispatch) {
-  return {
-    showMemberBookings: (accId)=>{dispatch(setPage({page: 'bookings', memberId: accId, accountId: accId}))},
-    // accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
-  };
-}
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     showMemberBookings: (accId)=>{dispatch(setPage({page: 'bookings', memberId: accId, accountId: accId}))},
+//     // accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
+//   };
+// }
 
 const mapStoreToProps = function(store) {
 
@@ -39,7 +39,7 @@ const mapStoreToProps = function(store) {
     debts: accs.filter(acc=>acc.balance < 0),
     bankMoney: store.AS.bankMoney,
     doc: buildDoc(store),
-    // showMemberBookings: (accId)=>store.router.setPage({page: 'bookings', memberId: accId, accountId: accId}),
+    showMemberBookings: (accId)=>setRouterPage({page: 'bookings', memberId: accId, accountId: accId}),
 
   });
 }
@@ -48,5 +48,5 @@ const Frame = observer((props)=>(
     {uiState.displayingDue ? <PaymentsDue {...props}/> : <PaymentsMade {...props}/>}
   </div>
 ))
-const mobxPayments = inject(mapStoreToProps)(Frame)
-export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);
+export default inject(mapStoreToProps)(Frame)
+// export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);

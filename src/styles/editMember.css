@@ -9,11 +9,12 @@
     grid-template-columns: 80px auto;
     grid-template-rows: 50px auto 60px 1fr;
     grid-template-areas: "edit form"
-                        "... form"
+                        "edit form"
                         "buttons buttons";
 
     .edit-button {
       grid-area: edit;
+      justify-content: flex-start;
     }
 
     .form {
@@ -21,12 +22,19 @@
     }
 
     .edit-buttons {
-      grid-area: buttons;
+      grid-area: edit;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+
+      .edit-member {
+        margin-bottom: auto;
+      }
 
       button {
         height: 60px;
+        margin-top: 4px;
         box-sizing: border-box;
       }
     }
@@ -100,6 +108,7 @@
   .user-details.suspended:not(.deleted) {
     &::before {
       @apply --watermark;
+
       content: 'Member Suspended';
     }
   }
@@ -107,9 +116,22 @@
   .user-details.guest:not(.suspended) {
     &::before {
       @apply --watermark;
+
       content: 'Guest';
       color: blue;
       font-size: 600%;
+    }
+  }
+
+  .user-details.late:not(.suspended):not(.deleted) {
+    &::before {
+      @apply --watermark;
+
+      content: 'Late';
+      color: red;
+      font-size: 16em;
+      top: 0;
+      left: -60%;
     }
   }
 

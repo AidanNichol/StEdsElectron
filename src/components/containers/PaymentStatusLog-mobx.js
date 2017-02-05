@@ -1,6 +1,6 @@
 // import React from 'react';
 import { inject, observer } from 'mobx-react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
 import {changeLog} from '../views/bookings/PaymentStatusLog.js';
 import {resetLateCancellation} from 'ducks/walksDuck'
@@ -8,12 +8,12 @@ import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'mobx:PaymentStatusLog');
 
 
-function mapDispatchToPropsChangeLog(dispatch) {
-  return {
-    // accountDeletePayment: (accId, dat)=>{dispatch({type: 'ACCOUNT_DELETE_PAYMENT', accId, dat});},
-    resetLateCancellation: (walkId, memId)=>dispatch( resetLateCancellation(walkId, memId)),
-  };
-}
+// function mapDispatchToPropsChangeLog(dispatch) {
+//   return {
+//     // accountDeletePayment: (accId, dat)=>{dispatch({type: 'ACCOUNT_DELETE_PAYMENT', accId, dat});},
+//     resetLateCancellation: (walkId, memId)=>dispatch( resetLateCancellation(walkId, memId)),
+//   };
+// }
 const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
   var startDate = store.AS.lastPaymentsBanked;
   logit('store', {store, accId, props})
@@ -27,10 +27,11 @@ const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
     className: (props.className||'')+' mobx',
     startDate,
     accountDeletePayment: (accId, dat)=>{account.deletePayment(dat)},
+    resetLateCancellation: (walkId, memId)=>store.WS.resetLateCancellation(walkId, memId),
     };
 
 }
 
 
-const ChangeLogX = inject(mapStoreToPropsChangeLog)(observer(changeLog));
-export  const ChangeLogM = connect(()=>({}), mapDispatchToPropsChangeLog)(ChangeLogX);
+export const ChangeLogM = inject(mapStoreToPropsChangeLog)(observer(changeLog));
+// export  const ChangeLogM = connect(()=>({}), mapDispatchToPropsChangeLog)(ChangeLogX);

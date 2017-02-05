@@ -1,6 +1,6 @@
 import { getSettings} from 'ducks/settings-duck';
 import {observable, action, autorun, toJS, reaction} from 'mobx';
-import {setActiveMember, getAccountForActiveMember} from 'mobx/MembersStore'
+import {setActiveMember, getAccountForMember} from 'mobx/MembersStore'
 import {setActiveAccount} from 'mobx/AccountsStore'
 import {setActiveWalk} from 'mobx/WalksStore'
 import {merge} from 'lodash';
@@ -26,9 +26,9 @@ class Router {
       localStorage.setItem('stEdsRouter', JSON.stringify(toJS(this)));
       logit('toLocalStorage', toJS(this));
     });
-    reaction(()=>this.memberId, (memId)=>setActiveMember(memId))
+    reaction(()=>this.memberId, (memId)=>setActiveMember(memId), true)
     reaction(()=>this.accountId, (accId)=>setActiveAccount(accId))
-    reaction(()=>this.walkId, (walkId)=>setActiveWalk(walkId))
+    reaction(()=>this.walkId, (walkId)=>setActiveWalk(walkId), true)
   }
   @action setAndSaveState = (payload)=>{
     merge(this, payload);
@@ -36,16 +36,16 @@ class Router {
   @action setPage = (payload)=>{
     logit('setPage', payload)
     merge(this, payload);
-    this.resetAccountId();
+    // this.resetAccountId();
   }
   @action setUser = (memberId, accountId)=>{
-    logit('setUser', memberId, accountId)
+    logit('setUser (act)', memberId, accountId)
     this.memberId = memberId[0] === 'M' ? memberId : null;
-    this.accountId = accountId[0] === 'A' ? accountId : null;
-    this.resetAccountId();
+    // this.accountId = accountId[0] === 'A' ? accountId : null;
+    // this.resetAccountId();
   }
   @action resetAccountId = ()=>{
-    if (this.memberId && !this.accountId) this.accountId = getAccountForActiveMember();
+    if (this.memberId && !this.accountId) this.accountId = getAccountForMember(this.memberId);
   }
 }
 

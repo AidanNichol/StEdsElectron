@@ -177,15 +177,15 @@ let EditMemberData = (props)=>{
             <div className="form-line">
               <label className="item-label">Account Id</label>
               <Field component={renderField} name="accountId" disabled type="text"  />
-          </div>
-          <div className="form-line">
+            </div>
+            <div className="form-line">
               <label className="item-label">Status</label>
               <Field component='select' name='memberStatus' disabled={!memberAdmin || showMode} >
-                  <option value="Member">Member</option>
-                  <option value="Guest">Guest</option>
-                  <option value="HLM">Honary Life Member</option>
-                </Field>
-          </div>
+                <option value="Member">Member</option>
+                <option value="Guest">Guest</option>
+                <option value="HLM">Honary Life Member</option>
+              </Field>
+            </div>
           </fieldset>
           {_delete ?
             <img className="stamp" src="../assets/Deleted Member.svg" /> : null

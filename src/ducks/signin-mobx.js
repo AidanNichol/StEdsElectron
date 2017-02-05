@@ -171,7 +171,8 @@ export const SigninForm = observer(() => {
     </div>
   )
 });
-
+// import {reLogin } from 'ducks/signin-mobx'
+    reLogin();
 
 // const mapStateToProps = (state)=>{
 //   return {...(state.signin||{}), authError};

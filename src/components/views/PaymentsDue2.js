@@ -159,7 +159,11 @@ export const payments = observer((props)=>{
       <div className="all-payments">
         <div className="buttons">
           {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
+<<<<<<< HEAD
           <TooltipButton label="Payments Made" onClick={showPaymentsMade} tiptext='Show Payments Made' className='swap-mode' visible/>
+=======
+          <TooltipButton label="Show Payments Made" onClick={showPaymentsMade} tiptext='Show Payments Made' visible/>
+>>>>>>> member-list-and-edit-to-mobx
           {/* <MyModal icon="bank"  tiptext='View payments summary'>
             <PaymentsSummary />
           </MyModal> */}
@@ -207,6 +211,12 @@ const Payments = styled(payments)`
       flex-direction: row;
       padding-bottom: 4px;
       /*max-width: 280px;*/
+    }
+
+    .button {
+      max-width: 75px;
+      font-size: 0.85em;
+
     }
   }
 `;

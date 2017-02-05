@@ -27,7 +27,7 @@ const bold = 'Times-Bold';
 
 // import db from 'services/bookingsDB';
 
-export function summaryReport(){
+export function summaryReport(printFull){
   let docs = home+'/Documents';
   if (!isDirSync(docs)) {
     docs = home+'/My Documents';
@@ -53,8 +53,8 @@ export function summaryReport(){
     doc.font(bold).fontSize(14).text(title, 30, marginV+(20-height14)/2, {align:'center'});
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,marginV+(20-height4)/2, {align: 'right'})
   });
-  title = 'St.Edwards Fellwalkers: Walk Day List';
-  walkDayBookingSheet(doc)
+  title = 'St.Edwards Fellwalkers: ' + (printFull ? 'Full List' : ' Walk Day List');
+  walkDayBookingSheet(doc, printFull)
   var title = 'St.Edwards Fellwalkers: Bus Lists';
   busListReport(doc);
   title = 'St.Edwards Fellwalkers: Credits & Payments';
