@@ -28,6 +28,13 @@ const EditButton = ({startDate, accountDeletePayment, resetLateCancellation, acc
 }
 
 class TheTable extends React.Component {
+  componentDidMount() {
+    var node = findDOMNode(this);
+    logit('componentDidMount', node.scrollHeight)
+    node.scrollTop = node.scrollHeight + 1000;
+    // this.setState({dummy:'dummy'});
+  }
+
   componentWillUpdate() {
     var node = findDOMNode(this);
     this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
@@ -36,7 +43,7 @@ class TheTable extends React.Component {
   componentDidUpdate() {
     // if (this.shouldScrollBottom) {
       var node = findDOMNode(this);
-      logit('componentDidUpdate', node)
+      logit('componentDidUpdate', node.scrollHeight)
       node.scrollTop = node.scrollHeight
     // }
   }
@@ -59,7 +66,7 @@ class TheTable extends React.Component {
             </span>
             <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
             <span className={aCl}>{log.amount <0 ? -log.amount : ''}</span>
-            <span className={bCl}>{log.balance}</span>{log.paid ? 'P' : ''}
+            <span className={bCl}>{log.balance}</span>
             <EditButton log = {log} {...rest}/>
           </div>)
         })

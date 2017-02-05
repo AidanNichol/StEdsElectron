@@ -22,12 +22,17 @@ class WalksStore {
     else this.loadWalks();
     reaction(()=>this.activeWalk, d=>logit('activeWalk set:', d))
   }
-  bookableWalksId = ()=>{
+  @computed get bookableWalksId(){
+    const walkIds = this.openWalks.filter(walk=>!walk.closed).map(walk=>walk._id);
+    logit('bookableWalksId', walkIds)
+    return walkIds;
+  }
+
+  @computed get openWalks(){
     const today = DS.todaysDate;
     const walkIds = this.walks.values().sort(idCmp)
-        .filter(walk=>today<=walk.walkDate)
+        .filter(walk=>walk._id.substr(1, 4) > '2016' && !walk.closed)
         .filter(walk=>today > walk.firstBooking)
-        .map(walk=>walk._id);
     logit('bookableWalksId', walkIds)
     return walkIds;
   }

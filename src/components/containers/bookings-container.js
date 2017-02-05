@@ -1,5 +1,6 @@
 // import React from 'react';
 import { connect } from 'react-redux';
+import {inject} from 'mobx-react';
 // import { bindActionCreators } from 'redux';
 import Bookings from '../views/bookings/Bookings.js';
 import {setPage} from '../../ducks/router-duck.js';
@@ -63,29 +64,32 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-const mapStateToProps = function(store) {
-  const getAccId = (id)=>id ? (id[0] === 'M' ? (store.members && store.members[id] ? store.members[id].accountId : undefined) : (id[0] === 'A' ? id : undefined)) : undefined;
+const mapStoreToProps = function(store) {
+}
+
+const mapStateToProps = function(state) {
+  const getAccId = (id)=>id ? (id[0] === 'M' ? (state.members && state.members[id] ? state.members[id].accountId : undefined) : (id[0] === 'A' ? id : undefined)) : undefined;
   // get the data for the select name component
-  let members = getSortedMemebersList(store);
+  let members = getSortedMemebersList(state);
   // const id = props.params.id;
-  // let currentAccId = id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined);
-  // let currentAccId = id ? (id[0] === 'M' ? store.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
-  let currentAccId = getAccId(store.router.memberId) || getAccId(store.membersList.displayMember)
-  // let currentAccId = (id && id[0]) === 'M' ? store.members[id].accountId : id;
+  // let currentAccId = id[0] === 'M' ? state.members[id].accountId : (id[0] === 'A' ? id : undefined);
+  // let currentAccId = id ? (id[0] === 'M' ? state.members[id].accountId : (id[0] === 'A' ? id : undefined)) : undefined;
+  let currentAccId = getAccId(state.router.memberId) || getAccId(state.membersList.displayMember)
+  // let currentAccId = (id && id[0]) === 'M' ? state.members[id].accountId : id;
   let options = members.map(member=>({value: member.accountId, memId: member._id, label: `${member.lastName}, ${member.firstName}`}));
-  let accountCurrent = currentAccId ? store.accounts.list[currentAccId] : {};
+  let accountCurrent = currentAccId ? state.accounts.list[currentAccId] : {};
   let accountMembers = accountCurrent.members ? accountCurrent.members : [];
-  // logit('acMem', accountMembers, store.accounts.current);
+  // logit('acMem', accountMembers, state.accounts.current);
   // get the names of the members using this account
   let accNames = accountMembers.map((memId)=>{
-    let mem = store.members[memId];
+    let mem = state.members[memId];
     const subsStatus = getSubsStatus(mem); // {due: true, year: 2016, fee: 15, status: 'late'}
-    return {memId: memId, firstName: store.members[memId].firstName, lastName: store.members[memId].lastName, suspended: store.members[memId].suspended, subs: subsStatus.status}
+    return {memId: memId, firstName: state.members[memId].firstName, lastName: state.members[memId].lastName, suspended: state.members[memId].suspended, subs: subsStatus.status}
   });
 
   // get the data for all the current walks
-  let walks = (store.walks.bookable||[]).map((walkId)=>{
-      let walk = store.walks.list[walkId];
+  let walks = (state.walks.bookable||[]).map((walkId)=>{
+      let walk = state.walks.list[walkId];
       if (!getBookingsSummary[walkId])getBookingsSummary[walkId] = makeGetBookingsSummary(walkId);
       let accBookings = accountMembers.map((memId)=>{
         if (walk.bookings[memId]) {
@@ -101,7 +105,7 @@ const mapStateToProps = function(store) {
     return {walkId: walkId, walkDate: walkId.substr(1), venue: walk.venue.replace(/\(.*\)/, ''), status: getBookingsSummary[walkId](walk), bookings: accBookings};
   })
   var {_id:accId, credit, owing} = accountCurrent;
-  // var fixables = getAllFixableLogs(store);
+  // var fixables = getAllFixableLogs(state);
   // logit("fixables", fixables);
 
   return {
@@ -114,9 +118,9 @@ const mapStateToProps = function(store) {
             // fixables,
             // accountSelected,
             bookingsAdmin: isUserAuthorized(['bookings']),
-            annotate: store.walks.annotate,
+            annotate: state.walks.annotate,
             // listByName: ['membersList', 'listByName'],
-            // membersList: store.membersList,
+            // membersList: state.membersList,
       };
 
 

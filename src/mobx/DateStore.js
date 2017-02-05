@@ -1,13 +1,19 @@
 import XDate from 'xdate';
-import { computed} from 'mobx';
+import {observable, computed} from 'mobx';
 export const dateDisplay = (dat)=> new XDate(dat).toString('dd MMM HH:mm')
 
 export class DateStore {
 
-	today;
+	@observable today;
 	constructor(today) {
 		if (today)this.today = new XDate(today);
-		else this.today = new XDate();
+		else {
+			this.today = new XDate();
+			setInterval(()=>{
+				const newToday = new XDate();
+				if (newToday.toString('yyyy-MM-dd') !== this.todaysDate)this.today = newToday;
+			}, 60000)
+		}
 		console.log(this)
 	}
 

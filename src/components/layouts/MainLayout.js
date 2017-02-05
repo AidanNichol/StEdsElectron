@@ -8,7 +8,7 @@ import {observer, inject} from 'mobx-react';
 // import {Logon} from '../views/logon/Logon.js';
 // import {Signin} from '../../ducks/signin-duck.js';
 import {SigninForm} from '../../ducks/signin-mobx.js';
-import {setPage} from '../../ducks/router-duck.js';
+import {setRouterPage } from '../../ducks/router-mobx.js';
 import {actionCreators} from '../../ducks/memberslist-duck';
 // import {Shortcuts} from '../../views/logon/Logon.js';
 // import {ReplicationStatus} from '../views/header/ReplicationStatus'
@@ -16,10 +16,11 @@ import {ReplicationStatus} from 'ducks/replication-mobx'
 // import store from '../../store';
 // import {isUserAuthorized} from '../../services/auth.js';
 import MembersListContainer from '../containers/members-list-container.js';
-import BookingsContainer from '../containers/bookings-container.js';
+import BookingsContainer from '../containers/bookings-mobx.js';
+// import BookingsContainer from '../containers/bookings-container.js';
 import ShowConflicts from '../views/ShowConflicts.js';
 // import ShowAccountConflicts from '../views/ShowAccountConflicts.js';
-import BusListsContainer from '../containers/buslists-container.js';
+import BusListsContainer from '../containers/buslists-mobx.js';
 // import PaymentsContainer from '../containers/Payments-container.js';
 import PaymentsContainerM from 'components/containers/Payments-mobx';
 
@@ -69,11 +70,11 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=
               {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
               <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
               <Link page="payments" name="Payments" show={bookingsAdmin}/>
-        {/* <Link page="paymentsSummary" name="Payments Summary" show={bookingsAdmin}/> */}
-        <Link page="membersList" name="Members" show={memberAdmin}/>
-        </div>
+              {/* <Link page="paymentsSummary" name="Payments Summary" show={bookingsAdmin}/> */}
+              <Link page="membersList" name="Members" show={memberAdmin}/>
+            </div>
 
-        <div style={{padding: 5}} className="maincontent">
+            <div style={{padding: 5}} className="maincontent">
         {loadPage(curPage, loading)}
         </div>
         </div>
@@ -87,7 +88,7 @@ function mapDispatchToProps(dispatch) {
   return {
     setPage: (page)=>{
       dispatch(membersListSetPage({resync: true}));
-      dispatch(setPage({page}))
+      setRouterPage({page});
     },
   }
 }
@@ -99,6 +100,10 @@ function mapStoreToProps(store){
     bookingsAdmin: store.signin.isBookingsAdmin,
     memberAdmin: store.signin.isMemberAdmin,
     curPage: curPage,
+    // setPage: (page)=>{
+    //   membersListSetPage({resync: true});
+    //   setRouterPage({page});
+    // },
   })
 
 }

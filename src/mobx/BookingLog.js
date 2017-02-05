@@ -1,7 +1,7 @@
 import {request} from 'ducks/walksDuck'
 import {merge} from 'lodash'
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:Walk');
+var logit = Logit('color:white; background:black;', 'BookingLog');
 import { observable, computed, action} from 'mobx';
 import {dateDisplay} from 'mobx/DateStore'
 

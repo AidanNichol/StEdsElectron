@@ -1,5 +1,5 @@
 import PDFDocument from 'pdfkit'
-import {busListReport} from './busListPDF2'
+import {busListReport} from './busListPDF'
 import {paymentsDueReport} from './paymentsReport2'
 import {creditsOwedReport} from './creditsReport2'
 import {walkDayBookingSheet} from 'reports/walkDayBookingSheet'
@@ -27,7 +27,7 @@ const bold = 'Times-Bold';
 
 // import db from 'services/bookingsDB';
 
-export function summaryReport(payload, state){
+export function summaryReport(){
   let docs = home+'/Documents';
   if (!isDirSync(docs)) {
     docs = home+'/My Documents';
@@ -56,10 +56,10 @@ export function summaryReport(payload, state){
   title = 'St.Edwards Fellwalkers: Walk Day List';
   walkDayBookingSheet(doc)
   var title = 'St.Edwards Fellwalkers: Bus Lists';
-  busListReport(doc, state);
+  busListReport(doc);
   title = 'St.Edwards Fellwalkers: Credits & Payments';
-  const yStart = creditsOwedReport(doc, state);
-  paymentsDueReport(doc, state, yStart);
+  const yStart = creditsOwedReport(doc);
+  paymentsDueReport(doc, yStart);
   // // title = 'St.Edwards Fellwalkers: Credits Owed';
   doc.end();
   return docname.substr(home.length+1);

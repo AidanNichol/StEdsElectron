@@ -9,7 +9,7 @@ class AccountsStore {
 
 
   accounts = observable.map({});
-  @observable activeAccount;
+  @observable activeAccountId = null;
   @observable loaded = false;
   @observable lastPaymentsBanked = ''
   @observable openingCredit = 0
@@ -18,13 +18,18 @@ class AccountsStore {
 
   constructor(accounts) {
     this[_loading] = true;
-    this.activeAccount = null;
     if (accounts)this.addAccounts(accounts)
     else this.loadAccounts();
-    reaction(()=>this.activeAccount, d=>logit('activeAccount set:', d))
+    reaction(()=>this.activeAccountId, d=>logit('activeAccountId set:', d))
     autorun(() =>  logit('autorun loaded', this.loaded));
     autorun(() =>  logit('autorun loading', this._loading));
+
     this[_loading] = false;
+  }
+
+  @computed get activeAccount(){
+    if (!this.activeAccountId)return {};
+    return this.accounts.get(this.activeAccountId);
   }
 
   @computed get conflictingAccounts() {
@@ -35,9 +40,9 @@ class AccountsStore {
     // logit('addAccount', account)
     this.accounts.set(account._id, new Account(account,  {getLastPaymentsBanked: this.getLastPaymentsBanked, isLoading: ()=>!this.loaded}))
   }
-  @action setActiveAccount = account=>{
-    // logit('addAccount', account)
-    this.activeAccount = account;
+  @action setActiveAccount = accId=>{
+    // logit('addAccount', accId)
+    this.activeAccountId = accId;
   }
 
   @action addAccounts = accounts=>{
@@ -122,7 +127,7 @@ class AccountsStore {
     logit('allDocs', data)
     runInAction('update state after fetching data', () => {
       this.addAccounts(data.rows.map(row=>row.doc));
-
+      // this.activeAccountId = data.rows[0].doc._id;
       this.loaded = true;
       logit('AccountStore', this, this.accounts);
     })
@@ -149,6 +154,7 @@ var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 
 const accountsStore = new AccountsStore();
+export const setActiveAccount = (memId)=>accountsStore.setActiveAccount(memId)
 
 export default accountsStore;
 export { AccountsStore };

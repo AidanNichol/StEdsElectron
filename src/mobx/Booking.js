@@ -4,38 +4,86 @@ import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Booking');
 import { observable, computed, action} from 'mobx';
 import {BookingLog} from 'mobx/BookingLog'
+import {getUpdater} from 'ducks/signin-mobx';
 import MS from 'mobx/MembersStore'
-// import {_walk} from 'mobx/symbols'
-
+import DS from 'mobx/DateStore'
 
 export class Booking{
-  @observable status = '';
+  @observable status='??';
   @observable annotation = '';
   logs = observable.shallowMap({})
   memId
 
   constructor(booking, memId, accessors){
     merge(this, accessors);
-    (booking.logs || []).forEach(log=>this.logs.set(log.dat, new BookingLog(log, {getWalk: this.getWalk, getMember: this.getMember})))
+    (booking.logs || []).forEach(log=>this.logs.set(log.dat, this.newBookingLog(log)))
     delete booking.logs;
     merge(this, booking)
     this.memId = memId
     // this[_walk] = walk;
 
   }
-
+  newBookingLog = (log)=>new BookingLog(log, {getWalk: this.getWalk, getMember: this.getMember});
   getMember = ()=>{
     const member = MS.members.get(this.memId)
     const {accountId, firstName} = member;
     return {memId: this.memId, accountId, firstName};
   }
 
+  @action updateBookingRequest(req){
+    if (this.status === req) return; // no change necessary
+    const isRequestReversal = this.isRequestReversal(req);
+    if (req === 'BX' && this.lastCancel < DS.todaysDate) {
+      req = this.status+'L';
+      this.paid = true;
+    }
+    this.status = req;
 
-  @action updateBooking = bookingDoc=>{
+    var newLog = {dat:DS.logTime, who: getUpdater(), req};
+    const deletable = this.logs.values().filter((log)=>DS.datetimeIsRecent(log.dat))
+    logit('reversable?', req, {reversable: isRequestReversal, deletable, logs:this.logs})
+    if (isRequestReversal){ // if a reverse of current status
+      if (deletable && deletable.length > 0){ // and original req was recent
+        deletable.forEach((log)=>this.logs.delete(log.dat)); //get rid of original log rather than ...
+        if (this.logs.values().filter((log=>log.req!=='A')).length===0)return this.deleteMe = true;
+        this.status = this.logs.values().filter((log=>log.req!=='A')).reverse()[0].req; // reset status to last valid req
+        return;
+      }
+    }
+    this.logs.set(newLog.dat, this.newBookingLog(newLog));   // adding new log
+  }
+
+  isRequestReversal = (req)=>{
+    logit('isRequestReversal', this.status, req, this.status[0], req[0], req.length, req.length%2, req.length%2+1, this.status.length)
+    return this.status[0] === req[0] && this.status.length === req.length%2+1;
+  }
+
+  @action updateAnnotation(note){
+    var curAnnotation = this.annotation || '';
+    if (curAnnotation === note) return false; // no change necessary
+    this.annotation = note;
+    var newLog = {dat:DS.logTime, who: getUpdater(), req: 'A', note: note};
+    var deletable = this.logs.values().filter((log)=>log.req==='A' && DS.datetimeIsRecent(log.dat));
+    if (deletable.length > 0) deletable.forEach((log)=>this.logs.delete(log.dat));
+    logit('updateAnnotation', newLog, deletable, this.logs, note)
+    if (this.logs.values().filter((log)=>log.req==='A').length>0 || note !==''){
+      this.logs.set(newLog.dat, this.newBookingLog(newLog));
+    }
+    return true
+}
+
+  @action resetLateCancellation(){
+    if (this.status !== 'BL') return false
+    this.status = 'BX';
+    const bLog = this.logs.values().filter((log)=>log.req!=='A').reverse()[0]
+    if (bLog.req === 'BL') bLog.req = 'BX';
+  }
+
+  @action updateBookingFromDoc = bookingDoc=>{
     // const added = R.difference(bookingDoc.logs.map(log=>log.dat), this.logs.keys());
     (bookingDoc.logs || []).forEach(log=>{
       if (this.logs.has(log.dat))this.logs.get(log.dat).updateLog(log)
-      else this.logs.set(log.dat, new BookingLog(log));
+      else this.logs.set(log.dat, this.newBookingLog(log));
     });
     const deleted = R.difference(this.logs.keys(), bookingDoc.logs.map(log=>log.dat));
     deleted.forEach(dat=>this.logs.delete(dat))

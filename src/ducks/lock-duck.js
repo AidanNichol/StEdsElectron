@@ -63,6 +63,12 @@ export const dispatchIfUnlocked = (dispatch, action)=>{
   if (!isLocked && lockSettings.enabled) dispatch(unlock())
 }
 
+export const callIfUnlocked = (fn)=>{
+  if (lockSettings.enabled && isLocked) dispatch(animateLock(true));
+  else fn();
+  if (!isLocked && lockSettings.enabled) dispatch(unlock())
+}
+
 //---------------------------------------------------------------------
 //          Saga
 //---------------------------------------------------------------------

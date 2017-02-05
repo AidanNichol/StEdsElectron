@@ -8,7 +8,7 @@ import MS from 'mobx/MembersStore';
 function gatherData(){
   logit('stores', {AS, WS})
   if (!WS.loaded || !MS.loaded || !AS.loaded)return [];
-  const walkIds = WS.bookableWalksId();
+  const walkIds = WS.bookableWalksId;
   const walkIdsIndex = R.fromPairs(walkIds.map((val , i)=>[val, i]))
   const walkId = walkIds[0];
   logit('walkIds', {walkId, walkIds, walkIdsIndex}, WS)
@@ -64,7 +64,7 @@ function gatherData(){
 
   return walkers;
 }
-// const noWalks = WS.bookableWalksId().length;
+// const noWalks = WS.bookableWalksId.length;
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
 const italic = 'Times-Italic';
@@ -84,7 +84,7 @@ export function walkDayBookingSheet(doc){
   if (bMap.size === 0)return;
   doc.addPage()
   doc.font(normal)
-  const walknames =   WS.bookableWalksId().map(walkId=>{
+  const walknames =   WS.bookableWalksId.map(walkId=>{
     return WS.walks.get(walkId).names;
     // let venue = WS.walks.get(walkId).venue;
     // let shortname = venue.split(/[ -]/, 2)[0];
@@ -92,7 +92,7 @@ export function walkDayBookingSheet(doc){
     // if (code.length > 4)code = code.substr(0,2)+code.substr(-2);
     // return {venue, shortname, code};
   });
-  const walkAvailability = WS.bookableWalksId().slice(1).map(walkId=>{
+  const walkAvailability = WS.bookableWalksId.slice(1).map(walkId=>{
     return WS.walks.get(walkId).bookingTotals;
   });
   logit('walknames', {walknames, walkAvailability})

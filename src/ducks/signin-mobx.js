@@ -24,7 +24,7 @@ export class SigninState {
 
 }
 export const state = new SigninState();
-
+export const getUpdater = ()=>state.name;
 reaction(()=>({loggedIn:state.loggedIn, authError: state.authError}), ()=>{
   const {loggedIn, name, roles, authError} = state;
   logit('state after '+lastAction, {loggedIn, name, roles: toJS(roles), authError})
