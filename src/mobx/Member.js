@@ -1,6 +1,9 @@
 import {merge} from 'lodash'
-import { observable, computed, action, runInAction, autorun} from 'mobx';
-import DS from 'mobx/DateStore'
+import db from 'services/bookingsDB';
+import { observable, computed, action, runInAction, toJS, } from 'mobx';
+import {replicationDbChange} from 'ducks/replication-mobx';
+import Logit from 'factories/logit.js';
+var logit = Logit('color:white; background:black;', 'mobx:Member');
 
 
 export default class Member {
@@ -23,9 +26,15 @@ export default class Member {
 
   constructor(member) {
     // autorun(() => console.log('autorun Member', this.report, this));
-    for(let [key, val] of Object.entries(member)){
-      this[key] = val;
+    // for(let [key, val] of Object.entries(member)){
+    //   this[key] = val;
+    // }
+    if (!member._id){
+      logit('constructor bad', member);
+      return;
     }
+    merge(this, member);
+    this.memNo = parseInt(this._id.substr(1));
   }
 
   @computed get report() {
@@ -74,16 +83,23 @@ export default class Member {
     return {due:true, year, fee, status, showSubsButton}
   }
 
+  @action updateField = (field, value)=>{
+    this[field] = value;
+  }
   @action updateDocument = member=>{
     merge(this, member)
     return;
   }
-  @action saveDocument = async (fields) => {
-    const data = await fetchDataFromUrl();
-    /* required in strict mode to be allowed to update state: */
-    runInAction('update state after fetching data', () => {
-        this.data.replace(data);
-        this.isSaving = true;
-    })
+
+  @action dbUpdate = async ()=>{
+    let {_conflicts, ...newDoc} = toJS(this);
+    logit('DB Update', newDoc._deleted, newDoc)
+    const res = await db.put(newDoc);
+    runInAction('after doc update', ()=>{
+      this._rev =  res.rev;
+    });
+    const info = await db.info();
+    logit('info', info);
+    replicationDbChange(info);
   }
 }

@@ -1,4 +1,6 @@
 // import React from 'react';
+import DS from 'mobx/DateStore'
+import {observable} from 'mobx';
 import {inject} from 'mobx-react';
 import {setRouterPage} from 'ducks/router-mobx.js';
 
@@ -8,14 +10,16 @@ var logit = Logit('color:yellow; background:blue;', 'BusLists:mobx');
 
 // var datColl = new Intl.Collator();
 // var datCmp = (a, b) => datColl.compare(a.dat, b.dat);
-
+const uiState = observable({full: true});
+uiState.full = DS.dayNo < 4;
 const mapStoreToProps = function(store) {
   const id = store.WS.activeWalk;
   let walkId = (id && store.WS.bookableWalksId.includes(id) ? id : store.WS.bookableWalksId[0]);
   const walk = store.WS.walks.get(walkId);
-  let bookings = walk.busBookings;
-  let cars = walk.carBookings;
-  let waitingList = walk.waitingList;
+  if (!walk)walkId = undefined;
+  let bookings = (walk && walk.busBookings) || [];
+  let cars = (walk && walk.carBookings) || [];
+  let waitingList = (walk && walk.waitingList) || [];
   logit('prps',  id, walkId, walk, bookings, cars, waitingList)
   // get the data for all the current walks
   let walks = store.WS.bookableWalksId.map((walkId)=>{
@@ -31,11 +35,13 @@ const mapStoreToProps = function(store) {
             bookings,
             cars,
             waitingList,
-            status: walk.bookingTotals,
+            status: (walk && walk.bookingTotals) || {},
             // amount: state.walks.list[walkId].fee,
             bookingsAdmin: store.signin.isBookingsAdmin,
             setCurrentWalk: (walkId)=>setRouterPage({page: 'buslists', walkId}),
             showMemberBookings: (memId)=>setRouterPage({page: 'bookings', memberId: memId, accountId: null}),
+            togglePrint: ()=>uiState.full = !uiState.full,
+            printFull: uiState.full,
       };
       logit('props', props);
     return props;

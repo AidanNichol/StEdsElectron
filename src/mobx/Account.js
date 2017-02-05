@@ -3,6 +3,7 @@ import {request} from 'ducks/walksDuck'
 import {merge} from 'lodash'
 import db from 'services/bookingsDB';
 import {state} from 'ducks/replication-mobx';
+import {remove} from 'lodash';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
@@ -96,11 +97,28 @@ export default class Account {
     return;
   }
 
+  @action deleteMemberFromAccount = (memId)=>{
+    this.members.remove(memId);
+    logit('deleteMemberFromAccount', `removing ${memId} from ${this._id}`)
+    if (this.members.length === 0){
+      this._deleted = true;
+      logit('deleteMemberFromAccount', 'deleting account: ${this._id}')
+
+    }
+    this.dbUpdate();
+  }
+
+  @action addMemberToAccount = (memId)=>{
+    this.members.push(memId);
+    this.dbUpdate();
+  }
+
+
   @action dbUpdate = async ()=>{
     logit('DB Update start', this)
     let {_conflicts, ...newDoc} = toJS(this);
     newDoc.logs = Object.values(newDoc.logs)
-    logit('DB Update', newDoc, _conflicts, this)
+    logit('DB Update', newDoc, newDoc._deleted, _conflicts, this)
     const res = await db.put(newDoc);
     this._rev =  res.rev;
     const info = await db.info();

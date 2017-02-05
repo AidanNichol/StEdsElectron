@@ -26,14 +26,14 @@ export const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 // const sagaMiddleware = createSagaMiddleware();
 const defaultState = i.freeze({
   // membersList: {list: [], currentPage: 1, dispStart: 0, dispLength: 22, displayMember: null, sMember: 0, sortProp: 'name', showEditMemberModal: false, showModal: false},
-  membersList: memberslistDefault,
-  signin: {name: null, roles: [], memberId: ''},
-  walks: {list: {}},
-  accounts: defaultAccountsState,
+  // membersList: memberslistDefault,
+  // signin: {name: null, roles: [], memberId: ''},
+  // walks: {list: {}},
+  // accounts: defaultAccountsState,
   controller: {addToWaitList: false},
-  router: routerDefaultState,
-  lock: lockDefaultState,
-  paymentsSummary: summaryPaymentsDefaultState,
+  // router: routerDefaultState,
+  // lock: lockDefaultState,
+  // paymentsSummary: summaryPaymentsDefaultState,
   // uiState: {},
 });
 export const configureStore = (initalState = defaultState)=>{
@@ -57,15 +57,15 @@ export const configureStore = (initalState = defaultState)=>{
   console.log('store', store.getState());
 
   // sagaMiddleware.run(monitorReplications, remoteCouch);
-  monitorReplications(remoteCouch);
+  // monitorReplications(remoteCouch);
 
-  sagaMiddleware.run(initialSaga);
+  // sagaMiddleware.run(initialSaga);
 
   // assignAll(ct_actions, store);
   // assignAll(ml_actions, store);
   // assignAll(ac_actions, store);
 
-  sagaMiddleware.run(rootSaga);
+  // sagaMiddleware.run(rootSaga);
   // var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
   // var remoteCouch = 'http://localhost:3000/db/bookings';
 

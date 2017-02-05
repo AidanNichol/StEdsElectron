@@ -17,6 +17,10 @@ export class DateStore {
 		console.log(this)
 	}
 
+	@computed get dayNo(){
+		console.log('getDay', this.today.getDay(), this.today.toString('ddd'))
+		return this.today.getDay()
+	}
 	@computed get todaysDate() {
 		return this.today.toString('yyyy-MM-dd');
 	}

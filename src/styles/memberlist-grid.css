@@ -79,6 +79,7 @@
     height: 4.3%;
     display: flex;
     justify-content: space-between;
+    cursor: pointer;
 
     .id {
       display: inline-block;
@@ -99,7 +100,13 @@
     }
 
     &.late {
-      background-color: lightcoral;
+      background-color: rgb(246, 213, 188);
+    }
+
+    &.current {
+      background-color: rgb(68, 190, 235);
+      border: thin solid rgb(135, 136, 247);
+      border-radius: 4px;
     }
   }
 

@@ -20,30 +20,30 @@ console.log('signin reducer', signinReducer)
 // Combine Reducers
 var reducers = combineReducers({
     controller,
-    members,
-    walks,
-    accounts,
-    membersList,
-    paymentsSummary,
-    lock: lockReducer,
-    signin: signinReducer,
-    // replicator,
-    router,
-    // uiState,
-    // routing: routerReducer,
-    // form: form,
-    form: formReducer
-    .plugin({
-      EditMemberData: (state, action) => { // <------ 'account' is name of form given to reduxForm()
-      switch(action.type) {
-        // case 'MEMBERS_EDIT_SETSHOWMODAL':
-        //   return action.payload ? state : undefined;       // <--- blow away form data
-        case 'MEMBERS_LIST_SET_DISPLAYED_MEMBER':
-          return undefined;       // <--- blow away form data
-        default:
-          return state;
-      }
-    }
-  }),
+    // members,
+    // walks,
+    // accounts,
+    // membersList,
+    // paymentsSummary,
+    // lock: lockReducer,
+    // signin: signinReducer,
+    // // replicator,
+    // router,
+    // // uiState,
+    // // routing: routerReducer,
+    // // form: form,
+    // form: formReducer
+    // .plugin({
+    //   EditMemberData: (state, action) => { // <------ 'account' is name of form given to reduxForm()
+    //   switch(action.type) {
+    //     // case 'MEMBERS_EDIT_SETSHOWMODAL':
+    //     //   return action.payload ? state : undefined;       // <--- blow away form data
+    //     case 'MEMBERS_LIST_SET_DISPLAYED_MEMBER':
+    //       return undefined;       // <--- blow away form data
+    //     default:
+    //       return state;
+    //   }
+    // }
+  // }),
 });
 export default reducers;

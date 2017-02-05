@@ -14,9 +14,9 @@ var logit = Logit('color:yellow; background:blue;', 'BusLists:view:mobx');
 
 export default function BusLists(props){
     var {bookings, cars, waitingList, walkId, status, walks,
-       setCurrentWalk, showMemberBookings} = props;
+       setCurrentWalk, togglePrint, printFull, showMemberBookings} = props;
     logit('props', props);
-
+    if (!walkId)return null;
     const Cars = (props)=>{
       return props.cars.length === 0 ? null :
       (<section  className="booked-cars">
@@ -51,8 +51,8 @@ export default function BusLists(props){
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         <div className="buttons">
-          <PrintButton  onClick={()=>summaryReport()} tiptext="Print All  Walks PDF" visible/>
-
+          <PrintButton  onClick={()=>summaryReport(printFull)} overlay={printFull ? 'F' : 'W'} onContextMenu={togglePrint} tiptext="Print All  Walks PDF" visible/>
+          
         </div>
         <div className="booked-members">
           {

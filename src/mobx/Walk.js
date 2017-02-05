@@ -99,12 +99,13 @@ export default class Walk {
   }
 
   @computed get waitingList() {
-    let bookings = this.bookings.entries()
-    .filter((booking)=>booking.status === 'W')
-    .map((booking, memId)=>{
+    let bookings = this.bookings.values()
+    .filter(booking=>booking.status === 'W')
+    .map(booking=>{
+      const memId = booking.memId;
       let member = MS.members.get(memId);
       let name = member.fullNameR;
-      let dat = booking.log.values().reverse()[0].dat;
+      let dat = booking.logs.values().reverse()[0].dat;
       return {dat, memId, name, waitlisted: true};
     });
 

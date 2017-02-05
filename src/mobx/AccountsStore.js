@@ -4,7 +4,9 @@ import XDate from 'xdate';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:AccountsStore');
 import {_loading} from 'mobx/symbols'
-import Account from './Account'
+import Account from './Account';
+
+export let accountsLoading;
 class AccountsStore {
 
 
@@ -19,8 +21,11 @@ class AccountsStore {
   constructor(accounts) {
     this[_loading] = true;
     if (accounts)this.addAccounts(accounts)
-    else this.loadAccounts();
-    reaction(()=>this.activeAccountId, d=>logit('activeAccountId set:', d))
+    else accountsLoading = this.loadAccounts();
+    autorun(()=>{
+      logit('activeAccountId set:', this.activeAccountId);
+      // if (this.activeAccountId === null)debugger;
+    })
     autorun(() =>  logit('autorun loaded', this.loaded));
     autorun(() =>  logit('autorun loading', this._loading));
 
@@ -28,6 +33,7 @@ class AccountsStore {
   }
 
   @computed get activeAccount(){
+    logit('activeAccount', this.activeAccountId, this.accounts.get(this.activeAccountId), this.accounts)
     if (!this.activeAccountId)return {};
     return this.accounts.get(this.activeAccountId);
   }
@@ -53,6 +59,13 @@ class AccountsStore {
         return this.addAccount(account)
       }
     );
+  }
+
+  @action createNewAccount = (accId, members)=>{
+    logit('createNewAccount', accId, members)
+    this.addAccount({_id: accId, members});
+    this.activeAccountId = accId;
+    this.accounts.get(accId).dbUpdate();
   }
 
   @computed get periodStartDate(){
@@ -98,11 +111,12 @@ class AccountsStore {
     this.openingDebt =doc.closingDebt
   }
 
-  @action changeDoc = ({deleted, doc, _id, ...rest})=>{
-    let account = this.accounts.get(_id)
-    logit('changeDoc', {deleted, doc, account, rest})
+  @action changeDoc = ({deleted, doc, id, ...rest})=>{
+    let account = this.accounts.get(id)
+    logit('changeDoc', {deleted, doc, account, id, rest})
     if (deleted){
       if (doc._rev === account._rev)this.accounts.delete(doc._id)
+      if (this.activeAccountId === doc._id)this.activeAccountId = null;
       return;
     }
     if (!account){
