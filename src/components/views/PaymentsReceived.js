@@ -171,14 +171,8 @@ export const payments = observer((props)=>{
     <Panel className={"paymentsMade "+className} header={title} style={{margin:20}} >
       <div className="all-payments">
         <div className="buttons">
-<<<<<<< HEAD
-          <Lock />
-          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='swap-mode' visible/>
-          <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='range' visible/>
-=======
           <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' classNmae='tab-select' visible/>
           <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='show-range' visible/>
->>>>>>> member-list-and-edit-to-mobx
           <PrintButton  onClick={()=>paymentsSummaryReport(doc)} tiptext="Print Summary Report" visible/>
           <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport(doc);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>

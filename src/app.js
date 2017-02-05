@@ -78,7 +78,7 @@ function createWindow() {
     // Open the DevTools.
     getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
     // mainWindow.webContents.openDevTools();
-    require('electron-debug')({showDevTools: true});
+    // require('electron-debug')({showDevTools: true});
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {
