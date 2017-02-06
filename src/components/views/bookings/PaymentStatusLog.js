@@ -48,12 +48,12 @@ class TheTable extends React.Component {
     // }
   }
   render() {
-    const {logs=[], ...rest} = this.props;
+    const {logs=[], showAll, ...rest} = this.props;
     logit("TheTable", {logs, rest, props:this.props})
     return (
     <div style={{overflow: 'auto', maxHeight: 500}}>
       {
-        logs.filter(log=>!log.hideable).map((log, i)=>{
+        logs.filter(log=>showAll || !log.hideable).map((log, i)=>{
           let rCl = classNames({logData: true, logRec: true, outstanding: log.outstanding, historic: log.historic, inbalance: log.balance===0});
           let aCl = classNames({logData: true, logAmount: true, logPay: log.req==='P', fee: log.req!=='P' && log.amount<0, credit: log.amount>0});
           let bCl = classNames({logData: true, logBal: true, credit: log.balance>0, owing: log.balance<0});
@@ -91,6 +91,7 @@ export function changeLog(props) {
         <span className="logAmount">Exp.</span>
         <span className="logAmount">Inc.</span>
         <span className="logBal">Balance</span>
+        <span onClick={props.toggleShowAll} className="showAll">{props.showAll ? '🔽' : '▶️'}</span>
       </div>
       <TheTable {...props} />
     </div>

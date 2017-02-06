@@ -1,19 +1,10 @@
-// import React from 'react';
 import { inject, observer } from 'mobx-react';
-// import { connect } from 'react-redux';
-// import { bindActionCreators } from 'redux';
+import {observable} from 'mobx';
 import {changeLog} from '../views/bookings/PaymentStatusLog.js';
-// import {resetLateCancellation} from 'ducks/walksDuck'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'mobx:PaymentStatusLog');
+const uiState = observable({showAll: false})
 
-
-// function mapDispatchToPropsChangeLog(dispatch) {
-//   return {
-//     // accountDeletePayment: (accId, dat)=>{dispatch({type: 'ACCOUNT_DELETE_PAYMENT', accId, dat});},
-//     resetLateCancellation: (walkId, memId)=>dispatch( resetLateCancellation(walkId, memId)),
-//   };
-// }
 const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
   var startDate = store.AS.lastPaymentsBanked;
   logit('store', {store, accId, props})
@@ -24,6 +15,8 @@ const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
   return {
     accId,
     logs,
+    showAll: uiState.showAll,
+    toggleShowAll: ()=>uiState.showAll = !uiState.showAll,
     className: (props.className||'')+' mobx',
     startDate,
     accountDeletePayment: (accId, dat)=>{account.deletePayment(dat)},
@@ -34,4 +27,3 @@ const mapStoreToPropsChangeLog = function(store, {accId, ...props}) {
 
 
 export const ChangeLogM = inject(mapStoreToPropsChangeLog)(observer(changeLog));
-// export  const ChangeLogM = connect(()=>({}), mapDispatchToPropsChangeLog)(ChangeLogX);

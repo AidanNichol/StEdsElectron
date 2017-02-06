@@ -247,6 +247,7 @@ export default class Account {
         lastHistory = i;
         log.mostRecentWalk = mostRecentWalk;
         if (mostRecentWalk <= WS.lastClosed)lastHideable = i;
+        logit('lastHideable', mostRecentWalk, WS.lastClosed, lastHideable)
       }
       if (balance >= 0 && log.dat < startDate) lastOK = i;
       if (this._id === 'A2039')logit('logs done '+this._id, {i, log,latestOKbooking, cashReceivedThisPeriod});
