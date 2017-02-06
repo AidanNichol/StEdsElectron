@@ -40,6 +40,7 @@
   "build": {
     "appId": "co.uk.stedwardsfellwalkers.bookings",
     "asar": true,
+    "asarUnpack": "mobx/memberSt*",
     "win": {
       "iconUrl": "http://stedwardsfellwalkers.co.uk/favicon.ico",
       "remoteReleases": "https://github.com/AidanNichol/StEdsElectron",
