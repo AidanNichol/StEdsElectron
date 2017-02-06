@@ -6,7 +6,7 @@ import {getSettings} from 'ducks/settings-duck'
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
-import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer';
+import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 const POUCHDB_INSPECTOR = "hbhhpaojmpfimakffndmpmpndcmonkfa";
 // var ESI = require('electron-single-instance');
 
@@ -53,12 +53,9 @@ function createWindow() {
       installExtension(REACT_DEVELOPER_TOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log('An error occurred: ', err));
-      installExtension(REDUX_DEVTOOLS)
+      installExtension(POUCHDB_INSPECTOR)
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log('An error occurred: ', err));
-      // installExtension(POUCHDB_INSPECTOR)
-      // .then((name) => console.log(`Added Extension:  ${name}`))
-      // .catch((err) => console.log('An error occurred: ', err));
     }
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`);

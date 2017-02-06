@@ -148,21 +148,10 @@ export const mapStoreToProps = function({AS}) {
       endDate = AS.paymentsLogsLimit || getLogTime();
   logit('range data', {startDate, endDate,openingCredit, openingDebt})
   const accountsStatus = mobx.toJS(AS.allAccountsStatus);
-  // const filterCurrent = (type, logs)=>logs.filter(log=>log.type===type).filter(({dat})=> dat>startDate && dat < endDate);
   const filterCurrentLogs = (logs)=>logs.filter(({dat})=> dat>startDate && dat < endDate);
   logit('accountsStatus', accountsStatus)
-  // var buyCredits = flatten(accountsStatus.filter(acc=>acc.extraCash));
-  // var aLogs = flatten(accountsStatus.map(acc=>filterCurrent('A', acc.logs)));
-  // var bLogs = flatten(accountsStatus.map(acc=>filterCurrent('W', acc.logs)));
   var cLogs = flatten(accountsStatus.map(acc=>filterCurrentLogs(acc.logs)));
-  // var bLogs = flatten(accountsStatus.map(acc=>acc.logs.filter(log=>log.type==='W').filter(({dat})=> dat>startDate && dat < endDate)));
   var payments = accountsStatus.filter(acc=>acc.paymentsMade > 0)
-  // var payments = accountsStatus.filter(acc=>acc.paymentsMade > 0).map(acc=>{let logs = filterCurrent('W', acc.logs); acc.logs = logs; return acc});
-  // var pLogs = flatten(payments.map(acc=>acc.logs.filter(log=>log.type==='W').filter(({dat})=> dat>startDate && dat < endDate)));
-  // var pLogs = flatten(payments.map(acc=>filterCurrent('W', acc.logs)));
-  // var extra = difference(bLogs, payments);
-  // logit('preTots', {aLogs, bLogs, buyCredits, extra, pLogs})
-  // var tots = [...bLogs, ...aLogs].reduce((tot, lg)=>{
   var tots = cLogs.reduce((tot, lg)=>{
     if (!tot[lg.req])tot[lg.req] = [0, 0];
     tot[lg.req][0]++;

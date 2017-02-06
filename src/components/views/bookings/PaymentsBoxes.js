@@ -1,7 +1,7 @@
 import React from 'react';
 import {observable, toJS, action } from 'mobx';
 import {observer} from 'mobx-react';
-import {Icon} from '../../../ducks/walksDuck'
+import {Icon} from 'components/utility/Icon'
 import {PaymentHelp} from 'components/help/PaymentHelp';
 import {HelpDialog} from 'components/help/HelpDialog';
 import TooltipButton from 'components/utility/TooltipButton.js';

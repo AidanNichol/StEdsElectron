@@ -9,22 +9,22 @@ logit("dateStore", DS);
 
 const chargeFactor = {
     N: 0,
-    B: 1,
-    W: 0,
-    WX: 0,
-    WL: 0,
-    BX: -1,
-    BL: 0, // no credit
+    // B: 1,
+    // W: 0,
+    // WX: 0,
+    // WL: 0,
+    // BX: -1,
+    // BL: 0, // no credit
     '+': -1,
     P: -1,
     T: -1,
     '+X': 1,
     PX: 1,
     TX: 1,
-    C: 0.5,
-    CX: -0.5,
-    CL: -0.5,
-    A: 0,
+    // C: 0.5,
+    // CX: -0.5,
+    // CL: -0.5,
+    // A: 0,
   };
 
 export default class AccLog{

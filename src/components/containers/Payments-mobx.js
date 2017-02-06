@@ -1,11 +1,14 @@
 import React from 'react'
 // import { connect } from 'react-redux';
 import {inject, observer} from 'mobx-react'
-import {observable, autorun} from 'mobx'
+import {observable, autorun, toJS} from 'mobx'
 import PaymentsDue from 'components/views/PaymentsDue2.js';
 import PaymentsMade from 'components/views/PaymentsReceived.js';
-import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
+// import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
 import {setRouterPage} from 'ducks/router-mobx.js';
+import XDate from 'xdate';
+import {flatten} from 'lodash'
+import fs from 'fs';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'Payments:mobx');
 var nameColl = new Intl.Collator();
@@ -17,12 +20,7 @@ const uiState = observable({
   showPaymentsMade: ()=>{uiState.displayingDue = false},
 })
 autorun(()=>logit('Changed Displaying. Now showing:', uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade'))
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     showMemberBookings: (accId)=>{dispatch(setPage({page: 'bookings', memberId: accId, accountId: accId}))},
-//     // accountUpdatePayment: (accId, amount)=>{dispatchIfUnlocked(dispatch, {type: 'ACCOUNT_UPDATE_PAYMENT', accId, amount});},
-//   };
-// }
+
 
 const mapStoreToProps = function(store) {
 
@@ -50,3 +48,43 @@ const Frame = observer((props)=>(
 ))
 export default inject(mapStoreToProps)(Frame)
 // export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);
+
+const buildDoc = function({AS, DS}) {
+  var openingCredit=AS.openingCredit,
+      openingDebt=-AS.openingDebt,
+      startDate = AS.lastPaymentsBanked,
+      endDate = AS.paymentsLogsLimit || DS.getLogTime();
+  logit('range data', {startDate, endDate,openingCredit, openingDebt})
+  const accountsStatus = toJS(AS.allAccountsStatus);
+  const filterCurrentLogs = (logs)=>logs.filter(({dat})=> dat>startDate && dat < endDate);
+  logit('accountsStatus', accountsStatus)
+  var cLogs = flatten(accountsStatus.map(acc=>filterCurrentLogs(acc.logs)));
+  var payments = accountsStatus.filter(acc=>acc.paymentsMade > 0)
+  var tots = cLogs.reduce((tot, lg)=>{
+    if (!tot[lg.req])tot[lg.req] = [0, 0];
+    tot[lg.req][0]++;
+    tot[lg.req][1] += Math.abs(lg.amount);
+    return tot;
+  }, {});
+
+  var doc ={
+    closingCredit: accountsStatus.filter(acc=>acc.balance > 0).reduce((sum, item)=>sum+item.balance, 0),
+    closingDebt: accountsStatus.filter(acc=>acc.balance < 0).reduce((sum, item)=>sum+item.balance, 0),
+    openingCredit,
+    openingDebt,
+    endDate, startDate,
+    payments,
+    // aLogs, bLogs,
+    cLogs,
+    tots,
+    startDispDate: startDate && (new XDate(startDate).toString('dd MMM HH:mm')),
+    endDispDate: (new XDate(endDate).toString('dd MMM HH:mm')),
+    type: 'paymentSummary',
+    _id: 'BP'+endDate.substr(0, 16),
+  }
+  logit('logs doc', doc, __dirname);
+  // fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
+  // logit('write report');
+  // paymentsSummaryReport(doc)
+  return  doc;
+}

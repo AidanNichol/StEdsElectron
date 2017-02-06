@@ -1,5 +1,4 @@
 
-import * as i from 'icepick';
 import React from 'react';
 import {observer, inject} from 'mobx-react';
 import {toJS} from 'mobx';
