@@ -5,11 +5,12 @@ import {Panel} from '../utility/AJNPanel'
 import TooltipButton from '../utility/TooltipButton.js';
 import classnames from 'classnames';
 
-import TooltipContent from '../utility/TooltipContent.js';
+// import TooltipContent from '../utility/TooltipContent.js';
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
-import {Icon} from 'ducks/walksDuck'
+import {Icon} from 'components/utility/Icon'
+// import {Icon} from 'ducks/walksDuck'
 import {observable} from 'mobx'
 import {observer} from 'mobx-react'
 
@@ -20,32 +21,6 @@ const uiState = observable({
   showAll: false,
   toggleNewBookings: ()=>uiState.showAll = !uiState.showAll
 })
-
-const enterPayment = ({accId, accountUpdatePayment, due, className})=>{
-  let handleKeydown = (event)=> {
-    var amount = parseInt(event.target.value);
-    if ( event.which === 13 && amount > 0) {
-      event.preventDefault();
-      accountUpdatePayment(accId, amount, amount === due);
-      event.target.value = '';
-    }
-  };
-  return (<TooltipContent tiptext='Enter paid amount and press enter' className={className} visible>
-    <span className="paid">£<input type="text" onKeyDown={handleKeydown} /></span>
-  </TooltipContent>);
-}
-const EnterPayment = styled(enterPayment)`
-    .paid {
-      /*width: 50px;*/
-      text-align: center;
-      margin-left: 10px;
-
-      input {
-        width: 30px;
-        font-size: 0.85em;
-      }
-    }`
-
 
 const detail =  observer(({bkng, className})=>{
   const cls = classnames({detail: true, [className]: true, newBkng: !bkng.owing})

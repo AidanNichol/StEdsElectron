@@ -26,7 +26,13 @@ class Router {
       localStorage.setItem('stEdsRouter', JSON.stringify(toJS(this)));
       logit('toLocalStorage', toJS(this));
     });
-    reaction(()=>this.memberId, (memId)=>setActiveMember(memId), true)
+    reaction(()=>this.memberId, (memId)=>{
+      setActiveMember(memId);
+      if (memId){
+        const accId = getAccountForMember(memId);
+        accId && setActiveAccount(accId);         
+      }
+    }, true)
     reaction(()=>this.accountId, (accId)=>setActiveAccount(accId))
     reaction(()=>this.walkId, (walkId)=>setActiveWalk(walkId), true)
   }

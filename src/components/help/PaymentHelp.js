@@ -1,5 +1,6 @@
 import React from 'react';
-import {Icon} from 'ducks/walksDuck'
+// import {Icon} from 'ducks/walksDuck'
+import {Icon} from 'components/utility/Icon'
 export const PaymentHelp = ()=>(
   <div className="payments-help">
     <dl>

@@ -15,6 +15,7 @@ const mapStoreToProps = function(store) {
   return {
     openWalks,
     options: store.MS.selectNamesList,
+    todaysDate: store.DS.todaysDate,
     // selectNamesList,
     callIfUnlocked,
     account: store.AS.activeAccount,

@@ -1,9 +1,9 @@
 // import {getSettings} from 'ducks/settings-duck';
 import { getSettings} from 'ducks/settings-duck';
 import { observable, computed, action, runInAction, toJS, reaction} from 'mobx';
-import {setActiveAccount} from 'mobx/AccountsStore'
+// import {setActiveAccount} from 'mobx/AccountsStore'
 import db from 'services/bookingsDB';
-import Member from './Member'
+import Member from 'mobx/Member'
 // import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:MembersStore');
@@ -27,8 +27,8 @@ class MembersStore {
     membersLoading = this.loadMembers();
     reaction(()=>this.activeMemberId, ()=>{
       logit('activeMemberId set:', this.activeMemberId);
-      const member = this.members.get(this.activeMemberId);
-      member && setActiveAccount(member.accountId);
+      // const member = this.members.get(this.activeMemberId);
+      // member && setActiveAccount(member.accountId);
 
       this.resetEdit();
       this.syncToIndex();
@@ -122,7 +122,7 @@ class MembersStore {
   }
 
   @action saveEdit = ()=>{
-    const {newMember, ...data} = toJS(this.editMember);
+    // const {newMember, ...data} = toJS(this.editMember);
     delete this.editMember.newMember;
     this.members.set(this.editMember._id, new Member(toJS(this.editMember)))
     this.activeMemberId = this.editMember._id;
@@ -205,6 +205,9 @@ export var lastnameCmp = (a, b) => coll.compare(a.lastName+', '+a.firstName, b.l
 const membersStore = new MembersStore();
 
 export const setActiveMember = (memId)=>membersStore.setActiveMember(memId)
-export const getAccountForMember = (memId)=> membersStore.members.get(memId).accountId;
+export const getAccountForMember = (memId)=> {
+  const member = membersStore.members.get(memId);
+  return member && member.accountId;
+}
 export default membersStore;
 export { MembersStore };

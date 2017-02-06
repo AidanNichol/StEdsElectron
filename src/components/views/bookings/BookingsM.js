@@ -1,20 +1,20 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
 import classnames from 'classnames';
-import {observable, action, toJS} from 'mobx';
+// import {observable, action, toJS} from 'mobx';
 import {observer} from 'mobx-react';
 
-import {Panel} from '../../utility/AJNPanel'
-import SelectMember from '../../utility/RSelectMember.js';
-import {Icon} from '../../../ducks/walksDuck'
-import {Lock} from '../../../ducks/lock-mobx'
-// import {Payment} from '../../containers/PaymentStatusLog-container.js';
+import {Panel} from 'components/utility/AJNPanel'
+import SelectMember from 'components/utility/RSelectMember.js';
+import {Icon} from 'components/utility/Icon'
+import {Lock} from 'ducks/lock-mobx'
+// import {Payment} from 'components/containers/PaymentStatusLog-container.js';
 import {PaymentsBoxes} from 'components/containers/PaymentsBoxes-mobx';
-// import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
+// import {ChangeLog} from 'components/containers/PaymentStatusLog-container.js';
 import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking, openAnnotationDialog} from './annotateBooking'
-import {getTodaysDate} from '../../../utilities/DateUtilities.js';
-import Logit from '../../../factories/logit.js';
+// import {getTodaysDate} from 'utilities/DateUtilities.js';
+import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
 
 
@@ -57,7 +57,7 @@ var Bookings = observer(React.createClass({
     var mCl = accNames.map((member, i)=>{
       return classnames({avail: true, ['member'+i]: true, suspended: member.suspended, [member.subs]: true});
     });
-    var _today = getTodaysDate();
+    var _today = this.props.todaysDate;
     const closeit = (walk)=>{ return walk.walkDate < _today && (<button onClick={()=>closeWalkBookings(walk.walkId)} style={{marginLeft:3}}>X</button>)};
     return (
         <Panel header={title} body={{className: bCl}} id="steds_bookings">

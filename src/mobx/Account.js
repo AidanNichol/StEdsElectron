@@ -1,9 +1,7 @@
 import mobx from 'mobx'
-import {request} from 'ducks/walksDuck'
 import {merge} from 'lodash'
 import db from 'services/bookingsDB';
 import {state} from 'ducks/replication-mobx';
-import {remove} from 'lodash';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
@@ -11,32 +9,31 @@ import { observable, computed, toJS, reaction, action} from 'mobx';
 import MS from 'mobx/MembersStore'
 import WS from 'mobx/WalksStore'
 import DS from 'mobx/DateStore'
-import {dateDisplay} from 'mobx/DateStore'
-
+import AccLog from 'mobx/AccLog';
 let limit;
 logit("dateStore", DS);
 
 
-export class AccLog{
-  dat;
-  who;
-  machine;
-  req='';
-  amount = 0;
-  note='';
-
-  mergeableLog = ()=>{
-    let amount = this.amount * request.chargeFactor(this.req);
-    return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
-  }
-
-  constructor(log){
-    this.updateLog(log);
-    // merge(this, log)
-  }
-
-  @action updateLog = (data) => {merge(this, data)}
-}
+// export class AccLog{
+//   dat;
+//   who;
+//   machine;
+//   req='';
+//   amount = 0;
+//   note='';
+//
+//   mergeableLog = ()=>{
+//     let amount = this.amount * request.chargeFactor(this.req);
+//     return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
+//   }
+//
+//   constructor(log){
+//     this.updateLog(log);
+//     // merge(this, log)
+//   }
+//
+//   @action updateLog = (data) => {merge(this, data)}
+// }
 
 export default class Account {
    _id =  0;

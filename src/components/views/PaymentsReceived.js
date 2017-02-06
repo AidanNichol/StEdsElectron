@@ -10,7 +10,8 @@ import {PrintButton} from 'components/utility/PrintButton'
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
-import {Icon} from 'ducks/walksDuck'
+import {Icon} from 'components/utility/Icon'
+// import {Icon} from 'ducks/walksDuck'
 import {observable} from 'mobx'
 import {observer} from 'mobx-react'
 
@@ -171,7 +172,7 @@ export const payments = observer((props)=>{
     <Panel className={"paymentsMade "+className} header={title} style={{margin:20}} >
       <div className="all-payments">
         <div className="buttons">
-          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' classNmae='tab-select' visible/>
+          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='tab-select' visible/>
           <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='show-range' visible/>
           <PrintButton  onClick={()=>paymentsSummaryReport(doc)} tiptext="Print Summary Report" visible/>
           <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport(doc);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>

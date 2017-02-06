@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-react';
 // import { connect } from 'react-redux';
 // import { bindActionCreators } from 'redux';
 import {changeLog} from '../views/bookings/PaymentStatusLog.js';
-import {resetLateCancellation} from 'ducks/walksDuck'
+// import {resetLateCancellation} from 'ducks/walksDuck'
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:blue; background:yellow;', 'mobx:PaymentStatusLog');
 
