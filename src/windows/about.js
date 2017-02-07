@@ -16,8 +16,7 @@ function fsExists(myDir) {
 var links = [
   ['Electron', 'Packaging as an application is achieved using Electron', 'http://electron.atom.io'],
   ['react', 'The user interface ahs been recreated usinf React', 'http://facebook.github.io/react/docs/getting-started.html'],
-  ['redux', 'Internal state of the application is managed using flux style architecture using Redux', 'http://redux.js.org/'],
-  ['redux-sagas', 'Asyncronous actions such as communicating with the data base is managed by using redux-sagas', 'http://yelouafi.github.io/redux-saga/index.html'],
+  ['MobX', 'Internal state of the application is managed using reactive style architecture using MobX', 'https://mobx.js.org/docs/mobx.png'],
   ['PouchDB', 'Persistent state is created locally using Websql data base via PouchDB', 'http://pouchdb.com/'],
   ['couchDB', 'Central data storage is on a remote server running couchDB', 'http://docs.couchdb.org/en/latest/contents.html'],
   // ['PouchDB Authenticate', 'PouchDB Authenticate', 'https://github.com/nolanlawson/pouchdb-authentication'],

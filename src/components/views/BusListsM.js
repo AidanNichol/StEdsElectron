@@ -14,7 +14,7 @@ var logit = Logit('color:yellow; background:blue;', 'BusLists:view:mobx');
 
 export default function BusLists(props){
     var {bookings, cars, waitingList, walkId, status, walks,
-       setCurrentWalk, showMemberBookings} = props;
+       setCurrentWalk, showMemberBookings, printFull, togglePrint} = props;
     logit('props', props);
 
     const Cars = (props)=>{
@@ -40,8 +40,9 @@ export default function BusLists(props){
             return (<div key={bkng.memId} className="member"   onClick={()=>showMemberBookings(bkng.memId)}>
               <div className="wName"><span className="pos">{pos++}. </span>{bkng.name} </div>
               <div className='annotation'>{bkng.annotation} </div>
-            </div> )           })
-          }
+            </div> )
+          })
+        }
 
       </div>)
 
@@ -51,8 +52,8 @@ export default function BusLists(props){
       <Panel header={title} className="bus-list">
         <SelectWalk {...{setCurrentWalk, walks, walkId, currentWalk: walkId}}/>
         <div className="buttons">
-          <PrintButton  onClick={()=>summaryReport()} tiptext="Print All  Walks PDF" visible/>
-          
+          <PrintButton  onClick={()=>summaryReport(printFull)} onContextMenu={togglePrint} overlay={printFull ? 'F' : 'W'} tiptext="Print All  Walks PDF" visible/>
+
         </div>
         <div className="booked-members">
           {

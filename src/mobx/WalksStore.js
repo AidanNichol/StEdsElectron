@@ -1,4 +1,4 @@
-import { observable, computed, action, runInAction, reaction, toJS} from 'mobx';
+import { observable, computed, action, runInAction, autorun, reaction, toJS} from 'mobx';
 import db from 'services/bookingsDB';
 // import {getSettings} from 'ducks/settings-duck';
 import R from 'ramda';
@@ -23,7 +23,11 @@ class WalksStore {
     if (walks)this.addWalks(walks)
     else walksLoading = this.loadWalks();
     reaction(()=>this.activeWalk, d=>logit('activeWalk set:', d))
-  }
+    autorun(() =>  logit('autorun loaded', this.loaded));
+}
+
+  walksLoading: ()=>walksLoading;
+
   @computed get bookableWalksId(){
     const today = DS.todaysDate;
     const walkIds = this.openWalks.filter(walk=>walk.walkDate >= today).map(walk=>walk._id);
@@ -41,7 +45,7 @@ class WalksStore {
   }
 
   @computed get recentWalksId(){
-    const no = 4;
+    const no = 3;
     const nextWalk = this.bookableWalksId[0];
     const i = Math. max(this.walks.keys().indexOf(nextWalk)-no, 0);
 

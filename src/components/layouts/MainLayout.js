@@ -1,21 +1,18 @@
 import React from 'react';
-import {observable} from 'mobx';
 import classnames from 'classnames';
 import {observer, inject} from 'mobx-react';
 import {SigninForm} from '../../ducks/signin-mobx.js';
 import {setRouterPage } from '../../ducks/router-mobx.js';
 import {ReplicationStatus} from 'ducks/replication-mobx'
-import {monitorChanges} from 'sagas/dbChangeMonitoringMobx'
 import MembersListContainer from 'components/containers/members-list-mobx.js';
 import BookingsContainer from 'components/containers/bookings-mobx.js';
 import ShowConflicts from 'components/views/ShowConflicts.js';
 import BusListsContainer from 'components/containers/buslists-mobx.js';
 import PaymentsContainerM from 'components/containers/Payments-mobx';
 
-import {membersLoading} from 'mobx/membersStore';
-import {accountsLoading} from 'mobx/accountsStore';
-import {walksLoading} from 'mobx/walksStore';
-import {monitorReplications} from 'ducks/replication-mobx'
+// import {accountsLoading} from 'mobx/accountsStore';
+// import {walksLoading} from 'mobx/walksStore';
+// import {membersLoading} from 'mobx/membersStore';
 
 var packageJson = require('../../../package.json');
 
@@ -23,18 +20,10 @@ const version = packageJson.version;
 import Logit from '../../factories/logit.js';
 var logit = Logit('color:yellow; background:blue;', 'MainLayout');
 
-const cntrl = observable({loading: true});
-logit('mainlayout', membersLoading, accountsLoading, walksLoading);
-monitorChanges();
-Promise.all([membersLoading, accountsLoading, walksLoading])
-  .then(()=>{
-    cntrl.loading = false;
-    monitorReplications();
-  });
 
 
-const loadPage = (curPage, loading)=>{
-  if (loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
+const loadPage = (curPage, cntrl)=>{
+  if (cntrl.loading) return (<span>loading ... <img src="../assets/gears.svg" /></span>);
   switch(curPage) {
     case 'membersList': return (<MembersListContainer />);
     case 'bookings': return (<BookingsContainer />);
@@ -47,7 +36,7 @@ const loadPage = (curPage, loading)=>{
   }
 }
 var myPages = [];
-const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=>{
+const comp = observer(({memberAdmin, bookingsAdmin, setPage, cntrl, curPage})=>{
   myPages = []
   const Link = ({page, show, name})=>{
     if (!show) return null;
@@ -55,7 +44,7 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=
     var cl = classnames({link: true, selected: curPage === page});
     return (<span onClick={()=>setPage(page)}  className={cl}>{name}</span>)
   }
-  logit('currentPage', curPage)
+  logit('currentPage', curPage, cntrl.loading)
   return (
     <div>
       <div className="mainPage" >
@@ -66,7 +55,6 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=
         <div className="nav">
           <Link page="bookings" name="Bookings" show={bookingsAdmin} />
           <Link page="buslists" name="Buslist" show={bookingsAdmin}/>
-
           {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
           <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
           <Link page="payments" name="Payments" show={bookingsAdmin}/>
@@ -74,7 +62,7 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, loading, curPage})=
         </div>
 
         <div style={{padding: 5}} className="maincontent">
-          {loadPage(curPage, loading)}
+          {loadPage(curPage, cntrl)}
         </div>
       </div>
     </div>
@@ -89,7 +77,7 @@ function mapStoreToProps(store){
     bookingsAdmin: store.signin.isBookingsAdmin,
     memberAdmin: store.signin.isMemberAdmin,
     curPage: curPage,
-    loading: cntrl.loading,
+    cntrl: store.cntrl,
     setPage: (page)=>{
       setRouterPage({page});
     },

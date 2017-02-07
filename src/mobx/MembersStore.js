@@ -1,6 +1,6 @@
 // import {getSettings} from 'ducks/settings-duck';
 import { getSettings} from 'ducks/settings-duck';
-import { observable, computed, action, runInAction, toJS, reaction} from 'mobx';
+import { observable, computed, action, runInAction, toJS, reaction, autorun} from 'mobx';
 // import {setActiveAccount} from 'mobx/AccountsStore'
 import db from 'services/bookingsDB';
 import Member from 'mobx/Member'
@@ -37,7 +37,10 @@ class MembersStore {
       this.syncToIndex();
       logit('members sortProp set:', this.sortProp)
     });
+    autorun(() =>  logit('autorun loaded', this.loaded));
   }
+  membersLoading: ()=>membersLoading;
+
 
   @action syncToIndex(){
     if (!this.activeMemberId) return this.dispStart = 0;
@@ -183,6 +186,7 @@ class MembersStore {
 
 
   @action loadMembers = async () => {
+    logit('loading members', '')
     const data = await db.allDocs({include_docs: true, startkey: 'M', endkey: 'M9999999' });
     /* required in strict mode to be allowed to update state: */
     runInAction('update state after fetching data', () => {

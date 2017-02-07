@@ -34,7 +34,7 @@ export function busListReport(doc){
   // const height14 = doc.fontSize(14).currentLineHeight()
 
   const getData = (doc, data, text, showNumber, colW, x, y)=>{
-    if (data.length === 0)return 0;
+    if (data.length === 0)return y;
     if (text.length > 0){
       doc.fontSize(12).text(text, x, y)
       y += height12
@@ -42,7 +42,7 @@ export function busListReport(doc){
 
     data.forEach((bkng, i)=> {
       const annotate = bkng.annotation && bkng.annotation !== '';
-      doc.font(normal).fontSize(12).text(`${showNumber ? i+' ':''}${bkng.name}`, x, y, {continue: annotate})
+      doc.font(normal).fontSize(12).text(`${showNumber ? (i+1)+' ':''}${bkng.name}`, x, y, {continue: annotate})
       if (annotate) {
         doc.fontSize(9).font(italic).fillColor('blue').text(`${bkng.annotation||' '}`, {align: 'right', width: colW}).fillColor('black')
       }
@@ -75,6 +75,7 @@ export function busListReport(doc){
     const spaceNeeded = (noLines * height12 + noAnnotations*6.408);
     const spaceRemaining = pHeight - height4 - 80 - margin;
     const colsNeeded = (spaceRemaining  < spaceNeeded ? 2 : 1);
+    logit('col calcs', busBookings.length, carBookings.length, waitlist.length, noLines, spaceNeeded, spaceRemaining, colsNeeded)
     // position of start of print for this walk
     if (col + colsNeeded > noCols){
       doc.addPage();
