@@ -1,7 +1,6 @@
 import PDFDocument from 'pdfkit'
 import XDate from 'xdate';
 import fs from 'fs'
-import {getSubsStatus} from '../utilities/subsStatus';
 // import Logit from '../factories/logit.js';
 // var logit = Logit('color:yellow; background:black;', 'printPayments:report');
 var logit =(...args)=>console.log(...args)
@@ -57,7 +56,8 @@ export function membershipListReport(members){
     if (mem.memberId === 'M2031')logit('mem', mem, stat)
     if (stat !== '') return [stat, {}];
 
-    let subs = getSubsStatus(mem);
+    // let subs = getSubsStatus(mem);
+    let subs = mem.subsStatus;
     stat = `${mem.subscription ? "'"+parseInt(mem.subscription)%100:'---'}`;
     let atts = subsMap[subs.status];
     if (mem.memberId === 'M2031')logit('subs', subs, stat, atts)

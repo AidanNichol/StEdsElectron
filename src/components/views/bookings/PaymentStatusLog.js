@@ -1,7 +1,7 @@
 /* jshint quotmark: false */
 import React from 'react';
 import {findDOMNode} from 'react-dom';
-import {Icon} from 'ducks/walksDuck'
+import {Icon} from 'components/utility/Icon'
 // import {PaymentHelp} from 'components/help/PaymentHelp';
 // import {HelpDialog} from 'components/help/HelpDialog';
 import classNames from 'classnames';

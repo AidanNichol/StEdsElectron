@@ -249,7 +249,63 @@ export function walkDayBookingSheet(doc, printFull){
     })
     y = startY + accHeight;
     y += gapH;
+
   });
+  const printBlanks = (x, y)=>{
+    // logit('acc', data)
+    // logit('payment', data.sortname, {y:doc.y, calcY, data});
+    // if (i=== bal)doc.text('', pWidth/2+20, yOff);
+    let accHeight =  2 + nameH +  detailH;
+    if (pHeight - y - marginV - accHeight-1<= 0) {
+      x = pWidth-margin - colW;
+      y = colHeadY;
+      col = (col + 1)%2;
+      if (col === 0){
+        x = margin;
+        doc.addPage();
+      }
+      logit('col full', {col, x, y})
+    }
+    var startY = y;
+    const dY = detailH+1
+    //
+    // Print the account header
+    //
+    const boxPt = 2;
+    doc.path(`M ${x-2+r},${y-boxPt} ${headBox}`).lineWidth(1)
+    .fillOpacity(0.8)
+    .fillAndStroke("#ccc", "#888");
+    doc.roundedRect(x-2,y-boxPt, bxW, accHeight, r).stroke("#888")
+    //
+    const boxOff = 5, boxWidth=50;
+
+    doc.fillColor('black').fontSize(szD-2)
+    .text('Paid ',x+boxOff+boxWidth+10, y+dY)
+    doc.fillColor('black').font(normal).fontSize(szH).text(' ', x, y);
+    let noWalks = walknames.length;
+    let walkNms = walknames.map(nm=>nm.code)
+    walkNms.forEach((code, i)=>{
+      const opacity = 1;
+      doc.font(normal).opacity(opacity).fontSize(8).text(code, x+colW - bkWidth*(noWalks-i), y+2, {align: 'center', width: bkWidth})
+    })
+    y += nameH;
+    //
+    // Print Member name
+    //
+    doc.fontSize(szD);
+
+    for (var i = 0; i < walkNms.length; i++) {
+      doc.image(`${__dirname}/../assets/icon-Chk.jpg`, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, { height: detailH*.8})
+    }
+    y += detailH;
+
+    y = startY + accHeight;
+    y += gapH;
+    return [x, y];
+  };
+  for (var i = 0; i < 10; i++) {
+    [x, y] = printBlanks(x,y);
+  }
 
   const gap = 10;
   const sz = (bxW+gap)/walkAvailability.length;

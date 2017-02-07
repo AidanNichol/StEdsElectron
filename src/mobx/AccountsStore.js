@@ -19,7 +19,6 @@ class AccountsStore {
   @observable paymentsLogsLimit;
 
   constructor(accounts) {
-    this[_loading] = true;
     if (accounts)this.addAccounts(accounts)
     else accountsLoading = this.loadAccounts();
     autorun(()=>{
@@ -27,10 +26,10 @@ class AccountsStore {
       // if (this.activeAccountId === null)debugger;
     })
     autorun(() =>  logit('autorun loaded', this.loaded));
-    autorun(() =>  logit('autorun loading', this._loading));
 
-    this[_loading] = false;
   }
+
+  accountsLoading: ()=>accountsLoading;
 
   @computed get activeAccount(){
     logit('activeAccount', this.activeAccountId, this.accounts.get(this.activeAccountId), this.accounts)
