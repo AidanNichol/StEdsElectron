@@ -1,7 +1,7 @@
 {
   "name": "stedsbookings",
   "productName": "St.EdwardsBookings",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Electron Application for St. Edwards Fellwalkers booking system",
   "main": "app/app.js",
   "scripts": {
