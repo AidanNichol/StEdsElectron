@@ -77,7 +77,7 @@ const memberRecipt = observer((props)=>{
         <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
         <span className="owed">{`£${-data.balance}`}</span>
       </div>
-      {data.logs.filter((bkng)=>bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
+      {data.logs.filter((bkng)=>bkng.outstanding && bkng.owing !== 0).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
     </div>
   );
 });
