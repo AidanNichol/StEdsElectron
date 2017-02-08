@@ -63,7 +63,7 @@ class AccountsStore {
   @action createNewAccount = (accId, members)=>{
     logit('createNewAccount', accId, members)
     this.addAccount({_id: accId, members});
-    this.activeAccountId = accId;
+    // this.activeAccountId = accId;
     this.accounts.get(accId).dbUpdate();
   }
 

@@ -16,6 +16,7 @@ import DS from 'mobx/DateStore'
 import {router} from 'ducks/router-mobx'
 import {state as signin} from 'ducks/signin-mobx'
 import Logit from 'factories/logit.js';
+import {reLogin } from 'ducks/signin-mobx'
 var logit = Logit('color:yellow; background:blue;', 'index.js');
 console.log('logit:opts', opts)
 
@@ -29,6 +30,7 @@ const monitorLoading = action (async ()=>{
     logit('monitorLoading', 'loaded')
     cntrl.loading = false;
     monitorReplications();
+    reLogin();
   })
 });
 monitorLoading();

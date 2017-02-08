@@ -5,6 +5,7 @@ import {remoteCouch} from 'services/bookingsDB';
 import {getSettings, setSettings} from 'ducks/settings-duck';
 import {observable, action, computed, runInAction, reaction, toJS} from 'mobx';
 import {observer} from 'mobx-react';
+import {setRouterPage} from 'ducks/router-mobx';
 import Logit from '../factories/logit.js';
 const logit = Logit('color:white; background:blue;', 'Signin:mobx');
 
@@ -47,6 +48,7 @@ export const login = action(async (name, password)=>{
       merge(state, pick(resp, ['name', 'roles']), {loggedIn:true, authError: ''});
       lastAction = 'Login';
       setSettings('user.'+name, {roles: state.roles, password: getHash(state.password)})
+      restoreRouterData();
     })
     return false;
   }
@@ -72,17 +74,34 @@ const logout = action(async ()=>{
 export function reLogin(){
   const userData = getSettings('user')
   const curUser = userData.current;
-  // logit('reLogin curUser', curUser, userData);
-  if (!localStorage.getItem('stEdsSignin')) return;
+  if (!localStorage.getItem('stEdsSignin')){
+    logit('reLogin no signin data saved', curUser, userData);
+    return;
+  }
   const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
-  // logit('reLogin who', username, password);
-  if (!username || !password) return;
+  if (!username || !password){
+    logit('reLogin data missing', username, password);
+    return;
+  }
   const {password: uPassword, roles} = userData[curUser];
-  // logit('reLogin cdata', {myData, uPassword, roles}, getHash(password), state);
-  if (username != curUser || getHash(password) !== uPassword) return;
+  if (username != curUser || getHash(password) !== uPassword){
+    logit('reLogin name or password mismatch', {username, curUser, uPassword, roles}, getHash(password), state);
+    return;
+  }
   // logit('reLogin merging', state, {name: username, roles});
   lastAction = 'reLogin';
   merge(state, {name: username, roles, loggedIn: true})
+  logit('relogin successful', username, roles);
+  restoreRouterData();
+}
+function restoreRouterData(){
+  const savedValues = localStorage.getItem('stEdsRouter')
+  const savedRoutingEnabled = getSettings('router.enabled')
+  if (savedRoutingEnabled && savedValues){
+    logit('restoreRouterData', savedValues, savedRoutingEnabled)
+    setRouterPage(JSON.parse(savedValues));
+  }
+
 }
 
 const focusedName = action(()=>{
@@ -172,7 +191,7 @@ export const SigninForm = observer(() => {
   )
 });
 // import {reLogin } from 'ducks/signin-mobx'
-    reLogin();
+    // reLogin();
 
 // const mapStateToProps = (state)=>{
 //   return {...(state.signin||{}), authError};

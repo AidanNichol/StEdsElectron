@@ -9,7 +9,7 @@ var SelectWalk = React.createClass({
 
   render: function() {
     var { walks, currentWalk, setCurrentWalk} = this.props;
-    if (!currentWalk)currentWalk = walks[0].walkId;
+    if (!currentWalk && walks && walks.length > 0)currentWalk = walks[0].walkId;
     logit('SelectWalk', walks, this.props);
     return (
       <div className="walkSelect">

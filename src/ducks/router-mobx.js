@@ -16,12 +16,12 @@ class Router {
   @observable walkId = null
 
   constructor(){
-    const savedValues = localStorage.getItem('stEdsRouter')
-    const savedRoutingEnabled = getSettings('router.enabled')
-    if (savedRoutingEnabled && savedValues)
-      merge(this, JSON.parse(savedValues));
-    logit('constructor', savedValues, savedRoutingEnabled, this)
-    autorun(()=>{
+    // const savedValues = localStorage.getItem('stEdsRouter')
+    // const savedRoutingEnabled = getSettings('router.enabled')
+    // if (savedRoutingEnabled && savedValues)
+    //   merge(this, JSON.parse(savedValues));
+    // logit('constructor', savedValues, savedRoutingEnabled, this)
+    reaction(()=>{return {page:this.page, memberId:this.memberId, accountId:this.accountId, walkId:this.walkId}}, ()=>{
       // const = {}
       localStorage.setItem('stEdsRouter', JSON.stringify(toJS(this)));
       logit('toLocalStorage', toJS(this));
@@ -30,7 +30,7 @@ class Router {
       setActiveMember(memId);
       if (memId){
         const accId = getAccountForMember(memId);
-        accId && setActiveAccount(accId);         
+        accId && setActiveAccount(accId);
       }
     }, true)
     reaction(()=>this.accountId, (accId)=>setActiveAccount(accId))

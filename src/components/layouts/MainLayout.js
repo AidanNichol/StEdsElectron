@@ -36,15 +36,15 @@ const loadPage = (curPage, cntrl)=>{
   }
 }
 var myPages = [];
-const comp = observer(({memberAdmin, bookingsAdmin, setPage, cntrl, curPage})=>{
+const comp = observer(({memberAdmin, bookingsAdmin, setPage, cntrl, router, curPage})=>{
   myPages = []
   const Link = ({page, show, name})=>{
     if (!show) return null;
     myPages.push (page);
-    var cl = classnames({link: true, selected: curPage === page});
+    var cl = classnames({link: true, selected: router.page === page});
     return (<span onClick={()=>setPage(page)}  className={cl}>{name}</span>)
   }
-  logit('currentPage', curPage, cntrl.loading)
+  logit('currentPage', router.page, cntrl.loading)
   return (
     <div>
       <div className="mainPage" >
@@ -62,7 +62,7 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, cntrl, curPage})=>{
         </div>
 
         <div style={{padding: 5}} className="maincontent">
-          {loadPage(curPage, cntrl)}
+          {loadPage(router.page, cntrl)}
         </div>
       </div>
     </div>
@@ -71,12 +71,12 @@ const comp = observer(({memberAdmin, bookingsAdmin, setPage, cntrl, curPage})=>{
 
 function mapStoreToProps(store){
   logit('store', store, myPages)
-  let curPage = myPages.includes(store.router.page) ? store.router.page : myPages[0];
-  if (!store.signin.loggedIn) curPage = 'none';
+  // let curPage = myPages.includes(store.router.page) ? store.router.page : myPages[0];
   return ({
     bookingsAdmin: store.signin.isBookingsAdmin,
     memberAdmin: store.signin.isMemberAdmin,
-    curPage: curPage,
+    router: store.router,
+    curPage: store.router.Page,
     cntrl: store.cntrl,
     setPage: (page)=>{
       setRouterPage({page});
