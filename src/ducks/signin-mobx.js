@@ -33,21 +33,28 @@ reaction(()=>({loggedIn:state.loggedIn, authError: state.authError}), ()=>{
 
 export const login = action(async (name, password)=>{
   try {
-    // if (!localStorage.getItem('stEdsSignin')) return;
-    // const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
-    logit('args                                                             ', name, password, remoteCouch)
+    // try using loacally saved data to perform login
+    const err = localLogin(name, password);
+    if (!err ){
+      localStorage.setItem('stEdsSignin', JSON.stringify({username: name, name, password}));
+      restoreRouterData();
+      return;
+    }
+    // OK - try the remote DB
+    logit('args', name, password, remoteCouch)
     var resp = await remoteDB.login(name, password, {
       ajax: {
         body: { name: name, password: password }
       }
     });
     logit('login resp:', resp);
-      runInAction('update state after signin', () => {
+    runInAction('update state after signin', () => {
       localStorage.setItem('stEdsSignin', JSON.stringify({username: name, name, password}));
       // const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
       merge(state, pick(resp, ['name', 'roles']), {loggedIn:true, authError: ''});
       lastAction = 'Login';
       setSettings('user.'+name, {roles: state.roles, password: getHash(state.password)})
+      setSettings('user.current', name);
       restoreRouterData();
     })
     return false;
@@ -71,7 +78,7 @@ const logout = action(async ()=>{
   })
 })
 
-export function reLogin(){
+export const reLogin = action('relogin', ()=>{
   const userData = getSettings('user')
   const curUser = userData.current;
   if (!localStorage.getItem('stEdsSignin')){
@@ -79,21 +86,24 @@ export function reLogin(){
     return;
   }
   const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
-  if (!username || !password){
-    logit('reLogin data missing', username, password);
-    return;
-  }
-  const {password: uPassword, roles} = userData[curUser];
-  if (username != curUser || getHash(password) !== uPassword){
-    logit('reLogin name or password mismatch', {username, curUser, uPassword, roles}, getHash(password), state);
-    return;
-  }
-  // logit('reLogin merging', state, {name: username, roles});
+  const err = localLogin(username, password);
+  if (err)logit('localLogin failed', err);
+  else restoreRouterData();
+});
+
+const localLogin = action('localLogin', (username, password)=>{
+  const userData = getSettings('user')
+  // const curUser = userData.current;
+  if (!username || !password) return 'data missing';
+  const {password: uPassword, roles} = userData[username];
+  if (getHash(password) !== uPassword)
+    return `password mismatch  username;${username}  ${uPassword+' !== '+ getHash(password)}`;
   lastAction = 'reLogin';
   merge(state, {name: username, roles, loggedIn: true})
   logit('relogin successful', username, roles);
-  restoreRouterData();
-}
+  return;
+});
+
 function restoreRouterData(){
   const savedValues = localStorage.getItem('stEdsRouter')
   const savedRoutingEnabled = getSettings('router.enabled')
@@ -190,28 +200,3 @@ export const SigninForm = observer(() => {
     </div>
   )
 });
-// import {reLogin } from 'ducks/signin-mobx'
-    // reLogin();
-
-// const mapStateToProps = (state)=>{
-//   return {...(state.signin||{}), authError};
-// }
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     // signinRequested: submit,
-//     signinRequested: (values)=>{
-//       try {
-//         dispatch(signinRequested(values.username, values.password))
-//       }
-//       catch(error){
-//         logit('error2', error);
-//         throw new SubmissionError({ _error: 'Signin failed!  ' + error.message})
-//       }},
-//     signoutRequested: ()=>dispatch(signoutRequested()),
-//   }
-// }
-// export const Signin = connect(mapStateToProps, mapDispatchToProps)(reduxForm({
-//   form: 'Signin',  // a unique identifier for this form
-// 	// asyncBlurFields: [ 'username' ],
-// 	validate
-// })(SigninForm))

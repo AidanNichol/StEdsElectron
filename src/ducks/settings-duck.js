@@ -37,6 +37,6 @@ export const setSettings = (field, value)=>{
   logit(`setting ${field} = ${value}`)
   settings.setSync(field, value);
 };
-export const lockSettings = settings.getSync('lock')
+export const lockSettings = settings.getSync('lock');
 logit('lock values', lockSettings)
 logit('setting File', settings.getSettingsFilePath())
