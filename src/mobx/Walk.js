@@ -35,8 +35,8 @@ export default class Walk {
   }
 
   getWalk = ()=>{
-    const {fee, venue, _id} = this;
-    return {fee, venue, _id};
+    const {fee, lastCancel, venue, _id} = this;
+    return {fee, lastCancel, venue, _id};
   }
 
   @computed get dispDate(){
@@ -126,7 +126,7 @@ export default class Walk {
     var booking = this.bookings.get(memId);
     logit('updateBookingRequest', booking, memId, req)
     if (!booking){
-      booking = new Booking({}, memId, {getWalk: this.getWalk} );
+      booking = new Booking({}, memId, {getWalk: this.getWalk, walk: this.walk} );
       this.bookings.set(memId, booking);
     }
     booking.updateBookingRequest(req);
@@ -180,7 +180,7 @@ export default class Walk {
       // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
     Object.entries(walkDoc.bookings || {}).forEach(([memId, booking])=>{
       if (this.bookings.has(memId))this.bookings.get(memId).updateBookingFromDoc(booking)
-      else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk}));
+      else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk, walk: this.walk}));
     })
     const deleted = R.difference(this.bookings.keys(), Object.keys(walkDoc.bookings||{}));
     deleted.forEach(memId=>this.bookings.delete(memId))
