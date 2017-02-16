@@ -1,9 +1,8 @@
 // import Logit from 'factories/logit.js';
 // var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
-
 // var prettyFormat = require('pretty-format')
 var PouchDB  = require('pouchdb');
-// import fs from 'fs'
+import fs from 'fs'
 // var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
 
 (async function() {
@@ -17,6 +16,11 @@ var PouchDB  = require('pouchdb');
     await db.destroy();
     db = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await db.compact();
+    var settingsStr = fs.readFileSync('/Users/aidan/Library/Application Support/Electron/Settings')
+    var settings = JSON.parse(settingsStr);
+    settings.database.developement.resetLocalBooking = true;
+    settings.database.current = 'developement';
+    fs.writeFileSync('/Users/aidan/Library/Application Support/Electron/Settings', JSON.stringify(settings))
     console.log('read live. docs:',docs.length)
 
     let res = await db.bulkDocs(docs, {new_edits: false})
