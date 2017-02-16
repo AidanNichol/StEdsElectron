@@ -25,6 +25,7 @@ settings.defaults({
 })
 settings.configure({prettify: true})
 settings.applyDefaultsSync();
+settings.deleteSync('debug.reduxLogger');
 settings.deleteSync('database.developement.resetLocal');
 settings.deleteSync('database.production.resetLocal');
 settings.deleteSync('clearRouter');

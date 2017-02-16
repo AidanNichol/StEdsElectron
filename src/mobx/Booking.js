@@ -13,7 +13,7 @@ export class Booking{
   @observable annotation = '';
   logs = observable.shallowMap({})
   memId
-
+  get walk(){return this.walk}
   constructor(booking, memId, accessors){
     merge(this, accessors);
     (booking.logs || []).forEach(log=>this.logs.set(log.dat, this.newBookingLog(log)))
@@ -26,14 +26,16 @@ export class Booking{
   newBookingLog = (log)=>new BookingLog(log, {getWalk: this.getWalk, getMember: this.getMember});
   getMember = ()=>{
     const member = MS.members.get(this.memId)
-    const {accountId, firstName} = member;
-    return {memId: this.memId, accountId, firstName};
+    const {accountId, firstName, fullName} = member;
+    return {memId: this.memId, accountId, firstName, fullName};
   }
 
   @action updateBookingRequest(req){
     if (this.status === req) return; // no change necessary
     const isRequestReversal = this.isRequestReversal(req);
-    if (req === 'BX' && this.lastCancel < DS.todaysDate) {
+
+    if (req === 'BX' && DS.todaysDate > this.walk.lastCancel) {
+      logit('updateBookingRequest', 'yes! it is too late')
       req = this.status+'L';
       this.paid = true;
     }
@@ -101,12 +103,12 @@ export class Booking{
       else if (forefited) log.amount = 0;
       return log;
     });
-    let cancelled;
+    // let cancelled;
     let billable = /^B|BL|C$/.test(this.status)
     logs = logs.reverse().map(log=>{
-      if (log.req === 'BX')cancelled = true;
-      if (log.req === 'B' && cancelled)log.cancelled = true;
-      if ((log.req === 'B' || log.req === 'C') && !log.cancelled){
+      // if (log.req === 'BX')cancelled = true;
+      // if (log.req === 'B' && cancelled)log.cancelled = true;
+      if (log.req === 'B' || log.req === 'C'){
         log.billable = billable;
         billable = false;
         log.owing = Math.abs(log.amount);

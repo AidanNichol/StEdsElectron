@@ -22,6 +22,7 @@ var Bookings = observer(React.createClass({
   render: function() {
 
     var {openWalks, options, callIfUnlocked, account, accountSelected, closeWalkBookings} = this.props;
+    if (!account)return null;
     var accId = account._id;
     logit('props', this.props);
     var accNames = account.accountMembers || [];
