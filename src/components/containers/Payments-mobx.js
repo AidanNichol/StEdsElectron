@@ -55,7 +55,7 @@ const buildDoc = function({AS, DS}) {
       startDate = AS.lastPaymentsBanked,
       endDate = AS.paymentsLogsLimit || DS.getLogTime();
   logit('range data', {startDate, endDate,openingCredit, openingDebt})
-  const accountsStatus = toJS(AS.allAccountsStatus);
+  const accountsStatus = toJS(AS.allAccountsStatus).sort(nameCmp);
   const filterCurrentLogs = (logs)=>logs.filter(({dat})=> dat>startDate && dat < endDate);
   logit('accountsStatus', accountsStatus)
   var cLogs = flatten(accountsStatus.map(acc=>filterCurrentLogs(acc.logs)));
@@ -74,6 +74,7 @@ const buildDoc = function({AS, DS}) {
     openingDebt,
     endDate, startDate,
     payments,
+    accounts: accountsStatus.filter(acc=>acc.activeThisPeriod || acc.balance < 0),
     // aLogs, bLogs,
     cLogs,
     tots,
