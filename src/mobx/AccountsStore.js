@@ -3,7 +3,6 @@ import db from 'services/bookingsDB';
 import XDate from 'xdate';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:AccountsStore');
-import {_loading} from 'mobx/symbols'
 import Account from './Account';
 
 export let accountsLoading;
@@ -43,7 +42,7 @@ class AccountsStore {
 
   @action addAccount = account=>{
     // logit('addAccount', account)
-    this.accounts.set(account._id, new Account(account,  {getLastPaymentsBanked: this.getLastPaymentsBanked, isLoading: ()=>!this.loaded}))
+    this.accounts.set(account._id, new Account(account,  {getAccountStore: this.getAccountStore, isLoading: ()=>!this.loaded}))
   }
   @action setActiveAccount = accId=>{
     // logit('addAccount', accId)
@@ -72,7 +71,10 @@ class AccountsStore {
     return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM')
   }
 
-  getLastPaymentsBanked = ()=>{return toJS(this.lastPaymentsBanked)}
+  getAccountStore = ()=>{
+    const {lastPaymentsBanked, loaded} = this;
+    return {lastPaymentsBanked, loaded};
+  }
 
   @computed get allDebts() {
     logit('start allDebts', this)
@@ -104,10 +106,10 @@ class AccountsStore {
 
   @action changeBPdoc = (doc)=>{
     if (doc.doc)doc = doc.doc;
-    logit('changeBPdoc', doc)
     this.lastPaymentsBanked = doc.endDate
     this.openingCredit = doc.closingCredit
     this.openingDebt =doc.closingDebt
+    logit('changeBPdoc', doc, this.lastPaymentsBanked)
   }
 
   @action changeDoc = ({deleted, doc, id, ...rest})=>{
@@ -135,19 +137,17 @@ class AccountsStore {
 
   @action loadAccounts = async () => {
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
+    const dataBP = await db.allDocs({descending: true, limit: 1, include_docs: true, startkey: 'BP9999999', endkey: 'BP00000000' });
+    logit('load datasummaries', dataBP)
     const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'A', endkey: 'A99999999' });
     /* required in strict mode to be allowed to update state: */
     logit('allDocs', data)
     runInAction('update state after fetching data', () => {
+      if (dataBP.rows.length >  0) this.changeBPdoc(dataBP.rows[0].doc);
       this.addAccounts(data.rows.map(row=>row.doc));
       // this.activeAccountId = data.rows[0].doc._id;
-      this.loaded = true;
       logit('AccountStore', this, this.accounts);
-    })
-    const dataBP = await db.allDocs({descending: true, limit: 1, include_docs: true, startkey: 'BP9999999', endkey: 'BP00000000' });
-    logit('load datasummaries', dataBP)
-    runInAction('update state after fetching data', () => {
-      if (dataBP.rows.length >  0) this.changeBPdoc(dataBP.rows[0].doc);
+      this.loaded = true;
     })
 
     // logit('conflictingAccounts', this.conflictingAccounts)

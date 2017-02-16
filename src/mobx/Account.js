@@ -3,6 +3,7 @@ import {merge} from 'lodash'
 import db from 'services/bookingsDB';
 import {state} from 'ducks/replication-mobx';
 import R from 'ramda';
+import {sprintf} from 'sprintf-js';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
 import { observable, computed, toJS, reaction, action} from 'mobx';
@@ -12,28 +13,6 @@ import DS from 'mobx/DateStore'
 import AccLog from 'mobx/AccLog';
 let limit;
 logit("dateStore", DS);
-
-
-// export class AccLog{
-//   dat;
-//   who;
-//   machine;
-//   req='';
-//   amount = 0;
-//   note='';
-//
-//   mergeableLog = ()=>{
-//     let amount = this.amount * request.chargeFactor(this.req);
-//     return {...this, amount, dispDate: dateDisplay(this.dat), text: this.note, type: 'A'};
-//   }
-//
-//   constructor(log){
-//     this.updateLog(log);
-//     // merge(this, log)
-//   }
-//
-//   @action updateLog = (data) => {merge(this, data)}
-// }
 
 export default class Account {
    _id =  0;
@@ -51,6 +30,8 @@ export default class Account {
     merge(this, accountDoc)
     // this.updateDocument(accountDoc);
   }
+
+  get accountStore(){return this.getAccountStore()}
 
   @computed get name() {
     let nameMap = this.members.reduce((value, memId)=>{
@@ -161,136 +142,205 @@ export default class Account {
   }
 
   @computed get accountStatus() {
-    var startDate = this.getLastPaymentsBanked();
+
+    /*-------------------------------------------------*/
+    /*         Routines to help with debugging         */
+    /*-------------------------------------------------*/
+    const showPaid = (paid)=>{
+      const xx = {P: '£', T: 'T', '+': 'Cr'}
+      let txt = '';
+      Object.keys(paid||{}).forEach(key=>{
+        if (paid[key] != 0) txt += xx[key] + ': '+paid[key]+ ' ';
+      } )
+      return (txt.length > 0 ? ' ': '') + txt;
+    }
+
+    const showLog = (i,log, what=nbsp, available)=>{
+      var color = log.type === 'A' ? 'blue' : (log.owing === 0 ? 'green' : 'red');
+      if (log.cancelled)color = 'black';
+      color = 'color: '+color;
+      const showBool = (name, show=name)=>(log[name] ? show+' ' : '');
+      const walk = log.type == 'W' ? WS.walks.get(log.walkId).names.code : '';
+      var txt2 = showBool('hideable', 'hide')+showBool('activeThisPeriod', 'actv')+showBool('historic', 'hist')+showBool('ignore', 'ignr')
+      var txt3 = log.type === 'W' ? sprintf('Owe:%3d %10s', log.owing, showPaid(log.paid)) : '';
+      var txt = sprintf('%2s%.1s %.16s %-16s %2s A:%3d B:%3d, %-18s, %12s',
+      i, what, log.dat,
+      (log.type === 'W' ? `${log.walkId} ${walk}` : 'Payment'),
+      log.req, log.amount, log.balance,  txt3, txt2);
+      console.log('%c%s %c%s', color, txt, 'color: white; background: black', showPaid(available));
+      return `${(i+what).padStart(3)} ${log.dat.substr(0,16)} ` +
+      (log.type === 'W' ? log.walkId : 'Payment'.padEnd(11, nbsp)) +
+      ` ${log.req.padEnd(2, nbsp)} ${walk.padEnd(4, nbsp)} `;
+    }
+
+    var startDate = this.accountStore.lastPaymentsBanked;
     let bookingLogs = WS.allWalkLogsByAccount[this._id]||[];
     if (this.members.length === 1)bookingLogs.forEach(log=>{delete log.name})
     let logs = (this.accountLogs.concat(bookingLogs));
     // logit('accountStatus:logs', bookingLogs,logs)
     let balance = 0;
     let cashReceivedThisPeriod = 0;
-    let cashAvailable = 0;
     let activeThisPeriod = false;
     let lastOK = -1;
-    let lastHistory = -1
     let lastHideable = -1
     let walkPast = 'W'+DS.now.substr(0,10);
     let currentFound = false
+    const nbsp = "\u00A0";
+    let traceMe = (this._id === 'A1180' || this._id === 'A2032');
+
+    /*------------------------------------------------------------------------*/
+    /*    first pass over the data to calculate the running balance and ...   */
+    /*        hideable: account in balanced and no open walks involved        */
+    /*        historic: account in balanced and all walks in the past         */
+    /*        resolved: account in balanced and before start of current period*/
+    /*------------------------------------------------------------------------*/
     let mostRecentWalk = '';
-    // let zeroPoints = [-1]
-    // let lastZeroPoint = -1;
-    let latestOKbooking = -1;
-    let paid;
-    logs = logs.sort(cmpDate).map((log, i)=>{
+    let lastHistory = -1
+    let lastResolved = -1;
+    logs = logs.sort(cmpDate).map((olog, i)=>{
+      const log = R.clone(olog);
       if (i>0 && logs[i-1].dat === log.dat && log.type === 'W'){
         log.duplicate = true;
         return log;
       }
       // pass annotation and subscription logs through un altered
-      if (log.req === 'A') {logit('A req', log);return log;}
-      if (log.req === 'S') {logit('S req', log);return log;}
-      // if credits then use on this walk
-      if (balance > 0 && log.type === 'W' && log.billable){
-        paid = Math.min(balance - cashAvailable, Math.abs(log.owing));
-        log.paid['+'] += paid;
-        log.owing -= paid;
-        paid = Math.min(cashAvailable, Math.abs(log.owing));
-        log.paid.P += paid;
-        log.owing -= paid;
-        if (log.owing === 0)log.outstanding = false;
-      }
+      if (log.req === 'A') return log;
+      if (log.req === 'S') return log;
+
       balance -= log.amount;
       log.balance = balance;
-      // logit('log '+accId, {log, balance});
-      if (log.dat > startDate){
-        activeThisPeriod = true;
-        log.activeThisPeriod = true;
-      }
+      if (log.dat > startDate) log.activeThisPeriod = true;
+      if (log.dat > startDate) activeThisPeriod = true;
       if (log.type === 'W'){
-        if (!currentFound && log.type === 'W'){
-          if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
-          if (log.walkId > walkPast)currentFound = true
-        }
-        if (log.billable){
-          if (balance < 0 && !log.cancelled && log.amount > 0) log.outstanding = true;
-          else latestOKbooking = i;
-        }
+        if (log.walkId > mostRecentWalk)mostRecentWalk = log.walkId;
+        if (log.walkId > walkPast)currentFound = true
       }
-      // received funds so use on previous outstanding bookings
-      if (log.type === 'A' && log.req != 'A'){
-        let available = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
-        if (log.dat > startDate && log.req[0] === 'P'){
-          cashAvailable += available;
-          cashReceivedThisPeriod += available;
-        }
-        if (this._id === 'A2039')logit('logs accountType '+this._id, {i, latestOKbooking, available, activeThisPeriod});
-        for (var j = latestOKbooking+1; j < i; j++) {
-          let logB = logs[j];
-          if (this._id === 'A2039')logit('checking walk '+this._id, {j, type: logB.type,owing: logB.owing, available});
-          if (logB.type !== 'W' || logB.owing <= 0 || available <= 0)continue;
-          if (this._id === 'A2039')logit('logs paid '+this._id, {j, type: logB.type, logB, cashAvailable});
-          paid = Math.min(Math.abs(available), Math.abs(logB.owing));
-          available -= paid;
-          logB.owing -= paid;
-          logB.paid[log.req] += paid;
-          if (logB.owing === 0){
-            logB.outstanding = false;
-            latestOKbooking = j;
-          }
-          if (activeThisPeriod){
-            logB.activeThisPeriod = true;
-            if (log.req[0] === 'P')cashAvailable -= paid;
-          }
-
-        }
-      }
-      if (!currentFound && balance === 0){
-        lastHistory = i;
-        log.mostRecentWalk = mostRecentWalk;
+      if (balance === 0){
         if (mostRecentWalk <= WS.lastClosed)lastHideable = i;
+        if (!log.activeThisPeriod)lastResolved = i;
+        if (!currentFound) lastHistory = i;
       }
-      if (balance >= 0 && log.dat < startDate) lastOK = i;
-      if (this._id === 'A2039')logit('logs done '+this._id, {i, log,latestOKbooking, cashReceivedThisPeriod});
 
       return log;
-      // return {...log, zeroPoint: balance === 0, balance};
     });
+    let available = {P: 0, T: 0, '+': 0};
+    logs = logs.map((log, i)=>( {...log, historic: (i <= lastHistory), hideable: (i <= lastHideable)}));
+
+    /*------------------------------------------------------------------------*/
+    /*    second pass over the data to work out whick walks were paid for     */
+    /*    in this banking period.                                             */
+    /*                                                                        */
+    /*    Look at all records in this banking period back through to the last */
+    /*    point were were in balance prior to the the last time we banked the */
+    /*    money. If we have instance of a booking being made and cancelled    */
+    /*    in this period then falg both entries so they can be ignored        */
+    /*------------------------------------------------------------------------*/
+    for (let i = logs.length-1; i > lastResolved; i--) {
+      let log = logs[i];
+      if (log.req !== 'BX')continue;
+      for (let j = i-1; j > lastResolved; j--) {
+        if (logs[j].req !== 'B')continue;
+        if (logs[j].walkId !== log.walkId || logs[j].memId !== log.memId)continue;
+        log.ignore = true;
+        logs[j].billable = false;
+        logs[j].ignore = true;
+      }
+    }
+    traceMe && console.table(logs);
+    traceMe && logit('first pass', logs, {lastHistory, lastHideable, lastResolved})
+
+    let owedForWalks = new Set();
+    const useAnyFunds = (log, activeThisPeriod)=>{
+      Object.keys(available).forEach(key=>{
+        available[key] = useFunds(log, available[key], key, activeThisPeriod)
+      })
+    };
+    const useFunds = (log, amount, type, activeThisPeriod)=>{
+      if (amount <= 0 || !log) return amount;
+      if (log.owing === undefined)logit('no owing', log)
+      const spend = Math.min(log.owing || 0, amount);
+      log.owing -= spend;
+      log.activeThisPeriod = activeThisPeriod;
+      log.paid[type] += spend;
+      if (log.owing === 0)owedForWalks.delete(log);
+      amount -= spend;
+      traceMe && showLog(0, log, '*', available);
+      return amount;
+    }
+
+
+    /*------------------------------------------------------------------------*/
+    /*    third pass over the data to work out whick walks were paid for      */
+    /*    in this banking period and which walks still need to be paid for.   */
+    /*                                                                        */
+    /*    Work forward from the last resolved point gather up billable records*/
+    /*    and then when funds become available either via a payment or a      */
+    /*    cancellation allocate them to the walks. Once the walk is fully     */
+    /*    paid it is removed from the list. Those left in the list at the end */
+    /*    will still need to be paid for.                                     */
+    /*                                                                        */
+    /*    Note: activeThisPeriod is any log record recorded since the last    */
+    /*          banking or any record affected by one of these.               */
+    /*          e.g. a walk booked a while ago being paid for by new funds    */
+    /*------------------------------------------------------------------------*/
+    for (let i = lastResolved+1; i < logs.length; i++) {
+      let log = logs[i];
+      // pass annotation and subscription logs through un altered
+      if (log.req === 'A' || log.req === 'S' || log.duplicate) continue;
+
+      if (log.type === 'W'){
+        if (log.billable){
+          log.owing = log.amount;
+          log.paid = {P: 0, T: 0, '+': 0};
+          owedForWalks.add(log);
+        }
+        if (log.req === 'BX' && !log.ignore){
+          let amount = Math.abs(log.amount)
+          // let match = Array.from(owedForWalks).find(oLog=>oLog.walkId === log.walkId && oLog.req === 'B' && oLog.memId === log.memId);
+          // amount = useFunds(match, amount, '+', log.activeThisPeriod);
+          available['+'] += amount;
+        }
+        owedForWalks.forEach(oLog=>{
+          useAnyFunds(oLog, log.activeThisPeriod);
+        })
+        traceMe && showLog(i, log, ' ', available);
+        continue;
+      }
+      // received funds so use on previous outstanding bookings
+      if (log.type === 'A'){
+        let amount = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
+        if (log.activeThisPeriod && log.req[0] === 'P'){
+          cashReceivedThisPeriod += amount;
+        }
+        available[log.req]+=amount;
+        traceMe && showLog(i, log, ' ', available);
+        owedForWalks.forEach(logB=>{
+          amount = useAnyFunds(logB, log.activeThisPeriod);
+        });
+        if (!log.activeThisPeriod){
+          if (available.P){
+            available['+'] += available.P;
+            available.P = 0;
+          }
+          if (available.T){
+            available['+'] += available.T;
+            available.T = 0;
+          }
+        }
+
+      }
+    }
+    owedForWalks.forEach(log=>log.outstanding=true)
     logs = logs
             .map((log, i)=>({...log, historic: (i <= lastHistory), hideable: (i <= lastHideable), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
     // fixupAccLogs(thisAcc, logs);
-    if (this._id === 'A2039')logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
+    traceMe && logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let debt = [];
-    // if (balance < 0 || cashReceivedThisPeriod){
-    //   let due = balance;
-    //   if (this._id === 'A2039') logit('getdebt', balance, logs, lastOK, cashReceivedThisPeriod)
-    //   logs = logs
-    //     .reverse()
-    //     .map((log, i)=>{
-    //       if (i>=logs.length-lastOK-1)return log;
-    //       // if (balance === 0)hitBalancePoint = true;
-    //       if (due < 0 && log.amount > 0 && request.billable(log.req)){
-    //
-    //         log.outstanding = !log.cancelled
-    //         if (!log.cancelled) due += Math.min(-due, log.amount)
-    //
-    //       }
-    //       else log.outstanding = false;
-    //       if (log.type==='W' && cashReceivedThisPeriod > 0 && !log.outstanding
-    //           && log.req.length === 1 && !log.cancelled){
-    //         log.paid = Math.min(Math.abs(cashReceivedThisPeriod), Math.abs(log.amount));
-    //         cashReceivedThisPeriod -= log.paid;
-    //         if (this._id === 'A2039')logit('logs paid '+this._id, {i, log, cashReceivedThisPeriod});
-    //       }
-    //       if (this._id === 'A2039')logit('getdebt log', due, log)
-    //       let owing = Math.min(-log.amount, -balance);
-    //       if (this._id === 'A2039')logit('logs '+this._id, {i, logs, balance, owing, cashReceivedThisPeriod});
-    //       return {...log, owing};
-    //     })
-    //     .reverse() ;
-    // }
+
     if (balance !== 0) debt = logs.slice(lastOK+1).filter((log)=>log.outstanding);
     // logit('logs final', {accId: this._id, balance, debt, logs, lastHistory, accName: this.name, sortname});
-    return  {accId: this._id, balance, activeThisPeriod, paymentsMade: cashReceivedThisPeriod, debt, logs, lastHistory, extraCash: cashAvailable, accName: this.name, sortname:this.sortname};
+    return  {accId: this._id, balance, activeThisPeriod, available, paymentsMade: cashReceivedThisPeriod, debt, logs, lastHistory,  accName: this.name, sortname:this.sortname};
   }
 
   @action fixupAccLogs() {
