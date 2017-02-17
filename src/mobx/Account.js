@@ -3,10 +3,11 @@ import {merge} from 'lodash'
 import db from 'services/bookingsDB';
 import {state} from 'ducks/replication-mobx';
 import R from 'ramda';
-import {sprintf} from 'sprintf-js';
+// import {sprintf} from 'sprintf-js';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:white; background:black;', 'mobx:Account');
 import { observable, computed, toJS, reaction, action} from 'mobx';
+import {FundsManager} from 'mobx/fundsManager';
 import MS from 'mobx/MembersStore'
 import WS from 'mobx/WalksStore'
 import DS from 'mobx/DateStore'
@@ -143,49 +144,18 @@ export default class Account {
 
   @computed get accountStatus() {
 
-    /*-------------------------------------------------*/
-    /*         Routines to help with debugging         */
-    /*-------------------------------------------------*/
-    const showPaid = (paid)=>{
-      const xx = {P: '£', T: 'T', '+': 'Cr'}
-      let txt = '';
-      Object.keys(paid||{}).forEach(key=>{
-        if (paid[key] != 0) txt += xx[key] + ': '+paid[key]+ ' ';
-      } )
-      return (txt.length > 0 ? ' ': '') + txt;
-    }
-
-    const showLog = (i,log, what=nbsp, available)=>{
-      var color = log.type === 'A' ? 'blue' : (log.owing === 0 ? 'green' : 'red');
-      if (log.cancelled)color = 'black';
-      color = 'color: '+color;
-      const showBool = (name, show=name)=>(log[name] ? show+' ' : '');
-      const walk = log.type == 'W' ? WS.walks.get(log.walkId).names.code : '';
-      var txt2 = showBool('hideable', 'hide')+showBool('activeThisPeriod', 'actv')+showBool('historic', 'hist')+showBool('ignore', 'ignr')
-      var txt3 = log.type === 'W' ? sprintf('Owe:%3d %10s', log.owing, showPaid(log.paid)) : '';
-      var txt = sprintf('%2s%.1s %.16s %-16s %2s A:%3d B:%3d, %-18s, %12s',
-      i, what, log.dat,
-      (log.type === 'W' ? `${log.walkId} ${walk}` : 'Payment'),
-      log.req, log.amount, log.balance,  txt3, txt2);
-      console.log('%c%s %c%s', color, txt, 'color: white; background: black', showPaid(available));
-      return `${(i+what).padStart(3)} ${log.dat.substr(0,16)} ` +
-      (log.type === 'W' ? log.walkId : 'Payment'.padEnd(11, nbsp)) +
-      ` ${log.req.padEnd(2, nbsp)} ${walk.padEnd(4, nbsp)} `;
-    }
-
-    var startDate = this.accountStore.lastPaymentsBanked;
+      var startDate = this.accountStore.lastPaymentsBanked;
     let bookingLogs = WS.allWalkLogsByAccount[this._id]||[];
     if (this.members.length === 1)bookingLogs.forEach(log=>{delete log.name})
     let logs = (this.accountLogs.concat(bookingLogs));
     // logit('accountStatus:logs', bookingLogs,logs)
     let balance = 0;
-    let cashReceivedThisPeriod = 0;
     let activeThisPeriod = false;
     let lastOK = -1;
     let lastHideable = -1
     let walkPast = 'W'+DS.now.substr(0,10);
     let currentFound = false
-    const nbsp = "\u00A0";
+    // const nbsp = "\u00A0";
     let traceMe = (this._id === 'A1180' || this._id === 'A2032');
 
     /*------------------------------------------------------------------------*/
@@ -223,7 +193,7 @@ export default class Account {
 
       return log;
     });
-    let available = {P: 0, T: 0, '+': 0};
+
     logs = logs.map((log, i)=>( {...log, historic: (i <= lastHistory), hideable: (i <= lastHideable)}));
 
     /*------------------------------------------------------------------------*/
@@ -246,28 +216,8 @@ export default class Account {
         logs[j].ignore = true;
       }
     }
-    traceMe && console.table(logs);
+    traceMe && this.logTableToConsole(logs);
     traceMe && logit('first pass', logs, {lastHistory, lastHideable, lastResolved})
-
-    let owedForWalks = new Set();
-    const useAnyFunds = (log, activeThisPeriod)=>{
-      Object.keys(available).forEach(key=>{
-        available[key] = useFunds(log, available[key], key, activeThisPeriod)
-      })
-    };
-    const useFunds = (log, amount, type, activeThisPeriod)=>{
-      if (amount <= 0 || !log) return amount;
-      if (log.owing === undefined)logit('no owing', log)
-      const spend = Math.min(log.owing || 0, amount);
-      log.owing -= spend;
-      log.activeThisPeriod = activeThisPeriod;
-      log.paid[type] += spend;
-      if (log.owing === 0)owedForWalks.delete(log);
-      amount -= spend;
-      traceMe && showLog(0, log, '*', available);
-      return amount;
-    }
-
 
     /*------------------------------------------------------------------------*/
     /*    third pass over the data to work out whick walks were paid for      */
@@ -283,64 +233,45 @@ export default class Account {
     /*          banking or any record affected by one of these.               */
     /*          e.g. a walk booked a while ago being paid for by new funds    */
     /*------------------------------------------------------------------------*/
+    const fundsManager = new FundsManager();
+    fundsManager.traceMe = (this._id === 'A1180' || this._id === 'A2032');
+
     for (let i = lastResolved+1; i < logs.length; i++) {
       let log = logs[i];
       // pass annotation and subscription logs through un altered
       if (log.req === 'A' || log.req === 'S' || log.duplicate) continue;
 
       if (log.type === 'W'){
-        if (log.billable){
-          log.owing = log.amount;
-          log.paid = {P: 0, T: 0, '+': 0};
-          owedForWalks.add(log);
-        }
+        fundsManager.addWalk(i, log);
         if (log.req === 'BX' && !log.ignore){
-          let amount = Math.abs(log.amount)
-          // let match = Array.from(owedForWalks).find(oLog=>oLog.walkId === log.walkId && oLog.req === 'B' && oLog.memId === log.memId);
-          // amount = useFunds(match, amount, '+', log.activeThisPeriod);
-          available['+'] += amount;
+          fundsManager.addCredit(i, log);
         }
-        owedForWalks.forEach(oLog=>{
-          useAnyFunds(oLog, log.activeThisPeriod);
-        })
-        traceMe && showLog(i, log, ' ', available);
         continue;
       }
       // received funds so use on previous outstanding bookings
       if (log.type === 'A'){
-        let amount = Math.abs(log.amount) * (log.req.length > 1? -1 : 1);
-        if (log.activeThisPeriod && log.req[0] === 'P'){
-          cashReceivedThisPeriod += amount;
-        }
-        available[log.req]+=amount;
-        traceMe && showLog(i, log, ' ', available);
-        owedForWalks.forEach(logB=>{
-          amount = useAnyFunds(logB, log.activeThisPeriod);
-        });
-        if (!log.activeThisPeriod){
-          if (available.P){
-            available['+'] += available.P;
-            available.P = 0;
-          }
-          if (available.T){
-            available['+'] += available.T;
-            available.T = 0;
-          }
-        }
+        fundsManager.addPayment(i, log);
 
       }
     }
-    owedForWalks.forEach(log=>log.outstanding=true)
+    fundsManager.allDone(); // anything still unpaid for will flagged ast outstanding
+
+
     logs = logs
-            .map((log, i)=>({...log, historic: (i <= lastHistory), hideable: (i <= lastHideable), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
+            // .map((log, i)=>({...log, historic: (i <= lastHistory), hideable: (i <= lastHideable), cloneable: (i>lastHistory && log.type === 'W' && log.walkId < walkPast && !log.clone) }))
             .filter(log=>!log.duplicate);
     // fixupAccLogs(thisAcc, logs);
-    traceMe && logit('cashReceivedThisPeriod', cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
+    traceMe && this.logTableToConsole(logs)
+    traceMe && logit('cashReceivedThisPeriod', fundsManager.cashReceivedThisPeriod, lastOK, startDate, this._id, this.name, logs)
     let debt = [];
 
-    if (balance !== 0) debt = logs.slice(lastOK+1).filter((log)=>log.outstanding);
+    if (balance !== 0) debt = logs.filter((log)=>log.outstanding);
     // logit('logs final', {accId: this._id, balance, debt, logs, lastHistory, accName: this.name, sortname});
-    return  {accId: this._id, balance, activeThisPeriod, available, paymentsMade: cashReceivedThisPeriod, debt, logs, lastHistory,  accName: this.name, sortname:this.sortname};
+    return  {accId: this._id, balance, activeThisPeriod, available: fundsManager.available, paymentsMade: fundsManager.cashReceivedThisPeriod, debt, logs, lastHistory,  accName: this.name, sortname:this.sortname};
+  }
+
+  logTableToConsole = (logs)=>{
+    console.table(logs.map(log=>R.omit(['inFull', 'note', 'accId', 'machine', 'who', 'dispDate', 'text'], log)))
   }
 
   @action fixupAccLogs() {
