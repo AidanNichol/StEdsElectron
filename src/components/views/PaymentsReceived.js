@@ -17,7 +17,7 @@ import {observable} from 'mobx'
 import {observer} from 'mobx-react'
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'PaymentsMade:View');
+var logit = Logit('color:blue; background:yellow;', 'PaymentsReceived:View');
 
 const uiState = observable({
   showAll: true,
@@ -160,7 +160,7 @@ export const MemberRecipt = styled(memberRecipt)`
 export const payments = observer((props)=>{
 
   // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
-  logit('payments props', props, uiState);
+  // logit('payments props', props, uiState);
   var {accs, startDate, totalPaymentsMade, showPaymentsDue, className, showMemberBookings, bankMoney, doc} = props;
 
   var title = (
