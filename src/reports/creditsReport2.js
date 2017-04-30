@@ -1,6 +1,5 @@
+import {drawSVG} from 'reports/extract-svg-path';
 import Logit from '../factories/logit.js';
-import fs from 'fs';
-import svg2png from 'svg2png'
 var logit = Logit('color:yellow; background:black;', 'printCredits:report');
 import AS from 'mobx/AccountsStore';
 
@@ -33,14 +32,6 @@ export function creditsOwedReport(doc){
   // const gapH = doc.fontSize(9).currentLineHeight()*1.24
   const [nameH, detailH, gapH] = calcLineHeights(doc);
 
-  const getPng = (req)=>{
-    if (!icons[req]){
-      let buffer = fs.readFileSync(`${__dirname}/../assets/icon-${req}.svg`)
-      icons[req] = svg2png(buffer, {height: detailH});
-    }
-    return icons[req];
-  }
-
   const balanceCols = (credits)=>{
     let sizes = credits.map((data)=>nameH+gapH+(data.logs.length - data.logs.length)*detailH);
     logit('sizes', sizes)
@@ -56,9 +47,6 @@ export function creditsOwedReport(doc){
   };
 
   let x,y;
-  // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continue: true})
-  // doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Payments Due', 30, 30+(20-nameH)/2, {align:'center'});
-  // doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
    x=doc.x; y=doc.y;
   logit('x,y', {x,y})
   let { credits} = AS.allDebts;
@@ -95,11 +83,14 @@ export function creditsOwedReport(doc){
     doc.fontSize(12);
     y += nameH
     data.logs.forEach((log)=>{
-      doc.font(normal).fontSize(12)
-          .text(log.dispDate, x, y)
-          .image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
-          .text(log.text, x+79, y, {continued: true});
+      doc.save();
+      doc.font(normal).fontSize(12).text(log.dispDate, x, y);
+      drawSVG(doc, x+66, y-3, 0.5, `icon-${log.req}`);
+      // doc.image(`${__dirname}/../assets/icon-${log.req}.jpg`, x+67, y-3, { height: detailH*.9})
+      doc.text(log.text, x+81, y, {continued: true});
       doc.font(italic).fontSize(10).text(log.req !== 'P' ? (log.name? ` [${log.name}]`:' ') : ' ');
+      doc.fillColor('#888').text(`£${-log.amount}`, x, y, {align: 'right', width: colW});
+      doc.restore();
       y += detailH
     });
     y+=gapH;

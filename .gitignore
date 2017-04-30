@@ -33,3 +33,4 @@ temp*.json
 *.tgz
 /app
 /bower_components
+src000

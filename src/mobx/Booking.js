@@ -13,7 +13,7 @@ export class Booking{
   @observable annotation = '';
   logs = observable.shallowMap({})
   memId
-  get walk(){return this.walk}
+  get walk(){return this.getWalk()}
   constructor(booking, memId, accessors){
     merge(this, accessors);
     (booking.logs || []).forEach(log=>this.logs.set(log.dat, this.newBookingLog(log)))
@@ -33,7 +33,7 @@ export class Booking{
   @action updateBookingRequest(req){
     if (this.status === req) return; // no change necessary
     const isRequestReversal = this.isRequestReversal(req);
-
+    logit('cancelling', req, DS.todaysDate, this.walk.lastCancel, this.walk)
     if (req === 'BX' && DS.todaysDate > this.walk.lastCancel) {
       logit('updateBookingRequest', 'yes! it is too late')
       req = this.status+'L';

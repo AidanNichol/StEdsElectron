@@ -1,6 +1,7 @@
 import Logit from '../factories/logit.js';
-import {toJS, observable, action, autorun} from 'mobx';
+import {toJS} from 'mobx';
 import R from 'ramda';
+import {drawSVG} from 'reports/extract-svg-path';
 import {union, flattenDeep, fromPairs} from 'lodash';
 var logit = Logit('color:yellow; background:black;', 'walkDayBookingSheet:report');
 import AS from 'mobx/AccountsStore';
@@ -8,7 +9,6 @@ import WS from 'mobx/WalksStore';
 import MS from 'mobx/MembersStore';
 // import DS from 'mobx/DateStore';
 
-const pCntrl = {endY:0, col:0};
 
 function walkDaySet(){
   const walkId = WS.bookableWalksId[0];
@@ -129,7 +129,7 @@ export function walkDayBookingSheet(doc, printFull){
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
   const colW = pWidth/2 - margin - 10;
-  const colHeadY = 50;
+  const colHeadY = 55;
   const r = 3;
   const fontHeight = calcLineHeights(doc);
   const szH = 10, szD=11
@@ -252,7 +252,8 @@ export function walkDayBookingSheet(doc, printFull){
         var opacity = (!printFull && i===0)&&bkng!=='P'? 0.4 : 1;
         if (bkng === 'W') opacity = 0.3;
         doc.opacity(opacity)
-            .image(`${__dirname}/../assets/icon-${bkng}.jpg`, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, { height: detailH*.8})
+            // .image(`${__dirname}/../assets/icon-${bkng}.jpg`, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, { height: detailH*.8})
+        drawSVG(doc, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, 0.4, `icon-${bkng}` )
 
         if (bkng === 'W'){
           // logit('waitlist', i, mData.memId, noXtra, waitingLists);
@@ -304,9 +305,10 @@ export function walkDayBookingSheet(doc, printFull){
   // howmany blank boxes can we squeeze in
   let accHeight =  2 + nameH +  detailH;
   let noBlanks = 10;
-  const spaceFor = Math.floor((y - checkBoxesStart)/accHeight);
+  const spaceFor = Math.floor((checkBoxesStart- y)/accHeight);
   if (col === 0)setEndY(pHeight); // force new column
   else noBlanks = Math.min(10, spaceFor);
+  logit('space For', {spaceFor, noBlanks, y, checkBoxesStart, accHeight})
   for (var i = 0; i < noBlanks; i++) {
     setEndY(y+accHeight);
     [x, y] = printBlanks(x,y);

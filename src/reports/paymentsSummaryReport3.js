@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit'
 import fs from 'fs'
 import XDate from 'xdate';
 import jetpack from 'fs-jetpack';
-import prettyFormat from 'pretty-format';
+import {drawSVG} from 'reports/extract-svg-path';
 
 import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:black;', 'paymentSummary:report');
@@ -34,18 +34,29 @@ export function paymentsSummaryReport3(payload, printFull){
   logit('payload', payload);
   logit('',homefs.cwd(), documents.cwd(), docs)
 
-  let docname = `${docs}/paymentSummary3-${payload.startDate.substr(0, 16).replace(/:/g, '.')}${printFull ? '-full': ''}.pdf`;
+  let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
   // let docname = `${docs}/paymentSummary-${payload.startDate.substr(0, 16).replace(/:/g, '.')}.pdf`;
   const margin = 30;
   var doc = new PDFDocument({size: 'A4', margins: {top:20, bottom: 20, left:margin, right: margin}, autoFirstPage: false});
   doc.pipe(fs.createWriteStream(docname) )
+  doc.registerFont('ArialNarrow-Bold', `${__dirname}/../fonts/system/Arial Narrow Bold.ttf`)
+  doc.registerFont('TimesNewRomanPS-BoldMT', `${__dirname}/../fonts/system/Times New Roman Bold.ttf`)
+
   var title = 'St.Edwards Fellwalkers: Payments Summary';
   doc.on('pageAdded', ()=>{
     const height14 = doc.fontSize(14).currentLineHeight()
     const height4 = doc.fontSize(4).currentLineHeight();
     const fmtDate = dat=>(new XDate(dat).toString('ddd dd MMM'))
-
-    doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
+    // doc.rect(0, 0, 80,15).stroke('red');
+    // doc.rect(0, 0, 80,20).stroke('blue');
+    // doc.rect(0, 0, 30,30).stroke('blue');
+    // doc.rect(0, 0, 40,40).stroke('blue');
+    // doc.rect(0, 0, 50,50).stroke('blue');
+    // doc.rect(0, 0, 60,60).stroke('blue');
+    // doc.rect(0, 0, 70,70).stroke('blue');
+    // doc.rect(0, 0, 75,75).stroke('red');
+    drawSVG(doc, 50, 35, 0.25, 'St_EdwardsLogoSimple');
+    // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
     doc.font(bold).fontSize(14).text(title, 30, 30+(20-height14)/2, {align:'center'});
     doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-height4)/2, {align: 'right'})
     // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
@@ -59,6 +70,7 @@ export function paymentsSummaryReport3(payload, printFull){
 
 function prepareData(payload, printFull){
   const walkIds = new Set(  WS.openWalks.map(walk=>walk._id));
+  const openWalks = new Set(  WS.openWalks.map(walk=>walk._id));
   const accData = []
   let addToCredit = false;
   payload.accounts
@@ -69,9 +81,12 @@ function prepareData(payload, printFull){
       const {paymentsMade, accId, available, accName} = acc;
       const grid = {};
       acc.logs.filter(log=>log.type==='W' && log.activeThisPeriod )
-        .filter((log)=>(log.paid && log.paid.P > 0) || printFull)
+
+        .filter((log)=>(log.paid && log.paid.P > 0) || (printFull && !log.ignore))
         .forEach(log=>{
+
           walkIds.add(log.walkId);
+          if (!openWalks.has(log.walkId))log.late = true;
           if (!grid[log.memId])grid[log.memId] = {name: MS.members.get(log.memId).fullNameR,  bkngs: []}
           grid[log.memId].bkngs.push(log);
         }
@@ -124,6 +139,7 @@ export function reportBody(payload, printFull, doc){
       y = printColumnHeading(x, y, walkIndex)
     }
   }
+
   const printColumnHeading = (x, y, walks )=>{
     // header for walk names(codes)
     const nbsp = "\u00A0";
@@ -169,14 +185,40 @@ export function reportBody(payload, printFull, doc){
     doc.fillColor(textColor).fontSize(szD-2)
     .text(`£${Math.abs(value)}`,x1+boxOff, y+dY, {align: 'right', width: moneyWidth});
   }
+
+
   const printWalkIcon = (x, y, log)=>{
     const i = walkIndex.get(log.walkId).index;
     const x1 = x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4;
+    const x2 = x+colW - bkWidth*(noWalks-i) ;
     const bkng = log.req;
+    if (log.late)doc.opacity(0.2).rect(x2, y-1, bkWidth, detailH).fill('yellow').opacity(1);
     let icon;
-    if (log.owing === 0 && log.paid && log.paid.P > 0)icon = `check-${bkng}`;
+    const xtra = {};
+    if (log.owing === 0 && log.paid){
+      if (log.paid.P > 0){ icon = `check-${bkng}`;}
+      else {
+        if(log.paid.T > 0)icon = `icon-T`;
+        if(log.paid['+'] > 0)icon = `icon-Cr`;
+        xtra.fill = bkng === 'B' ? 'green' : 'blue';
+      }
+    }
     else icon = `icon-${bkng}`;
-    doc.image(`${__dirname}/../assets/${icon}.jpg`, x1, y, { height: detailH*.8})
+    // if (log.memId==='M1158')logit('icon', log.paid, icon);
+    if (log.owing !== 0 && log.owing !== log.amount)xtra.fill = bkng === 'B' ? '#84C784' : '#5b5bf2';
+    // if (log.memId==='M1049')logit('text', log, xtra);
+    drawSVG(doc, x1, y-1, 0.5, icon, xtra );
+
+    if (log.owing > 0 && log.paid){
+      let text = '';
+      if (log.paid.P > 0) text += ` £${log.paid.P}`;
+      else if(log.paid.T > 0)text += ` T${log.paid.T}`
+      else if(log.paid['+'] > 0)text += ` Cr${log.paid['+']}`
+      if (text !== ''){
+        doc.fontSize(szD-3).text(text, x2-1, y+5, {width: bkWidth, align:'right'});
+      }
+      // if (log.memId==='M1049')logit('text', log.paid, text);
+    }
   }
   doc.font(normal)
 
@@ -187,7 +229,6 @@ export function reportBody(payload, printFull, doc){
   y = printColumnHeading(x, y, walkIndex)
   setEndY(y);
   // y= yOff;
-
   accData.forEach(acc=>{
     const {paymentsMade, memIds, addToCredit, grid} = acc;
     // logit('account', acc.accName);
@@ -214,4 +255,8 @@ export function reportBody(payload, printFull, doc){
   doc.font(bold).fontSize(12).fillColor('black')
     .text("Cash & Cheques to Bank", x, y)
     .text(`£${netCashAndCheques}`, x, y, {width: colW, align: 'right'})
+
+  // drawSVG(doc, x+colW/2, y+colW/2, 0.5, 'St_EdwardsLogoSimple');
+  // drawSVG(doc, x+colW/2, y+colW/2, 0.5, 'St_EdwardsLogo');
+
 }

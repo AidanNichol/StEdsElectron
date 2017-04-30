@@ -163,7 +163,6 @@ export default class Walk {
     logit('DB Update start', this)
     let {_conflicts, ...newDoc} = toJS(this);
     Object.entries(newDoc.bookings).map(([memId, booking])=>{
-      logit('whoops', this._id, this.venue, memId, booking)
       newDoc.bookings[memId].logs = Object.values(booking.logs)
     });
 
@@ -180,7 +179,7 @@ export default class Walk {
       // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
     Object.entries(walkDoc.bookings || {}).forEach(([memId, booking])=>{
       if (this.bookings.has(memId))this.bookings.get(memId).updateBookingFromDoc(booking)
-      else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk, walk: this.walk}));
+      else this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk}));
     })
     const deleted = R.difference(this.bookings.keys(), Object.keys(walkDoc.bookings||{}));
     deleted.forEach(memId=>this.bookings.delete(memId))

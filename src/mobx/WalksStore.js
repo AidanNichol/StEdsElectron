@@ -39,7 +39,7 @@ class WalksStore {
     const today = DS.todaysDate;
     const walkIds = this.walks.values().sort(idCmp)
         .filter(walk=>walk._id.substr(1, 4) > '2016' && !walk.closed)
-        .filter(walk=>today >= walk.firstBooking)
+        .filter(walk=>today >= walk.firstBooking.substr(0, 10)) // ignore time
     logit('openWalksId', walkIds)
     return walkIds;
   }

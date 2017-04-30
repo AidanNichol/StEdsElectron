@@ -1,3 +1,4 @@
+import {drawSVG} from 'reports/extract-svg-path';
 import Logit from '../factories/logit.js';
 var logit = Logit('color:yellow; background:black;', 'printPayments:report');
 import AS from 'mobx/AccountsStore';
@@ -47,9 +48,6 @@ export function paymentsDueReport(doc, state, yStart){
   };
 
   let x,y;
-  // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continue: true})
-  // doc.font(bold).fontSize(14).text('St.Edwards Fellwalkers: Payments Due', 30, 30+(20-nameH)/2, {align:'center'});
-  // doc.font(normal).fontSize(9).text((new XDate().toString('yyyy-MM-dd HH:mm')),30,30+(20-gapH)/2, {align: 'right'})
    x=doc.x; y=doc.y;
   logit('x,y', {x,y})
   let { debts} = AS.allDebts;
@@ -85,8 +83,9 @@ export function paymentsDueReport(doc, state, yStart){
     y += nameH
     doc.fontSize(12);
     data.debt.filter((bkng)=>bkng.outstanding).forEach((bkng)=>{
-      doc.font(normal).fontSize(12).text(bkng.dispDate, x, y)
-      .image(`${__dirname}/../assets/icon-${bkng.req}.jpg`, x+67, y-3, { height: detailH*.9})
+      doc.font(normal).fontSize(12).text(bkng.dispDate, x, y);
+      // doc.image(`${__dirname}/../assets/icon-${bkng.req}.jpg`, x+67, y-3, { height: detailH*.9})
+      drawSVG(doc, x+64, y-3, 0.5, `icon-${bkng.req}`);
       doc.font(normal).fontSize(12).text(bkng.text, x+77, y, {continued: true})
       .font(italic).fontSize(10).text(bkng.name? ` [${bkng.name}]` : ' ')
       y += detailH;

@@ -175,8 +175,8 @@ export const payments = observer((props)=>{
         <div className="buttons">
           <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='tab-select' visible/>
           <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='show-range' visible/>
-          <PrintButton  onClick={()=>paymentsSummaryReport3(doc, uiState.showAll)} tiptext="Print Summary Report" visible/>
-          <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport(doc);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
+          <PrintButton  onClick={()=>paymentsSummaryReport3(doc, true)} tiptext="Print Summary Report" visible/>
+          <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport3(doc, true);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
           {/* <MyModal icon="bank"  tiptext='View payments summary'>
             <PaymentsSummary />
           </MyModal> */}
