@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="24" height="24" viewBox="0, 0, 24, 24">
+  <g id="Car_check" display="none" transform="translate(0, 0)">
+    <g>
+      <path d="M1.089,16.024 C1.089,16.024 5.52,21.013 6.405,23.051 L10.213,23.051 C11.81,18.177 18.01,6.545 23.327,2.468 C24.427,1.052 21.661,0.468 19.428,1.405 C16.063,2.817 9.716,13.607 8.531,16.201 C6.85,16.643 5.077,13.366 5.075,13.366 z" fill="#5695E3"/>
+      <path d="M1.089,16.024 C1.089,16.024 5.52,21.013 6.405,23.051 L10.213,23.051 C11.81,18.177 18.01,6.545 23.327,2.468 C24.427,1.052 21.661,0.468 19.428,1.405 C16.063,2.817 9.716,13.607 8.531,16.201 C6.85,16.643 5.077,13.366 5.075,13.366 z" fill-opacity="0" stroke="#0C0590" stroke-width="1" stroke-opacity="0.925"/>
+    </g>
+  </g>
+</svg>

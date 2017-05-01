@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
-<defs>
-<radialGradient id="rg" cx="50%" cy="50%" r="50%">
-<stop stop-color="#080" offset="0"/>
-<stop stop-color="#050" offset="1"/>
-</radialGradient></defs>
-<path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z" fill="url(#rg)"/>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="24" height="24" viewBox="0, 0, 24, 24">
+  <g id="Yes_check" transform="translate(0, 0)">
+    <g>
+      <path d="M1.089,16.024 C1.089,16.024 5.52,21.013 6.405,23.051 L10.213,23.051 C11.81,18.177 18.01,6.545 23.327,2.468 C24.427,1.052 21.661,0.468 19.428,1.405 C16.063,2.817 9.716,13.607 8.531,16.201 C6.85,16.643 5.077,13.366 5.075,13.366 z" fill="#0AB53D"/>
+      <path d="M1.089,16.024 C1.089,16.024 5.52,21.013 6.405,23.051 L10.213,23.051 C11.81,18.177 18.01,6.545 23.327,2.468 C24.427,1.052 21.661,0.468 19.428,1.405 C16.063,2.817 9.716,13.607 8.531,16.201 C6.85,16.643 5.077,13.366 5.075,13.366 z" fill-opacity="0" stroke="#3B9104" stroke-width="1" stroke-opacity="0.925"/>
+    </g>
+  </g>
 </svg>

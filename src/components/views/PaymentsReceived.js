@@ -1,45 +1,53 @@
 /* jshint quotmark: false */
-import React from 'react';
-import {Panel} from '../utility/AJNPanel'
+import React from "react";
+import { Panel } from "../utility/AJNPanel";
 // import MyModal from '../utility/AJNModal'
-import TooltipButton from '../utility/TooltipButton.js';
-import classnames from 'classnames';
-import{paymentsSummaryReport} from 'reports/paymentsSummaryReport2';
-import{paymentsSummaryReport3} from 'reports/paymentsSummaryReport3';
-import {PrintButton} from 'components/utility/PrintButton'
+import TooltipButton from "../utility/TooltipButton.js";
+import classnames from "classnames";
+import { paymentsSummaryReport3 } from "reports/paymentsSummaryReport3";
+import { PrintButton } from "components/utility/PrintButton";
 // import TooltipContent from '../utility/TooltipContent.js';
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
-import styled from 'styled-components';
-import {Icon} from 'components/utility/Icon'
+import styled from "styled-components";
+import { Icon } from "components/utility/Icon";
 // import {Icon} from 'ducks/walksDuck'
-import {observable} from 'mobx'
-import {observer} from 'mobx-react'
+import { observable } from "mobx";
+import { observer } from "mobx-react";
 
-import Logit from '../../factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'PaymentsReceived:View');
+import Logit from "../../factories/logit.js";
+var logit = Logit("color:blue; background:yellow;", "PaymentsReceived:View");
 
 const uiState = observable({
   showAll: true,
-  toggleNewBookings: ()=>uiState.showAll = !uiState.showAll
-})
+  toggleNewBookings: () => uiState.showAll = !uiState.showAll
+});
 
-const detail =  observer(({bkng, className})=>{
-  const cls = classnames({detail: true, [className]: true, newBkng: bkng.activeThisPeriod && !(bkng.paid &&bkng.paid.P > 0 )});
-  const paid = [['+', 'Cr:'], ['T', 'T:'], ['P', '£']].map(([code, txt])=>{
-    return (bkng.paid && bkng.paid[code]) ? (<span className={'paid-'+code} key={code}>&nbsp;{txt+bkng.paid[code]}</span>) : null
-  })
+const detail = observer(({ bkng, className }) => {
+  const cls = classnames({
+    detail: true,
+    [className]: true,
+    newBkng: bkng.activeThisPeriod && !(bkng.paid && bkng.paid.P > 0)
+  });
+  const paid = [["+", "Cr:"], ["T", "T:"], ["P", "£"]].map(([code, txt]) => {
+    return bkng.paid && bkng.paid[code]
+      ? <span className={"paid-" + code} key={code}>
+          &nbsp;{txt + bkng.paid[code]}
+        </span>
+      : null;
+  });
   return (
-  <div className={cls} key={bkng.dat}>
-    {bkng.dispDate}
-    <Icon type={ bkng.req } width='16' />
-    <span className="text">
-      { bkng.name && <span className='name'>[{bkng.name}]</span> }
-      {bkng.text}
-    </span>
-    <span className="paid">{paid}</span>
-  </div>
-)});
+    <div className={cls} key={bkng.dat}>
+      {bkng.dispDate}
+      <Icon type={bkng.req} width="16" />
+      <span className="text">
+        {bkng.name && <span className="name">[{bkng.name}]</span>}
+        {bkng.text}
+      </span>
+      <span className="paid">{paid}</span>
+    </div>
+  );
+});
 export const Detail = styled(detail)`
 position: relative;
 padding-left: 3px;
@@ -78,27 +86,45 @@ span {
   font-size: 0.9em;
   font-style: italic;
 }
-`
+`;
 
-const memberRecipt = observer((props)=>{
+const memberRecipt = observer(props => {
+  var { data, showMemberBookings } = props;
+  logit("props", props);
 
-    var {data, showMemberBookings} = props;
-    logit('props', props);
+  return (
+    <div className={props.className + " member-rcpt"}>
+      <div className="overview">
+        <span className="who" onClick={() => showMemberBookings(data.accId)}>
+          {" "}{data.accName}
+        </span>
+        {data.paymentsMade > 0
+          ? <TooltipButton
+              className="owed"
+              label={`£${data.paymentsMade}`}
+              visible
+            />
+          : null}
 
-    return (
-      <div className={props.className+' member-rcpt'}>
-        <div className="overview">
-          <span className="who" onClick={()=>showMemberBookings(data.accId)}> {data.accName}</span>
-          {data.paymentsMade > 0 ? <TooltipButton className="owed" label={`£${(data.paymentsMade)}`} visible/> : null}
-
-        </div>
-        {data.logs.filter(bkng=>bkng.type==='W' && bkng.activeThisPeriod )
-          .filter((bkng)=>(bkng.paid && bkng.paid.P > 0) || uiState.showAll)
-          .map(bkng=>{if (bkng.accId==='A2015')logit('A2105',bkng.text, bkng.paid, uiState.showAll, (bkng.paid && bkng.paid.P > 0)); return bkng})
-          .map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))}
-        {/* {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))} */}
       </div>
-    );
+      {data.logs
+        .filter(bkng => bkng.type === "W" && bkng.activeThisPeriod)
+        .filter(bkng => (bkng.paid && bkng.paid.P > 0) || uiState.showAll)
+        .map(bkng => {
+          if (bkng.accId === "A2015")
+            logit(
+              "A2105",
+              bkng.text,
+              bkng.paid,
+              uiState.showAll,
+              bkng.paid && bkng.paid.P > 0
+            );
+          return bkng;
+        })
+        .map(bkng => <Detail bkng={bkng} key={bkng.dat + "xx"} />)}
+      {/* {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))} */}
+    </div>
+  );
 });
 export const MemberRecipt = styled(memberRecipt)`
   color: #31708f;;
@@ -140,59 +166,94 @@ export const MemberRecipt = styled(memberRecipt)`
       padding: 2px;
     }
   }
-`
+`;
 
-// const showRecipts = observer(({accs, showMemberBookings, className})=>{
-//
-//     const recipts = accs.filter(acc=>uiState.showAll || acc.paymentsMade > 0).map((data) => {return <MemberRecipt data={data} key={data.accId} {...{showMemberBookings}}/>})
-//     return (<div className={className}>{recipts}</div>)
-//
-// });
-// export const ShowRecipts = styled(showRecipts)`
-//   display: flex;
-//   flex-direction: column;
-//   flex-wrap: wrap;
-//   flex: 0 0 315px;
-//   justify-content: flex-start;
-//   height: 100%;
-// `
-
-export const payments = observer((props)=>{
-
-  // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
-  // logit('payments props', props, uiState);
-  var {accs, startDate, totalPaymentsMade, showPaymentsDue, className, showMemberBookings, bankMoney, doc} = props;
+export const payments = observer(props => {
+  var {
+    accs,
+    startDate,
+    totalPaymentsMade,
+    showPaymentsDue,
+    className,
+    showMemberBookings,
+    bankMoney,
+    doc,
+    lastWalk
+  } = props;
 
   var title = (
     <h4>
-      Payments Made &nbsp; &nbsp; &mdash; &nbsp; &nbsp; Total Payments Received
-      <span className='startDate' style={{fontSize: '0.8em', fontStyle: 'italic'}}>(since {startDate})</span>:
+      Payments Made &nbsp; &nbsp; — &nbsp; &nbsp; Total Payments Received
+      <span
+        className="startDate"
+        style={{ fontSize: "0.8em", fontStyle: "italic" }}
+      >
+        (since {startDate})
+      </span>
+      :
       &nbsp; £{totalPaymentsMade}
-    </h4>);
+    </h4>
+  );
   return (
-    <Panel className={"paymentsMade "+className} header={title} style={{margin:20}} >
+    <Panel
+      className={"paymentsMade " + className}
+      header={title}
+      style={{ margin: 20 }}
+    >
       <div className="all-payments">
         <div className="buttons">
-          <TooltipButton label="Show Payments Due" onClick={showPaymentsDue} tiptext='Show Payments Due' className='tab-select' visible/>
-          <TooltipButton label={uiState.showAll ? "Only Payments" : "All Changes"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} className='show-range' visible/>
-          <PrintButton  onClick={()=>paymentsSummaryReport3(doc, true)} tiptext="Print Summary Report" visible/>
-          <TooltipButton icon="bank" onClick={()=>{paymentsSummaryReport3(doc, true);bankMoney(doc)}} tiptext="Bank the money and start new period" visible/>
-          {/* <MyModal icon="bank"  tiptext='View payments summary'>
-            <PaymentsSummary />
-          </MyModal> */}
+          <TooltipButton
+            label="Show Payments Due"
+            onClick={showPaymentsDue}
+            tiptext="Show Payments Due"
+            className="tab-select"
+            visible
+          />
+          <TooltipButton
+            label={uiState.showAll ? "Only Payments" : "All Changes"}
+            onClick={uiState.toggleNewBookings}
+            tiptext={
+              uiState.showAll
+                ? "Only show new payments"
+                : "Show all changes this period"
+            }
+            className="show-range"
+            visible
+          />
+          <PrintButton
+            onClick={() => paymentsSummaryReport3(doc, lastWalk)}
+            tiptext="Print Summary Report"
+            visible
+          />
+          <TooltipButton
+            icon="bank"
+            onClick={() => {
+              paymentsSummaryReport3(doc, lastWalk);
+              bankMoney(doc);
+            }}
+            tiptext="Bank the money and start new period"
+            visible
+          />
 
         </div>
-        {/* <ShowRecipts {...{accs, showMemberBookings}}/> */}
-        { accs.filter(acc=>acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade > 0))
-          .map((data) => {return <MemberRecipt data={data} key={data.accId} {...{showMemberBookings}}/>})
-        }
-        {/* { accs.filter(acc=>uiState.showAll || acc.paymentsMade > 0)
-          .map((data) => {return <MemberRecipt data={data} key={data.accId+'-2'} {...{showMemberBookings}}/>})
-        } */}
+        {accs
+          .filter(
+            acc =>
+              acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade > 0)
+          )
+          .map(data => {
+            return (
+              <MemberRecipt
+                data={data}
+                key={data.accId}
+                {...{ showMemberBookings }}
+              />
+            );
+          })}
+
       </div>
     </Panel>
-    )
-
+  );
 });
 
 const Payments = styled(payments)`
