@@ -105,8 +105,16 @@ export default class Walk {
         let name = member.fullNameR;
         //  let name = members[memId].firstName+' '+members[memId].lastName;
         let annotation = booking.annotation ? ` (${booking.annotation})` : "";
-        if (member.memberStatus === "Guest") annotation += " *G*";
-        return { memId, name, annotation, type: booking.status, requestType };
+        // if (member.memberStatus === "Guest") annotation += " *G*";
+        const guest = member.memberStatus === "Guest";
+        return {
+          memId,
+          name,
+          annotation,
+          type: booking.status,
+          requestType,
+          guest
+        };
       })
       .sort(nameCmp);
     logit("getBookings", bookings);
