@@ -68,14 +68,16 @@ function gatherData(memberSet, printFull) {
     .sort(cmpAccName);
 
   var walkers = new Map(accs); // this gets rid of any duplicate accounts in the list
-
+  var reserveList = [];
   walkers.forEach((data, accId) => {
+    let reserve = !printFull;
     data.members.forEach((memData, memId) => {
       let bkng = R.repeat("-", walkIds.length);
       walkIds.forEach((walkId, i) => {
         // logit('gather', memId, walkId, WS)
         let status =
           (WS.walks.get(walkId).bookings.get(memId) || {}).status || "Chk";
+        if (i === 0 && status !== "W" && status !== "Chk") reserve = false;
         status = status[1] === "X" ? "Chk" : status;
         if (!printFull && status === "Chk") status = "Blank";
         bkng[i] = status;
@@ -106,6 +108,16 @@ function gatherData(memberSet, printFull) {
       });
     }
     if (data.xtra.length > 0) logit("xtra walks", data, status);
+    if (reserve) {
+      logit("On reserve list", data);
+      reserveList.push(accId);
+    }
+    logit("On reserve list", data);
+  });
+  reserveList.forEach(accId => {
+    const rec = walkers.get(accId);
+    walkers.delete(accId);
+    walkers.set(accId, rec);
   });
 
   return walkers;
@@ -120,7 +132,17 @@ const calcLineHeights = doc => {
     return doc.fontSize(sz).text(" ", 20, 80).y - 80;
   });
 };
-
+const calcCharWidths = doc => {
+  let res = {};
+  Array.from(" -0123456789()").forEach(chr => {
+    res[chr] =
+      doc.fontSize(11).text(chr, 20, 80, { continued: true, lineBreak: false })
+        .x - 20;
+    logit("calcCharWidths", doc.x, doc.y);
+  });
+  logit("charWidth", res);
+  return res;
+};
 // import XDate from 'xdate';
 logit("env", process.env);
 logit("dirname", __dirname);
@@ -138,6 +160,8 @@ export function walkDayBookingSheet(doc, printFull) {
   const colHeadY = 55;
   const r = 3;
   const fontHeight = calcLineHeights(doc);
+  const charWidth = calcCharWidths(doc);
+  logit("charWidth", charWidth);
   const szH = 10, szD = 11;
   const nameH = fontHeight[szH],
     detailH = fontHeight[szD],
@@ -265,7 +289,7 @@ export function walkDayBookingSheet(doc, printFull) {
     if (data.debt)
       showMoney(x, y, dY, data.debt, "Owed", "#f88", "#800", "black");
     if (data.credit)
-      showMoney(x, y, dY, data.credit, "Crdt", "#cfe", "#484", "blue");
+      showMoney(x, y, dY, data.credit, "Credit", "#cfe", "#484", "blue");
     printPaidBox(x, y, dY);
 
     printWalkCodes(x, y, data.xtra, walknames.map(nm => nm.code));
@@ -279,7 +303,7 @@ export function walkDayBookingSheet(doc, printFull) {
       // logit('mdata', mData)
       let bkngX = [...mData.xtra, ...mData.bkng];
       const noWalks = bkngX.length;
-      const noXtra = mData.xtra;
+      const noXtra = mData.xtra.length;
       if (data.members.size > 1) {
         doc
           .font(italic)
@@ -295,7 +319,7 @@ export function walkDayBookingSheet(doc, printFull) {
       //
       bkngX.forEach((bkng, i) => {
         var opacity = !printFull && i === 0 && bkng !== "P" ? 0.4 : 1;
-        if (bkng === "W") opacity = 0.3;
+        if (bkng === "W") opacity = 0.1;
         doc.opacity(opacity);
         // .image(`${__dirname}/../assets/icon-${bkng}.jpg`, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, { height: detailH*.8})
         drawSVG(
@@ -311,6 +335,7 @@ export function walkDayBookingSheet(doc, printFull) {
           const no = waitingLists[i - noXtra][mData.memId];
           doc
             .font(bold)
+            .opacity(1)
             .fontSize(szD - 2)
             .fillColor("red")
             .text(
@@ -368,7 +393,7 @@ export function walkDayBookingSheet(doc, printFull) {
   const spaceFor = Math.floor((checkBoxesStart - y) / accHeight);
   if (col === 0)
     setEndY(pHeight); // force new column
-  else noBlanks = Math.min(10, spaceFor);
+  else noBlanks = Math.min(10, spaceFor) - 1;
   logit("space For", { spaceFor, noBlanks, y, checkBoxesStart, accHeight });
   for (var i = 0; i < noBlanks; i++) {
     setEndY(y + accHeight);
@@ -392,7 +417,16 @@ export function walkDayBookingSheet(doc, printFull) {
     if (printFull || i > 0) {
       const name = walknames[i].shortname;
       const x1 = x + sz * i;
-      logit("avail", { x1, sz, iw, bw, gap });
+      logit("avail", { x1, sz, iw, bw, gap }, doc._fontSize);
+      if (display.substr(0, 3) === "0 (") display = display.substr(2);
+      var dispSz = Array.from(display).reduce(
+        (acc, chr) => acc + (charWidth[chr] || charWidth["0"]),
+        0
+      );
+      // dispSz = 20;
+      // if (display.length > 4) dispSz = dispSz - 29;
+      // const dispSz = display.length * 8;
+      // const dispSz = display.length * ;
       doc
         .path(`M ${x1 - 2 + r},${y - 2} ${aHeadBox}`)
         .lineWidth(1)
@@ -401,10 +435,16 @@ export function walkDayBookingSheet(doc, printFull) {
       doc
         .roundedRect(x1 - 2, y - 2, sz - gap + 2, detailH + 4 * bw + 6, r)
         .stroke("#888");
+      logit("dispSz", { display, dispSz, sz, gap }, doc._fontSize);
       doc
         .fillColor("black")
-        .text(name, x1, y)
-        .text(display, x1, y, { align: "right", width: sz - gap - 4 });
+        .text(name, x1, y, {
+          width: sz - gap - 2 - dispSz,
+          height: detailH,
+          lineBreak: false,
+          ellipsis: true
+        })
+        .text(display, x1, y, { align: "right", width: sz - gap - 2 });
       for (let j = 0; j < 20; j++) {
         var y1 = y + detailH + Math.floor(j / 5) * bw;
         doc.image(
