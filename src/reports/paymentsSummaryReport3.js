@@ -163,16 +163,16 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   const marginV = 20;
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
-  const colW = pWidth / 2 - margin - 10;
+  const colW = pWidth / 2 - margin - 4;
   const colHeadY = 70;
   const r = 3;
   const fontHeight = calcLineHeights(doc);
   const szD = 11;
   const detailH = fontHeight[szD];
   const gapH = fontHeight[3];
-  const bkWidth = 23;
-  const bxW = colW + 8;
-  const paidCol = addToCredit ? -2.5 : -1.5;
+  const bkWidth = 27;
+  const bxW = colW + 4;
+  const paidCol = addToCredit ? -2.1 : -1.1;
   let x, y;
   let col = 0;
   const setEndY = (endY, printHeading = false) => {
@@ -210,11 +210,13 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     doc.roundedRect(x - 2, y - boxPt, bxW, ht, r).fillAndStroke("#ccc", "#888");
     printCell(paidCol, nbsp + nbsp + nbsp + " Paid ");
     if (addToCredit) printCell(-1, "Add to Crdt");
+    let retY = doc.y;
     walks.forEach(walk => {
       const i = walk.index;
       printCell(i, walk.name);
+      retY = Math.max(retY, doc.y);
     });
-    return doc.y + 4;
+    return retY + 4;
   };
   // routines for printing individual components
   const printAccountHeader = (x, y, ht) => {
@@ -242,7 +244,7 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     textColor
   ) => {
     const boxWidth = 20, moneyWidth = 15;
-    const boxOff = (1.5 * bkWidth - boxWidth) / 2;
+    const boxOff = (1.1 * bkWidth - boxWidth) / 2;
     const x1 = x + colW - bkWidth * (noWalks - paidCol);
     doc
       .roundedRect(x1 + boxOff, y + dY - 1, boxWidth, detailH - 2, r)
