@@ -78,7 +78,7 @@ export function busListReport(doc) {
   noCols = 4;
   const colW = (pWidth - 2 * margin - (noCols - 1) * gutter) / noCols;
   let col = 0;
-  WS.bookableWalksId.filter(walkId => walkId > _today).forEach(walkId => {
+  WS.bookableWalksId.filter(walkId => walkId >= _today).forEach(walkId => {
     let walk = WS.walks.get(walkId);
     let dispDate = new XDate(walk.walkDate).toString("dd MMM");
     let venue = walk.venue.replace(/\(.*\)/, "");
