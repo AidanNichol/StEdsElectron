@@ -6,6 +6,8 @@
   "main": "app/app.js",
   "scripts": {
     "postinstall": "install-app-deps",
+    "couchapp": "couchapp push src/designdocs/members.js http://aidan:Fw57kUbxCAjH@nicholware.com:5984/bookings",
+    "couchapp:dev": "couchapp push src/designdocs/members.js http://aidan:admin@localhost:5984/devbookings",
     "pack": "build --win --ia32",
     "dist": "build --win --ia32",
     "predist": "npm-run-all -l -s build:copyfiles build:html build:package build:js build:css ",
@@ -115,6 +117,7 @@
     "colors": "^1.1.2",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-alpha.1",
+    "couchapp": "^0.11.0",
     "debounce": "^1.0.0",
     "debug": "^2.2.0",
     "electron-debug": "^1.0.1",
