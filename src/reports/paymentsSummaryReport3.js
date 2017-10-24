@@ -243,7 +243,8 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     rectStroke,
     textColor
   ) => {
-    const boxWidth = 20, moneyWidth = 15;
+    const boxWidth = 20,
+      moneyWidth = 15;
     const boxOff = (1.1 * bkWidth - boxWidth) / 2;
     const x1 = x + colW - bkWidth * (noWalks - paidCol);
     doc
@@ -351,7 +352,8 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   y += fontHeight[12] + 8;
   logit("lastWalk", lastWalk);
   const makeHeadBox = (bxW, bxH, r) =>
-    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH -
+      r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
   if (lastWalk) {
     x += 45;
@@ -365,10 +367,10 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       .fillAndStroke("#ccc", "#888");
     doc.roundedRect(x - 2, y - boxPt, lwW, lwH, r).stroke("#888");
 
-    const opts = { width: lwW - 5, align: "right" };
-    const fee = lastWalk.fee;
-    const total =
-      (lastWalk.totals.C * 0.5 + lastWalk.totals.B + lastWalk.totals.BL) * fee;
+    // const opts = { width: lwW - 5, align: "right" };
+    // const fee = lastWalk.fee;
+    // const total =
+    //   (lastWalk.totals.C * 0.5 + lastWalk.totals.B + lastWalk.totals.BL) * fee;
     doc.font(normal).fontSize(11).fillColor("black");
     doc.text(`Last Walk: `, x, y);
     doc
@@ -381,16 +383,16 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       .font(normal);
     y += fontHeight[11] + 4;
     doc.text(`Bus Bookings (${lastWalk.totals.B})`, x, y);
-    doc.text(`£${lastWalk.totals.B * fee}  `, x, y, opts);
+    // doc.text(`£${lastWalk.totals.B * fee}  `, x, y, opts);
     y += fontHeight[11];
     doc.text(`Bus Late Cancellation (${lastWalk.totals.BL})`, x, y);
-    doc.text(`£${lastWalk.totals.BL * fee}  `, x, y, opts);
+    // doc.text(`£${lastWalk.totals.BL * fee}  `, x, y, opts);
     y += fontHeight[11];
     doc.text(`Car Bookings (${lastWalk.totals.C})`, x, y);
-    doc.text(`£${lastWalk.totals.C * fee * 0.5}  `, x, y, opts);
+    // doc.text(`£${lastWalk.totals.C * fee * 0.5}  `, x, y, opts);
     y += fontHeight[11] + 4;
-    doc.text(`Total Income`, x, y);
-    doc.font(bold).text(`£${total}`, x, y, opts);
+    // doc.text(`Total Income`, x, y);
+    // doc.font(bold).text(`£${total}`, x, y, opts);
   }
 
   // drawSVG(doc, x+colW/2, y+colW/2, 0.5, 'St_EdwardsLogoSimple');

@@ -7,7 +7,7 @@ import PaymentsMade from "components/views/PaymentsReceived.js";
 // import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
 import { setRouterPage } from "ducks/router-mobx.js";
 import XDate from "xdate";
-import { flatten } from "lodash";
+import { flatten, pick } from "lodash";
 // import fs from 'fs';
 import Logit from "factories/logit.js";
 var logit = Logit("color:blue; background:yellow;", "Payments:mobx");
@@ -31,9 +31,22 @@ autorun(() =>
 );
 
 const mapStoreToProps = function(store) {
-  var debts = store.AS.allDebts.debts;
-  logit("debts", debts);
   const accs = store.AS.allAccountsStatus.sort(nameCmp);
+  // var { debts, credits } = store.AS.allDebts;
+  // credits = credits.map(acc => {
+  //   let logs = [];
+  //   for (let log of acc.logs.reverse()) {
+  //     if (log.balance === 0) break;
+  //     logs.unshift(log);
+  //   }
+  //   acc.logs = logs;
+  //   return acc;
+  // });
+  // debts.forEach((data, i) => {
+  //   debts[i].debt = data.debt.filter(bkng => bkng.outstanding);
+  // });
+  // logit("debts", debts);
+  // logit("credits", credits);
   const totalPaymentsMade = accs.reduce(
     (sum, log) => sum + log.paymentsMade,
     0
@@ -52,13 +65,13 @@ const mapStoreToProps = function(store) {
       setRouterPage({ page: "bookings", memberId: accId, accountId: accId })
   };
 };
-const Frame = observer(props => (
+const Frame = observer(props =>
   <div style={{ width: "100%", height: "100%" }}>
     {uiState.displayingDue
       ? <PaymentsDue {...props} />
       : <PaymentsMade {...props} />}
   </div>
-));
+);
 export default inject(mapStoreToProps)(Frame);
 // export default connect(()=>({test2:'?'}), mapDispatchToProps)(mobxPayments);
 
@@ -69,8 +82,7 @@ const lastWalkSummary = function({ WS }) {
   if (!walk || walk.closed) return null;
   let totals = { B: 0, BL: 0, BX: 0, C: 0, CX: 0 };
   walk.bookings.values().map(({ status }) => {
-    if (/^[BC]/.test(status))
-      totals[status] += 1;
+    if (/^[BC]/.test(status)) totals[status] += 1;
   });
   return { totals, date: walk.dispDate, venue: walk.venue, fee: walk.fee };
 };
@@ -95,6 +107,10 @@ const buildDoc = function({ AS, DS }) {
   }, {});
 
   var doc = {
+    _id: "BP" + endDate.substr(0, 16),
+    type: "paymentSummary",
+    startDispDate: startDate && new XDate(startDate).toString("dd MMM HH:mm"),
+    endDispDate: new XDate(endDate).toString("dd MMM HH:mm"),
     closingCredit: accountsStatus
       .filter(acc => acc.balance > 0)
       .reduce((sum, item) => sum + item.balance, 0),
@@ -109,15 +125,20 @@ const buildDoc = function({ AS, DS }) {
     accounts: accountsStatus.filter(
       acc => acc.activeThisPeriod || acc.balance < 0
     ),
+    unclearedBookings: AS.unclearedBookings,
     // aLogs, bLogs,
     cLogs,
-    tots,
-    startDispDate: startDate && new XDate(startDate).toString("dd MMM HH:mm"),
-    endDispDate: new XDate(endDate).toString("dd MMM HH:mm"),
-    type: "paymentSummary",
-    _id: "BP" + endDate.substr(0, 16)
+    tots
   };
   logit("logs doc", doc, __dirname);
+
+  console.table(
+    flatten(Object.values(doc.unclearedBookings)).map(bkng => ({
+      name: bkng.getMember().fullName,
+      ...pick(bkng, ["memId", "req", "text", "dispDate", "walkId"])
+    }))
+  );
+  console.table(doc.unclearedBookings);
   // fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   // logit('write report');
   // paymentsSummaryReport(doc)

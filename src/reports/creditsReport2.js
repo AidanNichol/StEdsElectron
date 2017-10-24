@@ -105,7 +105,7 @@ export function creditsOwedReport(doc) {
       doc
         .font(italic)
         .fontSize(10)
-        .text(log.req !== "P" ? log.name ? ` [${log.name}]` : " " : " ");
+        .text(log.req !== "P" ? (log.name ? ` [${log.name}]` : " ") : " ");
       doc
         .fillColor("#888")
         .text(`£${-log.amount}`, x, y, { align: "right", width: colW });
