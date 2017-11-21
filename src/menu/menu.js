@@ -86,12 +86,6 @@ export var template = [
         }
       },
       {
-        label: 'Log Redux Sagas',
-        click: function() {
-          window.$$LogSagas();
-        }
-      },
-      {
         type: 'separator'
       },
       {

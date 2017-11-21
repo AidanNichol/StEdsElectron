@@ -30,15 +30,9 @@ class UiStatus {
   @action.bound hideHelp(){this.helpIsOpen = false;}
 }
 export const uiStatus = new UiStatus;
-const PaymentsBoxesUnstyled = observer(React.createClass({
 
-  // getInitialState () {
-  //   return {paymentType: OPTIONS[0], accId: undefined};
-  // },
-  // setValue (paymentType) {
-  //   this.setState({ paymentType });
-  // },
-  render () {
+const PaymentsBoxesUnstyled = observer((props)=>{
+  // render () {
     const IconOption = ({option, className, onSelect, onFocus, isFocused})=> {
       const handleMouseDown = (event)=> {
         event.preventDefault();
@@ -72,9 +66,9 @@ const PaymentsBoxesUnstyled = observer(React.createClass({
               {value.title}
             </span>
     );
-    const {accId, owing, credit, accountUpdatePayment} = this.props
+    const {accId, owing, credit, accountUpdatePayment} = props
     const paymentType = uiStatus.paymentType || OPTIONS[0];
-    logit('PaymentsBoxes:props', paymentType, this.props)
+    logit('PaymentsBoxes:props', paymentType, props)
     if (!accId) return null
     let handleKeydown = (event)=> {
       logit('keydown', {amount, note, event});
@@ -97,7 +91,7 @@ const PaymentsBoxesUnstyled = observer(React.createClass({
     };
 
     return (
-      <div className={this.props.className} >
+      <div className={props.className} >
         {credit ? <span className="credit">Credit £{credit}</span> : null}
         {/* {(!owing) || setPaymentType[0] != "P" || setPaymentType[1] !== 1 ? null : */}
         {!owing? null :
@@ -130,8 +124,8 @@ const PaymentsBoxesUnstyled = observer(React.createClass({
       </div>
     );
 
-  }
-}));
+
+});
 export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   grid-column: 2;
   grid-row: 3;

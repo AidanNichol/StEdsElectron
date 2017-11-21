@@ -1,32 +1,14 @@
 {
-  "presets": ["es2015", "stage-0", "react"],
+  "presets": ["env", "stage-0", "react"],
   "plugins": [
     "transform-decorators-legacy",
+    "lodash",
     [
       "module-resolver",
       {
         "root": ["./src"],
-        "alias": {"views": "components/views"}
+        "alias": { "views": "components/views" }
       }
     ]
-  ],
-  "env": {
-    "development": {
-      "presets": [
-        "es2015",
-        "stage-0",
-        "react"
-      ],
-      "plugins": [
-        "transform-decorators-legacy",
-        [
-          "module-resolver",
-          {
-            "root": ["./src"],
-            "alias": {"views": "components/views"}
-          }
-        ]
-      ]
-    }
-  }
+  ]
 }

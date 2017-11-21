@@ -2,11 +2,7 @@
 import React from 'react';
 import {findDOMNode} from 'react-dom';
 import {Icon} from 'components/utility/Icon'
-// import {PaymentHelp} from 'components/help/PaymentHelp';
-// import {HelpDialog} from 'components/help/HelpDialog';
 import classNames from 'classnames';
-// import TooltipButton from 'components/utility/TooltipButton.js';
-// import TooltipContent from 'components/utility/TooltipContent.js';
 
 // import Select from 'react-select';
 import Logit from 'factories/logit.js';

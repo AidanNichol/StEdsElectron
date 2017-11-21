@@ -4,7 +4,7 @@ import XDate from "xdate";
 import jetpack from "fs-jetpack";
 import { drawSVG } from "reports/extract-svg-path";
 
-import Logit from "../factories/logit.js";
+import Logit from "factories/logit.js";
 var logit = Logit("color:yellow; background:black;", "paymentSummary:report");
 const home = process.env.HOME || process.env.HOMEPATH;
 

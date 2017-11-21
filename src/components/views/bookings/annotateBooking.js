@@ -1,8 +1,6 @@
 import React from 'react';
 import {observer, inject} from 'mobx-react';
 import {observable, action} from 'mobx';
-// import {connect} from 'react-redux';
-// import {annotateWalkBookings, annotateCloseDialog} from '../../../ducks/walksDuck.js';
 import Logit from 'factories/logit.js';
 var logit = Logit('color:yellow; background:cyan;', 'Annotate:Bookings');
 

@@ -1,4 +1,4 @@
-import Logit from "../factories/logit.js";
+import Logit from "factories/logit.js";
 import { toJS } from "mobx";
 import R from "ramda";
 import { drawSVG } from "reports/extract-svg-path";

@@ -1,10 +1,7 @@
 
 import React from 'react';
-import {observer, inject} from 'mobx-react';
+import {observer} from 'mobx-react';
 import {toJS} from 'mobx';
-// import {Field, reduxForm, formValueSelector, getFormValues, isDirty, change} from 'redux-form';
-// import {connect} from 'react-redux';
-// import {Icon} from '../../Utility/Icon'
 import classnames from 'classnames';
 
 import TooltipButton from 'components/utility/TooltipButton';

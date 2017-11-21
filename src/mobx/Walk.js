@@ -1,18 +1,20 @@
-import R from "ramda";
-import db from "services/bookingsDB";
-import XDate from "xdate";
-import { replicationDbChange } from "ducks/replication-mobx";
-import { merge } from "lodash";
-import Logit from "factories/logit.js";
-var logit = Logit("color:white; background:black;", "mobx:Walk");
-import { observable, computed, action, autorun, toJS } from "mobx";
-import { Booking } from "mobx/Booking";
-import MS from "mobx/MembersStore";
+import R from 'ramda';
+import _ from 'lodash';
+import db from 'services/bookingsDB';
+import XDate from 'xdate';
+import { replicationDbChange } from 'ducks/replication-mobx';
+import { merge } from 'lodash';
+import Logit from 'factories/logit.js';
+var logit = Logit('color:white; background:black;', 'mobx:Walk');
+var logit2 = Logit('color:white; background:red;', 'mobx:Walk');
+import { observable, computed, action, autorun, toJS, runInAction } from 'mobx';
+import { Booking } from 'mobx/Booking';
+import MS from 'mobx/MembersStore';
 
 export default class Walk {
   _id = 0;
-  type = "walk";
-  @observable _conflicts;
+  type = 'walk';
+  _conflicts;
   @observable annotations;
   bookings = observable.map({});
   @observable capacity;
@@ -25,7 +27,7 @@ export default class Walk {
   walkId;
 
   constructor(walk) {
-    autorun(() => logit("autorun", this.report, this));
+    autorun(() => logit('autorun', this.report, this));
     // Object.entries(walk.bookings || {}).forEach(([memId, booking])=>this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk})))
     // delete walk.logs;
     // merge(this, walk)
@@ -37,35 +39,41 @@ export default class Walk {
     return { fee, lastCancel, venue, _id };
   };
 
-  @computed get dispDate() {
-    return new XDate(this.walkDate).toString("dd MMM");
+  @computed
+  get dispDate() {
+    return new XDate(this.walkDate).toString('dd MMM');
   }
 
-  @computed get walkDate() {
+  @computed
+  get walkDate() {
     return this._id.substr(1);
   }
-  @computed get shortname() {
+  @computed
+  get shortname() {
     return this.venue.split(/[ -]/, 2)[0];
   }
 
-  @computed get code() {
+  @computed
+  get code() {
     let code =
-      this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/ig, "");
+      this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
     if (code.length > 4) code = code.substr(0, 2) + code.substr(-2);
     return code;
   }
 
-  @computed get names() {
+  @computed
+  get names() {
     return { venue: this.venue, shortname: this.shortname, code: this.code };
   }
 
-  @computed get bookingTotals() {
+  @computed
+  get bookingTotals() {
     let totals = { B: 0, W: 0 };
     this.bookings.values().map(({ status }) => {
       /^[BW]$/.test(status) && totals[status]++;
     });
     let free = this.capacity - totals.B;
-    let display = "" + free + (totals.W > 0 ? ` (-${totals.W})` : "");
+    let display = '' + free + (totals.W > 0 ? ` (-${totals.W})` : '');
     return {
       booked: totals.B,
       waitlist: totals.W,
@@ -76,7 +84,8 @@ export default class Walk {
     };
   }
 
-  @computed get walkLogsByMembers() {
+  @computed
+  get walkLogsByMembers() {
     let map = {};
     // let activeMember = MS.activeMember;
     for (let [memId, booking] of this.bookings.entries()) {
@@ -88,14 +97,16 @@ export default class Walk {
     return map;
   }
 
-  @computed get busBookings() {
-    return this.getBookings("B");
+  @computed
+  get busBookings() {
+    return this.getBookings('B');
   }
-  @computed get carBookings() {
-    return this.getBookings("C");
+  @computed
+  get carBookings() {
+    return this.getBookings('C');
   }
   getBookings = requestType => {
-    logit("makeGetBookings", this.bookings, requestType);
+    logit('makeGetBookings', this.bookings, requestType);
     let bookings = this.bookings
       .values()
       .filter(booking => booking.status === requestType)
@@ -104,9 +115,9 @@ export default class Walk {
         let member = MS.members.get(memId);
         let name = member.fullNameR;
         //  let name = members[memId].firstName+' '+members[memId].lastName;
-        let annotation = booking.annotation ? ` (${booking.annotation})` : "";
+        let annotation = booking.annotation ? ` (${booking.annotation})` : '';
         // if (member.memberStatus === "Guest") annotation += " *G*";
-        const guest = member.memberStatus === "Guest";
+        const guest = member.memberStatus === 'Guest';
         return {
           memId,
           name,
@@ -117,14 +128,15 @@ export default class Walk {
         };
       })
       .sort(nameCmp);
-    logit("getBookings", bookings);
+    logit('getBookings', bookings);
     return bookings;
   };
 
-  @computed get waitingList() {
+  @computed
+  get waitingList() {
     let bookings = this.bookings
       .values()
-      .filter(booking => booking.status === "W")
+      .filter(booking => booking.status === 'W')
       .map(booking => {
         const memId = booking.memId;
         let member = MS.members.get(memId);
@@ -136,17 +148,19 @@ export default class Walk {
     return bookings.sort(datCmp);
   }
 
-  @action annotateBooking(memId, note) {
-    logit("annotateBooking", memId, note);
+  @action
+  annotateBooking(memId, note) {
+    logit('annotateBooking', memId, note);
 
     var booking = this.bookings.get(memId);
     booking && booking.updateAnnotation(note);
     this.dbUpdate();
   }
 
-  @action updateBookingRequest(memId, req) {
+  @action
+  updateBookingRequest(memId, req) {
     var booking = this.bookings.get(memId);
-    logit("updateBookingRequest", booking, memId, req);
+    logit('updateBookingRequest', booking, memId, req);
     if (!booking) {
       booking = new Booking({}, memId, {
         getWalk: this.getWalk,
@@ -155,50 +169,56 @@ export default class Walk {
       this.bookings.set(memId, booking);
     }
     booking.updateBookingRequest(req);
-    logit("updated booking", booking);
+    logit('updated booking', booking);
     if (booking.deleteMe) this.bookings.delete(memId);
     this.dbUpdate();
   }
 
-  @action resetLateCancellation(memId) {
-    logit("resetLateCancellation", memId);
+  @action
+  resetLateCancellation(memId) {
+    logit('resetLateCancellation', memId);
     var booking = this.bookings.get(memId) || {};
-    if (booking.status !== "BL") return false;
+    if (booking.status !== 'BL') return false;
     booking.resetLateCancellation();
     this.dbUpdate();
     return;
   }
 
-  @action closeWalk() {
+  @action
+  closeWalk() {
     this.closed = true;
     this.dbUpdate();
   }
 
-  @computed get report() {
+  @computed
+  get report() {
     return `Walk: ${this._id} ${this.venue}`;
   }
 
-  @action getConflictingDocs() {
+  @action
+  getConflictingDocs() {
     return `Walk: ${this._id} ${this.venue}`;
   }
 
-  @action dbUpdate = async () => {
-    logit("DB Update start", this);
+  @action
+  dbUpdate = async () => {
+    logit('DB Update start', this);
     let { _conflicts, ...newDoc } = toJS(this);
     Object.entries(newDoc.bookings).map(([memId, booking]) => {
       newDoc.bookings[memId].logs = Object.values(booking.logs);
     });
 
     // newDoc.logs = Object.values(newDoc.logs)
-    logit("DB Update", newDoc, _conflicts, this);
+    logit('DB Update', newDoc, _conflicts, this);
     const res = await db.put(newDoc);
     this._rev = res.rev;
     const info = await db.info();
-    logit("info", info);
+    logit('info', info);
     replicationDbChange(info);
   };
 
-  @action updateDocument = walkDoc => {
+  @action
+  updateDocument = walkDoc => {
     // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
     Object.entries(walkDoc.bookings || {}).forEach(([memId, booking]) => {
       if (this.bookings.has(memId))
@@ -225,51 +245,109 @@ export default class Walk {
   /*         Replication Conflicts                   */
   /*                                                 */
   /*-------------------------------------------------*/
-  @computed get conflictingDocVersions() {
-    return R.pluck("_rev", this.conflictingDocs);
-  }
-  @computed get conflictingDocs() {
-    return [
-      this,
-      ...this.conflicts.sort((a, b) => getRev(b._rev) - getRev(a._rev))
-    ];
-  }
-  @computed get conflictsByMember() {
-    let revs = this.conflictingDocs;
-    logit("revs", revs);
-    let sum = {};
-    revs.forEach((rev, i) => {
-      Object.entries(rev.booked || {}).forEach(([id, value]) => {
-        if (!sum[id])
-          sum[id] = { status: R.repeat("-", revs.length), logs: {} };
-        sum[id].status[i] = value;
-      });
-      (rev.log || []).forEach(lg => {
-        let [dat, , id, req] = lg;
-        if (!sum[id])
-          sum[id] = { status: R.repeat("-", revs.length), logs: {} };
-        if (!sum[id].logs[dat]) sum[id].logs[dat] = R.repeat("-", revs.length);
-        sum[id].logs[dat][i] = req;
-      });
+  // @computed
+  // get conflictingDocVersions() {
+  //   return R.pluck('_rev', this.conflictingDocs);
+  // }
+  // @computed
+  // get conflictingDocs() {
+  //   return [
+  //     this,
+  //     ...this.conflicts.sort((a, b) => getRev(b._rev) - getRev(a._rev))
+  //   ];
+  // }
+  @action
+  async resolveConflicts() {
+    if (_.isEmpty(this._conflicts)) return;
+    // logit(
+    //   'walk with conflicts',
+    //   this._id,
+    //   this._rev,
+    //   this.venue,
+    //   this._conflicts
+    // );
+    let confs = await db.get(this._id, {
+      open_revs: this._conflicts,
+      include_docs: true
     });
-    // now filter out the OK stuff
-    Object.entries(sum).forEach(([memId, data]) => {
-      const status = data.status;
-      data.statusOK = R.all(v => v === status[0], status);
-      for (let [dat, data] of Object.entries(data.logs).sort(logCmpDate)) {
-        const dataOK = R.all(v => v === data[0], data);
-        if (dataOK) delete sum[memId].logs[dat];
-        else break;
+    // logit('conflicting docs', confs);
+    runInAction('addConflicting docs', () => {
+      // this.conflicts = confs.map(row => row.ok);
+      let extraLogs = {};
+      confs.forEach(row => {
+        let added = this.compareBookings(row.ok);
+        if (!_.isEmpty(added)) {
+          // logit(
+          //   'Conflicts',
+          //   this._id,
+          //   row.ok._rev,
+          //   this.venue,
+          //   '\n',
+          //   JSON.stringify(added)
+          // );
+          Object.entries(added).forEach(([memId, values]) => {
+            extraLogs[memId] = { ...(extraLogs[memId] || {}), ...values };
+            // logit('adding to ExtraLogs', memId, added, extraLogs);
+          });
+        }
+        // this.insertPaymentsFromConflictingDoc(added);
+      });
+      if (!_.isEmpty(extraLogs))
+        logit(
+          'walk:with conflicts',
+          this._id,
+          this._rev,
+          this.venue,
+          extraLogs,
+          this.bookings.toJS()
+        );
+      // this.deleteConflictingDocs(this._conflicts);
+    });
+  }
+  @action
+  async deleteConflictingDocs(conflicts) {
+    let docs = conflicts.map(rev => {
+      return { _id: this._id, _rev: rev, _deleted: true };
+    });
+    let res = await db.bulkDocs(docs);
+    logit('deleteConflicts', this, docs, conflicts, res);
+    this._conflicts = [];
+  }
+
+  compareBookings(cDoc) {
+    let extraLogs = {};
+    Object.entries(cDoc.bookings).forEach(([memId, cBooking]) => {
+      let booking = this.bookings.get(memId);
+      if (booking) {
+        let added = this.compareLogs(booking.logs, cBooking.logs);
+        if (!_.isEmpty(added))
+          extraLogs[memId] = { ...(extraLogs[memId] || {}), ...added };
+      } else {
+        logit2(
+          'conflict shows extra',
+          this._rev,
+          cDoc._rev,
+          memId,
+          this.venue,
+          cBooking
+        );
       }
-      if (Object.keys(sum[memId].logs).length === 0 && data.statusOK)
-        delete sum[memId];
     });
-    return sum;
+    return extraLogs;
+  }
+  compareLogs(okLogs, confLogs) {
+    if (!confLogs) return;
+    let added = {};
+    for (let log of confLogs) {
+      let okLog = okLogs.get(log.dat);
+      if (!okLog) added[log.dat] = { ...log, conf: true };
+    }
+    return added;
   }
 }
-const getRev = rev => parseInt(rev.split("-")[0]);
+// const getRev = rev => parseInt(rev.split('-')[0]);
 var coll = new Intl.Collator();
-var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
+// var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
 var datCmp = (a, b) => coll.compare(a.dat, b.dat);
 var nameCmp = (a, b) => coll.compare(a.name, b.name);
 // var datColl = new Intl.Collator();

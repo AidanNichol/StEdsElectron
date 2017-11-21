@@ -14,10 +14,6 @@
     "react",
     # "no-unused-vars-rest"
   ],
-  "ecmaFeatures": {
-    "jsx": true,
-    "modules": true,
-  },
   "extends": "eslint:recommended",
   // To give you an idea how to override rule options:
   "rules": {
@@ -44,10 +40,8 @@
     "react/no-unknown-property": 1,
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 1,
-    "react/require-extension": 1,
     "react/self-closing-comp": 1,
     "react/sort-comp": 1,
-    "react/wrap-multilines": 1,
     "strict": 2,
   }
 }

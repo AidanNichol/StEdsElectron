@@ -16,6 +16,12 @@
       font-weight: bold;
       margin: 0;
       padding-left: 10px;
+
+      &.developement {
+        color: #8f7031;
+        background-color: #f0d398;
+        border-color: #8f7031;
+      }
     }
 
     span {

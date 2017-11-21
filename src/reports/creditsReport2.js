@@ -1,5 +1,5 @@
 import { drawSVG } from "reports/extract-svg-path";
-import Logit from "../factories/logit.js";
+import Logit from "factories/logit.js";
 var logit = Logit("color:yellow; background:black;", "printCredits:report");
 import AS from "mobx/AccountsStore";
 

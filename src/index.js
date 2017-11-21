@@ -1,37 +1,45 @@
-import 'babel-polyfill'
+import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
-import {observable, action, runInAction} from 'mobx';
+import { observable, action, runInAction } from 'mobx';
 import { Provider as MobxProvider } from 'mobx-react';
 import MainLayout from './components/layouts/MainLayout.js';
-import {template} from './menu/menu.js'
-import {remote} from 'electron';
-import {opts} from 'factories/logit.js';
-import {monitorChanges} from 'sagas/dbChangeMonitoringMobx'
-import {monitorReplications} from 'ducks/replication-mobx'
-import WS from 'mobx/WalksStore'
-import MS from 'mobx/MembersStore'
-import AS from 'mobx/AccountsStore'
-import DS from 'mobx/DateStore'
-import {router} from 'ducks/router-mobx'
-import {state as signin} from 'ducks/signin-mobx'
+import { template } from './menu/menu.js';
+import { remote } from 'electron';
+import { opts } from 'factories/logit.js';
+import { monitorChanges } from 'sagas/dbChangeMonitoringMobx';
+import { monitorReplications } from 'ducks/replication-mobx';
+import WS from 'mobx/WalksStore';
+import MS from 'mobx/MembersStore';
+import AS from 'mobx/AccountsStore';
+import PS from 'mobx/PaymentsSummaryStore';
+import DS from 'mobx/DateStore';
+import { router } from 'ducks/router-mobx';
+import { state as signin } from 'ducks/signin-mobx';
 import Logit from 'factories/logit.js';
-import {reLogin } from 'ducks/signin-mobx'
+import { reLogin } from 'ducks/signin-mobx';
 var logit = Logit('color:yellow; background:blue;', 'index.js');
-console.log('logit:opts', opts)
+logit('logit:opts', opts);
+logit('electron', process.versions.electron);
+logit('node', process.versions.node);
+logit('chrome', process.versions.chrome);
+logit('process', process);
 
-
-const cntrl = observable({loading: true});
+const cntrl = observable({ loading: true });
 // logit('mainlayout', membersLoading, accountsLoading, walksLoading);
 monitorChanges();
-const monitorLoading = action (async ()=>{
-  await Promise.all([MS.membersloading, AS.accountsLoading, WS.walksLoading]);
-  runInAction(()=>{
-    logit('monitorLoading', 'loaded')
+const monitorLoading = action(async () => {
+  logit('monitorLoading', 'start');
+  // await PS.paymentsSummaryLoading;
+  await PS.init();
+  logit('monitorLoading', 'loaded Summary Doc');
+  await Promise.all([MS.init(), AS.init(), WS.init()]);
+  runInAction(() => {
+    logit('monitorLoading', 'loaded');
     cntrl.loading = false;
     monitorReplications();
     reLogin();
-  })
+  });
 });
 monitorLoading();
 
@@ -42,15 +50,16 @@ Menu.setApplicationMenu(menu);
 const isOnline = require('is-online');
 if (navigator.onLine) {
   isOnline((err, online) => {
-    console.log(`are we on line? online: ${online}, err: ${err}`)// we're online if online is true, offline if false
+    logit(`are we on line? online: ${online}, err: ${err}`); // we're online if online is true, offline if false
   });
 } else {
-  console.log(` we're offline`);
+  logit(` we're offline`);
 }
 
 render(
-    <MobxProvider {...{MS, AS, WS, DS, router, signin, cntrl, loading:cntrl.loading}}>
-      <MainLayout />
-    </MobxProvider>
-  , document.getElementById('root')
+  <MobxProvider
+    {...{ MS, AS, WS, DS, PS, router, signin, cntrl, loading: cntrl.loading }}>
+    <MainLayout />
+  </MobxProvider>,
+  document.getElementById('root')
 );

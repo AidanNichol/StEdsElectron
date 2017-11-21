@@ -77,10 +77,10 @@ var Bookings = observer(React.createClass({
                 <div className="date">{walk.walkDate}{closeit(walk)}<br/>{walk.venue}</div>
                 <div className="avail">{walk.bookingTotals.display}</div>
                 {
-                  accNames.map(({memId, firstName}, i)=>{
-                    let booking = walk.bookings.get(memId);
+                  accNames.map((member, i)=>{
+                    let booking = walk.bookings.get(member.memId);
                     return !booking || booking.status.length > 1 ?
-                    newBooking(walk, memId, walk.bookingTotals.full, i) :
+                    newBooking(walk, member.memId, walk.bookingTotals.full, i) :
                     oldBooking(walk, booking, i) })
                 }
               </div>

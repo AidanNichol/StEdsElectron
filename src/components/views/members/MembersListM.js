@@ -6,8 +6,6 @@ import EditMemberData from './EditMemberDataM.js';
 import TooltipButton from 'components/utility/TooltipButton.js';
 import {PrintButton} from 'components/utility/PrintButton'
 import{membershipListReport} from 'reports/membershipListPDF2';
-// import {PrintButton} from 'sagas/reportsSaga';
-// import {getSubsStatus} from '../../../utilities/subsStatus';
 import {Icon} from 'components/utility/Icon'
 import {Panel} from '../../utility/AJNPanel'
 

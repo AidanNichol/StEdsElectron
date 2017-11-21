@@ -9,7 +9,6 @@ const BrowserWindow = electron.BrowserWindow;
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 const POUCHDB_INSPECTOR = "hbhhpaojmpfimakffndmpmpndcmonkfa";
 // var ESI = require('electron-single-instance');
-
 app.setName('stedsbookings')
 
 let mainWindow,
@@ -20,7 +19,7 @@ let mainWindow,
       x: 0,
       y: 100,
       show: false,
-      webPreferences: {experimentalFeatures: true}
+      // webPreferences: {experimentalFeatures: true}
     };
 
     const shouldQuit = app.makeSingleInstance(() => {

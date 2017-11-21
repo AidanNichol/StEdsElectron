@@ -1,24 +1,7 @@
 /* jshint quotmark: false, jquery: true */
-import PropTypes from "prop-types";
 var React = require("react");
-
-export default React.createClass({
-  propTypes: {
-    // You can declare that a prop is a specific JS primitive. By default, these
-    // are all optional.
-    placement: PropTypes.string,
-    tiptext: PropTypes.string,
-    visible: PropTypes.bool
-    // currentWalk: PropTypes.string.isRequired,
-  },
-  getDefaultProps: function() {
-    return {
-      active: true,
-      visible: true,
-      placement: "top"
-    };
-  },
-  render: function() {
+class TooltipContent extends React.Component {
+  render() {
     var {
       className,
       placement,
@@ -54,4 +37,10 @@ export default React.createClass({
       </div>
     );
   }
-});
+}
+TooltipContent.defaultProps = {
+    active: true,
+    visible: true,
+    placement: "top"
+  };
+export default TooltipContent;

@@ -16,19 +16,20 @@ const closeStyle = {
   boxShadow: '1px 1px 3px #000',
   cursor: 'pointer'
 }
-var AJNModal = React.createClass({
+class AJNModal extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = { modalIsOpen: false };
+  }
 
-  getInitialState: function() {
-    return { modalIsOpen: false };
-  },
 
   openModal(){
     this.setState({modalIsOpen: true})
-  },
+  }
 
   closeModal(){
     this.setState({modalIsOpen: false})
-  },
+  }
 
 
   render(){
@@ -51,5 +52,5 @@ var AJNModal = React.createClass({
       </div>
     )
   }
-})
+}
 export default AJNModal;

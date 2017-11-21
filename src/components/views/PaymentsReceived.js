@@ -1,8 +1,8 @@
 /* jshint quotmark: false */
 import React from "react";
-import { Panel } from "../utility/AJNPanel";
-// import MyModal from '../utility/AJNModal'
-import TooltipButton from "../utility/TooltipButton.js";
+import { Panel } from "components/utility/AJNPanel";
+// import MyModal from 'components/utility/AJNModal'
+import TooltipButton from "components/utility/TooltipButton.js";
 import classnames from "classnames";
 import { paymentsSummaryReport3 } from "reports/paymentsSummaryReport3";
 import { PrintButton } from "components/utility/PrintButton";
