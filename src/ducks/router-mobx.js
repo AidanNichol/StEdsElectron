@@ -1,11 +1,11 @@
 // import { getSettings} from 'ducks/settings-duck';
-import { observable, action, toJS, reaction } from "mobx";
-import { setActiveMember, getAccountForMember } from "mobx/MembersStore";
-import { setActiveAccount } from "mobx/AccountsStore";
-import { setActiveWalk } from "mobx/WalksStore";
-import { merge } from "lodash";
-import Logit from "../factories/logit.js";
-const logit = Logit("color:white; background:blue;", "Router:mobx");
+import { observable, action, toJS, reaction } from 'mobx';
+import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
+import { setActiveAccount } from 'mobx/AccountsStore';
+import { setActiveWalk } from 'mobx/WalksStore';
+import { merge } from 'lodash';
+import Logit from '../factories/logit.js';
+const logit = Logit(__filename);
 
 class Router {
   @observable page = null;
@@ -26,14 +26,14 @@ class Router {
           page: this.page,
           memberId: this.memberId,
           accountId: this.accountId,
-          walkId: this.walkId
+          walkId: this.walkId,
         };
       },
       () => {
         // const = {}
-        localStorage.setItem("stEdsRouter", JSON.stringify(toJS(this)));
-        logit("toLocalStorage", toJS(this));
-      }
+        localStorage.setItem('stEdsRouter', JSON.stringify(toJS(this)));
+        logit('toLocalStorage', toJS(this));
+      },
     );
     reaction(
       () => this.memberId,
@@ -44,7 +44,7 @@ class Router {
           accId && setActiveAccount(accId);
         }
       },
-      true
+      true,
     );
     reaction(() => this.accountId, accId => setActiveAccount(accId));
     reaction(() => this.walkId, walkId => setActiveWalk(walkId), true);
@@ -55,14 +55,14 @@ class Router {
   };
   @action
   setPage = payload => {
-    logit("setPage", payload);
+    logit('setPage', payload);
     merge(this, payload);
     // this.resetAccountId();
   };
   @action
   setUser = (memberId, accountId) => {
-    logit("setUser (act)", memberId, accountId);
-    this.memberId = memberId[0] === "M" ? memberId : null;
+    logit('setUser (act)', memberId, accountId);
+    this.memberId = memberId[0] === 'M' ? memberId : null;
     // this.accountId = accountId[0] === 'A' ? accountId : null;
     // this.resetAccountId();
   };

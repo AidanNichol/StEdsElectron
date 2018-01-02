@@ -2,7 +2,7 @@
 var React = require('react');
 
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'Walk:OptionList');
+var logit = Logit(__filename);
 
 var SelectWalk = React.createClass({
   displayName: 'SelectWalk',

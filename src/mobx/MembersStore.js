@@ -14,7 +14,7 @@ import db from 'services/bookingsDB';
 import Member from 'mobx/Member';
 // import R from 'ramda';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:MembersStore');
+var logit = Logit(__filename);
 
 var coll = new Intl.Collator();
 

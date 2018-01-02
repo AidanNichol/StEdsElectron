@@ -13,7 +13,7 @@ import db from 'services/bookingsDB';
 // import {getSettings} from 'ducks/settings-duck';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
+var logit = Logit(__filename);
 
 import MS from 'mobx/MembersStore';
 import PS from 'mobx/PaymentsSummaryStore';

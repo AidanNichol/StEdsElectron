@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:black; background:yellow;', 'payments:boxes');
+var logit = Logit(__filename);
 
 const OPTIONS = [{type:"P", title:"Paid cash"},
 {type:"PX", title:"Refund Payment"},

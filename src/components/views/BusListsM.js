@@ -8,7 +8,7 @@ import SelectWalk from 'components/utility/SelectWalk.js';
 import { Panel } from 'components/utility/AJNPanel';
 
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'BusLists:view:mobx');
+var logit = Logit(__filename);
 
 export default function BusLists(props) {
   var {

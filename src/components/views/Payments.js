@@ -10,7 +10,7 @@ import {Icon} from 'ducks/walksDuck'
 import {Lock} from 'ducks/lock-duck'
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:View');
+var logit = Logit(__filename);
 
 
 

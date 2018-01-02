@@ -1,6 +1,6 @@
 import {merge} from 'lodash'
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'BookingLog');
+var logit = Logit(__filename);
 import { observable, computed, action} from 'mobx';
 import {dateDisplay} from 'mobx/DateStore'
 

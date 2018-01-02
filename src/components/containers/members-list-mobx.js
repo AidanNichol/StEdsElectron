@@ -7,7 +7,7 @@ import {setRouterPage} from '../../ducks/router-mobx.js';
 
 
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:white; background:navy;', 'MemberList:HOC');
+var logit = Logit(__filename);
 
 var uiState = observable({editMode: false, dirty:false, deletePending: false, bacs: false})
 autorun(()=>{

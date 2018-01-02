@@ -6,7 +6,7 @@ import R from 'ramda';
 import _ from 'lodash';
 // import {sprintf} from 'sprintf-js';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:Account');
+var logit = Logit(__filename);
 import { observable, computed, toJS, reaction, action } from 'mobx';
 import { FundsManager } from 'mobx/fundsManager';
 import MS from 'mobx/MembersStore';
@@ -196,7 +196,7 @@ export default class Account {
   from when this system was established.
   ------------------------------------------------------------------*/
   unclearedBookings(dat) {
-    logit('account:unclearedBookings', this, dat);
+    // logit('account:unclearedBookings', this, dat);
     let logs = [];
     let acc = this.accountStatus;
     for (let log of acc.logs.reverse()) {
@@ -465,7 +465,7 @@ export default class Account {
   }
 
   logTableToConsole = logs => {
-    console.table(
+    logit.table(
       logs.map(log =>
         R.omit(
           ['note', 'accId', 'machine', 'who', 'dispDate'],

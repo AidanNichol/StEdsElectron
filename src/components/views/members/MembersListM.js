@@ -10,7 +10,7 @@ import {Icon} from 'components/utility/Icon'
 import {Panel} from '../../utility/AJNPanel'
 
 import Logit from '../../../factories/logit.js';
-var logit = Logit('color:white; background:navy;', 'MemberList:View');
+var logit = Logit(__filename);
 // const saveChanges = (values)=>{
 //   logit('saveChanges', values);
 //   membersEditSaveChanges({doc: values, origDoc: members});

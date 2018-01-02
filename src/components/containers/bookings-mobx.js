@@ -4,7 +4,7 @@ import {callIfUnlocked} from '../../ducks/lock-mobx.js';
 import {uiStatus} from 'components/views/bookings/PaymentsBoxes'
 import {setRouterUser} from 'ducks/router-mobx';
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'bookings:Container');
+var logit = Logit(__filename);
 
 const mapStoreToProps = function(store) {
 

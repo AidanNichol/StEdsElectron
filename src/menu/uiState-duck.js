@@ -1,6 +1,6 @@
 // import * as i from 'icepick';
 // import Logit from '../factories/logit.js';
-// const logit = Logit('color:white; background:blue;', 'UIstate:duck');
+// const logit = Logit(__filename);
 //
 //
 // //---------------------------------------------------------------------

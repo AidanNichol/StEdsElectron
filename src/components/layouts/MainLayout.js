@@ -14,7 +14,7 @@ var packageJson = require('../../../package.json');
 
 const version = packageJson.version;
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:yellow; background:blue;', 'MainLayout');
+var logit = Logit(__filename);
 
 const loadPage = (curPage, cntrl) => {
   if (cntrl.loading)

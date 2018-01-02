@@ -1,6 +1,4 @@
 import settings from 'electron-settings';
-import Logit from '../factories/logit.js';
-var logit = Logit('color:white; background:brown;', 'electron:settings');
 
 let defaults = {
   user: {
@@ -46,19 +44,19 @@ delete newValues.debug.reduxLogger;
 delete newValues.database.developement.resetLocal;
 delete newValues.database.production.resetLocal;
 delete newValues.clearRouter;
-logit('V3 Electron-settings', { defaults, existing, newValues });
+console.log('V3 Electron-settings', { defaults, existing, newValues });
 settings.setAll(newValues);
 export const mode = settings.get('database.current');
 export const useFullHistory = settings.get('calculation.useFullHistory');
 export const DbSettings = settings.get(`database.${mode}`);
-logit('settings DbSettings', { mode, DbSettings });
+console.log('settings DbSettings', { mode, DbSettings });
 
 export const getAllSettings = () => settings.getAll();
 export const getSettings = field => settings.get(field);
 export const setSettings = (field, value) => {
-  logit(`setting ${field} = ${value}`);
+  console.log(`setting ${field} = ${value}`);
   settings.set(field, value, { prettify: true });
 };
 export const lockSettings = settings.get('lock');
-logit('lock values', lockSettings);
-logit('setting File', settings.file());
+console.log('lock values', lockSettings);
+console.log('setting File', settings.file());

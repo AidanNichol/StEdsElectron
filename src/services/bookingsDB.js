@@ -14,7 +14,7 @@ import {getSettings, setSettings, DbSettings, mode} from 'ducks/settings-duck'
 import {remote} from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 import Logit from '../factories/logit.js';
-var logit = Logit('color:white; background:red;', 'DBbookings');
+var logit = Logit(__filename);
 const adapter = DbSettings.adapter || 'websql';
 
 logit('PouchDB creating', PouchDB);

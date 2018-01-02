@@ -2,12 +2,28 @@ import electron from 'electron';
 const remote = require('electron').remote;
 const BrowserWindow = remote.BrowserWindow;
 function showAboutWindow() {
-  var win = new BrowserWindow({ width: 800, height: 600, webPreferences: {experimentalFeatures: true} });
+  var win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: { experimentalFeatures: true },
+  });
   win.loadURL(`file://${__dirname}/../windows/about.html`);
 }
 function showSettingsWindow() {
-  var win = new BrowserWindow({ width: 700, height: 750, webPreferences: {experimentalFeatures: true} });
+  var win = new BrowserWindow({
+    width: 700,
+    height: 750,
+    webPreferences: { experimentalFeatures: true },
+  });
   win.loadURL(`file://${__dirname}/../windows/settings.html`);
+}
+function showDebugOptionsWindow() {
+  var win = new BrowserWindow({
+    width: 700,
+    height: 750,
+    webPreferences: { experimentalFeatures: true },
+  });
+  win.loadURL(`file://${__dirname}/../windows/debugOptions.html`);
 }
 export var template = [
   {
@@ -16,37 +32,37 @@ export var template = [
       {
         label: 'Undo',
         accelerator: 'CmdOrCtrl+Z',
-        role: 'undo'
+        role: 'undo',
       },
       {
         label: 'Redo',
         accelerator: 'Shift+CmdOrCtrl+Z',
-        role: 'redo'
+        role: 'redo',
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Cut',
         accelerator: 'CmdOrCtrl+X',
-        role: 'cut'
+        role: 'cut',
       },
       {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
-        role: 'copy'
+        role: 'copy',
       },
       {
         label: 'Paste',
         accelerator: 'CmdOrCtrl+V',
-        role: 'paste'
+        role: 'paste',
       },
       {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
-        role: 'selectall'
+        role: 'selectall',
       },
-    ]
+    ],
   },
   {
     label: 'View',
@@ -55,44 +71,42 @@ export var template = [
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
         click: function(item, focusedWindow) {
-          if (focusedWindow)
-            focusedWindow.reload();
-        }
+          if (focusedWindow) focusedWindow.reload();
+        },
       },
       {
         label: 'Toggle Full Screen',
         accelerator: (function() {
-          if (process.platform == 'darwin')
-            return 'Ctrl+Command+F';
-          else
-            return 'F11';
+          if (process.platform == 'darwin') return 'Ctrl+Command+F';
+          else return 'F11';
         })(),
         click: function(item, focusedWindow) {
           if (focusedWindow)
             focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
-        }
+        },
       },
       {
         label: 'Toggle Developer Tools',
         accelerator: (function() {
-          if (process.platform == 'darwin')
-            return 'Alt+Command+I';
-          else
-            return 'Ctrl+Shift+I';
+          if (process.platform == 'darwin') return 'Alt+Command+I';
+          else return 'Ctrl+Shift+I';
         })(),
         click: function(item, focusedWindow) {
-          if (focusedWindow)
-            focusedWindow.toggleDevTools();
-        }
+          if (focusedWindow) focusedWindow.toggleDevTools();
+        },
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Edit Settings',
-        click: showSettingsWindow
+        click: showSettingsWindow,
       },
-    ]
+      {
+        label: 'Debug Settings',
+        click:  showDebugOptionsWindow,
+      },
+    ],
   },
   {
     label: 'Window',
@@ -101,14 +115,14 @@ export var template = [
       {
         label: 'Minimize',
         accelerator: 'CmdOrCtrl+M',
-        role: 'minimize'
+        role: 'minimize',
       },
       {
         label: 'Close',
         accelerator: 'CmdOrCtrl+W',
-        role: 'close'
+        role: 'close',
       },
-    ]
+    ],
   },
   {
     label: 'Help',
@@ -116,13 +130,15 @@ export var template = [
     submenu: [
       {
         label: 'Learn More',
-        click: function() { require('electron').shell.openExternal('http://electron.atom.io') }
+        click: function() {
+          require('electron').shell.openExternal('http://electron.atom.io');
+        },
       },
       {
         label: 'About StEdwardsBookings',
-        click: showAboutWindow
+        click: showAboutWindow,
       },
-    ]
+    ],
   },
 ];
 
@@ -134,52 +150,54 @@ if (process.platform == 'darwin') {
       {
         label: 'About ' + name,
         click: showAboutWindow,
-        role: 'about'
+        role: 'about',
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Services',
         role: 'services',
-        submenu: []
+        submenu: [],
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Hide ' + name,
         accelerator: 'Command+H',
-        role: 'hide'
+        role: 'hide',
       },
       {
         label: 'Hide Others',
         accelerator: 'Command+Shift+H',
-        role: 'hideothers'
+        role: 'hideothers',
       },
       {
         label: 'Show All',
-        role: 'unhide'
+        role: 'unhide',
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Quit',
         accelerator: 'Command+Q',
-        click: function() { electron.app.quit(); }
+        click: function() {
+          electron.app.quit();
+        },
       },
-    ]
+    ],
   });
 
   // Window menu.
   template[3].submenu.push(
     {
-      type: 'separator'
+      type: 'separator',
     },
     {
       label: 'Bring All to Front',
-      role: 'front'
-    }
+      role: 'front',
+    },
   );
 }

@@ -9,12 +9,12 @@ import {
   computed,
   runInAction,
   reaction,
-  toJS
+  toJS,
 } from 'mobx';
 import { observer } from 'mobx-react';
 import { setRouterPage } from 'ducks/router-mobx';
 import Logit from '../factories/logit.js';
-const logit = Logit('color:white; background:blue;', 'Signin:mobx');
+const logit = Logit(__filename);
 
 //---------------------------------------------------------------------
 //          Mobx State
@@ -50,10 +50,10 @@ reaction(
       loggedIn,
       name,
       roles: toJS(roles),
-      authError
+      authError,
     });
   },
-  { delay: 0 }
+  { delay: 0 },
 );
 
 export const login = action(async (name, password) => {
@@ -63,7 +63,7 @@ export const login = action(async (name, password) => {
     if (!err) {
       localStorage.setItem(
         'stEdsSignin',
-        JSON.stringify({ username: name, name, password })
+        JSON.stringify({ username: name, name, password }),
       );
       restoreRouterData();
       return;
@@ -72,24 +72,24 @@ export const login = action(async (name, password) => {
     logit('args', name, password, remoteCouch);
     var resp = await remoteDB.login(name, password, {
       ajax: {
-        body: { name: name, password: password }
-      }
+        body: { name: name, password: password },
+      },
     });
     logit('login resp:', resp);
     runInAction('update state after signin', () => {
       localStorage.setItem(
         'stEdsSignin',
-        JSON.stringify({ username: name, name, password })
+        JSON.stringify({ username: name, name, password }),
       );
       // const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
       merge(state, pick(resp, ['name', 'roles']), {
         loggedIn: true,
-        authError: ''
+        authError: '',
       });
       lastAction = 'Login';
       setSettings('user.' + name, {
         roles: state.roles,
-        password: getHash(state.password)
+        password: getHash(state.password),
       });
       setSettings('user.current', name);
       restoreRouterData();
@@ -116,7 +116,7 @@ const logout = action(async () => {
       name: '',
       password: '',
       roles: '',
-      authError: ''
+      authError: '',
     });
   });
 });
@@ -129,7 +129,7 @@ export const reLogin = action('relogin', () => {
     return;
   }
   const { username, password } = JSON.parse(
-    localStorage.getItem('stEdsSignin')
+    localStorage.getItem('stEdsSignin'),
   );
   const err = localLogin(username, password);
   if (err) logit('localLogin failed', err);

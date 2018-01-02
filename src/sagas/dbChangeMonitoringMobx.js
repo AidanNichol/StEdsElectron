@@ -13,7 +13,7 @@ var storeFn = {
   paymentSummary: AS.changeBPdoc
 };
 
-var logit = Logit('color:white; background:navy;', 'SyncDoc');
+var logit = Logit(__filename);
 const collections = {
   M: 'member',
   W: 'walk',

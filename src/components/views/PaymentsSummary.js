@@ -19,7 +19,7 @@ import TooltipButton from 'components/utility/TooltipButton.js';
 // import {Lock} from 'ducks/lock-duck'
 
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:Summary');
+var logit = Logit(__filename);
 
 // const AccLogRec = ({log})=>{return (
 //     <div className='walk-detail'>{log.dispDate}<Icon type={log.req} width="16"/>  <span className="amount">£{Math.abs(log.amount)}</span> <span className="name">{log.name}</span> {log.text && ` [${log.text}] `} </div>

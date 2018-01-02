@@ -9,7 +9,7 @@ import XDate from 'xdate';
 import { flatten } from 'lodash';
 // import fs from 'fs';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'Payments:mobx');
+var logit = Logit(__filename);
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 
@@ -20,13 +20,13 @@ const uiState = observable({
   },
   showPaymentsMade: () => {
     uiState.displayingDue = false;
-  }
+  },
 });
 autorun(() =>
   logit(
     'Changed Displaying. Now showing:',
-    uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade'
-  )
+    uiState.displayingDue ? 'PaymentsDue' : 'PaymentsMade',
+  ),
 );
 
 const mapStoreToProps = function(store) {
@@ -49,7 +49,7 @@ const mapStoreToProps = function(store) {
   // logit("credits", credits);
   const totalPaymentsMade = accs.reduce(
     (sum, log) => sum + log.paymentsMade,
-    0
+    0,
   );
   return {
     accs: accs.filter(acc => acc.activeThisPeriod || acc.balance < 0),
@@ -62,7 +62,7 @@ const mapStoreToProps = function(store) {
     doc: buildDoc(store),
     lastWalk: lastWalkSummary(store),
     showMemberBookings: accId =>
-      setRouterPage({ page: 'bookings', memberId: accId, accountId: accId })
+      setRouterPage({ page: 'bookings', memberId: accId, accountId: accId }),
   };
 };
 const Frame = observer(props => (
@@ -125,24 +125,24 @@ const buildDoc = function({ AS, DS, WS, PS }) {
     startDate,
     payments,
     accounts: accountsStatus.filter(
-      acc => acc.activeThisPeriod || acc.balance < 0
+      acc => acc.activeThisPeriod || acc.balance < 0,
     ),
     currentPeriodStart,
     unclearedBookings: AS.unclearedBookings(currentPeriodStart),
     // aLogs, bLogs,
     cLogs,
-    tots
+    tots,
   };
   logit('logs doc', doc, __dirname);
 
-  console.table(
-    flatten(Object.values(doc.unclearedBookings))
+  logit.table(
+    flatten(Object.values(doc.unclearedBookings)),
     // .map(bkng => ({
     //   // name: MS.getMemberByMemNo(bkng.memId).fullName,
     //   ...pick(bkng, ['memId', 'req', 'text', 'dispDate', 'walkId'])
     // }))
   );
-  console.table(doc.unclearedBookings);
+  logit.table(doc.unclearedBookings);
   // fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
   // logit('write report');
   // paymentsSummaryReport(doc)

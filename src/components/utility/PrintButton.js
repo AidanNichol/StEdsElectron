@@ -3,7 +3,7 @@ import TooltipButton from 'components/utility/TooltipButton';
 import {observable, autorun, autorunAsync, action} from 'mobx';
 import {observer} from 'mobx-react';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:black;', 'PrintButton');
+var logit = Logit(__filename);
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 

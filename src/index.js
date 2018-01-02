@@ -18,7 +18,7 @@ import { router } from 'ducks/router-mobx';
 import { state as signin } from 'ducks/signin-mobx';
 import Logit from 'factories/logit.js';
 import { reLogin } from 'ducks/signin-mobx';
-var logit = Logit('color:yellow; background:blue;', 'index.js');
+var logit = Logit(__filename);
 logit('logit:opts', opts);
 logit('electron', process.versions.electron);
 logit('node', process.versions.node);

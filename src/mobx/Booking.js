@@ -1,7 +1,7 @@
 import {merge} from 'lodash'
 import R from 'ramda';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:Booking');
+var logit = Logit(__filename);
 import { observable, computed, action} from 'mobx';
 import {BookingLog} from 'mobx/BookingLog'
 import {getUpdater} from 'ducks/signin-mobx';

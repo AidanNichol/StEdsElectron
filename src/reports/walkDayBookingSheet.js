@@ -1,15 +1,12 @@
-import Logit from "factories/logit.js";
-import { toJS } from "mobx";
-import R from "ramda";
-import { drawSVG } from "reports/extract-svg-path";
-import { union, flattenDeep, fromPairs } from "lodash";
-var logit = Logit(
-  "color:yellow; background:black;",
-  "walkDayBookingSheet:report"
-);
-import AS from "mobx/AccountsStore";
-import WS from "mobx/WalksStore";
-import MS from "mobx/MembersStore";
+import Logit from 'factories/logit.js';
+import { toJS } from 'mobx';
+import R from 'ramda';
+import { drawSVG } from 'reports/extract-svg-path';
+import { union, flattenDeep, fromPairs } from 'lodash';
+var logit = Logit(__filename);
+import AS from 'mobx/AccountsStore';
+import WS from 'mobx/WalksStore';
+import MS from 'mobx/MembersStore';
 // import DS from 'mobx/DateStore';
 
 function walkDaySet() {
@@ -19,14 +16,14 @@ function walkDaySet() {
     .bookings.entries()
     .filter(([, booking]) => /^[BCW]$/.test(booking.status))
     .map(([memId]) => memId);
-  logit("walkDaySet", memIds);
+  logit('walkDaySet', memIds);
   return memIds;
 }
 const cmpNo = (a, b) => parseInt(a.substr(1)) - parseInt(b.substr(1));
 
 function fullSet() {
   const walkIds = WS.recentWalksId;
-  logit("recentWalks", walkIds);
+  logit('recentWalks', walkIds);
   var memIds = [];
   walkIds.forEach(walkId => {
     const bookings = WS.walks.get(walkId).bookings;
@@ -37,20 +34,20 @@ function fullSet() {
     const account = AS.accounts.get(acc.accId) || {};
     return toJS(account.members);
   });
-  logit("fullset bal:", bal);
+  logit('fullset bal:', bal);
   memIds = union(memIds, flattenDeep(bal));
-  logit("fullset memIds:", memIds.sort(cmpNo));
+  logit('fullset memIds:', memIds.sort(cmpNo));
   return memIds;
 }
 
 function gatherData(memberSet, printFull) {
-  logit("stores", { AS, WS });
+  logit('stores', { AS, WS });
   if (!WS.loaded || !MS.loaded || !AS.loaded) return [];
   const walkIds = WS.bookableWalksId;
   const walkIdsIndex = R.fromPairs(walkIds.map((val, i) => [val, i]));
   const walkId = walkIds[0];
-  logit("memberSet", memberSet.length, memberSet.sort(cmpNo));
-  logit("walkIds", { walkId, walkIds, walkIdsIndex }, WS);
+  logit('memberSet', memberSet.length, memberSet.sort(cmpNo));
+  logit('walkIds', { walkId, walkIds, walkIdsIndex }, WS);
   // const accs = WS.walks.get(walkId).bookings.entries()
   //   .filter(([, booking])=>/^[BCW]$/.test(booking.status))
   //   .map(([memId, ])=>{
@@ -72,14 +69,14 @@ function gatherData(memberSet, printFull) {
   walkers.forEach((data, accId) => {
     let reserve = !printFull;
     data.members.forEach((memData, memId) => {
-      let bkng = R.repeat("-", walkIds.length);
+      let bkng = R.repeat('-', walkIds.length);
       walkIds.forEach((walkId, i) => {
         // logit('gather', memId, walkId, WS)
         let status =
-          (WS.walks.get(walkId).bookings.get(memId) || {}).status || "Chk";
-        if (i === 0 && status !== "W" && status !== "Chk") reserve = false;
-        status = status[1] === "X" ? "Chk" : status;
-        if (!printFull && status === "Chk") status = "Blank";
+          (WS.walks.get(walkId).bookings.get(memId) || {}).status || 'Chk';
+        if (i === 0 && status !== 'W' && status !== 'Chk') reserve = false;
+        status = status[1] === 'X' ? 'Chk' : status;
+        if (!printFull && status === 'Chk') status = 'Blank';
         bkng[i] = status;
       });
       memData.xtra = [];
@@ -94,7 +91,7 @@ function gatherData(memberSet, printFull) {
         if (debt.outstanding) {
           let member = data.members.get(debt.memId);
           if (walkIdsIndex[debt.walkId] !== undefined) {
-            member.bkng[walkIdsIndex[debt.walkId]] = "P";
+            member.bkng[walkIdsIndex[debt.walkId]] = 'P';
           } else {
             let code = WS.walks.get([debt.walkId]).code;
             let i = data.xtra.indexOf(code);
@@ -102,17 +99,17 @@ function gatherData(memberSet, printFull) {
               data.xtra.push(code);
               i = data.xtra.length - 1;
             }
-            member.xtra[i] = "P";
+            member.xtra[i] = 'P';
           }
         }
       });
     }
-    if (data.xtra.length > 0) logit("xtra walks", data, status);
+    if (data.xtra.length > 0) logit('xtra walks', data, status);
     if (reserve) {
-      logit("On reserve list", data);
+      logit('On reserve list', data);
       reserveList.push(accId);
     }
-    logit("On reserve list", data);
+    logit('On reserve list', data);
   });
   reserveList.forEach(accId => {
     const rec = walkers.get(accId);
@@ -124,30 +121,31 @@ function gatherData(memberSet, printFull) {
 }
 
 // const noWalks = WS.bookableWalksId.length;
-const normal = "Times-Roman";
-const bold = "Times-Bold";
-const italic = "Times-Italic";
+const normal = 'Times-Roman';
+const bold = 'Times-Bold';
+const italic = 'Times-Italic';
 const calcLineHeights = doc => {
   return [1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(sz => {
-    return doc.fontSize(sz).text(" ", 20, 80).y - 80;
+    return doc.fontSize(sz).text(' ', 20, 80).y - 80;
   });
 };
 const calcCharWidths = doc => {
   let res = {};
-  Array.from(" -0123456789()").forEach(chr => {
+  Array.from(' -0123456789()').forEach(chr => {
     res[chr] =
       doc.fontSize(11).text(chr, 20, 80, { continued: true, lineBreak: false })
         .x - 20;
-    logit("calcCharWidths", doc.x, doc.y);
+    logit('calcCharWidths', doc.x, doc.y);
   });
-  logit("charWidth", res);
+  logit('charWidth', res);
   return res;
 };
 // import XDate from 'xdate';
-logit("env", process.env);
-logit("dirname", __dirname);
+logit('env', process.env);
+logit('dirname', __dirname);
 const makeHeadBox = (bxW, bxH, r) =>
-  `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+  `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH -
+    r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
 export function walkDayBookingSheet(doc, printFull) {
   doc.addPage();
@@ -161,14 +159,18 @@ export function walkDayBookingSheet(doc, printFull) {
   const r = 3;
   const fontHeight = calcLineHeights(doc);
   const charWidth = calcCharWidths(doc);
-  logit("charWidth", charWidth);
-  const szH = 10, szD = 11;
+  logit('charWidth', charWidth);
+  const szH = 10,
+    szD = 11;
   const nameH = fontHeight[szH],
     detailH = fontHeight[szD],
     gapH = fontHeight[3];
   const bkWidth = 23;
-  const bxW = colW + 8, bxH = nameH;
-  const boxOff = 5, boxWidth = 50, moneyWidth = 15;
+  const bxW = colW + 8,
+    bxH = nameH;
+  const boxOff = 5,
+    boxWidth = 50,
+    moneyWidth = 15;
   let x, y;
   let col = 0;
   const setEndY = endY => {
@@ -190,9 +192,13 @@ export function walkDayBookingSheet(doc, printFull) {
       .path(`M ${x - 2 + r},${y - boxPt} ${headBox}`)
       .lineWidth(1)
       .fillOpacity(0.8)
-      .fillAndStroke("#ccc", "#888");
-    doc.roundedRect(x - 2, y - boxPt, bxW, ht, r).stroke("#888");
-    doc.fillColor("black").font(normal).fontSize(szH).text(name, x, y);
+      .fillAndStroke('#ccc', '#888');
+    doc.roundedRect(x - 2, y - boxPt, bxW, ht, r).stroke('#888');
+    doc
+      .fillColor('black')
+      .font(normal)
+      .fontSize(szH)
+      .text(name, x, y);
   };
   const showMoney = (
     x,
@@ -202,7 +208,7 @@ export function walkDayBookingSheet(doc, printFull) {
     text,
     rectFill,
     rectStroke,
-    textColor
+    textColor,
   ) => {
     doc
       .roundedRect(x + boxOff, y + dY - 2, boxWidth, detailH - 2, r)
@@ -211,8 +217,8 @@ export function walkDayBookingSheet(doc, printFull) {
       .fillColor(textColor)
       .fontSize(szD - 2)
       .text(`£${Math.abs(value)}`, x + boxOff, y + dY, {
-        align: "right",
-        width: moneyWidth
+        align: 'right',
+        width: moneyWidth,
       })
       .text(text, x + boxOff + moneyWidth + 5, y + dY);
   };
@@ -228,8 +234,8 @@ export function walkDayBookingSheet(doc, printFull) {
         .opacity(opacity)
         .fontSize(8)
         .text(code, x + colW - bkWidth * (noWalks - i), y + 2, {
-          align: "center",
-          width: bkWidth
+          align: 'center',
+          width: bkWidth,
         });
     });
   };
@@ -240,18 +246,18 @@ export function walkDayBookingSheet(doc, printFull) {
         y + dY - 2,
         moneyWidth,
         detailH - 2,
-        r
+        r,
       )
-      .stroke("#888");
+      .stroke('#888');
     doc
-      .fillColor("black")
+      .fillColor('black')
       .fontSize(szD - 2)
-      .text("Paid ", x + boxOff + boxWidth + 10, y + dY);
+      .text('Paid ', x + boxOff + boxWidth + 10, y + dY);
   };
 
   const memberSet = printFull ? fullSet() : walkDaySet();
   const bMap = gatherData(memberSet, printFull);
-  logit("bMap", printFull, bMap);
+  logit('bMap', printFull, bMap);
   if (bMap.size === 0) return;
   doc.font(normal);
   const walknames = WS.bookableWalksId.map(walkId => {
@@ -270,14 +276,14 @@ export function walkDayBookingSheet(doc, printFull) {
   const walkAvailability = WS.bookableWalksId.map(walkId => {
     return WS.walks.get(walkId).bookingTotals;
   });
-  logit("walknames", { walknames, walkAvailability, waitingLists });
+  logit('walknames', { walknames, walkAvailability, waitingLists });
   // const headBox = `h ${bxW-2*r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH-r}  h -${bxW} v -${bxH-r} a ${r},${r} 0 0 1 ${r},${-r} Z`
   const headBox = makeHeadBox(bxW, bxH, r);
   y = colHeadY;
   setEndY(y);
   // y= yOff;
   x = margin;
-  logit("bMap values", bMap.values());
+  logit('bMap values', bMap.values());
   bMap.forEach(data => {
     let accHeight = 2 + nameH + detailH * data.members.size;
     setEndY(y + accHeight);
@@ -287,9 +293,9 @@ export function walkDayBookingSheet(doc, printFull) {
 
     printAccountHeader(x, y, accHeight, data.sortname);
     if (data.debt)
-      showMoney(x, y, dY, data.debt, "Owed", "#f88", "#800", "black");
+      showMoney(x, y, dY, data.debt, 'Owed', '#f88', '#800', 'black');
     if (data.credit)
-      showMoney(x, y, dY, data.credit, "Credit", "#cfe", "#484", "blue");
+      showMoney(x, y, dY, data.credit, 'Credit', '#cfe', '#484', 'blue');
     printPaidBox(x, y, dY);
 
     printWalkCodes(x, y, data.xtra, walknames.map(nm => nm.code));
@@ -308,18 +314,18 @@ export function walkDayBookingSheet(doc, printFull) {
         doc
           .font(italic)
           .fontSize(szD - 2)
-          .fillColor("black")
+          .fillColor('black')
           .text(mData.name, x, y, {
-            align: "right",
-            width: colW - bkWidth * noWalks - 4
+            align: 'right',
+            width: colW - bkWidth * noWalks - 4,
           });
       }
       //
       // Print walk Booking for member
       //
       bkngX.forEach((bkng, i) => {
-        var opacity = !printFull && i === 0 && bkng !== "P" ? 0.4 : 1;
-        if (bkng === "W") opacity = 0.1;
+        var opacity = !printFull && i === 0 && bkng !== 'P' ? 0.4 : 1;
+        if (bkng === 'W') opacity = 0.1;
         doc.opacity(opacity);
         // .image(`${__dirname}/../assets/icon-${bkng}.jpg`, x+colW - bkWidth*(noWalks-i-0.5) - detailH*0.4, y, { height: detailH*.8})
         drawSVG(
@@ -327,21 +333,21 @@ export function walkDayBookingSheet(doc, printFull) {
           x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.4,
           y,
           0.4,
-          `icon-${bkng}`
+          `icon-${bkng}`,
         );
 
-        if (bkng === "W") {
+        if (bkng === 'W') {
           // logit('waitlist', i, mData.memId, noXtra, waitingLists);
           const no = waitingLists[i - noXtra][mData.memId];
           doc
             .font(bold)
             .opacity(1)
             .fontSize(szD - 2)
-            .fillColor("red")
+            .fillColor('red')
             .text(
               no,
               x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.2,
-              y + 2
+              y + 2,
             );
         }
       });
@@ -355,7 +361,7 @@ export function walkDayBookingSheet(doc, printFull) {
     const dY = detailH + 1;
     let accHeight = 2 + nameH + detailH;
 
-    printAccountHeader(x, y, accHeight, "");
+    printAccountHeader(x, y, accHeight, '');
     printPaidBox(x, y, dY);
     let noWalks = walknames.length;
     printWalkCodes(x, y, [], walknames.map(nm => nm.code));
@@ -370,7 +376,7 @@ export function walkDayBookingSheet(doc, printFull) {
         `${__dirname}/../assets/icon-Chk.jpg`,
         x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.4,
         y,
-        { height: detailH * 0.8 }
+        { height: detailH * 0.8 },
       );
     }
     y += detailH;
@@ -394,7 +400,7 @@ export function walkDayBookingSheet(doc, printFull) {
   if (col === 0)
     setEndY(pHeight); // force new column
   else noBlanks = Math.min(10, spaceFor) - 1;
-  logit("space For", { spaceFor, noBlanks, y, checkBoxesStart, accHeight });
+  logit('space For', { spaceFor, noBlanks, y, checkBoxesStart, accHeight });
   for (var i = 0; i < noBlanks; i++) {
     setEndY(y + accHeight);
     [x, y] = printBlanks(x, y);
@@ -417,11 +423,11 @@ export function walkDayBookingSheet(doc, printFull) {
     if (printFull || i > 0) {
       const name = walknames[i].shortname;
       const x1 = x + sz * i;
-      logit("avail", { x1, sz, iw, bw, gap }, doc._fontSize);
-      if (display.substr(0, 3) === "0 (") display = display.substr(2);
+      logit('avail', { x1, sz, iw, bw, gap }, doc._fontSize);
+      if (display.substr(0, 3) === '0 (') display = display.substr(2);
       var dispSz = Array.from(display).reduce(
-        (acc, chr) => acc + (charWidth[chr] || charWidth["0"]),
-        0
+        (acc, chr) => acc + (charWidth[chr] || charWidth['0']),
+        0,
       );
       // dispSz = 20;
       // if (display.length > 4) dispSz = dispSz - 29;
@@ -431,27 +437,27 @@ export function walkDayBookingSheet(doc, printFull) {
         .path(`M ${x1 - 2 + r},${y - 2} ${aHeadBox}`)
         .lineWidth(1)
         .fillOpacity(0.8)
-        .fillAndStroke("#ccc", "#888");
+        .fillAndStroke('#ccc', '#888');
       doc
         .roundedRect(x1 - 2, y - 2, sz - gap + 2, detailH + 4 * bw + 6, r)
-        .stroke("#888");
-      logit("dispSz", { display, dispSz, sz, gap }, doc._fontSize);
+        .stroke('#888');
+      logit('dispSz', { display, dispSz, sz, gap }, doc._fontSize);
       doc
-        .fillColor("black")
+        .fillColor('black')
         .text(name, x1, y, {
           width: sz - gap - 2 - dispSz,
           height: detailH,
           lineBreak: false,
-          ellipsis: true
+          ellipsis: true,
         })
-        .text(display, x1, y, { align: "right", width: sz - gap - 2 });
+        .text(display, x1, y, { align: 'right', width: sz - gap - 2 });
       for (let j = 0; j < 20; j++) {
         var y1 = y + detailH + Math.floor(j / 5) * bw;
         doc.image(
-          `${__dirname}/../assets/icon-${j < free ? "Chk" : "Wchk"}.jpg`,
-          x1 + j % 5 * bw,
+          `${__dirname}/../assets/icon-${j < free ? 'Chk' : 'Wchk'}.jpg`,
+          x1 + (j % 5) * bw,
           y1,
-          { height: iw }
+          { height: iw },
         );
       }
     }

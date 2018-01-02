@@ -1,7 +1,7 @@
 import XDate from 'xdate';
 import { observable, computed, action } from 'mobx';
 // import Logit from 'factories/logit.js';
-// var logit = Logit('color:black; background:yellow;', 'mobx:DateStore');
+// var logit = Logit(__filename);
 
 export const dateDisplay = dat => new XDate(dat).toString('dd MMM HH:mm');
 

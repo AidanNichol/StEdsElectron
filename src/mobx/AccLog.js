@@ -1,7 +1,7 @@
 import { merge } from 'lodash';
 import { observable, action, computed } from 'mobx';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:Account');
+var logit = Logit(__filename);
 import DS from 'mobx/DateStore';
 import { dateDisplay } from 'mobx/DateStore';
 

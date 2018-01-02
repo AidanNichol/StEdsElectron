@@ -3,7 +3,7 @@ import db from 'services/bookingsDB';
 import { observable, computed, action, runInAction, toJS } from 'mobx';
 import { replicationDbChange } from 'ducks/replication-mobx';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:Member');
+var logit = Logit(__filename);
 
 export default class Member {
   _id = 0;

@@ -2,10 +2,7 @@ import { observable, computed, action, autorun } from 'mobx';
 import db from 'services/bookingsDB';
 import XDate from 'xdate';
 import Logit from 'factories/logit.js';
-var logit = Logit(
-  'color:white; background:black;',
-  'mobx:PaymentsSummaryStore'
-);
+var logit = Logit(__filename);
 
 export let paymentsSummaryLoading;
 class PaymentsSummaryStore {
@@ -72,7 +69,7 @@ class PaymentsSummaryStore {
       limit: 1,
       include_docs: true,
       startkey: 'BP9999999',
-      endkey: 'BP00000000'
+      endkey: 'BP00000000',
     });
     logit('load datasummaries', dataBP);
     if (dataBP.rows.length > 0) this.changeBPdoc(dataBP.rows[0].doc);

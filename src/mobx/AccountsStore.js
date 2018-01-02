@@ -2,7 +2,7 @@ import { observable, computed, action, runInAction, autorun } from 'mobx';
 import db from 'services/bookingsDB';
 import _ from 'lodash';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:white; background:black;', 'mobx:AccountsStore');
+var logit = Logit(__filename);
 import Account from './Account';
 
 // export let accountsLoading;

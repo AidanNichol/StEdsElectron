@@ -6,7 +6,7 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 
 import Logit from "../../factories/logit.js";
-var logit = Logit("color:yellow; background:cyan;", "TooltipButton");
+var logit = Logit(__filename);
 var TooltipButton = React.createClass({
   propTypes: {
     // You can declare that a prop is a specific JS primitive. By default, these

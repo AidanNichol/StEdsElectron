@@ -15,7 +15,7 @@ import {ChangeLogM} from 'components/containers/PaymentStatusLog-mobx';
 import {AnnotateBooking, openAnnotationDialog} from './annotateBooking'
 // import {getTodaysDate} from 'utilities/DateUtilities.js';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'bookings:View');
+var logit = Logit(__filename);
 
 
 var Bookings = observer(React.createClass({

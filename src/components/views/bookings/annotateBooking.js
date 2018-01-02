@@ -2,7 +2,7 @@ import React from 'react';
 import {observer, inject} from 'mobx-react';
 import {observable, action} from 'mobx';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:cyan;', 'Annotate:Bookings');
+var logit = Logit(__filename);
 
 class uiState {
   @observable isOpen= false;

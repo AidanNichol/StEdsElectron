@@ -2,7 +2,7 @@
 var React = require('react');
 import Select from 'react-select';
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:white; background:black;', 'SelectMember');
+var logit = Logit(__filename);
 
 var SearchBox = React.createClass({
   displayName: 'SearchBox',

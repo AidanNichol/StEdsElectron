@@ -2,7 +2,7 @@ import { inject, observer } from 'mobx-react';
 import { observable } from 'mobx';
 import { changeLog } from '../views/bookings/PaymentStatusLog.js';
 import Logit from '../../factories/logit.js';
-var logit = Logit('color:blue; background:yellow;', 'mobx:PaymentStatusLog');
+var logit = Logit(__filename);
 const uiState = observable({ showAll: false });
 
 const mapStoreToPropsChangeLog = function(store, { accId, ...props }) {

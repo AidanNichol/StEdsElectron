@@ -1,6 +1,6 @@
 import { drawSVG } from 'reports/extract-svg-path';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:black;', 'printPayments:report');
+var logit = Logit(__filename);
 import AS from 'mobx/AccountsStore';
 
 const margin = 30;
@@ -34,7 +34,7 @@ export function paymentsDueReport(doc, yStart) {
   let sizes;
   const balanceCols = debts => {
     sizes = debts.map(
-      data => (data.size = nameH + gapH + data.debt.length * detailH)
+      data => (data.size = nameH + gapH + data.debt.length * detailH),
     );
     logit('sizes', sizes);
     let tot = 0;

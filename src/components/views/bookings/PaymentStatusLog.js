@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 // import Select from 'react-select';
 import Logit from 'factories/logit.js';
-var logit = Logit('color:black; background:yellow;', 'ChangeLog');
+var logit = Logit(__filename);
 
 const EditButton = ({startDate, accountDeletePayment, resetLateCancellation, accId, log})=>{
   if (log.dat < startDate) return null;

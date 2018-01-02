@@ -1,5 +1,5 @@
 import Logit from 'factories/logit.js';
-var logit = Logit('color:yellow; background:black;', 'Report:PaymentSummary');
+var logit = Logit(__filename);
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
 import XDate from 'xdate';

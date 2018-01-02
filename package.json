@@ -2,29 +2,40 @@
   "name": "stedsbookings",
   "productName": "St.EdwardsBookings",
   "version": "1.3.6",
-  "description": "Electron Application for St. Edwards Fellwalkers booking system",
+  "description":
+    "Electron Application for St. Edwards Fellwalkers booking system",
   "main": "app/app.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
-    "couchapp": "couchapp push src/designdocs/members.js http://aidan:Fw57kUbxCAjH@nicholware.com:5984/bookings",
-    "couchapp:dev": "couchapp push src/designdocs/members.js http://aidan:admin@localhost:5984/devbookings",
+    "couchapp":
+      "couchapp push src/designdocs/members.js http://aidan:Fw57kUbxCAjH@nicholware.com:5984/bookings",
+    "couchapp:dev":
+      "couchapp push src/designdocs/members.js http://aidan:admin@localhost:5984/devbookings",
     "pack": "build --win --ia32",
     "dist": "build --win --ia32",
-    "predist": "npm-run-all -l -s build:copyfiles build:html build:package build:js build:css ",
+    "predist":
+      "npm-run-all -l -s build:copyfiles build:html build:package build:js build:css ",
     "release": "build",
     "debug": "DEBUG=steds:* electron .",
     "start": "cross-env NODE_ENV=production electron ./",
     "deploy": "gulp build && dist",
-    "build:js": "babel --presets='env,stage-0,react' --plugins=transform-decorators-legacy -d app/ src/",
-    "build:app": "babel --only=app.js --presets='es2015,stage-0,react' -d app/ src/",
+    "build:js":
+      "babel --presets='env,stage-0,react' --plugins=transform-decorators-legacy -d app/ src/",
+    "build:app":
+      "babel --only=app.js --presets='es2015,stage-0,react' -d app/ src/",
     "rollup": "BABEL_ENV=rollup rollup -c",
     "build:css": "postcss src/styles/**/*.css --dir=./app/styles",
-    "prod:html": "babel-node --presets=es2015 scripts/buildHtml.js --src=src/*html --dest=app --css=src/styles/*.css --js=../app/bundle.js",
-    "build:html": "babel-node --presets=es2015,stage-0 scripts/buildHtml.js --src=src/*html --dest=app --css=src/styles/*.css --js=../app/index.js",
-    "build:copyfiles": "copyfiles assets/*.* fonts/**/*.*  app & copyfiles -f src/windows/*.html app/windows",
+    "prod:html":
+      "babel-node --presets=es2015 scripts/buildHtml.js --src=src/*html --dest=app --css=src/styles/*.css --js=../app/bundle.js",
+    "build:html":
+      "babel-node --presets=es2015,stage-0 scripts/buildHtml.js --src=src/*html --dest=app --css=src/styles/*.css --js=../app/index.js",
+    "build:copyfiles":
+      "copyfiles assets/*.* fonts/**/*.*  app & copyfiles -f src/windows/*.html app/windows",
     "build:package": "babel-node scripts/buildPackage --dest=app",
-    "refresh:dev": "babel-cli --no-babelrc --presets=es2015,stage-0 ./refreshDevFromLiveNoReformat",
-    "build:dist": "run-s -l build:app rollup build:css build:copyfiles prod:html build:package",
+    "refresh:dev":
+      "babel-cli --no-babelrc --presets=es2015,stage-0 ./refreshDevFromLiveNoReformat",
+    "build:dist":
+      "run-s -l build:app rollup build:css build:copyfiles prod:html build:package",
     "my:build": "npm run build:dist && electron app/app.js",
     "dev:js": "babel -d .serve/ src/ --watch",
     "dev:css": "npm run build:css -- --dir=.serve/styles --watch",
@@ -32,11 +43,13 @@
     "watch:css": "npm run build:css --  --watch",
     "rollup:js": "BABEL_ENV=rollup rollup -w -c config/dev.js",
     "dev:copyfiles": "copyfiles assets fonts .serv",
-    "watch:dist": "run-s -l watch:js watch:css copy:assets copy:fonts build:html build:package",
+    "watch:dist":
+      "run-s -l watch:js watch:css copy:assets copy:fonts build:html build:package",
     "run:dist": "npm run build:dist && electron app/app.js",
     "open:dev": "electron app/app.js",
     "watch:build": "watch 'npm run build:dist' .",
-    "dev": "npm-run-all -l -s build:copyfiles build:html build:package -p watch:js watch:css ",
+    "dev":
+      "npm-run-all -l -s build:copyfiles build:html build:package -p watch:js watch:css ",
     "devm": "npm-run-all -p -l dev open:dev",
     "test": "jest"
   },
@@ -50,41 +63,25 @@
       "certificateFile": "../SelfSignedCert.pfx",
       "certificatePassword": "a1dan!",
       "target": "NSIS",
-      "publish": [
-        "github"
-      ]
+      "publish": ["github"]
     }
   },
   "ava": {
-    "files": [
-      "test/*.js"
-    ],
-    "source": [
-      "**/*..js",
-      "!dist/**/*"
-    ],
+    "files": ["test/*.js"],
+    "source": ["**/*..js", "!dist/**/*"],
     "verbose": true,
     "concurrency": 5,
-    "require": [
-      "babel-register",
-      "ignore-styles"
-    ],
+    "require": ["babel-register", "ignore-styles"],
     "babel": "inherit"
   },
   "babel": {
-    "presets": [
-      "env",
-      "stage-0",
-      "react"
-    ],
+    "presets": ["env", "stage-0", "react"],
     "plugins": [
       "transform-decorators-legacy",
       [
         "module-resolver",
         {
-          "root": [
-            "./src"
-          ],
+          "root": ["./src"],
           "alias": {
             "views": "components/views",
             "containers": "components/containers"
@@ -97,11 +94,7 @@
     "type": "git",
     "url": "https://github.com/AidanNichol/StEdsElectron.git"
   },
-  "keywords": [
-    "express",
-    "webpack",
-    "node"
-  ],
+  "keywords": ["express", "webpack", "node"],
   "author": "Aidan Nichol",
   "license": "MIT",
   "bugs": {
@@ -152,6 +145,7 @@
     "react-textarea-autosize": "^5",
     "sprintf-js": "^1.0.3",
     "styled-components": "^2.2.2",
+    "supports-color": "^5.0.0",
     "svg2png": "^4.1.0",
     "underscore.string": "^3.3.4",
     "xdate": "^0.8.0"
@@ -198,6 +192,7 @@
     "postcss-inline-comment": "^3.0.0",
     "postcss-nested": "^2.1.2",
     "precss": "^2.0.0",
+    "prettier-eslint": "^8.2.2",
     "react-addons-test-utils": "^15.4.1",
     "react-test-renderer": "^15.4.1",
     "rimraf": "^2.5.4",
