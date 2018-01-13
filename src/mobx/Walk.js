@@ -55,6 +55,7 @@ export default class Walk {
 
   @computed
   get code() {
+    if (this.shortCode) return this.shortCode;
     let code =
       this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
     if (code.length > 4) code = code.substr(0, 2) + code.substr(-2);
@@ -80,7 +81,7 @@ export default class Walk {
       free,
       available: free - totals.W,
       full: free <= totals.W,
-      display
+      display,
     };
   }
 
@@ -124,7 +125,7 @@ export default class Walk {
           annotation,
           type: booking.status,
           requestType,
-          guest
+          guest,
         };
       })
       .sort(nameCmp);
@@ -164,7 +165,7 @@ export default class Walk {
     if (!booking) {
       booking = new Booking({}, memId, {
         getWalk: this.getWalk,
-        walk: this.walk
+        walk: this.walk,
       });
       this.bookings.set(memId, booking);
     }
@@ -226,12 +227,12 @@ export default class Walk {
       else
         this.bookings.set(
           memId,
-          new Booking(booking, memId, { getWalk: this.getWalk })
+          new Booking(booking, memId, { getWalk: this.getWalk }),
         );
     });
     const deleted = R.difference(
       this.bookings.keys(),
-      Object.keys(walkDoc.bookings || {})
+      Object.keys(walkDoc.bookings || {}),
     );
     deleted.forEach(memId => this.bookings.delete(memId));
     delete walkDoc.bookings;
@@ -268,7 +269,7 @@ export default class Walk {
     // );
     let confs = await db.get(this._id, {
       open_revs: this._conflicts,
-      include_docs: true
+      include_docs: true,
     });
     // logit('conflicting docs', confs);
     runInAction('addConflicting docs', () => {
@@ -299,7 +300,7 @@ export default class Walk {
           this._rev,
           this.venue,
           extraLogs,
-          this.bookings.toJS()
+          this.bookings.toJS(),
         );
       // this.deleteConflictingDocs(this._conflicts);
     });
@@ -329,7 +330,7 @@ export default class Walk {
           cDoc._rev,
           memId,
           this.venue,
-          cBooking
+          cBooking,
         );
       }
     });
