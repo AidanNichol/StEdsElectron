@@ -76,7 +76,7 @@ function gatherData(memberSet, printFull) {
           (WS.walks.get(walkId).bookings.get(memId) || {}).status || 'Chk';
         if (i === 0 && status !== 'W' && status !== 'Chk') reserve = false;
         status = status[1] === 'X' ? 'Chk' : status;
-        if (!printFull && status === 'Chk') status = 'Blank';
+        // if (!printFull && status === 'Chk') status = 'Blank';
         bkng[i] = status;
       });
       memData.xtra = [];
