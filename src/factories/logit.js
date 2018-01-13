@@ -2,22 +2,18 @@ import debug from 'debug';
 import _ from 'lodash';
 export var opts = {};
 export var logitCodes = [];
-// console.log('debug', localStorage.getItem('debug'));
-// debug.disable();
-// console.log('debug', localStorage.getItem('debug'));
-// debug.enable('steds:*, -steds:electron*');
-// console.log('debug', localStorage.getItem('debug'));
-// debug.enable(localStorage.getItem('debug') + ',pouchdb*');
-// console.log('debug', localStorage.getItem('debug'));
-// debug.enable('pouchdb:*');
-// debug.enable('*');
-// localStorage.setItem('debug', 'steds:*, steds:electron* ');
 const debugme = debug('logit:setup');
-debug.enable(localStorage.getItem('debug') + ',-logit:setup');
+const debug2 = debug('steds:logit');
+let enableStr = localStorage.getItem('debug');
+enableStr = enableStr
+  .split(',')
+  // .filter(str => !str.includes('logit'))
+  .filter(str => !str.includes('logit') && !str.includes('pouchdb'))
+  .join(',');
+debug.enable(enableStr + ',steds:logit,-logit:setup');
+// debug.enable(enableStr + ',steds:logit,-logit:setup, -pouchdb*');
+debug2('enable string', enableStr);
 export default function Logit(source) {
-  // if (window) {
-  //   window.mydebug = debug;
-  // }
   const symbs = {
     components: '⚙️',
     views: '️⛰',
