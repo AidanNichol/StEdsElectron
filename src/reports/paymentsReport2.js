@@ -24,6 +24,8 @@ export function paymentsDueReport(doc, yStart) {
   doc.font(normal);
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
+  const marginV = 20;
+
   const colW = pWidth / 2 - margin - 20;
   // const nameH = doc.fontSize(14).currentLineHeight()*1.24
   // const detailH = doc.fontSize(12).currentLineHeight()*1.0185;
@@ -33,10 +35,12 @@ export function paymentsDueReport(doc, yStart) {
 
   let sizes;
   const balanceCols = debts => {
+    // calculate space needed for each person in the list
     sizes = debts.map(
       data => (data.size = nameH + gapH + data.debt.length * detailH),
     );
-    logit('sizes', sizes);
+    logit('sizes', { sizes, nameH, gapH, detailH });
+    // calculate the offset to where each entry starts.
     let tot = 0;
     let relStartY = sizes.map(item => {
       let st = tot;
@@ -44,7 +48,8 @@ export function paymentsDueReport(doc, yStart) {
       return st;
     });
     logit('relStartY', { relStartY, tot });
-    let i = relStartY.findIndex(item => item >= tot / 2);
+    // tot is now the total space needed. find first entry that needs to be in the 2nd column
+    let i = relStartY.findIndex((item, i) => item >= tot / 2);
     if (
       Math.max(relStartY[i], tot - relStartY[i]) >
       Math.max(relStartY[i - 1], tot - relStartY[i - 1])
@@ -88,10 +93,23 @@ export function paymentsDueReport(doc, yStart) {
   x = margin;
 
   debts.forEach((data, i) => {
-    logit('payment', data.accName, { y: doc.y, calcY, data });
+    logit('payment', data.accName, {
+      y: doc.y,
+      x: doc.x,
+      i,
+      size: sizes[i],
+      pHeight,
+      bal,
+      calcY,
+      data,
+    });
     // if (i=== bal)doc.text('', pWidth/2+20, yOff);
-    if (i === bal) {
-      x = pWidth / 2 + 20;
+    if ((i === bal && x === margin) || y + sizes[i] >= pHeight - marginV) {
+      if (x === margin) x = pWidth / 2 + 20;
+      else {
+        doc.addPage();
+        x = margin;
+      }
       y = yOff;
     }
 

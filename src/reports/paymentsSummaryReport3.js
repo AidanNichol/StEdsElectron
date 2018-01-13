@@ -110,11 +110,13 @@ function prepareData(payload, printFull) {
     .filter(acc => acc.activeThisPeriod && (printFull || acc.paymentsMade > 0))
     // .filter(acc=>acc.accId === 'A1049')
     .forEach(acc => {
-      // logit("account", acc.accName, acc);
+      // logit('acc', acc.accName, acc);
       const { paymentsMade, accId, available, accName } = acc;
       const grid = {};
       acc.logs
-        .filter(log => log.type === 'W' && log.activeThisPeriod)
+        .filter(
+          log => log.type === 'W' && log.req[0] !== 'W' && log.activeThisPeriod,
+        )
         .filter(
           log => (log.paid && log.paid.P > 0) || (printFull && !log.ignore),
         )
@@ -128,6 +130,12 @@ function prepareData(payload, printFull) {
             };
           grid[log.memId].bkngs.push(log);
         });
+      if (Object.keys(grid).length === 0) {
+        grid[acc.accId] = {
+          name: acc.sortname,
+          bkngs: [],
+        };
+      }
       const memIds = Object.keys(grid).sort(
         (a, b) => grid[a].name > grid[b].name,
       );
@@ -168,7 +176,7 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   const marginV = 20;
   const pWidth = doc.page.width;
   const pHeight = doc.page.height;
-  const colW = pWidth / 2 - margin - 4;
+  let colW = pWidth / 2 - margin - 4;
   const colHeadY = 70;
   const r = 3;
   const fontHeight = calcLineHeights(doc);
@@ -176,19 +184,24 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   const detailH = fontHeight[szD];
   const gapH = fontHeight[3];
   const bkWidth = 27;
+  const noCols = walkIndex.size + (addToCredit ? 1 : 0) > 5 ? 1 : 2;
+  if (noCols === 1) colW += (walkIndex.size - 4) * bkWidth;
   const bxW = colW + 4;
   const paidCol = addToCredit ? -2.1 : -1.1;
   let x, y;
   let col = 0;
-  const setEndY = (endY, printHeading = false) => {
+  logit('page setup', {pWidth, pHeight, margin, colW, noCols, addToCredit, size:walkIndex.size})
+
+  const setEndY = function(endY, printHeading = false) {
     if (pHeight - marginV - endY - 1 <= 0) {
       x = pWidth - margin - colW;
       y = colHeadY;
-      col = (col + 1) % 2;
+      col = (col + 1) % noCols;
 
       if (col === 0) {
         x = margin;
         doc.addPage();
+        printHeading = true;
       }
       if (printHeading) {
         y = printColumnHeading(x, y, walkIndex);
@@ -196,7 +209,7 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     }
   };
 
-  const printColumnHeading = (x, y, walks) => {
+  function printColumnHeading(x, y, walks) {
     // header for walk names(codes)
     const nbsp = '\u00A0';
 
@@ -224,10 +237,11 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       printCell(i, walk.name);
       retY = Math.max(retY, doc.y);
     });
-    return retY + 4;
-  };
+    return retY + 14;
+  }
+
   // routines for printing individual components
-  const printAccountHeader = (x, y, ht) => {
+  function printAccountHeader(x, y, ht) {
     const boxPt = 2;
     doc.roundedRect(x - 2, y - boxPt, bxW, ht, r).stroke('#888');
     const drawBar = (x, y, i) => {
@@ -243,17 +257,9 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       const i = walk.index;
       drawBar(x, y, i);
     });
-  };
-  const showMoney = (
-    x,
-    y,
-    dY,
-    value,
-    text,
-    rectFill,
-    rectStroke,
-    textColor,
-  ) => {
+  }
+
+  function showMoney(x, y, dY, value, text, rectFill, rectStroke, textColor) {
     const boxWidth = 20,
       moneyWidth = 15;
     const boxOff = (1.1 * bkWidth - boxWidth) / 2;
@@ -268,9 +274,9 @@ export function reportBody(payload, printFull, doc, lastWalk) {
         align: 'right',
         width: moneyWidth,
       });
-  };
+  }
 
-  const printWalkIcon = (x, y, log) => {
+  function printWalkIcon(x, y, log) {
     const i = walkIndex.get(log.walkId).index;
     const x1 = x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.4;
     const x2 = x + colW - bkWidth * (noWalks - i);
@@ -310,7 +316,8 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       }
       // if (log.memId==='M1049')logit('text', log.paid, text);
     }
-  };
+  }
+
   doc.font(normal);
 
   logit('walkIndex', { walkIndex });
@@ -321,7 +328,7 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   // y= yOff;
   accData.forEach(acc => {
     const { paymentsMade, memIds, addToCredit, grid } = acc;
-    // logit('account', acc.accName);
+    // logit('accData', acc.accName, acc);
     // console.log(prettyFormat(acc));
     let accHeight = 2 + detailH * memIds.length;
     const dY = detailH * ((memIds.length - 1) * 0.5) + 1;
@@ -353,9 +360,15 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     y = startY + accHeight;
     y += gapH;
   });
-  const lwW = colW * 0.7;
   const lwH = (lastWalk ? 6 : 0) * fontHeight[11];
-  setEndY(y + fontHeight[12] + lwH + 8);
+  const lwW = colW * 0.7;
+  if (noCols === 2) {
+    setEndY(y + fontHeight[12] + lwH + 8);
+  } else {
+    x += colW + 8;
+    y = colHeadY;
+    colW = pWidth - x - margin;
+  }
   doc
     .font(bold)
     .fontSize(12)
@@ -366,9 +379,8 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   y += fontHeight[12] + 8;
   logit('lastWalk', lastWalk);
   const makeHeadBox = (bxW, bxH, r) =>
-    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${
-      bxW
-    } v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH -
+      r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
   if (lastWalk) {
     x += 45;
@@ -382,10 +394,6 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       .fillAndStroke('#ccc', '#888');
     doc.roundedRect(x - 2, y - boxPt, lwW, lwH, r).stroke('#888');
 
-    // const opts = { width: lwW - 5, align: "right" };
-    // const fee = lastWalk.fee;
-    // const total =
-    //   (lastWalk.totals.C * 0.5 + lastWalk.totals.B + lastWalk.totals.BL) * fee;
     doc
       .font(normal)
       .fontSize(11)
@@ -401,18 +409,12 @@ export function reportBody(payload, printFull, doc, lastWalk) {
       .font(normal);
     y += fontHeight[11] + 4;
     doc.text(`Bus Bookings (${lastWalk.totals.B})`, x, y);
-    // doc.text(`£${lastWalk.totals.B * fee}  `, x, y, opts);
     y += fontHeight[11];
     doc.text(`Bus Late Cancellation (${lastWalk.totals.BL})`, x, y);
-    // doc.text(`£${lastWalk.totals.BL * fee}  `, x, y, opts);
     y += fontHeight[11];
     doc.text(`Car Bookings (${lastWalk.totals.C})`, x, y);
-    // doc.text(`£${lastWalk.totals.C * fee * 0.5}  `, x, y, opts);
     y += fontHeight[11] + 4;
     // doc.text(`Total Income`, x, y);
     // doc.font(bold).text(`£${total}`, x, y, opts);
   }
-
-  // drawSVG(doc, x+colW/2, y+colW/2, 0.5, 'St_EdwardsLogoSimple');
-  // drawSVG(doc, x+colW/2, y+colW/2, 0.5, 'St_EdwardsLogo');
 }
