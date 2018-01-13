@@ -5,7 +5,7 @@ import {
   runInAction,
   autorun,
   reaction,
-  toJS
+  toJS,
 } from 'mobx';
 import { useFullHistory } from 'ducks/settings-duck';
 
@@ -71,7 +71,7 @@ class WalksStore {
 
     const recent = [
       ...this.walks.keys().slice(i, i + no),
-      ...this.bookableWalksId
+      ...this.bookableWalksId,
     ];
     logit('walkDay recent', recent, i, nextWalk, this.walks.keys());
     return recent;
@@ -124,7 +124,7 @@ class WalksStore {
         'allWalkLogsByAccount:walk',
         walk._id,
         walk.venue,
-        walk.walkLogsByMembers
+        walk.walkLogsByMembers,
       );
       Object.entries(walk.walkLogsByMembers).map(([memId, logs]) => {
         let member = MS.members.get(memId);
@@ -182,13 +182,15 @@ class WalksStore {
     const endkey = 'W' + DS.lastAvailableDate;
     var periodStartDate = PS.currentPeriodStart;
     const startkey =
-      useFullHistory && periodStartDate ? 'W2016-11-01' : 'W' + periodStartDate;
+      useFullHistory || !periodStartDate
+        ? 'W2016-11-01'
+        : 'W' + periodStartDate;
     logit('loadWalks', startkey, '<-->', endkey, useFullHistory);
     const data = await db.allDocs({
       include_docs: true,
       conflicts: true,
       startkey,
-      endkey
+      endkey,
     });
     /* required in strict mode to be allowed to update state: */
     logit('allDocs', data);
