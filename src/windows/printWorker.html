@@ -1,0 +1,25 @@
+<head>
+    <link rel="stylesheet" href="../styles/logsTable.css">
+</head>
+
+<body>
+    <h1>printWorker</h1>
+    <script>
+        const ipcRenderer = require("electron").ipcRenderer;
+        function replyReady(data, eventName) {
+            console.log('printWorker printPDF', event, data)
+            document.body.innerHTML = `<div class="print">${data.content}</div>`;
+            delete data.content;
+            ipcRenderer.send(eventName, data);
+        }
+        ipcRenderer.on("printPDF", (_, data) => { replyReady(data, "readyToPrintPDF") });
+        ipcRenderer.on("print", (_, data) => { replyReady(data, "readyToPrint") });
+        // ipcRenderer.on("print", (_, data) => {
+        //     console.log('printWorker print', event, data)
+        //     document.body.innerHTML = data.content;
+        //     delete data.content;
+
+        //     ipcRenderer.send("readyToPrint", data);
+        // });
+    </script>
+</body>
