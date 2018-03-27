@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import XDate from 'xdate';
 import fs from 'fs';
+import { shell } from 'electron';
 import Logit from 'factories/logit.js';
 var logit = Logit(__filename);
 // var logit = (...args) => console.log(...args);
@@ -75,9 +76,7 @@ export function membershipListReport(members) {
 
     // let subs = getSubsStatus(mem);
     let subs = mem.subsStatus;
-    stat = `${
-      mem.subscription ? "'" + parseInt(mem.subscription) % 100 : '---'
-    }`;
+    stat = `${mem.subscription ? "'" + parseInt(mem.subscription) % 100 : '---'}`;
     let atts = subsMap[subs.status];
     if (mem.memberId === 'M2031') logit('subs', subs, stat, atts);
     return [stat, atts];
@@ -101,7 +100,7 @@ export function membershipListReport(members) {
     pageCount = Math.ceil(members.length / 16);
   const dFS = 9;
   // const nameH = 12.6, gapH = 8.1;
-  const lineH = doc.fontSize(dFS).currentLineHeight();
+  // const lineH = doc.fontSize(dFS).currentLineHeight();
   // const colW = pWidth/2 - margin - 20;
   const nameH = doc.fontSize(14).currentLineHeight();
   // const detailH = doc.fontSize(12).currentLineHeight()
@@ -119,12 +118,9 @@ export function membershipListReport(members) {
     doc
       .font(bold)
       .fontSize(14)
-      .text(
-        'St.Edwards Fellwalkers: Membership List',
-        30,
-        30 + (20 - nameH) / 2,
-        { align: 'center' },
-      );
+      .text('St.Edwards Fellwalkers: Membership List', 30, 30 + (20 - nameH) / 2, {
+        align: 'center',
+      });
     doc
       .font(normal)
       .fontSize(9)
@@ -132,12 +128,9 @@ export function membershipListReport(members) {
     doc
       .font(normal)
       .fontSize(9)
-      .text(
-        `page ${currentPage.toString()} of ${pageCount}`,
-        30,
-        40 + gapH * 0,
-        { align: 'right' },
-      );
+      .text(`page ${currentPage.toString()} of ${pageCount}`, 30, 40 + gapH * 0, {
+        align: 'right',
+      });
     doc.fontSize(dFS).text('', margin, 60);
     x = doc.x;
     y = doc.y;
@@ -161,7 +154,7 @@ export function membershipListReport(members) {
   doc.addPage();
   doc.font(normal);
   const pWidth = doc.page.width;
-  const pHeight = doc.page.Height;
+  // const pHeight = doc.page.Height;
 
   // const subsMap = {ok:{'✓'}, due: '?', late: '✘'};
   let fmtMem = {};
@@ -207,5 +200,10 @@ export function membershipListReport(members) {
     y1 += gapH * 0.3;
   });
   doc.end();
+  setTimeout(() => {
+    logit('about to shell', docname);
+    let ret = shell.openItem(docname);
+    logit('shell says', ret);
+  }, 500);
   return docname.substr(home.length + 1);
 }

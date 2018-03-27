@@ -3,18 +3,21 @@
 const electron = require('electron');
 import { getSettings } from 'ducks/settings-duck';
 // const {Menu} = require('electron');
-const { app, BrowserWindow, ipcMain } = electron;
+const { app, BrowserWindow, ipcMain, shell } = electron;
 // const app = electron.app;
 // const BrowserWindow = electron.BrowserWindow;
 
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-} from 'electron-devtools-installer';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+
 const POUCHDB_INSPECTOR = 'hbhhpaojmpfimakffndmpmpndcmonkfa';
 // var ESI = require('electron-single-instance');
 app.setName('stedsbookings');
 
 let mainWindow,
+  printWorkerWindow,
   loadingScreen,
   windowParams = {
     width: 1280,
@@ -85,12 +88,20 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  printWorkerWindow = new BrowserWindow();
+  printWorkerWindow.loadURL('file://' + __dirname + '/windows/printWorker.html');
+  printWorkerWindow.webContents.on('did-finish-load', () => {
+    printWorkerWindow.show(); // printWorkerWindow.hide();
+  });
+  printWorkerWindow.webContents.openDevTools();
+  printWorkerWindow.on('closed', () => {
+    printWorkerWindow = undefined;
+  });
 }
 
 function createLoadingScreen() {
-  loadingScreen = new BrowserWindow(
-    Object.assign(windowParams, { parent: mainWindow }),
-  );
+  loadingScreen = new BrowserWindow(Object.assign(windowParams, { parent: mainWindow }));
   loadingScreen.loadURL('file://' + __dirname + '/windows/loading.html');
   loadingScreen.on('closed', () => (loadingScreen = null));
   loadingScreen.webContents.on('did-finish-load', () => {
@@ -104,10 +115,46 @@ function createLoadingScreen() {
 app.on('ready', () => {
   createLoadingScreen();
   createWindow();
-  console.log('crating listeners');
+  console.log('creating listeners');
   ipcMain.on('reload-main', (event, arg) => {
     console.log('reload request received', arg);
     event.sender.send('reload-reply', 'pong');
     mainWindow.reload();
   });
+});
+
+// retransmit it to printWorkerWindow
+ipcMain.on('print', (event: any, content: any) => {
+  console.log('print event', event, content);
+  printWorkerWindow.webContents.send('print', content);
+});
+// when worker window is ready
+ipcMain.on('readyToPrint', () => {
+  // printWorkerWindow.webContents.print({});
+});
+
+// retransmit it to printWorkerWindow
+ipcMain.on('printPDF', (event: any, content: any) => {
+  console.log('printPDF event', event, content);
+  printWorkerWindow.webContents.send('printPDF', content);
+});
+// when worker window is ready
+ipcMain.on('readyToPrintPDF', (event, options) => {
+  const { name = 'print' } = options;
+  console.log('readyToPrintPDF', event);
+  const pdfPath = path.join(os.tmpdir(), `${name}.pdf`);
+  // Use default printing options
+  printWorkerWindow.webContents.printToPDF(
+    { printBackground: true, pageSize: 'A4' },
+    function(error, data) {
+      if (error) throw error;
+      fs.writeFile(pdfPath, data, function(error) {
+        if (error) {
+          throw error;
+        }
+        shell.openItem(pdfPath);
+        event.sender.send('wrote-pdf', pdfPath);
+      });
+    },
+  );
 });

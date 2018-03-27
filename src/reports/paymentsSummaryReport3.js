@@ -3,6 +3,7 @@ import fs from 'fs';
 import XDate from 'xdate';
 import jetpack from 'fs-jetpack';
 import { drawSVG } from 'reports/extract-svg-path';
+import { shell } from 'electron';
 
 import Logit from 'factories/logit.js';
 var logit = Logit(__filename);
@@ -79,12 +80,9 @@ export function paymentsSummaryReport3(payload, lastWalk) {
     doc
       .font(normal)
       .fontSize(9)
-      .text(
-        new XDate().toString('yyyy-MM-dd HH:mm'),
-        30,
-        30 + (20 - height4) / 2,
-        { align: 'right' },
-      );
+      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, 30 + (20 - height4) / 2, {
+        align: 'right',
+      });
     // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
     doc
       .fontSize(14)
@@ -98,6 +96,11 @@ export function paymentsSummaryReport3(payload, lastWalk) {
 
   reportBody(payload, printFull, doc, lastWalk);
   doc.end();
+  setTimeout(() => {
+    logit('about to shell', docname);
+    let ret = shell.openItem(docname);
+    logit('shell says', ret);
+  }, 500);
   return docname.substr(home.length + 1);
 }
 
@@ -114,12 +117,8 @@ function prepareData(payload, printFull) {
       const { paymentsMade, accId, available, accName } = acc;
       const grid = {};
       acc.logs
-        .filter(
-          log => log.type === 'W' && log.req[0] !== 'W' && log.activeThisPeriod,
-        )
-        .filter(
-          log => (log.paid && log.paid.P > 0) || (printFull && !log.ignore),
-        )
+        .filter(log => log.type === 'W' && log.req[0] !== 'W' && log.activeThisPeriod)
+        .filter(log => (log.paid && log.paid.P > 0) || (printFull && !log.ignore))
         .forEach(log => {
           walkIds.add(log.walkId);
           if (!openWalks.has(log.walkId)) log.late = true;
@@ -136,9 +135,7 @@ function prepareData(payload, printFull) {
           bkngs: [],
         };
       }
-      const memIds = Object.keys(grid).sort(
-        (a, b) => grid[a].name > grid[b].name,
-      );
+      const memIds = Object.keys(grid).sort((a, b) => grid[a].name > grid[b].name);
       if (available.P) addToCredit = true;
       accData.push({
         paymentsMade,
@@ -165,8 +162,7 @@ function prepareData(payload, printFull) {
 
 export function reportBody(payload, printFull, doc, lastWalk) {
   const tots = payload.tots;
-  const netCashAndCheques =
-    (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
+  const netCashAndCheques = (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
 
   const { walkIndex, accData, addToCredit } = prepareData(payload, printFull);
   const noWalks = walkIndex.size;
@@ -190,7 +186,15 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   const paidCol = addToCredit ? -2.1 : -1.1;
   let x, y;
   let col = 0;
-  logit('page setup', {pWidth, pHeight, margin, colW, noCols, addToCredit, size:walkIndex.size})
+  logit('page setup', {
+    pWidth,
+    pHeight,
+    margin,
+    colW,
+    noCols,
+    addToCredit,
+    size: walkIndex.size,
+  });
 
   const setEndY = function(endY, printHeading = false) {
     if (pHeight - marginV - endY - 1 <= 0) {
@@ -379,8 +383,8 @@ export function reportBody(payload, printFull, doc, lastWalk) {
   y += fontHeight[12] + 8;
   logit('lastWalk', lastWalk);
   const makeHeadBox = (bxW, bxH, r) =>
-    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH -
-      r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH -
+      r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
   if (lastWalk) {
     x += 45;

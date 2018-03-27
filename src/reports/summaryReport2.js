@@ -4,6 +4,7 @@ import { busListReport } from 'reports/busListPDF';
 import { paymentsDueReport } from 'reports/paymentsReport2';
 import { creditsOwedReport } from 'reports/creditsReport2';
 import { walkDayBookingSheet } from 'reports/walkDayBookingSheet';
+import { shell } from 'electron';
 import fs from 'fs';
 import XDate from 'xdate';
 
@@ -71,15 +72,11 @@ export function summaryReport(printFull) {
     doc
       .font(normal)
       .fontSize(9)
-      .text(
-        new XDate().toString('yyyy-MM-dd HH:mm'),
-        30,
-        marginV + (20 - height4) / 2,
-        { align: 'right' },
-      );
+      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, marginV + (20 - height4) / 2, {
+        align: 'right',
+      });
   });
-  title =
-    'St.Edwards Fellwalkers: ' + (printFull ? 'Full List' : ' Walk Day List');
+  title = 'St.Edwards Fellwalkers: ' + (printFull ? 'Full List' : ' Walk Day List');
   walkDayBookingSheet(doc, printFull);
   var title = 'St.Edwards Fellwalkers: Bus Lists';
   busListReport(doc);
@@ -88,5 +85,10 @@ export function summaryReport(printFull) {
   paymentsDueReport(doc, yStart);
   // // title = 'St.Edwards Fellwalkers: Credits Owed';
   doc.end();
+  setTimeout(() => {
+    logit('about to shell', docname);
+    let ret = shell.openItem(docname);
+    logit('shell says', ret);
+  }, 2000);
   return docname.substr(home.length + 1);
 }
