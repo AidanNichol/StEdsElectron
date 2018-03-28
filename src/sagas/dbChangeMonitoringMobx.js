@@ -10,7 +10,7 @@ var storeFn = {
   walk: WS.changeDoc,
   account: AS.changeDoc,
   member: MS.changeDoc,
-  paymentSummary: AS.changeBPdoc
+  bankPayments: AS.changeBPdoc,
 };
 
 var logit = Logit(__filename);
@@ -19,7 +19,7 @@ const collections = {
   W: 'walk',
   A: 'account',
   BP: 'bankPayments',
-  BS: 'bankSubscriptions'
+  BS: 'bankSubscriptions',
 };
 
 // lastSeq = 138;
@@ -42,8 +42,7 @@ export async function monitorChanges() {
 const handleChange = change => {
   if (change.id[0] === '_' || (change.doc && !change.doc.type)) return;
   var collection =
-    (change.doc && change.doc.type) ||
-    collections[change.id.match(/$([A-Z]+)/)[0]];
+    (change.doc && change.doc.type) || collections[change.id.match(/$([A-Z]+)/)[0]];
   logit('change', { change, collection });
   if (storeFn[collection]) {
     storeFn[collection](change); // update Mobx store

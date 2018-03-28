@@ -3,14 +3,7 @@ import { intersection, merge, pick } from 'lodash';
 import React from 'react';
 import { remoteCouch } from 'services/bookingsDB';
 import { getSettings, setSettings } from 'ducks/settings-duck';
-import {
-  observable,
-  action,
-  computed,
-  runInAction,
-  reaction,
-  toJS,
-} from 'mobx';
+import { observable, action, computed, runInAction, reaction, toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import { setRouterPage } from 'ducks/router-mobx';
 import Logit from '../factories/logit.js';
@@ -35,8 +28,7 @@ export class SigninState {
   @computed
   get isMemberAdmin() {
     return (
-      intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings'])
-        .length > 0
+      intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0
     );
   }
 }
@@ -128,9 +120,7 @@ export const reLogin = action('relogin', () => {
     logit('reLogin no signin data saved', curUser, userData);
     return;
   }
-  const { username, password } = JSON.parse(
-    localStorage.getItem('stEdsSignin'),
-  );
+  const { username, password } = JSON.parse(localStorage.getItem('stEdsSignin'));
   const err = localLogin(username, password);
   if (err) logit('localLogin failed', err);
   else restoreRouterData();
@@ -138,8 +128,10 @@ export const reLogin = action('relogin', () => {
 
 const localLogin = action('localLogin', (username, password) => {
   const userData = getSettings('user');
+  logit('userData', userData);
   // const curUser = userData.current;
   if (!username || !password) return 'data missing';
+  if (!userData[username]) return 'user name is not known';
   const { password: uPassword, roles } = userData[username];
   if (getHash(password) !== uPassword)
     return `password mismatch  username;${username}  ${uPassword +
@@ -266,7 +258,5 @@ export const SigninForm = observer(() => {
     </div>
   );
 
-  return (
-    <div className="signin">{state.loggedIn ? loggedIn : notLoggedIn}</div>
-  );
+  return <div className="signin">{state.loggedIn ? loggedIn : notLoggedIn}</div>;
 });
