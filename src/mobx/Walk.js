@@ -56,8 +56,7 @@ export default class Walk {
   @computed
   get code() {
     if (this.shortCode) return this.shortCode;
-    let code =
-      this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
+    let code = this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
     if (code.length > 4) code = code.substr(0, 2) + code.substr(-2);
     return code;
   }
@@ -215,7 +214,7 @@ export default class Walk {
     this._rev = res.rev;
     const info = await db.info();
     logit('info', info);
-    replicationDbChange(info);
+    replicationDbChange('walk changed');
   };
 
   @action
@@ -225,10 +224,7 @@ export default class Walk {
       if (this.bookings.has(memId))
         this.bookings.get(memId).updateBookingFromDoc(booking);
       else
-        this.bookings.set(
-          memId,
-          new Booking(booking, memId, { getWalk: this.getWalk }),
-        );
+        this.bookings.set(memId, new Booking(booking, memId, { getWalk: this.getWalk }));
     });
     const deleted = R.difference(
       this.bookings.keys(),
@@ -324,14 +320,7 @@ export default class Walk {
         if (!_.isEmpty(added))
           extraLogs[memId] = { ...(extraLogs[memId] || {}), ...added };
       } else {
-        logit2(
-          'conflict shows extra',
-          this._rev,
-          cDoc._rev,
-          memId,
-          this.venue,
-          cBooking,
-        );
+        logit2('conflict shows extra', this._rev, cDoc._rev, memId, this.venue, cBooking);
       }
     });
     return extraLogs;

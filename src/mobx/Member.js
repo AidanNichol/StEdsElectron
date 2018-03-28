@@ -58,8 +58,7 @@ export default class Member {
     let _today = new Date();
     // DS.todaysDate;
     let status = 'ok';
-    if (this.memberStatus === 'HLM')
-      return { due: false, status, showSubsButton: false };
+    if (this.memberStatus === 'HLM') return { due: false, status, showSubsButton: false };
     if (this.memberStatus === 'Guest')
       return { due: false, status: 'guest', showSubsButton: false };
 
@@ -69,21 +68,17 @@ export default class Member {
     // const _today = new Date();
     let thisYear = _today.getFullYear();
     // year - all new subs will be ok until the end of thie 'year'
-    let year =
-      _today >= new Date(`${thisYear}-10-01`) ? thisYear + 1 : thisYear;
+    let year = _today >= new Date(`${thisYear}-10-01`) ? thisYear + 1 : thisYear;
     // dueSubsYear - we are collecting subs for this year
-    let dueSubsYear =
-      _today >= new Date(`${thisYear}-12-31`) ? thisYear + 1 : thisYear;
+    let dueSubsYear = _today >= new Date(`${thisYear}-12-31`) ? thisYear + 1 : thisYear;
     // okSubsYear - if current value is this then you get the reduced rate.
-    let okSubsYear =
-      _today < new Date(`${thisYear}-02-01`) ? thisYear - 1 : thisYear;
+    let okSubsYear = _today < new Date(`${thisYear}-02-01`) ? thisYear - 1 : thisYear;
     let showSubsButton =
       _today >= new Date(`${thisYear}-12-01`) && currentUserSubs < year;
     if (currentUserSubs >= okSubsYear) fee = 13;
     // console.log({currentUserSubs, year, thisYear, dueSubsYear,  okSubsYear, showSubsButton})
     if (currentUserSubs >= year || currentUserSubs >= dueSubsYear) {
-      if (showSubsButton)
-        return { due: false, status, year, fee, showSubsButton };
+      if (showSubsButton) return { due: false, status, year, fee, showSubsButton };
       else return { due: false, status, showSubsButton };
     }
     status = 'due';
@@ -105,7 +100,7 @@ export default class Member {
 
   @action
   dbUpdate = async () => {
-    let { _conflicts, ...newDoc } = toJS(this);
+    let { _conflicts, ...newDoc } = toJS(this); // eslint-disable-line no-unused-vars
     logit('DB Update', newDoc._deleted, newDoc);
     const res = await db.put(newDoc);
     runInAction('after doc update', () => {
@@ -113,6 +108,6 @@ export default class Member {
     });
     const info = await db.info();
     logit('info', info);
-    replicationDbChange(info);
+    replicationDbChange('member changed');
   };
 }

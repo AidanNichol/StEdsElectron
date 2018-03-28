@@ -11,30 +11,36 @@ import Logit from '../factories/logit';
 var logit = Logit(__filename);
 
 export const state = observable({
+  lastAction: undefined,
   current: 'paused',
-  waiting: computed(() => state.db_seq - state.last_seq),
-  sent: computed(() => state.last_seq - state.first_seq),
-  last_seq: undefined, // sequence no. at last replication
-  db_seq: undefined,
-  first_seq: 0, // db sequence no at start up
-  dbChange: action(info => (state.db_seq = info.update_seq)),
+  waiting: computed(() => state.dblocal_seq - state.push.last_seq),
+  dblocal_seq: undefined,
+  push: { written: 0, last_seq: localStorage.getItem('stEdsReplSeq') },
+  pull: { written: 0, last_seq: null },
+  dbChange: action(async () => {
+    await updateStateFromLocalDB('db changed');
+  }),
 });
 autorun(() => logit('state changed', { ...toJS(state) }));
 
-export const replicationDbChange = state.dbChange;
+export const replicationDbChange = updateStateFromLocalDB;
 // Monitor replications is launched by store.js
-
+async function updateStateFromLocalDB(txt, updatePush = false) {
+  const info = await db.info();
+  logit(`${txt} local info`, info);
+  state.dblocal_seq = info.update_seq;
+  if (updatePush) {
+    state.push.last_seq = info.update_seq;
+    localStorage.setItem('stEdsReplSeq', state.push.last_seq);
+  }
+  state.lastAction = txt;
+}
 export async function monitorReplications() {
-  const remoteCouch = `http://${DbSettings.remotehost}:5984/${
-    DbSettings.remotename
-  }`;
+  const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
   try {
     PouchDB.plugin(require('pouchdb-authentication'));
-    // yield take('SIGNIN_SUCCESS');
     if (!localStorage.getItem('stEdsSignin')) return;
-    const { username, password } = JSON.parse(
-      localStorage.getItem('stEdsSignin'),
-    );
+    const { username, password } = JSON.parse(localStorage.getItem('stEdsSignin'));
 
     var remoteDB = new PouchDB(remoteCouch, { skip_setup: true });
     var resp = await remoteDB.login(username, password, {
@@ -43,13 +49,8 @@ export async function monitorReplications() {
       },
     });
     logit('login resp:', resp);
+    await updateStateFromLocalDB('setup', true);
 
-    const info = await db.info();
-    logit('info', info);
-    state.first_seq = info.update_seq;
-    state.last_seq = localStorage.getItem('stEdsReplSeq') || info.update_seq;
-
-    state.first_seq = state.last_seq;
     db
       .sync(remoteCouch, {
         live: true,
@@ -57,59 +58,87 @@ export async function monitorReplications() {
         retry: true,
       })
       .on('change', info => {
-        state.last_seq = info.change.last_seq;
-        localStorage.setItem('stEdsReplSeq', state.last_seq);
+        let direction = info.direction;
+        state[direction].last_seq = info.change.last_seq;
+        state[direction].written = info.change.docs_written;
+        state.lastAction = 'change';
       })
-      .on('paused', () => (state.current = 'paused'))
-      .on('active', info => (state.current = info.direction))
-      // .on('complete', ()=>emitter(END))
-      .on('error', err => logit('error', err));
+      .on('paused', async () => {
+        await updateStateFromLocalDB('replication paused', state.current !== 'paused');
+        state.current = 'paused';
+      })
+      .on('active', info => {
+        state.lastAction = 'replication active';
+        state.current = info.direction;
+      })
+      .on('denied', err => logit('on denied', err))
+      .on('complete', err => logit('on complete', err))
+      .on('error', err => logit('on error', err));
   } catch (err) {
     logit('signin error', err, remoteCouch);
   }
 }
 
 const replicationStatus = observer(props => {
-  // let {waiting, sent} = state;
   const { className } = props;
-  var xtra = { 'data-test': 1 };
-  const badge = state.waiting || state.sent;
+  var xtra = {};
+  if (state.pull.written || state.dblocal_seq === 0) {
+    xtra[`data-pulled`] = state.pull.written;
+  }
   if (state.waiting) {
     xtra[`data-waiting`] = state.waiting;
-  } else if (state.sent) {
-    xtra[`data-sent`] = state.sent;
+  } else if (state.push.written) {
+    xtra[`data-pushed`] = state.push.written;
   }
-  logit('repstatus', badge, xtra);
+  logit('repstatus', xtra);
   return (
     <span className={className} {...xtra}>
       <Icon name={`cloud-${state.current}`} />
     </span>
   );
 });
-const badge = `
-		position:absolute;
-		top:-8px;
-		right:-8px;
-		font-size:.7em;
-		color:white;
-		width:18px;height:18px;
-		text-align:center;
-		line-height:18px;
-		border-radius:50%;
-		box-shadow:0 0 1px #333;`;
+
 export const ReplicationStatus = styled(replicationStatus)`
   position: relative;
   width: 24px;
 
+  &[data-sent]:after,
+  &[data-waiting]:after,
+  &[data-pushed]:after,
+  &[data-pulled]:before {
+    position: absolute;
+    font-size: 0.7em;
+    color: white;
+    min-width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 50%;
+    box-shadow: 0 0 1px #333;
+  }
+  &[data-pushed]:after {
+    content: attr(data-pushed);
+    top: -8px;
+    right: -8px;
+    background: green;
+  }
+  &[data-pulled]:before {
+    content: attr(data-pulled);
+    background: blue;
+    left: -8px;
+    bottom: -8px;
+  }
   &[data-sent]:after {
     content: attr(data-sent);
+    top: -8px;
+    right: -8px;
     background: green;
-    ${badge};
   }
 
   &[data-waiting]:after {
     content: attr(data-waiting);
+    top: -8px;
+    right: -8px;
     background: red;
-    ${badge};
   }
 `;
