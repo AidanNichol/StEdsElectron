@@ -1,11 +1,31 @@
+.print {
+  .logsTable {
+    .edit_button {
+      display: none;
+    }
+    .screenOnly {
+      display: none;
+    }
+    .scrollBox {
+      overflow: visible;
+      max-height: auto;
+    }
+  }
+}
 .logsTable {
   margin-left: 10px;
   border: #bce8f1 solid thin;
+
+  .scrollBox {
+    overflow: auto;
+    max-height: 500px;
+  }
 
   .logHeader {
     color: #31708f;
     background-color: #d9edf7;
     border-bottom: #bce8f1 solid thin;
+    // display: flex;
 
     .showAll {
       margin-left: 40px;
