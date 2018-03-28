@@ -90,11 +90,13 @@ function createWindow() {
   });
 
   printWorkerWindow = new BrowserWindow();
+  printWorkerWindow.hide();
   printWorkerWindow.loadURL('file://' + __dirname + '/windows/printWorker.html');
   printWorkerWindow.webContents.on('did-finish-load', () => {
-    printWorkerWindow.show(); // printWorkerWindow.hide();
+    // printWorkerWindow.show();
+    printWorkerWindow.hide();
   });
-  printWorkerWindow.webContents.openDevTools();
+  // printWorkerWindow.webContents.openDevTools();
   printWorkerWindow.on('closed', () => {
     printWorkerWindow = undefined;
   });
