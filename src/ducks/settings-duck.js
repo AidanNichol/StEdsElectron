@@ -6,7 +6,7 @@ let defaults = {
     sandy: { password: '', roles: ['bookings', 'steds'] },
     pat: { password: '', roles: ['bookings', 'steds'] },
     aidan: { password: '', roles: ['admin', 'steds'] },
-    val: { password: '', roles: ['membership', 'steds'] }
+    ray: { password: '', roles: ['membership', 'steds'] },
   },
 
   lock: { enabled: false, delay: 5000 },
@@ -22,7 +22,7 @@ let defaults = {
       remotename: 'bookings',
       remotehost: 'nicholware.com',
       localUsers: '_users',
-      resetLocalUser: false
+      resetLocalUser: false,
     },
     developement: {
       localname: 'devbookings',
@@ -33,16 +33,23 @@ let defaults = {
       user: 'aidan',
       password: 'admin',
       localUsers: 'devUsers',
-      resetLocalUser: false
-    }
+      resetLocalUser: false,
+    },
   },
-  advanced: false
+  advanced: false,
 };
-let existing = settings.getAll();
+let existing = {};
+try {
+  existing = settings.getAll();
+} catch (error) {
+  console.log('get setting', error);
+}
 let newValues = { ...defaults, ...existing };
 delete newValues.debug.reduxLogger;
 delete newValues.database.developement.resetLocal;
 delete newValues.database.production.resetLocal;
+delete newValues.database.developement.resetLocalBooking;
+delete newValues.database.production.resetLocalBooking;
 delete newValues.clearRouter;
 console.log('V3 Electron-settings', { defaults, existing, newValues });
 settings.setAll(newValues);
