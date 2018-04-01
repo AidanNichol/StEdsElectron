@@ -8,7 +8,7 @@ import { observable, computed, action, toJS, autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import debug from 'debug';
 import styled from 'styled-components';
-debug.enable('*');
+//debug.enable('*');
 let logme = require('debug')(`debugOptions`);
 let logmeC = debug(`children`);
 let logmeP = require('debug')(`group`);

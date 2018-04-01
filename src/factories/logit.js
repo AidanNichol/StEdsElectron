@@ -11,7 +11,7 @@ enableStr = (enableStr || '')
   // .filter(str => !str.includes('logit'))
   .filter(str => !str.includes('logit') && !str.includes('pouchdb'))
   .join(',');
-enableStr += ',steds:logit,-logit:setup';
+// enableStr += ',steds:logit,-logit:setup';
 debug.enable(enableStr);
 // debug.enable(enableStr + ',steds:logit,-logit:setup, -pouchdb*');
 debug2('enable string', enableStr);
@@ -49,7 +49,7 @@ export default function Logit(source) {
     opts,
     localStorage.getItem('logitCodes'),
   );
-  console.warn('debugme enabled:', debugme.enabled, `⨁:${source} enabled`, debb.enabled);
+  // console.warn('debugme enabled:', debugme.enabled, `⨁:${source} enabled`, debb.enabled);
   let backgroundColor = debb.color;
   let textColor = getContrastYIQ(backgroundColor);
   let colorFormat = `color:${textColor}; background:${backgroundColor}; font-weight:bold`;
