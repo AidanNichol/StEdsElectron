@@ -31,7 +31,7 @@ import fs from 'fs';
     );
     console.log('read live. docs:', docs.length);
 
-    let res = await db.bulkDocs(docs, { new_edits: false });
+    let res = await db.bulkDocs(docs, { new_edits: false, timeout: false });
     console.log('result', res);
     const info = await db.info();
     console.log('info', info);
