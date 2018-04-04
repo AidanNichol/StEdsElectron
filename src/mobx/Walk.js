@@ -4,13 +4,26 @@ import db from 'services/bookingsDB';
 import XDate from 'xdate';
 import { replicationDbChange } from 'ducks/replication-mobx';
 import { merge } from 'lodash';
+import { resolveConflicts } from 'ducks/settings-duck';
+
+import {logger} from 'services/logger.js';
 import Logit from 'factories/logit.js';
 var logit = Logit(__filename);
-var logit2 = Logit(__filename);
+console.warn(
+  'logit',
+  __filename,
+  __filename.substr(0, __filename.length - 3) + '/conflicts',
+);
+var logit2 = Logit(__filename.substr(0, __filename.length - 3) + 'Conflicts');
+// var logit2 = logit;
 import { observable, computed, action, autorun, toJS, runInAction } from 'mobx';
 import { Booking } from 'mobx/Booking';
 import MS from 'mobx/MembersStore';
-
+// import {state as signinState} from 'ducks/signin-mobx'
+import { state as signin, SigninState } from 'ducks/signin-mobx.js';
+import signinState from 'ducks/signin-mobx.js'
+logit2('signinState', signin, signinState, SigninState)
+const memberName = (memId)=>MS.members.get(memId).fullName;
 export default class Walk {
   _id = 0;
   type = 'walk';
@@ -25,6 +38,13 @@ export default class Walk {
   @observable venue;
   walkDate;
   walkId;
+  logger;
+  confLogger;
+  // addMemberName(memId){
+  //   // let memName = MS.members.get(memId).fullName;
+  //   return `${memId} - ${MS.members.get(memId).fullName}`;
+  // }
+
 
   constructor(walk) {
     autorun(() => logit('autorun', this.report, this));
@@ -32,11 +52,13 @@ export default class Walk {
     // delete walk.logs;
     // merge(this, walk)
     this.updateDocument(walk);
+    this.logger = logger.child({walk: this.walkId, venue: this.venue});
+    this.logger.addSerializers({memId: (memId)=>`${memId} - ${memberName(memId)}`});
   }
 
   getWalk = () => {
-    const { fee, lastCancel, venue, _id } = this;
-    return { fee, lastCancel, venue, _id };
+    const { fee, lastCancel, venue, _id, logger } = this;
+    return { fee, lastCancel, venue, _id, logger };
   };
 
   @computed
@@ -256,49 +278,39 @@ export default class Walk {
   @action
   async resolveConflicts() {
     if (_.isEmpty(this._conflicts)) return;
-    // logit(
-    //   'walk with conflicts',
-    //   this._id,
-    //   this._rev,
-    //   this.venue,
-    //   this._conflicts
-    // );
+    logit2('conflicts', this._id, this._rev, this.venue, this._conflicts);
+    if (!resolveConflicts) {
+      logit2('skipping - not admin')
+      return;
+    }
     let confs = await db.get(this._id, {
       open_revs: this._conflicts,
       include_docs: true,
     });
-    // logit('conflicting docs', confs);
+    confs = confs.map(row=>row.ok);
+    const confRevs = confs.map(conf=>conf._rev)
+    this.logger.info({curRev: this._rev, confRevs, confs}, 'conflicting docs');
     runInAction('addConflicting docs', () => {
       // this.conflicts = confs.map(row => row.ok);
-      let extraLogs = {};
-      confs.forEach(row => {
-        let added = this.compareBookings(row.ok);
-        if (!_.isEmpty(added)) {
-          // logit(
-          //   'Conflicts',
-          //   this._id,
-          //   row.ok._rev,
-          //   this.venue,
-          //   '\n',
-          //   JSON.stringify(added)
-          // );
-          Object.entries(added).forEach(([memId, values]) => {
-            extraLogs[memId] = { ...(extraLogs[memId] || {}), ...values };
-            // logit('adding to ExtraLogs', memId, added, extraLogs);
-          });
+      let changed = false;
+      confs.forEach(conf => {
+        this.confLogger = this.logger.child({confRev: conf._rev})
+        this.confLogger.addSerializers({msg: (msg)=>'Conflicting Doc '+msg})
+        if (!conf.bookings) {
+          this.confLogger.info('skipping oldformat')
+          return;
         }
+        this.confLogger.info('starting resolving conflict Doc');
+        changed = this.updateWithConflictDoc(conf) || changed;
+        this.confLogger.info({changed}, 'finished resolving conflict doc')
         // this.insertPaymentsFromConflictingDoc(added);
       });
-      if (!_.isEmpty(extraLogs))
-        logit(
-          'walk:with conflicts',
-          this._id,
-          this._rev,
-          this.venue,
-          extraLogs,
-          this.bookings.toJS(),
-        );
-      // this.deleteConflictingDocs(this._conflicts);
+      if (changed) {
+        this.confLogger.info('walk updated from conflicts')
+        this.dbUpdate();
+      }
+     
+      this.deleteConflictingDocs(this._conflicts);
     });
   }
   @action
@@ -307,32 +319,49 @@ export default class Walk {
       return { _id: this._id, _rev: rev, _deleted: true };
     });
     let res = await db.bulkDocs(docs);
-    logit('deleteConflicts', this, docs, conflicts, res);
+    logit2('deleteConflicts', this, docs, conflicts, res);
     this._conflicts = [];
   }
 
-  compareBookings(cDoc) {
-    let extraLogs = {};
-    Object.entries(cDoc.bookings).forEach(([memId, cBooking]) => {
+  updateWithConflictDoc(conflictDoc) {
+    let docChanged = false;
+    Object.entries(conflictDoc.bookings).forEach(([memId, cBooking]) => {
       let booking = this.bookings.get(memId);
       if (booking) {
-        let added = this.compareLogs(booking.logs, cBooking.logs);
-        if (!_.isEmpty(added))
-          extraLogs[memId] = { ...(extraLogs[memId] || {}), ...added };
+        if ( booking.annotation !== cBooking.annotation && cBooking.annotation )
+          {
+            logit2('annotation difference', {current: booking.annotation, conflict: cBooking.annotation})
+            docChanged = booking.resetAnnotationFromConflicts(cBooking.logs) || docChanged;}
+        if ( booking.status !== cBooking.status)
+        {
+          logit2('status difference', {current: booking.status, conflict: cBooking.status})
+          docChanged = booking.resetStatusFromConflicts(cBooking.logs) || docChanged;}
       } else {
-        logit2('conflict shows extra', this._rev, cDoc._rev, memId, this.venue, cBooking);
+        this.bookings.set(
+          memId,
+          new Booking(cBooking, memId, {
+            getWalk: this.getWalk,
+          }),
+        );
+        docChanged = true;
+        this.confLogger.warn(cBooking, 'added booking from conflict');
       }
     });
-    return extraLogs;
+    return docChanged;
   }
-  compareLogs(okLogs, confLogs) {
-    if (!confLogs) return;
-    let added = {};
-    for (let log of confLogs) {
-      let okLog = okLogs.get(log.dat);
-      if (!okLog) added[log.dat] = { ...log, conf: true };
+
+  findChangesFromLogs(booking, cBooking) {
+    if (!cBooking.logs) return;
+    let inserted = false;
+    for (let log of cBooking.logs) {
+      let okLog = booking.logs.get(log.dat);
+      if (okLog) continue; // got this one
+      booking.insertLogRecFromConflicts(log);
+      logit2('added log', log);
+      inserted = true;
     }
-    return added;
+    inserted && booking.resetStatusAndAnnotation();
+    return inserted;
   }
 }
 // const getRev = rev => parseInt(rev.split('-')[0]);

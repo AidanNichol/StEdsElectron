@@ -14,6 +14,8 @@ import db from 'services/bookingsDB';
 import R from 'ramda';
 import Logit from 'factories/logit.js';
 var logit = Logit(__filename);
+logit('import')
+
 
 import MS from 'mobx/MembersStore';
 import PS from 'mobx/PaymentsSummaryStore';

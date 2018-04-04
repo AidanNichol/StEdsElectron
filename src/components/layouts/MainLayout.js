@@ -43,7 +43,7 @@ const loadPage = (curPage, cntrl) => {
 };
 var myPages = [];
 const comp = observer(
-  ({ memberAdmin, bookingsAdmin, setPage, cntrl, router, curPage }) => {
+  ({ memberAdmin, bookingsAdmin, setPage, cntrl, router, curPage }) => { // eslint-disable-line no-unused-vars
     myPages = [];
     const Link = ({ page, show, name }) => {
       if (!show) return null;

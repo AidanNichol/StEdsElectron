@@ -10,7 +10,7 @@ let defaults = {
   },
 
   lock: { enabled: false, delay: 5000 },
-  calculation: { useFullHistory: true },
+  calculation: { useFullHistory: true, resolveConflicts: false },
   debug: { devtoolsOpen: false, database: false },
   router: { clear: true, enabled: false },
   database: {
@@ -45,6 +45,7 @@ try {
   console.log('get setting', error);
 }
 let newValues = { ...defaults, ...existing };
+if (newValues.calculation.resolveConflicts===undefined)newValues.calculation.resolveConflicts = false
 delete newValues.debug.reduxLogger;
 delete newValues.database.developement.resetLocal;
 delete newValues.database.production.resetLocal;
@@ -55,6 +56,7 @@ console.log('V3 Electron-settings', { defaults, existing, newValues });
 settings.setAll(newValues);
 export const mode = settings.get('database.current');
 export const useFullHistory = settings.get('calculation.useFullHistory');
+export const resolveConflicts = settings.get('calculation.resolveConflicts');
 export const DbSettings = settings.get(`database.${mode}`);
 console.log('settings DbSettings', { mode, DbSettings });
 
