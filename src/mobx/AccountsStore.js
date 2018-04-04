@@ -34,7 +34,7 @@ class AccountsStore {
       'activeAccount',
       this.activeAccountId,
       this.accounts.get(this.activeAccountId),
-      this.accounts
+      this.accounts,
     );
     if (!this.activeAccountId) return {};
     return this.accounts.get(this.activeAccountId);
@@ -42,9 +42,7 @@ class AccountsStore {
 
   @computed
   get conflictingAccounts() {
-    return this.accounts
-      .values()
-      .filter(entry => (entry._conflicts || []).length > 0);
+    return this.accounts.values().filter(entry => (entry._conflicts || []).length > 0);
   }
 
   @action
@@ -54,8 +52,8 @@ class AccountsStore {
       account._id,
       new Account(account, {
         getAccountStore: this.getAccountStore,
-        isLoading: () => !this.loaded
-      })
+        isLoading: () => !this.loaded,
+      }),
     );
   };
   @action
@@ -168,7 +166,7 @@ class AccountsStore {
     let account = this.accounts.get(id);
     logit('changeDoc', { deleted, doc, account, id, rest });
     if (deleted) {
-      if (doc._rev === account._rev) this.accounts.delete(doc._id);
+      if (account && doc._rev === account._rev) this.accounts.delete(doc._id);
       if (this.activeAccountId === doc._id) this.activeAccountId = null;
       return;
     }
@@ -203,7 +201,7 @@ class AccountsStore {
       include_docs: true,
       conflicts: true,
       startkey: 'A',
-      endkey: 'A99999999'
+      endkey: 'A99999999',
     });
     /* required in strict mode to be allowed to update state: */
     logit('allDocs', data);
@@ -221,7 +219,7 @@ class AccountsStore {
 
       let confs = await db.get(conflictedAccount._id, {
         open_revs: conflictedAccount._conflicts,
-        include_docs: true
+        include_docs: true,
       });
       // logit('conflicting docs', confs);
       runInAction('addConflicting docs', () => {
@@ -236,7 +234,7 @@ class AccountsStore {
               row.ok._rev,
               account.name,
               '\n',
-              JSON.stringify(added)
+              JSON.stringify(added),
             );
           }
           account.insertPaymentsFromConflictingDoc(added);
