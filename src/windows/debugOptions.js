@@ -8,7 +8,7 @@ import { observable, computed, action, toJS, autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import debug from 'debug';
 import styled from 'styled-components';
-//debug.enable('*');
+debug.enable('debugOptions');
 let logme = require('debug')(`debugOptions`);
 let logmeC = debug(`children`);
 let logmeP = require('debug')(`group`);
@@ -31,9 +31,7 @@ class Bool {
     this.partName = partName;
 
     autorun(() => logmeA(this.partName, this.state));
-    autorun(
-      () => this.enableString && logmeA(this.partName, this.enableString),
-    );
+    autorun(() => this.enableString && logmeA(this.partName, this.enableString));
   }
   get stateName() {
     return _.findKey(select, value => value === this.state);
@@ -57,8 +55,7 @@ class Bool {
   @action
   getEnableString(parentDerivedState) {
     if (parentDerivedState === this.state) return '';
-    this.enableString =
-      (parentDerivedState === select.YES ? ',-' : ',') + this.partName;
+    this.enableString = (parentDerivedState === select.YES ? ',-' : ',') + this.partName;
     return this.enableString;
   }
   @computed
@@ -100,11 +97,7 @@ class Bool {
       }
     }
 
-    logmeP(
-      'setParentState',
-      parent.partName,
-      `${parent.state} ==> ${resVal}(${val})`,
-    );
+    logmeP('setParentState', parent.partName, `${parent.state} ==> ${resVal}(${val})`);
     parent.setState(resVal, false);
   }
 }
@@ -165,8 +158,7 @@ class Group extends Bool {
     this.enableString = '';
     if (this.state !== select.SOME) {
       if (parentDerivedState === this.state) return '';
-      this.enableString =
-        (this.state === select.YES ? ',' : ',-') + this.partName + ':*';
+      this.enableString = (this.state === select.YES ? ',' : ',-') + this.partName + ':*';
       logmeP(
         'string 1',
         this.partName,
@@ -176,14 +168,10 @@ class Group extends Bool {
       );
       return this.enableString;
     }
-    if (
-      this.derivedState !== parentDerivedState &&
-      this.derivedState !== select.SOME
-    ) {
+    if (this.derivedState !== parentDerivedState && this.derivedState !== select.SOME) {
       this.enableString =
         (this.derivedState === select.YES ? ',' : ',-') + this.partName + ':*';
-      parentDerivedState =
-        parentDerivedState === select.YES ? select.NO : select.YES;
+      parentDerivedState = parentDerivedState === select.YES ? select.NO : select.YES;
     }
     this.enableString = this.children.reduce(
       (str, child) => str + child.getEnableString(parentDerivedState),
@@ -222,8 +210,7 @@ const partNameIndex = {};
 let data = new Group('root', null, '*');
 partNameIndex['*'] = data;
 ['pouchdb:api', 'pouchdb:http', ...logitCodes].forEach((code, i) => {
-  if (`${code}:` === logitCodes[i + 1])
-    logme('collison', i, code, logitCodes[i + 1]);
+  if (`${code}:` === logitCodes[i + 1]) logme('collison', i, code, logitCodes[i + 1]);
   let parent = data;
   code = code
     .split(':')
@@ -336,10 +323,7 @@ const unstyledObjectTree = observer(props => {
           logme('objectTree', child.type, child.partName, child.token, child);
           if (child.type === 'Group')
             return <ObjectTree key={child.partName} obj={child} />;
-          else
-            return (
-              <ShowBool key={child.partName} obj={child} className="bool" />
-            );
+          else return <ShowBool key={child.partName} obj={child} className="bool" />;
         })}
       </div>
     </div>
