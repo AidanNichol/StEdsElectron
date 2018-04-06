@@ -57,7 +57,7 @@ export const login = action(async (name, password) => {
         'stEdsSignin',
         JSON.stringify({ username: name, name, password }),
       );
-      restoreRouterData();
+      setPageFromRoles();
       return;
     }
     // OK - try the remote DB
@@ -84,7 +84,7 @@ export const login = action(async (name, password) => {
         password: getHash(state.password),
       });
       setSettings('user.current', name);
-      restoreRouterData();
+      setPageFromRoles();
     });
     return false;
   } catch (error) {
@@ -123,7 +123,7 @@ export const reLogin = action('relogin', () => {
   const { username, password } = JSON.parse(localStorage.getItem('stEdsSignin'));
   const err = localLogin(username, password);
   if (err) logit('localLogin failed', err);
-  else restoreRouterData();
+  else setPageFromRoles();
 });
 
 const localLogin = action('localLogin', (username, password) => {
@@ -143,13 +143,9 @@ const localLogin = action('localLogin', (username, password) => {
   return;
 });
 
-function restoreRouterData() {
-  const savedValues = localStorage.getItem('stEdsRouter');
-  const savedRoutingEnabled = getSettings('router.enabled');
-  if (savedRoutingEnabled && savedValues) {
-    logit('restoreRouterData', savedValues, savedRoutingEnabled);
-    setRouterPage(JSON.parse(savedValues));
-  }
+function setPageFromRoles() {
+  if (state.isBookingsAdmin) setRouterPage({ page: 'bookings' });
+  else if (state.isMembersAdmin) setRouterPage({ page: 'membersList' });
 }
 
 const focusedName = action(() => {
