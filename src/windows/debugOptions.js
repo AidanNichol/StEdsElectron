@@ -16,9 +16,7 @@ let logmeA = require('debug')(`autorun`);
 let logmeS = require('debug')(`make`);
 let logmeB = require('debug')(`bool`);
 logme('BrowserWindow', remote.getCurrentWindow());
-var logitCodes = [];
-const logCodesString = localStorage.getItem('logitCodes');
-if (logCodesString) logitCodes = JSON.parse(logCodesString).sort();
+var logitCodes = JSON.parse(localStorage.getItem('logitCodes') || '[]').sort();
 logme(logitCodes);
 const select = { YES: true, SOME: '???', NO: false };
 class Bool {
@@ -240,7 +238,7 @@ logme('---- partNameIndex -----', partNameIndex);
 /* 
 override the default values with the current setting
  */
-var enableString = JSON.parse(localStorage.getItem('enableString') || '');
+var enableString = JSON.parse(localStorage.getItem('enableString') || '[]');
 enableString
   .replace(/:\*/g, '')
   .split(',')
