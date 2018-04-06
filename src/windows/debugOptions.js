@@ -238,7 +238,7 @@ logme('---- partNameIndex -----', partNameIndex);
 /* 
 override the default values with the current setting
  */
-var enableString = JSON.parse(localStorage.getItem('enableString') || '[]');
+var enableString = JSON.parse(localStorage.getItem('enableString') || '""');
 enableString
   .replace(/:\*/g, '')
   .split(',')
