@@ -16,7 +16,9 @@ let logmeA = require('debug')(`autorun`);
 let logmeS = require('debug')(`make`);
 let logmeB = require('debug')(`bool`);
 logme('BrowserWindow', remote.getCurrentWindow());
-var logitCodes = JSON.parse(localStorage.getItem('logitCodes') || '').sort();
+var logitCodes = [];
+const logCodesString = localStorage.getItem('logitCodes');
+if (logCodesString) logitCodes = JSON.parse(logCodesString).sort();
 logme(logitCodes);
 const select = { YES: true, SOME: '???', NO: false };
 class Bool {
