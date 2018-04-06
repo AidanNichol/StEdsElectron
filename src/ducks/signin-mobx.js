@@ -26,7 +26,7 @@ export class SigninState {
     return intersection(this.roles, ['_admin', 'admin', 'bookings']).length > 0;
   }
   @computed
-  get isMemberAdmin() {
+  get isMembersAdmin() {
     return (
       intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0
     );
@@ -35,7 +35,7 @@ export class SigninState {
 export const state = new SigninState();
 export const getUpdater = () => state.name;
 reaction(
-  () => ({ loggedIn: state.loggedIn, authError: state.authError }),
+  () => ({ loggedIn: state.loggedIn, roles: state.roles, authError: state.authError }),
   () => {
     const { loggedIn, name, roles, authError } = state;
     logit('state after ' + lastAction, {
@@ -44,6 +44,7 @@ reaction(
       roles: toJS(roles),
       authError,
     });
+    setPageFromRoles();
   },
   { delay: 0 },
 );
@@ -139,13 +140,21 @@ const localLogin = action('localLogin', (username, password) => {
       getHash(password)}`;
   lastAction = 'reLogin';
   merge(state, { name: username, roles, loggedIn: true });
-  logit('relogin successful', username, roles);
+  logit(
+    'relogin successful',
+    username,
+    roles,
+    state,
+    intersection(state.roles, ['_admin', 'admin', 'membership', 'bookings']),
+  );
+  // setPageFromRoles();
   return;
 });
 
 function setPageFromRoles() {
   if (state.isBookingsAdmin) setRouterPage({ page: 'bookings' });
   else if (state.isMembersAdmin) setRouterPage({ page: 'membersList' });
+  else setRouterPage({ page: 'none' });
 }
 
 const focusedName = action(() => {
