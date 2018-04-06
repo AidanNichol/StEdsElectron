@@ -35,55 +35,47 @@ const loadPage = (curPage, cntrl) => {
       return <PaymentsContainerM />;
     case 'buslists':
       return <BusListsContainer />;
-    case 'none':
-      return <div>Welcome to St.Edwards Booking System - please login.</div>;
     default:
-      return <BookingsContainer />;
+      return <div>Welcome to St.Edwards Booking System - please login.</div>;
   }
 };
 var myPages = [];
-const comp = observer(
-  ({ memberAdmin, bookingsAdmin, setPage, cntrl, router, curPage }) => { // eslint-disable-line no-unused-vars
-    myPages = [];
-    const Link = ({ page, show, name }) => {
-      if (!show) return null;
-      myPages.push(page);
-      var cl = classnames({ link: true, selected: router.page === page });
-      return (
-        <span onClick={() => setPage(page)} className={cl}>
-          {name}
-        </span>
-      );
-    };
-    logit('currentPage', router.page, cntrl.loading);
+const comp = observer(({ memberAdmin, bookingsAdmin, setPage, cntrl, router }) => {
+  myPages = [];
+  const Link = ({ page, show, name }) => {
+    if (!show) return null;
+    myPages.push(page);
+    var cl = classnames({ link: true, selected: router.page === page });
     return (
-      <div>
-        <div className="mainPage">
-          <img
-            className="logo"
-            src={'../assets/St.Edwards.col4.png'}
-            width="40px"
-          />
-          <ReplicationStatus className="devlinks" />
-          <span className="version">v {version}</span>
-          <SigninForm />
-          <div className="nav">
-            <Link page="bookings" name="Bookings" show={bookingsAdmin} />
-            <Link page="buslists" name="Buslist" show={bookingsAdmin} />
-            {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
+      <span onClick={() => setPage(page)} className={cl}>
+        {name}
+      </span>
+    );
+  };
+  logit('currentPage', router.page, cntrl.loading);
+  return (
+    <div>
+      <div className="mainPage">
+        <img className="logo" src={'../assets/St.Edwards.col4.png'} width="40px" />
+        <ReplicationStatus className="devlinks" />
+        <span className="version">v {version}</span>
+        <SigninForm />
+        <div className="nav">
+          <Link page="bookings" name="Bookings" show={bookingsAdmin} />
+          <Link page="buslists" name="Buslist" show={bookingsAdmin} />
+          {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
           <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
-            <Link page="payments" name="Payments" show={bookingsAdmin} />
-            <Link page="membersList" name="Members" show={memberAdmin} />
-          </div>
+          <Link page="payments" name="Payments" show={bookingsAdmin} />
+          <Link page="membersList" name="Members" show={memberAdmin} />
+        </div>
 
-          <div style={{ padding: 5 }} className="maincontent">
-            {loadPage(router.page, cntrl)}
-          </div>
+        <div style={{ padding: 5 }} className="maincontent">
+          {loadPage(router.page, cntrl)}
         </div>
       </div>
-    );
-  }
-);
+    </div>
+  );
+});
 
 function mapStoreToProps(store) {
   logit('store', store, myPages);
@@ -96,7 +88,7 @@ function mapStoreToProps(store) {
     cntrl: store.cntrl,
     setPage: page => {
       setRouterPage({ page });
-    }
+    },
   };
 }
 
