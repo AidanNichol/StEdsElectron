@@ -28,12 +28,13 @@ export class Booking {
     new BookingLog(log, {
       getWalk: this.getWalk,
       getMember: this.getMember,
+      walk: this.walk,
     });
-  getMember() {
+  getMember = () => {
     const member = MS.members.get(this.memId);
     const { accountId, firstName, fullName } = member;
     return { memId: this.memId, accountId, firstName, fullName };
-  }
+  };
   insertLogRecsFromConflicts(logs) {
     for (const log of logs) {
       log.who += '***';
@@ -86,7 +87,7 @@ export class Booking {
         oldStatus: lastBookingLog.req,
         newStatus: this.status,
       },
-      'updated status',
+      'updated status from conflicts',
     );
   }
   @action
@@ -102,6 +103,7 @@ export class Booking {
     this.status = req;
 
     var newLog = { dat: DS.logTime, who: getUpdater(), req };
+    this.walk.logger.info({ memId: this.memId, req }, 'Booking change');
     const deletable = this.logs.values().filter(log => DS.datetimeIsRecent(log.dat));
     logit('reversable?', req, {
       reversable: isRequestReversal,
@@ -146,6 +148,7 @@ export class Booking {
     if (curAnnotation === note) return false; // no change necessary
     this.annotation = note;
     var newLog = { dat: DS.logTime, who: getUpdater(), req: 'A', note: note };
+    this.walk.logger.info({ memId: this.memId, note }, 'Annotation change');
     var deletable = this.logs
       .values()
       .filter(log => log.req === 'A' && DS.datetimeIsRecent(log.dat));
@@ -161,6 +164,7 @@ export class Booking {
   resetLateCancellation() {
     if (this.status !== 'BL') return false;
     this.status = 'BX';
+    this.walk.logger.info({ memId: this.memId }, 'Reset late cancellation');
     const bLog = this.logs
       .values()
       .filter(log => log.req !== 'A')
