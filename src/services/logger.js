@@ -40,8 +40,8 @@ export var logger = bunyan.createLogger({
     {
       type: 'rotating-file',
       path: docname,
-      level: bunyan.INFO,
-      period: '1d', // monthly rotation
+      level: 'info',
+      period: '1m', // monthly rotation
       count: 3, // keep 3 back copies
     },
     {
