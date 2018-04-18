@@ -13,6 +13,7 @@ import MS from 'mobx/MembersStore';
 import WS from 'mobx/WalksStore';
 import DS from 'mobx/DateStore';
 import PS from 'mobx/PaymentsSummaryStore';
+import { logger } from 'services/logger.js';
 
 import AccLog from 'mobx/AccLog';
 let limit;
@@ -25,19 +26,16 @@ export default class Account {
   @observable members = [];
   logs = observable.shallowMap({});
   accountId;
+  logger;
 
   constructor(accountDoc, accessors) {
     _.merge(this, accessors);
-    reaction(
-      () => this.logs.size,
-      () => logit('autorun', this.report, this.isLoading())
-    );
-    (accountDoc.logs || []).forEach(log =>
-      this.logs.set(log.dat, new AccLog(log))
-    );
+    reaction(() => this.logs.size, () => logit('autorun', this.report, this.isLoading()));
+    (accountDoc.logs || []).forEach(log => this.logs.set(log.dat, new AccLog(log)));
     delete accountDoc.logs;
     _.merge(this, accountDoc);
     // this.updateDocument(accountDoc);
+    this.logger = logger.child({ accId: `${this._id} - ${this.name}` });
   }
 
   get accountStore() {
@@ -74,7 +72,7 @@ export default class Account {
   @computed
   get report() {
     return `Account: ${this._id} ${this.name} ${this.logs.size} ${this.logs.get(
-      this.logs.keys().pop()
+      this.logs.keys().pop(),
     )}`;
   }
 
@@ -97,10 +95,7 @@ export default class Account {
       if (this.logs.has(log.dat)) this.logs.get(log.dat).updateLog(log);
       else this.logs.set(log.dat, new AccLog(log));
     });
-    const deleted = R.difference(
-      this.logs.keys(),
-      accountDoc.logs.map(log => log.dat)
-    );
+    const deleted = R.difference(this.logs.keys(), accountDoc.logs.map(log => log.dat));
     deleted.forEach(dat => this.logs.delete(dat));
     delete accountDoc.logs;
     _.merge(this, accountDoc);
@@ -152,6 +147,9 @@ export default class Account {
     const who = 'M1180';
     var logRec = { dat: DS.logTime, who, req, type: 'A', amount, note, inFull };
     this.logs.set(logRec.dat, new AccLog(logRec));
+    const loggerData = { req, amount, inFull };
+    if (note && note !== '') loggerData.note = note;
+    this.logger.info(loggerData, 'Payment');
     this.dbUpdate();
   }
 
@@ -213,7 +211,7 @@ export default class Account {
           dispDate: DS.dispDate(DS.datetimePlus1(log.dat)),
           who: log.who,
           amount: 0,
-          inFull: true
+          inFull: true,
         });
         break;
       }
@@ -234,10 +232,10 @@ export default class Account {
             'accId',
             'billable',
             'amount',
-            'name'
+            'name',
           ],
-          log
-        )
+          log,
+        ),
       );
     }
     return logs;
@@ -250,7 +248,7 @@ export default class Account {
         .map(memId => {
           return [memId, { memId, name: MS.members.get(memId).firstName }];
         })
-        .sort(cmpName)
+        .sort(cmpName),
     );
     return { accId: this._id, members, sortname: this.sortname };
   }
@@ -265,9 +263,9 @@ export default class Account {
           firstName: mem.firstName,
           lastName: mem.lastName,
           suspended: mem.suspended,
-          subs: mem.subsStatus.status
+          subs: mem.subsStatus.status,
         };
-      })
+      }),
     );
   }
 
@@ -368,7 +366,7 @@ export default class Account {
     logs = logs.map((log, i) => ({
       ...log,
       historic: i <= lastHistory,
-      hideable: i <= lastHideable
+      hideable: i <= lastHideable,
     }));
 
     /*------------------------------------------------------------------------*/
@@ -385,16 +383,14 @@ export default class Account {
       if (log.req !== 'BX') continue;
       for (let j = i - 1; j > lastResolved; j--) {
         if (logs[j].req !== 'B') continue;
-        if (logs[j].walkId !== log.walkId || logs[j].memId !== log.memId)
-          continue;
+        if (logs[j].walkId !== log.walkId || logs[j].memId !== log.memId) continue;
         log.ignore = true;
         logs[j].billable = false;
         logs[j].ignore = true;
       }
     }
     traceMe && this.logTableToConsole(logs);
-    traceMe &&
-      logit('second pass', logs, { lastHistory, lastHideable, lastResolved });
+    traceMe && logit('second pass', logs, { lastHistory, lastHideable, lastResolved });
 
     /*------------------------------------------------------------------------*/
     /*    third pass over the data to work out whick walks were paid for      */
@@ -444,7 +440,7 @@ export default class Account {
         paymentPeriodStart,
         this._id,
         this.name,
-        logs
+        logs,
       );
     let debt = [];
 
@@ -460,7 +456,7 @@ export default class Account {
       logs,
       lastHistory,
       accName: this.name,
-      sortname: this.sortname
+      sortname: this.sortname,
     };
   }
 
@@ -469,9 +465,9 @@ export default class Account {
       logs.map(log =>
         R.omit(
           ['note', 'accId', 'machine', 'who', 'dispDate'],
-          _.omitBy(log, _.isFunction)
-        )
-      )
+          _.omitBy(log, _.isFunction),
+        ),
+      ),
     );
   };
 
@@ -496,7 +492,7 @@ export default class Account {
         id: this._id,
         old: this.logs,
         new: newLogs,
-        logs
+        logs,
       });
       this.dbUpdate();
     }
@@ -514,21 +510,19 @@ export default class Account {
   }
   @computed
   get conflictingDocs() {
-    return [
-      this,
-      ...this.conflicts.sort((a, b) => getRev(b._rev) - getRev(a._rev))
-    ];
+    return [this, ...this.conflicts.sort((a, b) => getRev(b._rev) - getRev(a._rev))];
   }
   @computed
   get conflictsByDate() {
-    let revs = this.conflictingDocs;
-    logit('revs', revs);
+    let confs = this.conflictingDocs;
+    logit('confs', confs);
     let sum = {};
-    revs.forEach((rev, i) => {
-      (rev.log || []).forEach(lg => {
+    confs.forEach((conf, i) => {
+      this.confLogger = this.logger.child({ confRev: conf._rev });
+      (conf.log || []).forEach(lg => {
         let [dat, , , , req, amount] = lg;
         if (req !== 'P') return;
-        if (!sum[dat]) sum[dat] = R.repeat('-', revs.length);
+        if (!sum[dat]) sum[dat] = R.repeat('-', confs.length);
         sum.logs[dat][i] = amount;
       });
     });
