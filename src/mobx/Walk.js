@@ -19,11 +19,13 @@ var logit2 = Logit(__filename.substr(0, __filename.length - 3) + 'Conflicts');
 import { observable, computed, action, autorun, toJS, runInAction } from 'mobx';
 import { Booking } from 'mobx/Booking';
 import MS from 'mobx/MembersStore';
+import AS from 'mobx/AccountsStore';
 // import {state as signinState} from 'ducks/signin-mobx'
 import { state as signin, SigninState } from 'ducks/signin-mobx.js';
 import signinState from 'ducks/signin-mobx.js';
 logit2('signinState', signin, signinState, SigninState);
 const memberName = memId => MS.members.get(memId).fullName;
+const accountName = accId => AS.accounts.get(accId).name;
 export default class Walk {
   _id = 0;
   type = 'walk';
@@ -52,7 +54,10 @@ export default class Walk {
     // merge(this, walk)
     this.updateDocument(walk);
     this.logger = logger.child({ walk: this.walkId, venue: this.venue });
-    this.logger.addSerializers({ memId: memId => `${memId} - ${memberName(memId)}` });
+    this.logger.addSerializers({
+      memId: memId => `${memId} - ${memberName(memId)}`,
+      accId: accId => `${accId} - ${accountName(accId)}`,
+    });
   }
 
   getWalk = () => {
