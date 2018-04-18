@@ -23,7 +23,7 @@ let EditMemberData = observer(props => {
     // firstName, lastName, memberStatus, suspended, deletePending,
     editMode,
     dirty,
-    memberAdmin,
+    membersAdmin,
     editMember,
     resetEdit,
     saveEdit,
@@ -143,27 +143,29 @@ let EditMemberData = observer(props => {
   var showMode = !editMode;
 
   // var subsPaid = (fee, bacs)=>change(props.form, '_subspaid', fee, bacs);
-  var subsPaid = (fee, bacs) => {};
+  var subsPaid = (fee, bacs) => {
+    logit('subsPaid', { fee, bacs });
+  };
+  // let showSubs = null;
   const subsStatus = editMember.subsStatus; // {due: true, year: 2016, fee: 15, status: 'late'}
-  var showSubs = null;
   if (subsStatus.status !== 'OK')
-    showSubs = <span className="subsStatus">subsStatus.status</span>;
-  var title = (
-    <div style={{ width: '100%' }}>
-      {firstName} {lastName} {dirty ? '(changed)' : ''}
-      <span
-        style={{
-          float: 'right',
-          hidden: !(editMode && dirty),
-          cursor: 'pointer',
-        }}
-        className="closeWindow"
-        onClick={() => setEditMode(false)}
-      >
-        {showMode || dirty ? '' : 'X'}
-      </span>
-    </div>
-  );
+    // showSubs = <span className="subsStatus">subsStatus.status</span>;
+    var title = (
+      <div style={{ width: '100%' }}>
+        {firstName} {lastName} {dirty ? '(changed)' : ''}
+        <span
+          style={{
+            float: 'right',
+            hidden: !(editMode && dirty),
+            cursor: 'pointer',
+          }}
+          className="closeWindow"
+          onClick={() => setEditMode(false)}
+        >
+          {showMode || dirty ? '' : 'X'}
+        </span>
+      </div>
+    );
   let vals = editMember;
   let clss = classnames(
     {
@@ -232,9 +234,7 @@ let EditMemberData = observer(props => {
           <div
             className={
               'form-line' +
-              (memberStatus === 'Guest' || memberStatus === 'HLM'
-                ? ' hidden'
-                : '')
+              (memberStatus === 'Guest' || memberStatus === 'HLM' ? ' hidden' : '')
             }
           >
             <label className="item-label">subscription</label>
@@ -296,7 +296,7 @@ let EditMemberData = observer(props => {
             <select
               value={editMember.memberStatus}
               onChange={evt => onChange(evt, 'memberStatus')}
-              disabled={!memberAdmin || showMode}
+              disabled={!membersAdmin || showMode}
             >
               <option value="Member">Member</option>
               <option value="Guest">Guest</option>
@@ -309,10 +309,10 @@ let EditMemberData = observer(props => {
         ) : null}
         <div className="edit-buttons">
           <TooltipButton
-            className={memberAdmin ? 'edit-member ' : 'edit-member hidden'}
+            className={membersAdmin ? 'edit-member ' : 'edit-member hidden'}
             label="Edit"
             onClick={() => setEditMode(true)}
-            visible={showMode && memberAdmin}
+            visible={showMode && membersAdmin}
           />
           <TooltipButton
             label="Close"
@@ -330,9 +330,7 @@ let EditMemberData = observer(props => {
             tiptext="Save All Changes to this Member"
             visible={editMode && !deletePending && dirty}
           />
-          <SuspendButtons
-            {...{ editMode, deletePending, suspended, onChangeData }}
-          />
+          <SuspendButtons {...{ editMode, deletePending, suspended, onChangeData }} />
           <DeleteButtons
             {...{
               editMode,
