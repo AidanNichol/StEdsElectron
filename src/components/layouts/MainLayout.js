@@ -40,7 +40,7 @@ const loadPage = (curPage, cntrl) => {
   }
 };
 var myPages = [];
-const comp = observer(({ memberAdmin, bookingsAdmin, setPage, cntrl, router }) => {
+const comp = observer(({ membersAdmin, bookingsAdmin, setPage, cntrl, router }) => {
   myPages = [];
   const Link = ({ page, show, name }) => {
     if (!show) return null;
@@ -66,7 +66,7 @@ const comp = observer(({ memberAdmin, bookingsAdmin, setPage, cntrl, router }) =
           {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
           <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
           <Link page="payments" name="Payments" show={bookingsAdmin} />
-          <Link page="membersList" name="Members" show={memberAdmin} />
+          <Link page="membersList" name="Members" show={membersAdmin} />
         </div>
 
         <div style={{ padding: 5 }} className="maincontent">
@@ -82,7 +82,7 @@ function mapStoreToProps(store) {
   // let curPage = myPages.includes(store.router.page) ? store.router.page : myPages[0];
   return {
     bookingsAdmin: store.signin.isBookingsAdmin,
-    memberAdmin: store.signin.isMemberAdmin,
+    membersAdmin: store.signin.isMembersAdmin,
     router: store.router,
     curPage: store.router.Page,
     cntrl: store.cntrl,

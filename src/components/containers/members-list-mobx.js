@@ -1,21 +1,25 @@
 // import React from 'react';
-import {observer, inject} from 'mobx-react';
-import {observable, autorun, toJS} from 'mobx';
+import { observer, inject } from 'mobx-react';
+import { observable, autorun } from 'mobx';
 import MembersList from '../views/members/MembersListM.js';
 // import * as actions from '../../actions/membersList-actions.js';
-import {setRouterPage} from '../../ducks/router-mobx.js';
-
+import { setRouterPage } from '../../ducks/router-mobx.js';
 
 import Logit from '../../factories/logit.js';
 var logit = Logit(__filename);
 
-var uiState = observable({editMode: false, dirty:false, deletePending: false, bacs: false})
-autorun(()=>{
-  if (!uiState.editMode){
-    uiState.dirty=false;
+var uiState = observable({
+  editMode: false,
+  dirty: false,
+  deletePending: false,
+  bacs: false,
+});
+autorun(() => {
+  if (!uiState.editMode) {
+    uiState.dirty = false;
     uiState.deletePending = false;
   }
-})
+});
 
 // const newMember = createSelector(
 //   getSortedMembersList,
@@ -27,11 +31,8 @@ autorun(()=>{
 //   }
 // );
 
-
-
-
 const mapStoreToProps = function(store) {
-  const {MS, AS} = store;
+  const { MS, AS } = store;
   var editMember = MS.editMember;
   var id;
 
@@ -47,59 +48,57 @@ const mapStoreToProps = function(store) {
     memberIndex: MS.membersIndex,
     // report: state.controller,
     displayMember: id,
-    memberAdmin: store.signin.isMemberAdmin,
+    membersAdmin: store.signin.isMembersAdmin,
     activeMemberId: MS.activeMemberId,
-    setActiveMember: (memId)=>{
+    setActiveMember: memId => {
       logit('setActiveMember', memId);
-      setRouterPage({page: 'membersList', memberId: memId, accountId: null});
+      setRouterPage({ page: 'membersList', memberId: memId, accountId: null });
     },
     editFunctions: {
       deletePending: uiState.deletePending,
       dirty: uiState.dirty,
       bacs: uiState.bacs,
-      resetEdit: ()=>{
+      resetEdit: () => {
         MS.resetEdit();
         uiState.dirty = false;
       },
-      saveEdit: ()=>{
-        logit('saveEdit', editMember)
-        if (editMember.newMember){
+      saveEdit: () => {
+        logit('saveEdit', editMember);
+        if (editMember.newMember) {
           AS.createNewAccount(editMember.accountId, [editMember._id]);
         }
         MS.saveEdit();
         uiState.editMode = false;
       },
-      deleteMember: ()=>{
-        const {_id, accountId, fullName} = editMember;
+      deleteMember: () => {
+        const { _id, accountId, fullName } = editMember;
         logit('deleteMember', _id, accountId, fullName);
         const account = AS.accounts.get(accountId);
-        if (account)account.deleteMemberFromAccount(editMember._id);
+        if (account) account.deleteMemberFromAccount(editMember._id);
         MS.deleteMember(editMember._id);
         uiState.editMode = false;
       },
-      cancelEdit: ()=>{
+      cancelEdit: () => {
         uiState.editMode = false;
         MS.resetEdit();
       },
-      setDeletePending: (bool)=>uiState.deletePending = bool,
-      setBacs: (bool)=>uiState.bacs = bool,
-      onChangeData: (field, value)=>{
+      setDeletePending: bool => (uiState.deletePending = bool),
+      setBacs: bool => (uiState.bacs = bool),
+      onChangeData: (field, value) => {
         uiState.dirty = true;
         editMember.updateField(field, value);
-      }
-
+      },
     },
-    createNewMember: ()=>{
+    createNewMember: () => {
       MS.createNewMember();
       uiState.editMode = true;
     },
-    setDispStart: (no)=>MS.setDispStart(no),
-    setSortProp: (no)=>MS.setSortProp(no),
-    setEditMode: (bool)=>uiState.editMode = bool,
+    setDispStart: no => MS.setDispStart(no),
+    setSortProp: no => MS.setSortProp(no),
+    setEditMode: bool => (uiState.editMode = bool),
   };
-  logit('props', props, MS)
-    return props;
-
-}
+  logit('props', props, MS);
+  return props;
+};
 
 export default inject(mapStoreToProps)(observer(MembersList));
