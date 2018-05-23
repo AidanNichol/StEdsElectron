@@ -1,11 +1,11 @@
-import { merge } from 'lodash';
-import db from 'services/bookingsDB';
-import { observable, computed, action, runInAction, toJS } from 'mobx';
-import { replicationDbChange } from 'ducks/replication-mobx';
-import Logit from 'factories/logit.js';
+const { merge } = require('lodash');
+const db = require('services/bookingsDB');
+const { observable, computed, action, runInAction, toJS } = require('mobx');
+const { replicationDbChange } = require('ducks/replication-mobx');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
 
-export default class Member {
+module.exports = class Member {
   _id = 0;
   type = 'member';
   @observable memberId = 0;
@@ -110,4 +110,4 @@ export default class Member {
     logit('info', info);
     replicationDbChange('member changed');
   };
-}
+};

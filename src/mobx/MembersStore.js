@@ -1,19 +1,18 @@
-// import {getSettings} from 'ducks/settings-duck';
-import { getSettings } from 'ducks/settings-duck';
-import {
+const { getSettings } = require('ducks/settings-duck');
+const {
   observable,
   computed,
   action,
   runInAction,
   toJS,
   reaction,
-  autorun
-} from 'mobx';
-// import {setActiveAccount} from 'mobx/AccountsStore'
-import db from 'services/bookingsDB';
-import Member from 'mobx/Member';
-// import R from 'ramda';
-import Logit from 'factories/logit.js';
+  autorun,
+} = require('mobx');
+// const {setActiveAccount} = require( 'mobx/AccountsStore)'
+const db = require('services/bookingsDB');
+const Member = require('mobx/Member');
+// const R = require( 'ramda');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
 
 var coll = new Intl.Collator();
@@ -42,14 +41,14 @@ class MembersStore {
 
         this.resetEdit();
         this.syncToIndex();
-      }
+      },
     );
     reaction(
       () => this.sortProp,
       () => {
         this.syncToIndex();
         logit('members sortProp set:', this.sortProp);
-      }
+      },
     );
     autorun(() => logit('autorun loaded', this.loaded));
   }
@@ -58,17 +57,14 @@ class MembersStore {
   @action
   syncToIndex() {
     if (!this.activeMemberId) return (this.dispStart = 0);
-    let i = this.membersSorted.findIndex(
-      mem => mem._id === this.activeMemberId
-    );
+    let i = this.membersSorted.findIndex(mem => mem._id === this.activeMemberId);
     logit('resync', {
       i,
       dispStart: this.dispStart,
       dispLength: this.dispLength,
-      dispLast: this.dispStart + this.dispLength - 1
+      dispLast: this.dispStart + this.dispLength - 1,
     });
-    if (i >= this.dispStart && i <= this.dispStart + this.dispLength - 1)
-      return; // already showing on current page
+    if (i >= this.dispStart && i <= this.dispStart + this.dispLength - 1) return; // already showing on current page
     this.dispStart = Math.max(i - 11, 0); // postion in middle of page
     logit('syncToIndex', 'done');
   }
@@ -86,7 +82,7 @@ class MembersStore {
         value: member._id,
         memId: member._id,
         accId: member.accountId,
-        label: member.fullNameR
+        label: member.fullNameR,
       };
     });
   }
@@ -118,13 +114,12 @@ class MembersStore {
   @action
   createNewMember = () => {
     const memNo =
-      this.members.values().reduce((max, mem) => Math.max(max, mem.memNo), 0) +
-      1;
+      this.members.values().reduce((max, mem) => Math.max(max, mem.memNo), 0) + 1;
     this.editMember = new Member({
       _id: 'M' + memNo,
       memberId: 'M' + memNo,
       accountId: 'A' + memNo,
-      newMember: true
+      newMember: true,
     });
     logit('createNewMember', memNo, this.editMember);
   };
@@ -155,6 +150,11 @@ class MembersStore {
     this.activeMemberId = memberId;
   };
 
+  getAccountForMember = memId => {
+    const member = this.members.get(memId);
+    return member && member.accountId;
+  };
+
   @action
   setSortProp = seq => {
     this.sortProp = seq;
@@ -169,8 +169,7 @@ class MembersStore {
   resetEdit = () => {
     if (!this.newMember) {
       // won't match if new member being created
-      if (this.activeMember)
-        this.editMember = new Member(toJS(this.activeMember));
+      if (this.activeMember) this.editMember = new Member(toJS(this.activeMember));
       else this.editMember = undefined;
     } else {
       const { _id, accountId, memberId, newMember } = this.editMember;
@@ -189,9 +188,7 @@ class MembersStore {
 
   @computed
   get membersIndex() {
-    return this.sortProp === 'name'
-      ? this.membersIndexByName
-      : this.membersIndexByNumber;
+    return this.sortProp === 'name' ? this.membersIndexByName : this.membersIndexByNumber;
   }
 
   @computed
@@ -254,7 +251,7 @@ class MembersStore {
     const data = await db.allDocs({
       include_docs: true,
       startkey: 'M',
-      endkey: 'M9999999'
+      endkey: 'M9999999',
     });
     /* required in strict mode to be allowed to update state: */
     runInAction('update state after fetching data', () => {
@@ -275,17 +272,15 @@ class MembersStore {
 }
 
 export var lastnameCmp = (a, b) =>
-  coll.compare(
-    a.lastName + ', ' + a.firstName,
-    b.lastName + ', ' + b.firstName
-  );
+  coll.compare(a.lastName + ', ' + a.firstName, b.lastName + ', ' + b.firstName);
 
 const membersStore = new MembersStore();
 
-export const setActiveMember = memId => membersStore.setActiveMember(memId);
-export const getAccountForMember = memId => {
-  const member = membersStore.members.get(memId);
-  return member && member.accountId;
-};
-export default membersStore;
-export { MembersStore };
+// export const setActiveMember = memId => membersStore.setActiveMember(memId);
+// export const getAccountForMember = memId => {
+//   const member = membersStore.members.get(memId);
+//   return member && member.accountId;
+// };
+// export default membersStore;
+
+module.exports = membersStore;

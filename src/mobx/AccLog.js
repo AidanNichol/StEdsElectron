@@ -1,9 +1,9 @@
-import { merge } from 'lodash';
-import { observable, action, computed } from 'mobx';
-import Logit from 'factories/logit.js';
+const { merge } = require('lodash');
+const { observable, action, computed } = require('mobx');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
-import DS from 'mobx/DateStore';
-import { dateDisplay } from 'mobx/DateStore';
+const DS = require('./DateStore');
+const dateDisplay = require('./DateStore').dispDate;
 
 logit('dateStore', DS);
 
@@ -20,14 +20,14 @@ const chargeFactor = {
   T: -1,
   '+X': 1,
   PX: 1,
-  TX: 1
+  TX: 1,
   // C: 0.5,
   // CX: -0.5,
   // CL: -0.5,
   // A: 0,
 };
 
-export default class AccLog {
+module.exports = class AccLog {
   dat;
   who;
   machine;
@@ -43,7 +43,7 @@ export default class AccLog {
       amount,
       dispDate: dateDisplay(this.dat),
       text: this.note,
-      type: 'A'
+      type: 'A',
     };
   }
 
@@ -56,4 +56,4 @@ export default class AccLog {
   updateLog = data => {
     merge(this, data);
   };
-}
+};

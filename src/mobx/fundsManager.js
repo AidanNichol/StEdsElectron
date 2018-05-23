@@ -1,9 +1,9 @@
-import WS from 'mobx/WalksStore';
-import { sprintf } from 'sprintf-js';
+const WS = require('mobx/WalksStore');
+const { sprintf } = require('sprintf-js');
 
 const nbsp = '\u00A0';
 
-export class FundsManager {
+module.exports = class FundsManager {
   owedForWalks = new Set();
   available = { P: 0, T: 0, '+': 0 };
   cashReceivedThisPeriod = 0;
@@ -59,7 +59,7 @@ export class FundsManager {
           oLog,
           this.available[key],
           key,
-          activeThisPeriod
+          activeThisPeriod,
         );
       });
     });
@@ -106,14 +106,14 @@ export class FundsManager {
       log.amount || 0,
       log.balance || 0,
       txt3,
-      txt2
+      txt2,
     );
     console.log(
       '%c%s %c%s',
       color,
       txt,
       'color: white; background: black',
-      this.showPaid(this.available)
+      this.showPaid(this.available),
     );
     return (
       `${(i + what).padStart(3)} ${log.dat.substr(0, 16)} ` +
@@ -130,5 +130,5 @@ export class FundsManager {
     });
     return (txt.length > 0 ? ' ' : '') + txt;
   };
-}
-export default new FundsManager();
+};
+// export default new FundsManager();

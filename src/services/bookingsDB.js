@@ -10,8 +10,8 @@
 // export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
 PouchDB.plugin(require('pouchdb-authentication'));
 var db;
-import { getSettings, setSettings, DbSettings, mode } from 'ducks/settings-duck';
-import { remote } from 'electron';
+const { getSettings, setSettings, DbSettings, mode } = require('ducks/settings-duck');
+const { remote } = require('electron');
 const BrowserWindow = remote.BrowserWindow;
 import Logit from '../factories/logit.js';
 var logit = Logit(__filename);
@@ -19,34 +19,6 @@ const adapter = DbSettings.adapter || 'websql';
 
 logit('PouchDB creating', PouchDB);
 
-// import { uuid } from 'PouchDB-utils';
-// async function tests() {
-//   try {
-//     const logit = Logit(`${__filename}_XYZW`);
-//     var test = await new PouchDB('test', {});
-//     await test.destroy();
-//     test = await new PouchDB('test', {});
-//     let info = await test.info();
-//     logit('info', info);
-//     var uuidx = uuid(32, 16).toLowerCase();
-//     logit('uuidx', uuidx);
-//     var id = 'test6';
-//     await test.put({ _id: id, value: 1 });
-//     let doc = await test.get(id);
-//     logit('version 1', doc);
-//     var rev = parseInt(doc._rev.split('-')[0]);
-//     doc._rev = rev + 1 + '-' + uuid(32, 16).toLowerCase();
-//     doc.value += 1;
-//     await test.bulkDocs([doc], { new_edits: false });
-//     doc = await test.get(id);
-//     logit('version 2', doc);
-//     info = await test.info();
-//     logit('info', info);
-//   } catch (error) {
-//     logit('error', error);
-//   }
-// }
-// tests();
 logit('DbSettings', mode, DbSettings);
 const localDb = DbSettings.localname;
 logit('localDb', localDb, adapter);
@@ -86,9 +58,9 @@ db.info().then(function(info) {
 //     logit('No update was necessary');
 //   }
 // });
-export default db;
-export const remoteCouch = `http://${DbSettings.remotehost}:5984/${
-  DbSettings.remotename
-}`;
+module.exports = db;
+// export const remoteCouch = `http://${DbSettings.remotehost}:5984/${
+//   DbSettings.remotename
+// }`;
 
 // export PouchDB;

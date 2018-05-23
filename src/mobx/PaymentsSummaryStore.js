@@ -1,10 +1,9 @@
-import { observable, computed, action, autorun } from 'mobx';
-import db from 'services/bookingsDB';
-import XDate from 'xdate';
-import Logit from 'factories/logit.js';
+const { observable, computed, action, autorun } = require('mobx');
+const db = require('services/bookingsDB');
+const XDate = require('xdate');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
 
-export let paymentsSummaryLoading;
 class PaymentsSummaryStore {
   @observable loaded = false;
   @observable lastPaymentsBanked = '';
@@ -15,15 +14,12 @@ class PaymentsSummaryStore {
   @observable id;
   previousUnclearedBookings;
   constructor() {
-    // paymentsSummaryLoading = this.loadSumaryDocs();
     autorun(() => {
       logit('activeAccountId set:', this.activeAccountId);
       // if (this.activeAccountId === null)debugger;
     });
     autorun(() => logit('autorun loaded', this.loaded));
   }
-
-  paymentsSummaryLoading: () => paymentsSummaryLoading;
 
   @computed
   get periodStartDate() {
@@ -82,5 +78,4 @@ class PaymentsSummaryStore {
 
 const paymentsSummaryStore = new PaymentsSummaryStore();
 
-export default paymentsSummaryStore;
-export { PaymentsSummaryStore };
+module.exports = paymentsSummaryStore;

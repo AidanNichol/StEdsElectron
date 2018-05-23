@@ -1,9 +1,9 @@
-import XDate from 'xdate';
-import { observable, computed, action } from 'mobx';
-// import Logit from 'factories/logit.js';
+const XDate = require('xdate');
+const { observable, computed, action } = require('mobx');
+// const Logit = require( 'factories/logit.js');
 // var logit = Logit(__filename);
 
-export const dateDisplay = dat => new XDate(dat).toString('dd MMM HH:mm');
+// export const dateDisplay = dat => new XDate(dat).toString('dd MMM HH:mm');
 
 export class DateStore {
   testing = false;
@@ -86,4 +86,4 @@ if (!dateStore.testing) {
   }, 60000);
 }
 
-export default dateStore;
+module.exports = dateStore;

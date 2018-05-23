@@ -1,14 +1,14 @@
-import { merge } from 'lodash';
-import R from 'ramda';
-import Logit from 'factories/logit.js';
+const { merge } = require('lodash');
+const R = require('ramda');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
-import { observable, computed, action } from 'mobx';
-import { BookingLog } from 'mobx/BookingLog';
-import { getUpdater } from 'ducks/signin-mobx';
-import MS from 'mobx/MembersStore';
-import DS from 'mobx/DateStore';
+const { observable, computed, action } = require('mobx');
+const BookingLog = require('./BookingLog');
+const { getUpdater } = require('ducks/signin-mobx');
+const MS = require('./MembersStore');
+const DS = require('./DateStore');
 
-export class Booking {
+module.exports = class Booking {
   @observable status = '??';
   @observable annotation = '';
   logs = observable.shallowMap({});
@@ -89,6 +89,7 @@ export class Booking {
       },
       'updated status from conflicts',
     );
+    return true;
   }
   @action
   updateBookingRequest(req) {
@@ -214,7 +215,7 @@ export class Booking {
       .reverse();
     return logs;
   }
-}
+};
 
 var logColl = new Intl.Collator();
 var cmpDate = (a, b) => logColl.compare(a.dat, b.dat);

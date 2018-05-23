@@ -1,25 +1,25 @@
-import * as mobx from 'mobx';
-import db from 'services/bookingsDB';
-import { state } from 'ducks/replication-mobx';
-import { useFullHistory } from 'ducks/settings-duck';
-import R from 'ramda';
-import _ from 'lodash';
-// import {sprintf} from 'sprintf-js';
-import Logit from 'factories/logit.js';
+const mobx = require('mobx');
+const db = require('services/bookingsDB');
+const { state } = require('ducks/replication-mobx');
+const { useFullHistory } = require('ducks/settings-duck');
+const R = require('ramda');
+const _ = require('lodash');
+// const {sprintf} = require( 'sprintf-js');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
-import { observable, computed, toJS, reaction, action } from 'mobx';
-import { FundsManager } from 'mobx/fundsManager';
-import MS from 'mobx/MembersStore';
-import WS from 'mobx/WalksStore';
-import DS from 'mobx/DateStore';
-import PS from 'mobx/PaymentsSummaryStore';
-import { logger } from 'services/logger.js';
+const { observable, computed, toJS, reaction, action } = require('mobx');
+const FundsManager = require('mobx/fundsManager');
+const MS = require('mobx/MembersStore');
+const WS = require('mobx/WalksStore');
+const DS = require('mobx/DateStore');
+const PS = require('mobx/PaymentsSummaryStore');
+const { logger } = require('services/logger.js');
 
-import AccLog from 'mobx/AccLog';
+const AccLog = require('mobx/AccLog');
 let limit;
 logit('dateStore', DS);
 
-export default class Account {
+module.exports = class Account {
   _id = 0;
   type = 'account';
   _conflicts = [];
@@ -535,7 +535,7 @@ export default class Account {
 
     return sum;
   }
-}
+};
 const getRev = rev => parseInt(rev.split('-')[0]);
 var coll = new Intl.Collator();
 var logCmpDate = (a, b) => coll.compare(a[0], b[0]);

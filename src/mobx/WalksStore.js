@@ -1,4 +1,4 @@
-import {
+const {
   observable,
   computed,
   action,
@@ -6,23 +6,22 @@ import {
   autorun,
   reaction,
   toJS,
-} from 'mobx';
-import { useFullHistory } from 'ducks/settings-duck';
+} = require('mobx');
+const { useFullHistory } = require('ducks/settings-duck');
 
-import db from 'services/bookingsDB';
-// import {getSettings} from 'ducks/settings-duck';
-import R from 'ramda';
-import Logit from 'factories/logit.js';
+const db = require('services/bookingsDB');
+// const {getSettings} =require( 'ducks/settings-duck');
+const R = require('ramda');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
-logit('import')
+logit('import');
 
+const MS = require('./MembersStore');
+const PS = require('./PaymentsSummaryStore');
+const DS = require('./DateStore');
+const Walk = require('./Walk');
 
-import MS from 'mobx/MembersStore';
-import PS from 'mobx/PaymentsSummaryStore';
-import DS from 'mobx/DateStore';
-import Walk from './Walk';
-
-export let walksLoading;
+// export let walksLoading;
 // import PouchDb from 'pouchdb'
 class WalksStore {
   walks = observable.map({});
@@ -37,7 +36,7 @@ class WalksStore {
     autorun(() => logit('autorun loaded', this.loaded));
   }
 
-  walksLoading: () => walksLoading;
+  // walksLoading: () => walksLoading;
 
   @computed
   get bookableWalksId() {
@@ -71,10 +70,7 @@ class WalksStore {
     const nextWalk = this.bookableWalksId[0];
     const i = Math.max(this.walks.keys().indexOf(nextWalk) - no, 0);
 
-    const recent = [
-      ...this.walks.keys().slice(i, i + no),
-      ...this.bookableWalksId,
-    ];
+    const recent = [...this.walks.keys().slice(i, i + no), ...this.bookableWalksId];
     logit('walkDay recent', recent, i, nextWalk, this.walks.keys());
     return recent;
   }
@@ -112,9 +108,7 @@ class WalksStore {
 
   @computed
   get conflictingWalks() {
-    return this.walks
-      .values()
-      .filter(entry => (entry._conflicts || []).length > 0);
+    return this.walks.values().filter(entry => (entry._conflicts || []).length > 0);
   }
 
   @computed
@@ -122,12 +116,7 @@ class WalksStore {
     // logit('allWalkLogsByAccount',this)
     let map = {};
     this.walks.values().forEach(walk => {
-      logit(
-        'allWalkLogsByAccount:walk',
-        walk._id,
-        walk.venue,
-        walk.walkLogsByMembers,
-      );
+      logit('allWalkLogsByAccount:walk', walk._id, walk.venue, walk.walkLogsByMembers);
       Object.entries(walk.walkLogsByMembers).map(([memId, logs]) => {
         let member = MS.members.get(memId);
         let accId = member.accountId;
@@ -184,9 +173,7 @@ class WalksStore {
     const endkey = 'W' + DS.lastAvailableDate;
     var periodStartDate = PS.currentPeriodStart;
     const startkey =
-      useFullHistory || !periodStartDate
-        ? 'W2016-11-01'
-        : 'W' + periodStartDate;
+      useFullHistory || !periodStartDate ? 'W2016-11-01' : 'W' + periodStartDate;
     logit('loadWalks', startkey, '<-->', endkey, useFullHistory);
     const data = await db.allDocs({
       include_docs: true,
@@ -202,17 +189,7 @@ class WalksStore {
       this.loaded = true;
       logit('WalkStore', this, this.walks);
     });
-    this.walks.forEach(walk => walk.resolveConflicts());
-    // logit('conflictingWalks', this.conflictingWalks)
-    // for(let walk of this.conflictingWalks){
-    //   walk._conflicts = walk._conflicts.sort((a,b)=>getRev(b)-getRev(a))
-    //   let confs = await db.get(walk._id, {open_revs: walk._conflicts, include_docs:true})
-    //   logit('conflicting docs', confs)
-    //   runInAction('addConflicting docs', ()=>{
-    //     this.walks[walk._id].conflicts = confs.map((row)=>row.ok);
-    //     logit('walk:with conflicts', this.walks[walk._id])
-    //   })
-    // }
+    // this.walks.forEach(walk => walk.resolveConflicts());
   }
 }
 var coll = new Intl.Collator();
@@ -221,7 +198,7 @@ var idCmp = (a, b) => coll.compare(a._id, b._id);
 // const getRev = (rev)=> parseInt(rev.split('-')[0]);
 
 const walksStore = new WalksStore();
-export const setActiveWalk = memId => walksStore.setActiveWalk(memId);
+// export const setActiveWalk = memId => walksStore.setActiveWalk(memId);
 
-export default walksStore;
-export { WalksStore };
+// export default walksStore;
+module.exports = walksStore;

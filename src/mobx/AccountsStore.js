@@ -1,9 +1,9 @@
-import { observable, computed, action, runInAction, autorun } from 'mobx';
-import db from 'services/bookingsDB';
-import _ from 'lodash';
-import Logit from 'factories/logit.js';
+const { observable, computed, action, runInAction, autorun } = require('mobx');
+const db = require('services/bookingsDB');
+const _ = require('lodash');
+const Logit = require('factories/logit.js');
 var logit = Logit(__filename);
-import Account from './Account';
+const Account = require('./Account');
 
 // export let accountsLoading;
 class AccountsStore {
@@ -263,7 +263,7 @@ var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 
 const accountsStore = new AccountsStore();
-export const setActiveAccount = memId => accountsStore.setActiveAccount(memId);
+// export const setActiveAccount = memId => accountsStore.setActiveAccount(memId);
 
-export default accountsStore;
-export { AccountsStore };
+module.exports = accountsStore;
+// export { AccountsStore };
