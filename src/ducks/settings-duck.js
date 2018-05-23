@@ -1,4 +1,5 @@
 import settings from 'electron-settings';
+// import { TypeFlags } from 'typescript';
 
 let defaults = {
   user: {
@@ -10,7 +11,6 @@ let defaults = {
   },
 
   lock: { enabled: false, delay: 5000 },
-  calculation: { useFullHistory: true, resolveConflicts: false },
   debug: { devtoolsOpen: false, database: false },
   router: { clear: true, enabled: false },
   database: {
@@ -23,6 +23,8 @@ let defaults = {
       remotehost: 'nicholware.com',
       localUsers: '_users',
       resetLocalUser: false,
+      useFullHistory: false,
+      resolveConflicts: false,
     },
     developement: {
       localname: 'devbookings',
@@ -34,6 +36,8 @@ let defaults = {
       password: 'admin',
       localUsers: 'devUsers',
       resetLocalUser: false,
+      useFullHistory: true,
+      resolveConflicts: false,
     },
   },
   advanced: false,
@@ -44,28 +48,31 @@ try {
 } catch (error) {
   console.log('get setting', error);
 }
-let newValues = { ...defaults, ...existing };
-if (newValues.calculation.resolveConflicts===undefined)newValues.calculation.resolveConflicts = false
-delete newValues.debug.reduxLogger;
-delete newValues.database.developement.resetLocal;
-delete newValues.database.production.resetLocal;
-delete newValues.database.developement.resetLocalBooking;
-delete newValues.database.production.resetLocalBooking;
-delete newValues.clearRouter;
+function upgradeObject(newVal, old) {
+  Object.keys(newVal).forEach(key => {
+    let value = newVal[key];
+    if (typeof value === 'object' && typeof old[key] === 'object')
+      upgradeObject(newVal[key], old[key]);
+    else if (old[key] !== undefined) newVal[key] = old[key];
+  });
+}
+let newValues = { ...defaults };
+upgradeObject(newValues, existing);
+
 console.log('V3 Electron-settings', { defaults, existing, newValues });
 settings.setAll(newValues);
-export const mode = settings.get('database.current');
-export const useFullHistory = settings.get('calculation.useFullHistory');
-export const resolveConflicts = settings.get('calculation.resolveConflicts');
-export const DbSettings = settings.get(`database.${mode}`);
-console.log('settings DbSettings', { mode, DbSettings });
+exports.mode = settings.get('database.current');
+exports.DbSettings = settings.get(`database.${exports.mode}`);
+console.log('settings DbSettings', exports);
+exports.useFullHistory = exports.DbSettings.useFullHistory;
+exports.resolveConflicts = exports.DbSettings.resolveConflicts;
 
-export const getAllSettings = () => settings.getAll();
-export const getSettings = field => settings.get(field);
-export const setSettings = (field, value) => {
+exports.getAllSettings = () => settings.getAll();
+exports.getSettings = field => settings.get(field);
+exports.setSettings = (field, value) => {
   console.log(`setting ${field} = ${value}`);
   settings.set(field, value, { prettify: true });
 };
-export const lockSettings = settings.get('lock');
-console.log('lock values', lockSettings);
+exports.lockSettings = settings.get('lock');
+console.log('lock values', exports);
 console.log('setting File', settings.file());
