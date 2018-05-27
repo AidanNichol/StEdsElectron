@@ -16,18 +16,8 @@ const POUCHDB_INSPECTOR = 'hbhhpaojmpfimakffndmpmpndcmonkfa';
 // var ESI = require('electron-single-instance');
 app.setName('stedsbookings');
 
-let mainWindow,
-  printWorkerWindow,
-  loadingScreen,
-  windowParams = {
-    width: 1280,
-    height: 774,
-    x: 0,
-    y: 100,
-    show: false,
-    // webPreferences: {experimentalFeatures: true}
-  };
-
+let mainWindow, printWorkerWindow, loadingScreen;
+// let windowParams = { width: 1280, height: 774, x: 0, y: 100, show: false };
 const shouldQuit = app.makeSingleInstance(() => {
   // Someone tried to run a second instance, we should focus our window.
   if (mainWindow) {
@@ -50,9 +40,9 @@ app.on('window-all-closed', () => {
 function isDev() {
   return app.getPath('exe').includes('/node_modules/electron/');
 }
-function createWindow() {
+function createWindow(width, height) {
   // Create the browser window.
-  mainWindow = new BrowserWindow(windowParams);
+  mainWindow = new BrowserWindow({ width, height, x: 0, y: 0, show: false });
   if (isDev()) {
     installExtension(REACT_DEVELOPER_TOOLS)
       .then(name => console.log(`Added Extension:  ${name}`))
@@ -87,7 +77,7 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
-    printWorkerWindow.close();
+    printWorkerWindow && printWorkerWindow.close();
   });
 
   printWorkerWindow = new BrowserWindow();
@@ -104,6 +94,7 @@ function createWindow() {
 }
 
 function createLoadingScreen() {
+  let windowParams = { width: 1280, height: 774, x: 0, y: 100, show: false };
   loadingScreen = new BrowserWindow(Object.assign(windowParams, { parent: mainWindow }));
   loadingScreen.loadURL('file://' + __dirname + '/windows/loading.html');
   loadingScreen.on('closed', () => (loadingScreen = null));
@@ -116,8 +107,9 @@ function createLoadingScreen() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
   createLoadingScreen();
-  createWindow();
+  createWindow(width, height);
   console.log('creating listeners');
   ipcMain.on('reload-main', (event, arg) => {
     console.log('reload request received', arg);
