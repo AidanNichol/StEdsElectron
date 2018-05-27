@@ -29,7 +29,6 @@ class DateStore {
   dispDate(dat) {
     const now = new XDate();
     const tdat = new XDate(dat);
-    const diff = tdat.diffMonths(now);
     return tdat.toString(tdat.diffMonths(now) > 6 ? 'dd MMM, yyyy' : 'dd MMM HH:mm');
   }
 
