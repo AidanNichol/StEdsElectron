@@ -1,10 +1,13 @@
-import debug from 'debug';
-import _ from 'lodash';
-export var opts = {};
-export var logitCodes = [];
+const debug = require('debug');
+const _ = require('lodash');
+// export var opts = {};
+// export var logitCodes = [];
+var opts = {};
+var logitCodes = [];
 const debugme = debug('logit:setup');
 const debug2 = debug('steds:logit');
-let enableStr = localStorage.getItem('debug') || '';
+let enableStr = '';
+if (typeof window !== 'undefined') enableStr = window.localStorage.getItem('debug') || '';
 enableStr = (enableStr || '')
   .replace(/"/g, '')
   .split(',')
@@ -15,7 +18,8 @@ enableStr = (enableStr || '')
 debug.enable(enableStr);
 // debug.enable(enableStr + ',steds:logit,-logit:setup, -pouchdb*');
 debug2('enable string', enableStr);
-export default function Logit(source) {
+// export default function Logit(source) {
+module.exports = function Logit(source) {
   const symbs = {
     components: '⚙️',
     views: '️⛰',
@@ -39,7 +43,8 @@ export default function Logit(source) {
 
   let debb = debug(`⨁:${source}`);
   logitCodes.push(`⨁:${source}`);
-  localStorage.setItem('logitCodes', JSON.stringify(logitCodes));
+  if (typeof window !== 'undefined')
+    localStorage.setItem('logitCodes', JSON.stringify(logitCodes));
   _.set(opts, source.split(':'), true);
   debugme(
     'logit setup',
@@ -47,7 +52,7 @@ export default function Logit(source) {
     source,
     logitCodes,
     opts,
-    localStorage.getItem('logitCodes'),
+    typeof window !== 'undefined' ? localStorage.getItem('logitCodes') : '',
   );
   // console.warn('debugme enabled:', debugme.enabled, `⨁:${source} enabled`, debb.enabled);
   let backgroundColor = debb.color;
@@ -56,8 +61,9 @@ export default function Logit(source) {
   const logit = (...Y) => debb('%c %s ', colorFormat, ...Y);
   logit.table = Y => debb.enabled && console.table(Y);
   return logit;
-}
+};
 function getContrastYIQ(hexcolor) {
+  if (typeof hexcolor !== 'string') return 'black';
   var r = parseInt(hexcolor.substr(1, 2), 16);
   var g = parseInt(hexcolor.substr(3, 2), 16);
   var b = parseInt(hexcolor.substr(5, 2), 16);

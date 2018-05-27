@@ -8,12 +8,14 @@
 
 // var PouchDBa  = require('pouchdb-authentication');
 // export var remoteCouch = 'http://aidan:admin@localhost:5984/bookings';
+// equire('pouchdb-authentication'));
+
 PouchDB.plugin(require('pouchdb-authentication'));
 var db;
-const { getSettings, setSettings, DbSettings, mode } = require('ducks/settings-duck');
+const { getSettings, setSettings, DbSettings, mode } = require('../ducks/settings-duck');
 const { remote } = require('electron');
-const BrowserWindow = remote.BrowserWindow;
-import Logit from '../factories/logit.js';
+const BrowserWindow = remote && remote.BrowserWindow;
+const Logit = require('logit');
 var logit = Logit(__filename);
 const adapter = DbSettings.adapter || 'websql';
 
@@ -24,7 +26,7 @@ const localDb = DbSettings.localname;
 logit('localDb', localDb, adapter);
 
 db = new PouchDB(localDb, { adapter });
-if (DbSettings.resetLocalBookings) {
+if (DbSettings.resetLocalBookings && BrowserWindow) {
   logit('destroying', localDb);
   db.destroy().then(() => {
     setSettings(`database.${getSettings('database.current')}.resetLocalBookings`, false);

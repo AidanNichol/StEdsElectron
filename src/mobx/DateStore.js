@@ -1,64 +1,68 @@
 const XDate = require('xdate');
-const { observable, computed, action } = require('mobx');
+const { observable, computed, decorate } = require('mobx');
 // const Logit = require( 'factories/logit.js');
 // var logit = Logit(__filename);
 
 // export const dateDisplay = dat => new XDate(dat).toString('dd MMM HH:mm');
 
-export class DateStore {
-  testing = false;
-  @observable today;
+class DateStore {
   constructor(today) {
+    this.testing = false;
     if (today) {
       this.today = new XDate(today);
       this.testing = true;
     } else {
       this.today = new XDate();
     }
+    this.setNewDate = this.setNewDate.bind(this);
     console.log(this);
     // autorun(()=>console.warn('today is: ', this.today.toString('yyyy-MM-dd HH:mm')))
   }
-  @action setNewDate = newDate => (this.today = newDate);
-  @action
-  datetimePlus1 = oldDate => {
+  setNewDate(newDate) {
+    this.today = newDate;
+  }
+
+  datetimePlus1(oldDate) {
     return new XDate(oldDate).addMilliseconds(1).toString('i');
-  };
+  }
 
   dispDate(dat) {
-    return new XDate(dat).toString('dd MMM HH:mm');
+    const now = new XDate();
+    const tdat = new XDate(dat);
+    const diff = tdat.diffMonths(now);
+    return tdat.toString(tdat.diffMonths(now) > 6 ? 'dd MMM, yyyy' : 'dd MMM HH:mm');
   }
-  @computed
+
   get dayNo() {
     console.log('getDay', this.today.getDay(), this.today.toString('ddd'));
     return this.today.getDay();
   }
-  @computed
+
   get todaysDate() {
     return this.today.toString('yyyy-MM-dd');
   }
   getLogTime(today = new Date()) {
     return new XDate(today).toString('i');
   }
-  @computed
+
   get now() {
     return new XDate().toString('yyyy-MM-dd HH:mm');
   }
 
-  @computed
   get prevDate() {
     return this.today
       .clone()
       .addDays(-55)
       .toString('yyyy-MM-dd');
   }
-  @computed
+
   get lastAvailableDate() {
     return this.today
       .clone()
       .addDays(59)
       .toString('yyyy-MM-dd');
   }
-  @computed
+
   get logTime() {
     return new XDate().toString('i');
   }
@@ -68,12 +72,20 @@ export class DateStore {
   datetimeIsToday(datStr) {
     return datStr.substr(0, 10) === this.todaysDate; // in the same day
   }
-  @action
+
   dateMinus3Weeks(dat) {
     return new XDate(dat).addWeeks(-4).toString('yyyy-MM-dd');
   }
 }
-
+decorate(DateStore, {
+  today: observable,
+  dayNo: computed,
+  todaysDate: computed,
+  now: computed,
+  prevDate: computed,
+  lastAvailableDate: computed,
+  logTime: computed,
+});
 const dateStore = new DateStore();
 // const dateStore = new DateStore('2017-02-09');
 

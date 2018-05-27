@@ -1,45 +1,50 @@
 const R = require('ramda');
 // const _ = require( 'lodash');
-const db = require('services/bookingsDB');
+let db;
 const XDate = require('xdate');
-const { replicationDbChange } = require('ducks/replication-mobx');
+const emitter = require('./eventBus');
 const { merge } = require('lodash');
 // const { resolveConflicts } = require( 'ducks/settings-duck');
 
-const { logger } = require('services/logger.js');
-const Logit = require('factories/logit.js');
+const { logger } = require('logger.js');
+const Logit = require('../factories/logit.js');
 var logit = Logit(__filename);
 // var logit2 = logit;
-const { observable, computed, action, autorun, toJS } = require('mobx');
-const Booking = require('mobx/Booking');
-const MS = require('mobx/MembersStore');
-const AS = require('mobx/AccountsStore');
-// import {state as signinState} from 'ducks/signin-mobx'
-// logit2('signinState', signin, signinState, SigninState);
+const { observable, computed, action, autorun, toJS, decorate } = require('mobx');
+const Booking = require('../mobx/Booking');
+const MS = require('../mobx/MembersStore');
+const AS = require('../mobx/AccountsStore');
 const memberName = memId => (MS.members.get(memId) || {}).fullName;
 const accountName = accId => (AS.accounts.get(accId) || {}).name;
-module.exports = class Walk {
-  _id = 0;
-  type = 'walk';
-  _conflicts;
-  @observable annotations;
-  bookings = observable.map({});
-  @observable capacity;
-  @observable closed = false;
-  @observable fee;
-  @observable firstBooking;
-  @observable lastCancel;
-  @observable venue;
-  walkDate;
-  walkId;
-  logger;
-  confLogger;
+class Walk {
   // addMemberName(memId){
   //   // let memName = MS.members.get(memId).fullName;
   //   return `${memId} - ${MS.members.get(memId).fullName}`;
   // }
 
-  constructor(walk) {
+  constructor(walk, dbset) {
+    this._id = '';
+    this.type = 'walk';
+    this._conflicts;
+    this.annotations;
+    this.bookings = observable.map({});
+    this.capacity;
+    this.closed = false;
+    this.fee;
+    this.firstBooking;
+    this.lastCancel;
+    this.venue;
+    this.walkDate;
+    this.walkId;
+    this.logger;
+    this.confLogger;
+    this.getWalk = this.getWalk.bind(this);
+    this.getBookings = this.getBookings.bind(this);
+    this.dbUpdate = this.dbUpdate.bind(this);
+    this.updateDocument = this.updateDocument.bind(this);
+
+    db = dbset ? dbset : require('../services/bookingsDB');
+
     autorun(() => logit('autorun', this.report, this));
     // Object.entries(walk.bookings || {}).forEach(([memId, booking])=>this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk})))
     // delete walk.logs;
@@ -52,26 +57,27 @@ module.exports = class Walk {
     });
   }
 
-  getWalk = () => {
+  getWalk() {
     const { fee, lastCancel, venue, _id, logger } = this;
     return { fee, lastCancel, venue, _id, logger };
-  };
+  }
 
-  @computed
+  get bookingsValues() {
+    return Array.from(this.bookings.values());
+  }
+
   get dispDate() {
     return new XDate(this.walkDate).toString('dd MMM');
   }
 
-  @computed
   get walkDate() {
     return this._id.substr(1);
   }
-  @computed
+
   get shortname() {
     return this.venue.split(/[ -]/, 2)[0];
   }
 
-  @computed
   get code() {
     if (this.shortCode) return this.shortCode;
     let code = this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
@@ -79,15 +85,13 @@ module.exports = class Walk {
     return code;
   }
 
-  @computed
   get names() {
     return { venue: this.venue, shortname: this.shortname, code: this.code };
   }
 
-  @computed
   get bookingTotals() {
     let totals = { B: 0, W: 0 };
-    this.bookings.values().map(({ status }) => {
+    this.bookingsValues.map(({ status }) => {
       /^[BW]$/.test(status) && totals[status]++;
     });
     let free = this.capacity - totals.B;
@@ -102,7 +106,6 @@ module.exports = class Walk {
     };
   }
 
-  @computed
   get walkLogsByMembers() {
     let map = {};
     // let activeMember = MS.activeMember;
@@ -115,18 +118,16 @@ module.exports = class Walk {
     return map;
   }
 
-  @computed
   get busBookings() {
     return this.getBookings('B');
   }
-  @computed
+
   get carBookings() {
     return this.getBookings('C');
   }
-  getBookings = requestType => {
+  getBookings(requestType) {
     logit('makeGetBookings', this.bookings, requestType);
-    let bookings = this.bookings
-      .values()
+    let bookings = this.bookingsValues
       .filter(booking => booking.status === requestType)
       .map(booking => {
         const memId = booking.memId;
@@ -148,25 +149,22 @@ module.exports = class Walk {
       .sort(nameCmp);
     logit('getBookings', bookings);
     return bookings;
-  };
+  }
 
-  @computed
   get waitingList() {
-    let bookings = this.bookings
-      .values()
+    let bookings = this.bookingsValues
       .filter(booking => booking.status === 'W')
       .map(booking => {
         const memId = booking.memId;
         let member = MS.members.get(memId);
         let name = member.fullNameR;
-        let dat = booking.logs.values().reverse()[0].dat;
+        let dat = Array.from(booking.logs.values()).reverse()[0].dat;
         return { dat, memId, name, waitlisted: true };
       });
 
     return bookings.sort(datCmp);
   }
 
-  @action
   annotateBooking(memId, note) {
     logit('annotateBooking', memId, note);
 
@@ -175,7 +173,6 @@ module.exports = class Walk {
     this.dbUpdate();
   }
 
-  @action
   updateBookingRequest(memId, req) {
     var booking = this.bookings.get(memId);
     logit('updateBookingRequest', booking, memId, req);
@@ -192,7 +189,6 @@ module.exports = class Walk {
     this.dbUpdate();
   }
 
-  @action
   resetLateCancellation(memId) {
     logit('resetLateCancellation', memId);
     var booking = this.bookings.get(memId) || {};
@@ -202,24 +198,20 @@ module.exports = class Walk {
     return;
   }
 
-  @action
   closeWalk() {
     this.closed = true;
     this.dbUpdate();
   }
 
-  @computed
   get report() {
     return `Walk: ${this._id} ${this.venue}`;
   }
 
-  @action
   getConflictingDocs() {
     return `Walk: ${this._id} ${this.venue}`;
   }
 
-  @action
-  dbUpdate = async () => {
+  async dbUpdate() {
     logit('DB Update start', this);
     let { _conflicts, ...newDoc } = toJS(this);
     Object.entries(newDoc.bookings).map(([memId, booking]) => {
@@ -232,17 +224,26 @@ module.exports = class Walk {
     this._rev = res.rev;
     const info = await db.info();
     logit('info', info);
-    replicationDbChange('walk changed');
-  };
+    emitter.emit('dbChanged', 'walk changed');
+  }
 
-  @action
-  updateDocument = walkDoc => {
+  updateDocument(walkDoc) {
     // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
     Object.entries(walkDoc.bookings || {}).forEach(([memId, booking]) => {
       if (this.bookings.has(memId))
         this.bookings.get(memId).updateBookingFromDoc(booking);
-      else
-        this.bookings.set(memId, new Booking(booking, memId, { getWalk: this.getWalk }));
+      else {
+        logit('creating booking', {
+          memId,
+          booking,
+          walk: this,
+          getWalk: this.getWalk(),
+        });
+        this.bookings.set(
+          memId,
+          new Booking(booking, memId, { getWalk: this.getWalk, walk: this }),
+        );
+      }
     });
     const deleted = R.difference(
       this.bookings.keys(),
@@ -253,8 +254,37 @@ module.exports = class Walk {
     delete walkDoc.walkDate;
     merge(this, walkDoc);
     return;
-  };
-};
+  }
+}
+
+decorate(Walk, {
+  annotations: observable,
+  capacity: observable,
+  closed: observable,
+  fee: observable,
+  firstBooking: observable,
+  lastCancel: observable,
+  venue: observable,
+  dispDate: computed,
+  walkDate: computed,
+  shortname: computed,
+  code: computed,
+  names: computed,
+  bookingTotals: computed,
+  walkLogsByMembers: computed,
+  busBookings: computed,
+  carBookings: computed,
+  waitingList: computed,
+  annotateBooking: action,
+  updateBookingRequest: action,
+  resetLateCancellation: action,
+  closeWalk: action,
+  report: computed,
+  ConflictingDocs: action,
+  dbUpdate: action,
+  updateDocument: action,
+});
+module.exports = Walk;
 // const getRev = rev => parseInt(rev.split('-')[0]);
 var coll = new Intl.Collator();
 // var logCmpDate = (a, b) => coll.compare(a[0], b[0]);

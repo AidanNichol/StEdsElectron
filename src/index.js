@@ -15,7 +15,7 @@ import AS from 'mobx/AccountsStore';
 import PS from 'mobx/PaymentsSummaryStore';
 import DS from 'mobx/DateStore';
 import { router } from 'ducks/router-mobx';
-import { state as signin } from 'ducks/signin-mobx';
+const signin = require('mobx/signinState');
 import Logit from 'factories/logit.js';
 import { reLogin } from 'ducks/signin-mobx';
 var logit = Logit(__filename);
@@ -30,7 +30,6 @@ const cntrl = observable({ loading: true });
 monitorChanges();
 const monitorLoading = action(async () => {
   logit('monitorLoading', 'start');
-  // await PS.paymentsSummaryLoading;
   await PS.init();
   logit('monitorLoading', 'loaded Summary Doc');
   await Promise.all([MS.init(), AS.init(), WS.init()]);
@@ -58,8 +57,9 @@ if (navigator.onLine) {
 
 render(
   <MobxProvider
-    {...{ MS, AS, WS, DS, PS, router, signin, cntrl, loading: cntrl.loading }}>
+    {...{ MS, AS, WS, DS, PS, router, signin, cntrl, loading: cntrl.loading }}
+  >
     <MainLayout />
   </MobxProvider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );

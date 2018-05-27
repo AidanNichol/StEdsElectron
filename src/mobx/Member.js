@@ -1,29 +1,33 @@
 const { merge } = require('lodash');
-const db = require('services/bookingsDB');
-const { observable, computed, action, runInAction, toJS } = require('mobx');
-const { replicationDbChange } = require('ducks/replication-mobx');
-const Logit = require('factories/logit.js');
+let db;
+const { observable, computed, action, runInAction, toJS, decorate } = require('mobx');
+const emitter = require('./eventBus');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 
-module.exports = class Member {
-  _id = 0;
-  type = 'member';
-  @observable memberId = 0;
-  @observable accountId = 0;
-  @observable firstName = '';
-  @observable lastName = '';
-  @observable address = '';
-  @observable phone = '';
-  @observable email = '';
-  @observable mobile = '';
-  @observable joined = '';
-  @observable nextOfKin = '';
-  @observable medical = '';
-  @observable memberStatus = 'Guest';
-  @observable suspended = false;
-  @observable subscription = '';
+class Member {
+  constructor(member, dbset) {
+    this._id = 0;
+    this.type = 'member';
+    this.memberId = 0;
+    this.accountId = 0;
+    this.firstName = '';
+    this.lastName = '';
+    this.address = '';
+    this.phone = '';
+    this.email = '';
+    this.mobile = '';
+    this.joined = '';
+    this.nextOfKin = '';
+    this.medical = '';
+    this.memberStatus = 'Guest';
+    this.suspended = false;
+    this.subscription = '';
+    this.updateDocument = this.updateDocument.bind(this);
+    this.updateField = this.updateField.bind(this);
+    this.dbUpdate = this.dbUpdate.bind(this);
 
-  constructor(member) {
+    db = dbset ? dbset : require('../services/bookingsDB');
     // autorun(() => console.log('autorun Member', this.report, this));
     // for(let [key, val] of Object.entries(member)){
     //   this[key] = val;
@@ -36,24 +40,23 @@ module.exports = class Member {
     this.memNo = parseInt(this._id.substr(1));
   }
 
-  @computed
   get report() {
     return `Member: ${this._id} ${this.fullName}`;
   }
-  @computed
+
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
-  @computed
+
   get fullNameR() {
     return `${this.lastName}, ${this.firstName}`;
   }
 
-  shortName(account) {
-    return account.members.length > 1 ? this.firstName : '';
+  shortName(account, parens) {
+    if (account.members.length <= 1) return '';
+    return parens ? `(${this.firstName})` : this.firstName;
   }
 
-  @computed
   get subsStatus() {
     let _today = new Date();
     // DS.todaysDate;
@@ -87,19 +90,16 @@ module.exports = class Member {
     showSubsButton = true;
     return { due: true, year, fee, status, showSubsButton };
   }
-
-  @action
-  updateField = (field, value) => {
+  updateField(field, value) {
     this[field] = value;
-  };
-  @action
-  updateDocument = member => {
+  }
+
+  updateDocument(member) {
     merge(this, member);
     return;
-  };
+  }
 
-  @action
-  dbUpdate = async () => {
+  async dbUpdate() {
     let { _conflicts, ...newDoc } = toJS(this); // eslint-disable-line no-unused-vars
     logit('DB Update', newDoc._deleted, newDoc);
     const res = await db.put(newDoc);
@@ -108,6 +108,31 @@ module.exports = class Member {
     });
     const info = await db.info();
     logit('info', info);
-    replicationDbChange('member changed');
-  };
-};
+    emitter.emit('dbChanged', 'member changed');
+  }
+}
+
+decorate(Member, {
+  memberId: observable,
+  accountId: observable,
+  firstName: observable,
+  lastName: observable,
+  address: observable,
+  phone: observable,
+  email: observable,
+  mobile: observable,
+  joined: observable,
+  nextOfKin: observable,
+  medical: observable,
+  memberStatus: observable,
+  suspended: observable,
+  subscription: observable,
+  report: computed,
+  fullName: computed,
+  fullNameR: computed,
+  subsStatus: computed,
+  updateField: action,
+  updateDocument: action,
+  dbUpdate: action,
+});
+module.exports = Member;

@@ -1,6 +1,14 @@
-import settings from 'electron-settings';
-// import { TypeFlags } from 'typescript';
-
+const Conf = require('conf');
+const fs = require('fs');
+let settings = new Conf();
+if (!fs.existsSync('/Users/aidan/Library/Preferences/stedsbookings-nodejs/config.json')) {
+  const settingsE = require('electron-settings');
+  settings.store = settingsE.getAll();
+}
+// settings
+//   .argv()
+//   .env()
+//   .file({ file: '/Users/aidan/Library/Application Support/Electron/Settings' });
 let defaults = {
   user: {
     current: 'aidan',
@@ -13,6 +21,7 @@ let defaults = {
   lock: { enabled: false, delay: 5000 },
   debug: { devtoolsOpen: false, database: false },
   router: { clear: true, enabled: false },
+  machine: { name: '' },
   database: {
     current: 'production',
     production: {
@@ -44,7 +53,7 @@ let defaults = {
 };
 let existing = {};
 try {
-  existing = settings.getAll();
+  existing = settings.store;
 } catch (error) {
   console.log('get setting', error);
 }
@@ -59,15 +68,21 @@ function upgradeObject(newVal, old) {
 let newValues = { ...defaults };
 upgradeObject(newValues, existing);
 
-console.log('V3 Electron-settings', { defaults, existing, newValues });
-settings.setAll(newValues);
+settings.store = newValues;
+if (settings.get('machine.name') === '') {
+  require('getmac').getMac(function(err, macAddress) {
+    if (err) throw err;
+    settings.set('machine.name', macAddress);
+    console.log(macAddress);
+  });
+}
 exports.mode = settings.get('database.current');
 exports.DbSettings = settings.get(`database.${exports.mode}`);
 console.log('settings DbSettings', exports);
 exports.useFullHistory = exports.DbSettings.useFullHistory;
 exports.resolveConflicts = exports.DbSettings.resolveConflicts;
 
-exports.getAllSettings = () => settings.getAll();
+exports.getAllSettings = () => settings.store;
 exports.getSettings = field => settings.get(field);
 exports.setSettings = (field, value) => {
   console.log(`setting ${field} = ${value}`);
@@ -75,4 +90,4 @@ exports.setSettings = (field, value) => {
 };
 exports.lockSettings = settings.get('lock');
 console.log('lock values', exports);
-console.log('setting File', settings.file());
+console.log('setting File', settings.path);

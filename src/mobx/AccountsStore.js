@@ -1,22 +1,23 @@
-const { observable, computed, action, runInAction, autorun } = require('mobx');
-const db = require('services/bookingsDB');
-const _ = require('lodash');
-const Logit = require('factories/logit.js');
+const { observable, computed, action, runInAction, autorun, decorate } = require('mobx');
+let db;
+// const _ = require('lodash');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 const Account = require('./Account');
 
 // export let accountsLoading;
 class AccountsStore {
-  accounts = observable.map({});
-  @observable activeAccountId = null;
-  @observable loaded = false;
-  // @observable lastPaymentsBanked = '';
-  // @observable openingCredit = 0;
-  // @observable openingDebt = 0;
-  // @observable paymentsLogsLimit;
-  // @observable currentPeriodStart;
-  // previousUnclearedBookings;
   constructor(accounts) {
+    this.accounts = observable.map({});
+    this.activeAccountId = null;
+    this.loaded = false;
+    this.createNewAccount = this.createNewAccount.bind(this);
+    this.addAccount = this.addAccount.bind(this);
+    this.setActiveAccount = this.setActiveAccount.bind(this);
+    this.addAccounts = this.addAccounts.bind(this);
+    this.getAccountStore = this.getAccountStore.bind(this);
+    this.changeDoc = this.changeDoc.bind(this);
+
     if (accounts) this.addAccounts(accounts);
     // else accountsLoading = this.loadAccounts();
     autorun(() => {
@@ -28,7 +29,10 @@ class AccountsStore {
 
   // accountsLoading: () => accountsLoading;
 
-  @computed
+  get accountsValues() {
+    return Array.from(this.accounts.values());
+  }
+
   get activeAccount() {
     logit(
       'activeAccount',
@@ -40,60 +44,59 @@ class AccountsStore {
     return this.accounts.get(this.activeAccountId);
   }
 
-  @computed
   get conflictingAccounts() {
-    return this.accounts.values().filter(entry => (entry._conflicts || []).length > 0);
+    return this.accountsValues.filter(entry => (entry._conflicts || []).length > 0);
   }
 
-  @action
-  addAccount = account => {
+  addAccount(account) {
     // logit('addAccount', account)
     this.accounts.set(
       account._id,
-      new Account(account, {
-        getAccountStore: this.getAccountStore,
-        isLoading: () => !this.loaded,
-      }),
+      new Account(
+        account,
+        {
+          getAccountStore: this.getAccountStore,
+          isLoading: () => !this.loaded,
+        },
+        db,
+      ),
     );
-  };
-  @action
-  setActiveAccount = accId => {
+  }
+
+  setActiveAccount(accId) {
     // logit('addAccount', accId)
     this.activeAccountId = accId;
-  };
+  }
 
-  @action
-  addAccounts = accounts => {
+  addAccounts(accounts) {
     // logit('accounts', accounts)
     accounts.filter(account => account.type === 'account').map(account => {
       // logit('account', account)
       return this.addAccount(account);
     });
-  };
+  }
 
-  @action
-  createNewAccount = (accId, members) => {
+  createNewAccount(accId, members) {
     logit('createNewAccount', accId, members);
     this.addAccount({ _id: accId, members });
     // this.activeAccountId = accId;
     this.accounts.get(accId).dbUpdate();
-  };
+  }
 
-  // @computed
+  //
   // get periodStartDate() {
   //   logit('periodStartDate', this.lastPaymentsBanked, this);
   //   return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM');
   // }
-
-  getAccountStore = () => {
+  getAccountStore() {
     const { loaded, activeAccountId } = this;
     return { loaded, activeAccountId };
-  };
+  }
 
   unclearedBookings(dat) {
     logit('unclearedBookings', dat, this);
     let bookings = {};
-    this.accounts.values().forEach(account => {
+    this.accountsValues.forEach(account => {
       // ["A1182", "A608"].forEach((accId)=>{
       let logs = account.unclearedBookings(dat);
 
@@ -102,41 +105,34 @@ class AccountsStore {
     return bookings;
   }
 
-  @computed
   get allDebts() {
     logit('start allDebts', this);
     let debts = [],
       credits = [],
       payments = [];
-    this.accounts
-      .values()
-      .sort(nameCmp)
-      .forEach(account => {
-        // ["A1182", "A608"].forEach((accId)=>{
-        let debt = account.accountStatus;
-        if (!debt || debt.balance < 0) debts.push(debt);
-        if (!debt || debt.balance > 0) credits.push(debt);
-        if (debt.paymentsMade > 0) payments.push(debt);
-      });
+    this.accountsValues.sort(nameCmp).forEach(account => {
+      // ["A1182", "A608"].forEach((accId)=>{
+      let debt = account.accountStatus;
+      if (!debt || debt.balance < 0) debts.push(debt);
+      if (!debt || debt.balance > 0) credits.push(debt);
+      if (debt.paymentsMade > 0) payments.push(debt);
+    });
     return { debts, credits, payments };
   }
-  @computed
+
   get allAccountsStatus() {
-    return this.accounts
-      .values()
-      .sort(nameCmp)
-      .map(account => {
-        return account.accountStatus;
-      });
+    return this.accountsValues.sort(nameCmp).map(account => {
+      return account.accountStatus;
+    });
   }
   fixupAllAccounts() {
-    this.accounts.values().forEach(acc => {
+    this.accountsValues.forEach(acc => {
       let logs = acc.accountStatus.logs;
       acc.fixupAccLogs(logs);
     });
   }
 
-  // @computed
+  //
   // get allFixableLogs() {
   //   let clones = {};
   //   this.accounts.values().forEach(account => {
@@ -147,7 +143,7 @@ class AccountsStore {
   //   return clones;
   // }
 
-  // @action
+  //
   // changeBPdoc = doc => {
   //   if (doc.doc) doc = doc.doc;
   //   this.lastPaymentsBanked = doc.endDate;
@@ -161,8 +157,8 @@ class AccountsStore {
   /*------------------------------------------------------------------------*/
   /* replication has a new or changed account document                      */
   /*------------------------------------------------------------------------*/
-  @action
-  changeDoc = ({ deleted, doc, id, ...rest }) => {
+
+  changeDoc({ deleted, doc, id, ...rest }) {
     let account = this.accounts.get(id);
     logit('changeDoc', { deleted, doc, account, id, rest });
     if (deleted) {
@@ -176,17 +172,17 @@ class AccountsStore {
     }
     if (doc._rev === account._rev) return; // we already know about this
     account.updateDocument(doc);
-  };
+  }
 
-  // @action
+  //
   // bankMoney = async doc => {
   //   logit('bankMoney', doc);
   //   await db.put(doc);
   //   this.changeBPdoc(doc);
   // };
 
-  @action
-  async init() {
+  async init(dbset) {
+    db = dbset ? dbset : require('../services/bookingsDB');
     //load accounts
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     // const dataBP = await db.allDocs({
@@ -199,7 +195,7 @@ class AccountsStore {
     // logit('load datasummaries', dataBP);
     const data = await db.allDocs({
       include_docs: true,
-      conflicts: true,
+      // conflicts: true,
       startkey: 'A',
       endkey: 'A99999999',
     });
@@ -212,53 +208,67 @@ class AccountsStore {
       logit('AccountStore', this, this.accounts);
       this.loaded = true;
     });
-    logit('conflictingAccounts', this.conflictingAccounts);
-    for (let conflictedAccount of this.conflictingAccounts) {
-      // if (conflictedAccount._id !== 'A295') break;
-      // conflictedAccount._conflicts = conflictedAccount._conflicts.sort((a,b)=>getRev(b)-getRev(a))
+    // logit('conflictingAccounts', this.conflictingAccounts);
+    // for (let conflictedAccount of this.conflictingAccounts) {
+    //   // if (conflictedAccount._id !== 'A295') break;
+    //   // conflictedAccount._conflicts = conflictedAccount._conflicts.sort((a,b)=>getRev(b)-getRev(a))
 
-      let confs = await db.get(conflictedAccount._id, {
-        open_revs: conflictedAccount._conflicts,
-        include_docs: true,
-      });
-      // logit('conflicting docs', confs);
-      runInAction('addConflicting docs', () => {
-        let account = this.accounts.get(conflictedAccount._id);
-        // account.conflicts = confs.map(row => row.ok);
-        confs.forEach(row => {
-          let added = this.compareLogs(account.logs, row.ok.logs);
-          if (!_.isEmpty(added)) {
-            logit(
-              'Conflicts',
-              account._id,
-              row.ok._rev,
-              account.name,
-              '\n',
-              JSON.stringify(added),
-            );
-          }
-          account.insertPaymentsFromConflictingDoc(added);
-        });
-        // logit('account:with conflicts', this.accounts.get(account._id));
-      });
-    }
+    //   let confs = await db.get(conflictedAccount._id, {
+    //     open_revs: conflictedAccount._conflicts,
+    //     include_docs: true,
+    //   });
+    //   // logit('conflicting docs', confs);
+    //   runInAction('addConflicting docs', () => {
+    //     let account = this.accounts.get(conflictedAccount._id);
+    //     // account.conflicts = confs.map(row => row.ok);
+    //     confs.forEach(row => {
+    //       let added = this.compareLogs(account.logs, row.ok.logs);
+    //       if (!_.isEmpty(added)) {
+    //         logit(
+    //           'Conflicts',
+    //           account._id,
+    //           row.ok._rev,
+    //           account.name,
+    //           '\n',
+    //           JSON.stringify(added),
+    //         );
+    //       }
+    //       account.insertPaymentsFromConflictingDoc(added);
+    //     });
+    //     // logit('account:with conflicts', this.accounts.get(account._id));
+    //   });
+    // }
   }
-  compareLogs = (okLogs, confLogs) => {
-    if (!confLogs) return;
-    let added = {};
-    for (let conf of confLogs) {
-      let okLog = okLogs.get(conf.dat);
-      if (!okLog) added[conf.dat] = conf;
-      // var diff = _.omitBy(okLog, function(v, k) {
-      //   // console.log('k,v,last[k] = ' + k + ',' + v + ',' + last[k]);
-      //   return k === 'inFull' || conf[k] === v;
-      // });
-      // if (!_.isEmpty(diff)) added[conf.dat] = 'chngd: ' + JSON.stringify(diff);
-    }
-    return added;
-  };
+  // compareLogs = (okLogs, confLogs) => {
+  //   if (!confLogs) return;
+  //   let added = {};
+  //   for (let conf of confLogs) {
+  //     let okLog = okLogs.get(conf.dat);
+  //     if (!okLog) added[conf.dat] = conf;
+  //     // var diff = _.omitBy(okLog, function(v, k) {
+  //     //   // console.log('k,v,last[k] = ' + k + ',' + v + ',' + last[k]);
+  //     //   return k === 'inFull' || conf[k] === v;
+  //     // });
+  //     // if (!_.isEmpty(diff)) added[conf.dat] = 'chngd: ' + JSON.stringify(diff);
+  //   }
+  //   return added;
+  // };
 }
 
+decorate(AccountsStore, {
+  activeAccountId: observable,
+  loaded: observable,
+  activeAccount: computed,
+  conflictingAccounts: computed,
+  addAccount: action,
+  setActiveAccount: action,
+  addAccounts: action,
+  createNewAccount: action,
+  allDebts: computed,
+  allAccountsStatus: computed,
+  changeDoc: action,
+  init: action,
+});
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
 

@@ -1,19 +1,23 @@
-const { observable, computed, action, autorun } = require('mobx');
-const db = require('services/bookingsDB');
+const { observable, computed, action, autorun, decorate } = require('mobx');
+let db;
 const XDate = require('xdate');
-const Logit = require('factories/logit.js');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 
 class PaymentsSummaryStore {
-  @observable loaded = false;
-  @observable lastPaymentsBanked = '';
-  @observable openingCredit = 0;
-  @observable openingDebt = 0;
-  @observable paymentsLogsLimit;
-  @observable currentPeriodStart;
-  @observable id;
-  previousUnclearedBookings;
   constructor() {
+    this.loaded = false;
+    this.lastPaymentsBanked = '';
+    this.openingCredit = 0;
+    this.openingDebt = 0;
+    this.paymentsLogsLimit;
+    this.currentPeriodStart;
+    this.id;
+    this.previousUnclearedBookings;
+    this.bankMoney = this.bankMoney.bind(this);
+    this.changeBPdoc = this.changeBPdoc.bind(this);
+    this.changeDoc = this.changeDoc.bind(this);
+
     autorun(() => {
       logit('activeAccountId set:', this.activeAccountId);
       // if (this.activeAccountId === null)debugger;
@@ -21,14 +25,12 @@ class PaymentsSummaryStore {
     autorun(() => logit('autorun loaded', this.loaded));
   }
 
-  @computed
   get periodStartDate() {
     logit('periodStartDate', this.lastPaymentsBanked, this);
     return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM');
   }
 
-  @action
-  changeBPdoc = doc => {
+  changeBPdoc(doc) {
     if (doc.doc) doc = doc.doc;
     this.lastPaymentsBanked = doc.endDate;
     this.openingCredit = doc.closingCredit;
@@ -37,28 +39,27 @@ class PaymentsSummaryStore {
     this.previousUnclearedBookings = doc.unclearedBookings;
     this.id = doc._id;
     logit('changeBPdoc', doc, this.lastPaymentsBanked, this.currentPeriodStart);
-  };
+  }
 
   /*------------------------------------------------------------------------*/
   /* replication has a new or changed account document                      */
   /*------------------------------------------------------------------------*/
-  @action
-  changeDoc = ({ deleted, doc, id, ...rest }) => {
+
+  changeDoc({ deleted, doc, id, ...rest }) {
     logit('changeDoc', { deleted, doc, id, rest });
     if (deleted) return;
     if (id <= this.id) return;
     this.changeBPdoc(doc);
-  };
+  }
 
-  @action
-  bankMoney = async doc => {
+  async bankMoney(doc) {
     logit('bankMoney', doc);
     await db.put(doc);
     this.changeBPdoc(doc);
-  };
+  }
 
-  @action
-  async init() {
+  async init(dbset) {
+    db = dbset ? dbset : require('../services/bookingsDB');
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const dataBP = await db.allDocs({
       descending: true,
@@ -75,7 +76,20 @@ class PaymentsSummaryStore {
     // });
   }
 }
-
+decorate(PaymentsSummaryStore, {
+  loaded: observable,
+  lastPaymentsBanked: observable,
+  openingCredit: observable,
+  openingDebt: observable,
+  paymentsLogsLimit: observable,
+  currentPeriodStart: observable,
+  id: observable,
+  periodStartDate: computed,
+  changeBPdoc: action,
+  changeDoc: action,
+  bankMoney: action,
+  init: action,
+});
 const paymentsSummaryStore = new PaymentsSummaryStore();
 
 module.exports = paymentsSummaryStore;

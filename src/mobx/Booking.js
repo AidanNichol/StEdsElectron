@@ -1,40 +1,52 @@
 const { merge } = require('lodash');
 const R = require('ramda');
-const Logit = require('factories/logit.js');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
-const { observable, computed, action } = require('mobx');
+const { observable, computed, action, decorate } = require('mobx');
 const BookingLog = require('./BookingLog');
-const { getUpdater } = require('ducks/signin-mobx');
+const updater = require('./signinState').name;
 const MS = require('./MembersStore');
 const DS = require('./DateStore');
 
-module.exports = class Booking {
-  @observable status = '??';
-  @observable annotation = '';
-  logs = observable.shallowMap({});
-  memId;
+class Booking {
   get walk() {
     return this.getWalk();
   }
+
+  get logsValues() {
+    return Array.from(this.logs.values());
+  }
   constructor(booking, memId, accessors) {
+    this.getMember = this.getMember.bind(this);
+    this.newBookingLog = this.newBookingLog.bind(this);
+    this.isRequestReversal = this.isRequestReversal.bind(this);
+    this.updateBookingFromDoc = this.updateBookingFromDoc.bind(this);
+
+    this.status = '??';
+    this.annotation = '';
+    this.logs = observable.map({}, { deep: false });
     merge(this, accessors);
-    (booking.logs || []).forEach(log => this.logs.set(log.dat, this.newBookingLog(log)));
+    (booking.logs || []).forEach(log =>
+      this.logs.set(log.dat, this.newBookingLog(log, accessors)),
+    );
     delete booking.logs;
     merge(this, booking);
     this.memId = memId;
     // this[_walk] = walk;
   }
-  newBookingLog = log =>
-    new BookingLog(log, {
+  newBookingLog(log) {
+    return new BookingLog(log, {
       getWalk: this.getWalk,
       getMember: this.getMember,
       walk: this.walk,
+      member: MS.members.get(this.memId),
     });
-  getMember = () => {
+  }
+  getMember() {
     const member = MS.members.get(this.memId);
-    const { accountId, firstName, fullName } = member;
+    const { accountId, firstName, fullName } = member || {};
     return { memId: this.memId, accountId, firstName, fullName };
-  };
+  }
   insertLogRecsFromConflicts(logs) {
     for (const log of logs) {
       log.who += '***';
@@ -43,10 +55,7 @@ module.exports = class Booking {
   }
 
   resetAnnotationFromConflicts(confLogs) {
-    let currLogRecs = this.logs
-      .values()
-      .filter(log => log.req === 'A')
-      .sort(cmpDate);
+    let currLogRecs = this.logsValues.filter(log => log.req === 'A').sort(cmpDate);
     let lastAnnotation = currLogRecs.pop() || { dat: '' };
     let extraLogRecs = confLogs
       .filter(log => log.req === 'A')
@@ -67,10 +76,7 @@ module.exports = class Booking {
     );
   }
   resetStatusFromConflicts(confLogs) {
-    let currLogRecs = this.logs
-      .values()
-      .filter(log => log.req !== 'A')
-      .sort(cmpDate);
+    let currLogRecs = this.logsValues.filter(log => log.req !== 'A').sort(cmpDate);
     let lastBookingLog = currLogRecs.pop() || { dat: '' };
     let extraLogRecs = confLogs
       .filter(log => log.req !== 'A')
@@ -91,7 +97,7 @@ module.exports = class Booking {
     );
     return true;
   }
-  @action
+
   updateBookingRequest(req) {
     if (this.status === req) return; // no change necessary
     const isRequestReversal = this.isRequestReversal(req);
@@ -103,9 +109,9 @@ module.exports = class Booking {
     }
     this.status = req;
 
-    var newLog = { dat: DS.logTime, who: getUpdater(), req };
+    var newLog = { dat: DS.logTime, who: updater(), req };
     this.walk.logger.info({ memId: this.memId, req }, 'Booking change');
-    const deletable = this.logs.values().filter(log => DS.datetimeIsRecent(log.dat));
+    const deletable = this.logsValues.filter(log => DS.datetimeIsRecent(log.dat));
     logit('reversable?', req, {
       reversable: isRequestReversal,
       deletable,
@@ -116,19 +122,16 @@ module.exports = class Booking {
       if (deletable && deletable.length > 0) {
         // and original req was recent
         deletable.forEach(log => this.logs.delete(log.dat)); //get rid of original log rather than ...
-        if (this.logs.values().filter(log => log.req !== 'A').length === 0)
+        if (this.logsValues.filter(log => log.req !== 'A').length === 0)
           return (this.deleteMe = true);
-        this.status = this.logs
-          .values()
-          .filter(log => log.req !== 'A')
-          .reverse()[0].req; // reset status to last valid req
+        this.status = this.logsValues.filter(log => log.req !== 'A').reverse()[0].req; // reset status to last valid req
         return;
       }
     }
     this.logs.set(newLog.dat, this.newBookingLog(newLog)); // adding new log
   }
 
-  isRequestReversal = req => {
+  isRequestReversal(req) {
     logit(
       'isRequestReversal',
       this.status,
@@ -141,40 +144,34 @@ module.exports = class Booking {
       this.status.length,
     );
     return this.status[0] === req[0] && this.status.length === req.length % 2 + 1;
-  };
+  }
 
-  @action
   updateAnnotation(note) {
     var curAnnotation = this.annotation || '';
     if (curAnnotation === note) return false; // no change necessary
     this.annotation = note;
-    var newLog = { dat: DS.logTime, who: getUpdater(), req: 'A', note: note };
+    var newLog = { dat: DS.logTime, who: updater, req: 'A', note: note };
     this.walk.logger.info({ memId: this.memId, note }, 'Annotation change');
-    var deletable = this.logs
-      .values()
-      .filter(log => log.req === 'A' && DS.datetimeIsRecent(log.dat));
+    var deletable = this.logsValues.filter(
+      log => log.req === 'A' && DS.datetimeIsRecent(log.dat),
+    );
     if (deletable.length > 0) deletable.forEach(log => this.logs.delete(log.dat));
     logit('updateAnnotation', newLog, deletable, this.logs, note);
-    if (this.logs.values().filter(log => log.req === 'A').length > 0 || note !== '') {
+    if (this.logsValues.filter(log => log.req === 'A').length > 0 || note !== '') {
       this.logs.set(newLog.dat, this.newBookingLog(newLog));
     }
     return true;
   }
 
-  @action
   resetLateCancellation() {
     if (this.status !== 'BL') return false;
     this.status = 'BX';
     this.walk.logger.info({ memId: this.memId }, 'Reset late cancellation');
-    const bLog = this.logs
-      .values()
-      .filter(log => log.req !== 'A')
-      .reverse()[0];
+    const bLog = this.logsValues.filter(log => log.req !== 'A').reverse()[0];
     if (bLog.req === 'BL') bLog.req = 'BX';
   }
 
-  @action
-  updateBookingFromDoc = bookingDoc => {
+  updateBookingFromDoc(bookingDoc) {
     // const added = R.difference(bookingDoc.logs.map(log=>log.dat), this.logs.keys());
     (bookingDoc.logs || []).forEach(log => {
       if (this.logs.has(log.dat)) this.logs.get(log.dat).updateLog(log);
@@ -185,11 +182,10 @@ module.exports = class Booking {
     delete bookingDoc.logs;
     merge(this, bookingDoc);
     return;
-  };
+  }
 
-  @computed
   get mergeableLogs() {
-    let logs = (this.logs.values() || []).sort(cmpDate).map(log => {
+    let logs = (this.logsValues || []).sort(cmpDate).map(log => {
       log = log.mergeableLog;
       let forefited = false;
       // if (limit && log.dat >= limit) continue;
@@ -215,7 +211,18 @@ module.exports = class Booking {
       .reverse();
     return logs;
   }
-};
+}
+
+decorate(Booking, {
+  status: observable,
+  annotation: observable,
+  updateBookingRequest: action,
+  updateAnnotation: action,
+  resetLateCancellation: action,
+  updateBookingFromDoc: action,
+  mergeableLogs: computed,
+});
+module.exports = Booking;
 
 var logColl = new Intl.Collator();
 var cmpDate = (a, b) => logColl.compare(a.dat, b.dat);

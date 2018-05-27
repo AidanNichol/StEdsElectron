@@ -6,30 +6,41 @@ const {
   autorun,
   reaction,
   toJS,
+  decorate,
 } = require('mobx');
-const { useFullHistory } = require('ducks/settings-duck');
+const { useFullHistory } = require('../ducks/settings-duck');
 
-const db = require('services/bookingsDB');
+let db;
 // const {getSettings} =require( 'ducks/settings-duck');
 const R = require('ramda');
-const Logit = require('factories/logit.js');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
-logit('import');
-
+console.log('import');
+const DS = require('./DateStore');
+const Walk = require('../mobx/Walk');
 const MS = require('./MembersStore');
 const PS = require('./PaymentsSummaryStore');
-const DS = require('./DateStore');
-const Walk = require('./Walk');
 
 // export let walksLoading;
 // import PouchDb from 'pouchdb'
 class WalksStore {
-  walks = observable.map({});
-  @observable activeWalk;
-  @observable loaded = false;
+  // walks;
+  // activeWalk;
+  // loaded;
 
   constructor(walks) {
     this.activeWalk = null;
+    this.walks = observable.map({});
+
+    this.loaded = false;
+    this.addWalk = this.addWalk.bind(this);
+    this.addWalks = this.addWalks.bind(this);
+    this.addWalks = this.addWalks.bind(this);
+    this.setActiveWalk = this.setActiveWalk.bind(this);
+    this.resetLateCancellation = this.resetLateCancellation.bind(this);
+    this.resetLateCancellation = this.resetLateCancellation.bind(this);
+    this.changeDoc = this.changeDoc.bind(this);
+
     if (walks) this.addWalks(walks);
     // else walksLoading = this.loadWalks();
     reaction(() => this.activeWalk, d => logit('activeWalk set:', d));
@@ -38,7 +49,12 @@ class WalksStore {
 
   // walksLoading: () => walksLoading;
 
-  @computed
+  get walksValues() {
+    return Array.from(this.walks.values());
+  }
+  get walksKeys() {
+    return Array.from(this.walks.keys());
+  }
   get bookableWalksId() {
     const today = DS.todaysDate;
     const walkIds = this.openWalks
@@ -48,74 +64,65 @@ class WalksStore {
     return walkIds;
   }
 
-  @computed
   get openWalks() {
     const today = DS.todaysDate;
-    const walkIds = this.walks
-      .values()
+    const walkIds = this.walksValues
       .sort(idCmp)
       .filter(walk => walk._id.substr(1, 4) > '2016' && !walk.closed)
       .filter(walk => today >= walk.firstBooking.substr(0, 10)); // ignore time
     logit('openWalksId', walkIds);
     return walkIds;
   }
-  @computed
+
   get currentPeriodStart() {
     return this.openWalks[0].firstBooking;
   }
 
-  @computed
   get recentWalksId() {
     const no = 3;
     const nextWalk = this.bookableWalksId[0];
     const i = Math.max(this.walks.keys().indexOf(nextWalk) - no, 0);
 
-    const recent = [...this.walks.keys().slice(i, i + no), ...this.bookableWalksId];
-    logit('walkDay recent', recent, i, nextWalk, this.walks.keys());
+    const recent = [...this.walksKeys.slice(i, i + no), ...this.bookableWalksId];
+    logit('walkDay recent', recent, i, nextWalk, this.walksKeys);
     return recent;
   }
 
-  @computed
   get lastWalk() {
     const nextWalk = this.bookableWalksId[0];
-    const i = Math.max(this.walks.keys().indexOf(nextWalk) - 1, 0);
+    const i = Math.max(this.walksKeys.indexOf(nextWalk) - 1, 0);
 
-    const lastWalkId = this.walks.keys()[i];
+    const lastWalkId = this.walksKeys[i];
     const walk = this.walks.get(lastWalkId);
     logit('last walk', nextWalk, i, lastWalkId, walk);
     return walk;
   }
 
-  @computed
   get nextPeriodStart() {
     const nextWalk = this.bookableWalksId[0];
-    const i = Math.max(this.walks.keys().indexOf(nextWalk) - 2, 0);
+    const i = Math.max(this.walksKeys.indexOf(nextWalk) - 2, 0);
 
-    const oldWalkId = this.walks.keys()[i];
+    const oldWalkId = this.walksKeys[i];
     const oldWalk = this.walks.get(oldWalkId);
     logit('nextPeriodStart', nextWalk, i, oldWalkId, oldWalk);
     return oldWalk.firstBooking;
   }
 
-  @computed
   get lastClosed() {
-    return this.walks
-      .values()
+    return this.walksValues
       .filter(walk => walk.closed)
       .map(walk => walk._id)
       .pop();
   }
 
-  @computed
   get conflictingWalks() {
-    return this.walks.values().filter(entry => (entry._conflicts || []).length > 0);
+    return this.walksValues.filter(entry => (entry._conflicts || []).length > 0);
   }
 
-  @computed
   get allWalkLogsByAccount() {
     // logit('allWalkLogsByAccount',this)
     let map = {};
-    this.walks.values().forEach(walk => {
+    this.walksValues.forEach(walk => {
       logit('allWalkLogsByAccount:walk', walk._id, walk.venue, walk.walkLogsByMembers);
       Object.entries(walk.walkLogsByMembers).map(([memId, logs]) => {
         let member = MS.members.get(memId);
@@ -127,30 +134,27 @@ class WalksStore {
     });
     return map;
   }
-  @action
-  addWalk = walk => {
+
+  addWalk(walk) {
     // logit('raw walk', toJS(walk), this.walks.size);
-    this.walks.set(walk._id, new Walk(toJS(walk)));
-  };
-  @action
-  setActiveWalk = walkId => {
+    this.walks.set(walk._id, new Walk(toJS(walk), db));
+  }
+
+  setActiveWalk(walkId) {
     logit('setActiveWalk', walkId);
     this.activeWalk = walkId;
-  };
+  }
 
-  @action
-  addWalks = walks => {
+  addWalks(walks) {
     // logit('walks', walks)
     walks.filter(walk => walk.type === 'walk').map(walk => this.addWalk(walk));
-  };
+  }
 
-  @action
-  resetLateCancellation = (walkId, memId) => {
+  resetLateCancellation(walkId, memId) {
     this.walks.get(walkId).resetLateCancellation(memId);
-  };
+  }
 
-  @action
-  changeDoc = ({ deleted, doc, _id, ...rest }) => {
+  changeDoc({ deleted, doc, _id, ...rest }) {
     logit('changeDoc', { deleted, doc, rest });
     let walk = this.walks.get(_id);
     if (deleted) {
@@ -165,10 +169,11 @@ class WalksStore {
     walk.updateDocument(doc);
     // this.addWalk(doc)
     // logit('changedDoc', toJS(walk))
-  };
+  }
 
-  @action
-  async init() {
+  async init(setdb) {
+    db = setdb ? setdb : (db = require('../services/bookingsDB'));
+
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const endkey = 'W' + DS.lastAvailableDate;
     var periodStartDate = PS.currentPeriodStart;
@@ -197,6 +202,25 @@ var idCmp = (a, b) => coll.compare(a._id, b._id);
 
 // const getRev = (rev)=> parseInt(rev.split('-')[0]);
 
+decorate(WalksStore, {
+  activeWalk: observable,
+  loaded: observable,
+  bookableWalksId: computed,
+  openWalks: computed,
+  currentPeriodStart: computed,
+  recentWalksId: computed,
+  lastWalk: computed,
+  nextPeriodStart: computed,
+  lastClosed: computed,
+  conflictingWalks: computed,
+  allWalkLogsByAccount: computed,
+  addWalk: action,
+  setActiveWalk: action,
+  addWalks: action,
+  resetLateCancellation: action,
+  changeDoc: action,
+  init: action,
+});
 const walksStore = new WalksStore();
 // export const setActiveWalk = memId => walksStore.setActiveWalk(memId);
 

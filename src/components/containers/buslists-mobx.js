@@ -5,7 +5,7 @@ import { inject } from 'mobx-react';
 import { setRouterPage } from 'ducks/router-mobx.js';
 
 import BusLists from 'components/views/BusListsM';
-import Logit from 'factories/logit.js';
+import Logit from 'logit.js';
 var logit = Logit(__filename);
 
 // var datColl = new Intl.Collator();
@@ -15,9 +15,7 @@ uiState.full = DS.dayNo < 4;
 const mapStoreToProps = function(store) {
   const id = store.WS.activeWalk;
   let walkId =
-    id && store.WS.bookableWalksId.includes(id)
-      ? id
-      : store.WS.bookableWalksId[0];
+    id && store.WS.bookableWalksId.includes(id) ? id : store.WS.bookableWalksId[0];
   const walk = store.WS.walks.get(walkId);
   if (!walk) walkId = undefined;
   let bookings = (walk && walk.busBookings) || [];

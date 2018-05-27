@@ -1,35 +1,40 @@
-const mobx = require('mobx');
-const db = require('services/bookingsDB');
-const { state } = require('ducks/replication-mobx');
-const { useFullHistory } = require('ducks/settings-duck');
+// const mobx = require('mobx');
+let db;
+const emitter = require('./eventBus');
+const { useFullHistory } = require('../ducks/settings-duck');
 const R = require('ramda');
 const _ = require('lodash');
 // const {sprintf} = require( 'sprintf-js');
-const Logit = require('factories/logit.js');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
-const { observable, computed, toJS, reaction, action } = require('mobx');
-const FundsManager = require('mobx/fundsManager');
-const MS = require('mobx/MembersStore');
-const WS = require('mobx/WalksStore');
-const DS = require('mobx/DateStore');
-const PS = require('mobx/PaymentsSummaryStore');
-const { logger } = require('services/logger.js');
+const { observable, computed, toJS, reaction, action, decorate } = require('mobx');
+const FundsManager = require('./fundsManager');
+const MS = require('./MembersStore');
+const WS = require('./WalksStore');
+const DS = require('./DateStore');
+const PS = require('./PaymentsSummaryStore');
+const { logger } = require('logger.js');
 
-const AccLog = require('mobx/AccLog');
+const AccLog = require('./AccLog');
 let limit;
 logit('dateStore', DS);
 
-module.exports = class Account {
-  _id = 0;
-  type = 'account';
-  _conflicts = [];
-  @observable members = [];
-  logs = observable.shallowMap({});
-  accountId;
-  logger;
-
-  constructor(accountDoc, accessors) {
+class Account {
+  constructor(accountDoc, accessors, dbset) {
+    db = dbset ? dbset : require('../services/bookingsDB');
+    this._id = 0;
+    this.type = 'account';
+    this._conflicts = [];
+    this.members = [];
+    this.logs = observable.map({}, { deep: false });
+    this.accountId;
+    this.logger;
+    this.deleteMemberFromAccount = this.deleteMemberFromAccount.bind(this);
+    this.addMemberToAccount = this.addMemberToAccount.bind(this);
+    this.updateDocument = this.updateDocument.bind(this);
+    this.dbUpdate = this.dbUpdate.bind(this);
     _.merge(this, accessors);
+
     reaction(() => this.logs.size, () => logit('autorun', this.report, this.isLoading()));
     (accountDoc.logs || []).forEach(log => this.logs.set(log.dat, new AccLog(log)));
     delete accountDoc.logs;
@@ -43,7 +48,7 @@ module.exports = class Account {
   }
 
   // generate name for account based on members names in the account
-  @computed
+
   get name() {
     let nameMap = this.members.reduce((value, memId) => {
       let mem = MS.members.get(memId) || { firstName: '????', lastName: memId };
@@ -56,7 +61,6 @@ module.exports = class Account {
       .join(' & ');
   }
 
-  @computed
   get sortname() {
     let nameMap = this.members.reduce((value, memId) => {
       let mem = MS.members.get(memId) || { firstName: '????', lastName: memId };
@@ -69,14 +73,12 @@ module.exports = class Account {
       .join(' & ');
   }
 
-  @computed
   get report() {
     return `Account: ${this._id} ${this.name} ${this.logs.size} ${this.logs.get(
       this.logs.keys().pop(),
     )}`;
   }
 
-  @action
   getConflictingDocs() {
     return `Account: ${this._id} ${this.venue}`;
   }
@@ -87,8 +89,8 @@ module.exports = class Account {
   /* - delete from the store any log record that have been removed          */
   /* - mergeany other field changes ito the store                           */
   /*------------------------------------------------------------------------*/
-  @action
-  updateDocument = accountDoc => {
+
+  updateDocument(accountDoc) {
     // const added = R.difference(accountDoc.logs.map(log=>log.dat), this.logs.keys());
 
     (accountDoc.logs || []).forEach(log => {
@@ -100,10 +102,9 @@ module.exports = class Account {
     delete accountDoc.logs;
     _.merge(this, accountDoc);
     return;
-  };
+  }
 
-  @action
-  deleteMemberFromAccount = memId => {
+  deleteMemberFromAccount(memId) {
     this.members.remove(memId);
     logit('deleteMemberFromAccount', `removing ${memId} from ${this._id}`);
     if (this.members.length === 0) {
@@ -111,16 +112,14 @@ module.exports = class Account {
       logit('deleteMemberFromAccount', 'deleting account: ${this._id}');
     }
     this.dbUpdate();
-  };
+  }
 
-  @action
-  addMemberToAccount = memId => {
+  addMemberToAccount(memId) {
     this.members.push(memId);
     this.dbUpdate();
-  };
+  }
 
-  @action
-  dbUpdate = async () => {
+  async dbUpdate() {
     logit('DB Update start', this);
     let { _conflicts, ...newDoc } = toJS(this);
     newDoc.logs = Object.values(newDoc.logs);
@@ -129,9 +128,9 @@ module.exports = class Account {
     this._rev = res.rev;
     const info = await db.info();
     logit('info', info);
-    state.dbChange(info);
-  };
-  @action
+    emitter.emit('dbChanged', 'account changed');
+  }
+
   async deleteConflictingDocs(conflicts) {
     let docs = conflicts.map(rev => {
       return { _id: this._id, _rev: rev, _deleted: true };
@@ -141,7 +140,6 @@ module.exports = class Account {
     this._conflicts = [];
   }
 
-  @action
   makePaymentToAccount({ paymentType: req, amount, note, inFull }) {
     // doer = yield select((state)=>state.signin.memberId);
     const who = 'M1180';
@@ -153,7 +151,6 @@ module.exports = class Account {
     this.dbUpdate();
   }
 
-  @action
   insertPaymentsFromConflictingDoc(added) {
     let conflicts = this._conflicts;
     if (!_.isEmpty(added)) {
@@ -167,17 +164,14 @@ module.exports = class Account {
     this.deleteConflictingDocs(conflicts);
   }
 
-  @action
   deletePayment(dat) {
     this.logs.delete(dat);
     this.dbUpdate();
   }
 
-  @computed
   get accountLogs() {
     // logit('accountLogs', this)
-    return this.logs
-      .values()
+    return Array.from(this.logs.values())
       .filter(log => log.req !== 'A' && log.req !== 'S')
       .filter(log => !limit || log.dat < limit)
       .map(log => log.mergeableLog);
@@ -241,7 +235,6 @@ module.exports = class Account {
     return logs;
   }
 
-  @computed
   get accountFrame() {
     const members = new Map(
       this.members
@@ -253,7 +246,6 @@ module.exports = class Account {
     return { accId: this._id, members, sortname: this.sortname };
   }
 
-  @computed
   get accountMembers() {
     return toJS(
       this.members.map(memId => {
@@ -281,7 +273,6 @@ module.exports = class Account {
     return logs;
   }
 
-  @computed
   get accountStatus() {
     logit('accountStore', this.getAccountStore());
     let traceMe = this._id === this.getAccountStore().activeAccountId;
@@ -460,7 +451,7 @@ module.exports = class Account {
     };
   }
 
-  logTableToConsole = logs => {
+  logTableToConsole(logs) {
     logit.table(
       logs.map(log =>
         R.omit(
@@ -469,12 +460,11 @@ module.exports = class Account {
         ),
       ),
     );
-  };
+  }
 
-  @action
   fixupAccLogs(logs) {
     // make sure the inFull flag in account records is set correctly
-    let newLogs = mobx.toJS(logs);
+    let newLogs = toJS(logs);
     let changed = false;
     for (let [i, log] of newLogs.entries()) {
       if (log.type !== 'A' || log.req === 'A') continue;
@@ -504,15 +494,15 @@ module.exports = class Account {
   /*         Replication Conflicts                   */
   /*                                                 */
   /*-------------------------------------------------*/
-  @computed
+
   get conflictingDocVersions() {
     return R.pluck('_rev', this.conflictingDocs);
   }
-  @computed
+
   get conflictingDocs() {
     return [this, ...this.conflicts.sort((a, b) => getRev(b._rev) - getRev(a._rev))];
   }
-  @computed
+
   get conflictsByDate() {
     let confs = this.conflictingDocs;
     logit('confs', confs);
@@ -535,9 +525,34 @@ module.exports = class Account {
 
     return sum;
   }
-};
+}
+
+decorate(Account, {
+  members: observable,
+  name: computed,
+  sortname: computed,
+  report: computed,
+  ConflictingDocs: action,
+  updateDocument: action,
+  deleteMemberFromAccount: action,
+  addMemberToAccount: action,
+  dbUpdate: action,
+  deleteConflictingDocs: action,
+  makePaymentToAccount: action,
+  insertPaymentsFromConflictingDoc: action,
+  deletePayment: action,
+  accountLogs: computed,
+  accountFrame: computed,
+  accountMembers: computed,
+  accountStatus: computed,
+  fixupAccLogs: action,
+  conflictingDocVersions: computed,
+  conflictingDocs: computed,
+  conflictsByDate: computed,
+});
 const getRev = rev => parseInt(rev.split('-')[0]);
 var coll = new Intl.Collator();
 var logCmpDate = (a, b) => coll.compare(a[0], b[0]);
 const cmpName = (a, b) => coll.compare(a.name, b.name);
 var cmpDate = (a, b) => coll.compare(a.dat, b.dat);
+module.exports = Account;

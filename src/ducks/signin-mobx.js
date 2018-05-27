@@ -1,39 +1,42 @@
 /* global PouchDB */
-import { intersection, merge, pick } from 'lodash';
-import React from 'react';
-import { remoteCouch } from 'services/bookingsDB';
-import { getSettings, setSettings } from 'ducks/settings-duck';
-import { observable, action, computed, runInAction, reaction, toJS } from 'mobx';
-import { observer } from 'mobx-react';
-import { setRouterPage } from 'ducks/router-mobx';
-import Logit from '../factories/logit.js';
+const { intersection, merge, pick } = require('lodash');
+const React = require('react');
+// import { remoteCouch } from 'services/bookingsDB';
+const { getSettings, setSettings, DbSettings } = require('ducks/settings-duck');
+const { action, runInAction, reaction, toJS } = require('mobx');
+const { observer } = require('mobx-react');
+const state = require('../mobx/signinState');
+const { setRouterPage } = require('ducks/router-mobx');
+const Logit = require('../factories/logit.js');
 const logit = Logit(__filename);
 
 //---------------------------------------------------------------------
 //          Mobx State
 //---------------------------------------------------------------------
 var lastAction = '';
+const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
+
 var remoteDB = new PouchDB(remoteCouch, { skip_setup: true });
-export class SigninState {
-  @observable name = '';
-  @observable password = '';
-  @observable authError = '';
-  @observable loggedIn = false;
-  @observable roles = [];
-  machine = null;
-  @computed
-  get isBookingsAdmin() {
-    return intersection(this.roles, ['_admin', 'admin', 'bookings']).length > 0;
-  }
-  @computed
-  get isMembersAdmin() {
-    return (
-      intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0
-    );
-  }
-}
-export const state = new SigninState();
-export const getUpdater = () => state.name;
+// export class SigninState {
+//   @observable name = '';
+//   @observable password = '';
+//   @observable authError = '';
+//   @observable loggedIn = false;
+//   @observable roles = [];
+//   machine = null;
+//   @computed
+//   get isBookingsAdmin() {
+//     return intersection(this.roles, ['_admin', 'admin', 'bookings']).length > 0;
+//   }
+//   @computed
+//   get isMembersAdmin() {
+//     return (
+//       intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0
+//     );
+//   }
+// }
+// export const state = new SigninState();
+// export const getUpdater = () => state.name;
 reaction(
   () => ({ loggedIn: state.loggedIn, roles: state.roles, authError: state.authError }),
   () => {

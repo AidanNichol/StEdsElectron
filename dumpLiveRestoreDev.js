@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // import Logit from 'factories/logit.js';
 // var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
 // var prettyFormat = require('pretty-format')
@@ -11,7 +12,7 @@ var stream = new MemoryStream();
 
 PouchDB.plugin(replicationStream.plugin);
 
-import fs from 'fs';
+const fs = require('fs');
 // var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
 
 (async function() {

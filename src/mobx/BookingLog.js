@@ -1,8 +1,8 @@
 const { merge } = require('lodash');
 // const Logit = require( 'factories/logit.js');
 // var logit = Logit(__filename);
-const { observable, computed, action } = require('mobx');
-const dateDisplay = require('mobx/DateStore').dispDate;
+const { observable, computed, action, decorate } = require('mobx');
+const dateDisplay = require('./DateStore').dispDate;
 
 const chargeFactor = {
   N: 0,
@@ -23,25 +23,25 @@ const chargeFactor = {
   CL: -0.5,
   A: 0,
 };
-module.exports = class BookingLog {
-  dat;
-  @observable req = '';
-  who;
-  machine = '';
+class BookingLog {
   constructor(log, accessors) {
     merge(this, accessors);
+    this.dat;
+    this.req = '';
+    this.who;
+    this.machine = '';
+    this.updateLog = this.updateLog.bind(this);
     this.updateLog(log);
   }
 
-  // @computed get totalPaid(){
+  //  get totalPaid(){
   //
   // }
-  @action
-  updateLog = log => {
-    merge(this, log);
-  };
 
-  @computed
+  updateLog(log) {
+    merge(this, log);
+  }
+
   get mergeableLog() {
     const walk = this.getWalk();
     const member = this.getMember();
@@ -57,9 +57,16 @@ module.exports = class BookingLog {
       extra.text = this.note || '';
     } else {
       extra.amount = (walk.fee || 8) * chargeFactor[this.req];
-      extra.text = walk.venue.replace(/\(.*\)/, '');
+      extra.text = (walk.venue || '').replace(/\(.*\)/, '');
     }
     const log = { ...this, ...extra };
     return log;
   }
-};
+}
+
+decorate(BookingLog, {
+  req: observable,
+  updateLog: action,
+  mergeableLog: computed,
+});
+module.exports = BookingLog;

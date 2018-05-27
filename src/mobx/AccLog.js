@@ -1,6 +1,6 @@
 const { merge } = require('lodash');
-const { observable, action, computed } = require('mobx');
-const Logit = require('factories/logit.js');
+const { observable, action, computed, decorate } = require('mobx');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 const DS = require('./DateStore');
 const dateDisplay = require('./DateStore').dispDate;
@@ -27,15 +27,18 @@ const chargeFactor = {
   // A: 0,
 };
 
-module.exports = class AccLog {
-  dat;
-  who;
-  machine;
-  @observable req = '';
-  amount = 0;
-  note = '';
-
-  @computed
+class AccLog {
+  constructor(log) {
+    this.dat;
+    this.who;
+    this.machine;
+    this.req = '';
+    this.amount = 0;
+    this.note = '';
+    this.updateLog = this.updateLog.bind(this);
+    this.updateLog(log);
+    // merge(this, log)
+  }
   get mergeableLog() {
     let amount = this.amount * chargeFactor[this.req];
     return {
@@ -47,13 +50,14 @@ module.exports = class AccLog {
     };
   }
 
-  constructor(log) {
-    this.updateLog(log);
-    // merge(this, log)
-  }
-
-  @action
-  updateLog = data => {
+  updateLog(data) {
     merge(this, data);
-  };
-};
+  }
+}
+
+decorate(AccLog, {
+  req: observable,
+  mergeableLog: computed,
+  updateLog: action,
+});
+module.exports = AccLog;

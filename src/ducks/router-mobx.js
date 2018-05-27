@@ -1,12 +1,14 @@
 // import { getSettings} from 'ducks/settings-duck';
 import { observable, action, toJS, reaction } from 'mobx';
 import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
-import { setActiveAccount } from 'mobx/AccountsStore';
-import { setActiveWalk } from 'mobx/WalksStore';
+const { setActiveAccount } = require('mobx/AccountsStore');
+const { setActiveWalk } = require('mobx/WalksStore');
+// const WS = require('mobx/WalksStore');
+// const setActiveWalk = memId => WS.setActiveWalk(memId);
+
 import { merge } from 'lodash';
 import Logit from '../factories/logit.js';
 const logit = Logit(__filename);
-
 class Router {
   @observable page = null;
   @observable memberId = null;
@@ -44,10 +46,12 @@ class Router {
           accId && setActiveAccount(accId);
         }
       },
-      true,
+      { fireImmediately: true },
     );
     reaction(() => this.accountId, accId => setActiveAccount(accId));
-    reaction(() => this.walkId, walkId => setActiveWalk(walkId), true);
+    reaction(() => this.walkId, walkId => setActiveWalk(walkId), {
+      fireImmediately: true,
+    });
   }
   @action
   setAndSaveState = payload => {

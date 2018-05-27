@@ -1,29 +1,59 @@
 /* global PouchDB */
-import React from 'react';
-import db from '../services/bookingsDB';
-import styled from 'styled-components';
-import { observable, action, computed, autorun, toJS } from 'mobx';
-import { observer } from 'mobx-react';
-import { DbSettings } from 'ducks/settings-duck';
-import { Icon } from 'components/utility/Icon';
+const React = require('react');
+const db = require('../services/bookingsDB');
+const styled = require('styled-components').default;
+// import styled from 'styled-components';
+const { observable, action, computed, autorun, toJS, decorate } = require('mobx');
+const { observer } = require('mobx-react');
+const { DbSettings } = require('ducks/settings-duck');
+const { Icon } = require('components/utility/Icon');
+const emitter = require('../mobx/eventBus');
 
-import Logit from '../factories/logit';
+const Logit = require('../factories/logit');
 var logit = Logit(__filename);
-
-export const state = observable({
-  lastAction: undefined,
-  current: 'paused',
-  waiting: computed(() => state.dblocal_seq - state.push.last_seq),
-  dblocal_seq: undefined,
-  push: { written: 0, last_seq: localStorage.getItem('stEdsReplSeq') },
-  pull: { written: 0, last_seq: null },
-  dbChange: action(async () => {
+logit('styled-components', styled);
+class ReplState {
+  constructor() {
+    this.lastAction;
+    this.current = 'paused';
+    this.dblocal_seq;
+    this.push = { written: 0, last_seq: localStorage.getItem('stEdsReplSeq') };
+    this.pull = { written: 0, last_seq: null };
+  }
+  get waiting() {
+    return this.dblocal_seq - this.push.last_seq;
+  }
+  async dbChange() {
     await updateStateFromLocalDB('db changed');
-  }),
+  }
+}
+decorate(ReplState, {
+  lastAction: observable,
+  current: observable,
+  dblocal_seq: observable,
+  push: observable,
+  pull: observable,
+  waiting: computed,
+  dbChange: action,
 });
+let state = new ReplState();
+exports.state = state;
+// export const state = observable.object(
+//   {
+//     lastAction: undefined,
+//     current: 'paused',
+//     waiting: () => state.dblocal_seq - state.push.last_seq,
+//     dblocal_seq: undefined,
+//     push: { written: 0, last_seq: localStorage.getItem('stEdsReplSeq') },
+//     pull: { written: 0, last_seq: null },
+//     dbChange: async () => {
+//       await updateStateFromLocalDB('db changed');
+//     },
+//   },
+//   { waiting: computed, dbChange: action },
+// );
 autorun(() => logit('state changed', { ...toJS(state) }));
-
-export const replicationDbChange = updateStateFromLocalDB;
+emitter.on('dbChanged', data => updateStateFromLocalDB(data));
 // Monitor replications is launched by store.js
 async function updateStateFromLocalDB(txt, updatePush = false) {
   const info = await db.info();
@@ -35,7 +65,8 @@ async function updateStateFromLocalDB(txt, updatePush = false) {
   }
   state.lastAction = txt;
 }
-export async function monitorReplications() {
+
+async function monitorReplications() {
   const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
   try {
     PouchDB.plugin(require('pouchdb-authentication'));
@@ -78,6 +109,7 @@ export async function monitorReplications() {
     logit('signin error', err, remoteCouch);
   }
 }
+exports.monitorReplications = monitorReplications;
 
 const replicationStatus = observer(props => {
   const { className } = props;
@@ -98,7 +130,7 @@ const replicationStatus = observer(props => {
   );
 });
 
-export const ReplicationStatus = styled(replicationStatus)`
+const ReplicationStatus = styled(replicationStatus)`
   position: relative;
   width: 24px;
 
@@ -142,3 +174,4 @@ export const ReplicationStatus = styled(replicationStatus)`
     background: red;
   }
 `;
+exports.ReplicationStatus = ReplicationStatus;

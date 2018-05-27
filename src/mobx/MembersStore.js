@@ -1,4 +1,4 @@
-const { getSettings } = require('ducks/settings-duck');
+const { getSettings } = require('../ducks/settings-duck');
 const {
   observable,
   computed,
@@ -7,12 +7,13 @@ const {
   toJS,
   reaction,
   autorun,
+  decorate,
 } = require('mobx');
 // const {setActiveAccount} = require( 'mobx/AccountsStore)'
-const db = require('services/bookingsDB');
-const Member = require('mobx/Member');
+let db;
+const Member = require('./Member');
 // const R = require( 'ramda');
-const Logit = require('factories/logit.js');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 
 var coll = new Intl.Collator();
@@ -20,17 +21,29 @@ var coll = new Intl.Collator();
 // export let membersLoading;
 
 class MembersStore {
-  @observable dispStart = 0;
-  dispLength = 23;
-  @observable sortProp = 'name';
-  @observable modalOpen = false;
-
-  members = observable.map({});
-  @observable activeMemberId;
-  @observable loaded = false;
-  editMember;
   constructor() {
+    this.dispStart = 0;
+    this.dispLength = 23;
+    this.sortProp = 'name';
+    this.modalOpen = false;
+
+    this.members = observable.map({});
+    this.activeMemberId;
+    this.loaded = false;
+    this.editMember;
     this.activeMemberId = null;
+    this.createNewMember = this.createNewMember.bind(this);
+    this.addMember = this.addMember.bind(this);
+    this.deleteMember = this.deleteMember.bind(this);
+    this.setActiveMember = this.setActiveMember.bind(this);
+    this.setActiveMemberId = this.setActiveMemberId.bind(this);
+    this.getAccountForMember = this.getAccountForMember.bind(this);
+    this.setSortProp = this.setSortProp.bind(this);
+    this.setDispStart = this.setDispStart.bind(this);
+    this.resetEdit = this.resetEdit.bind(this);
+    this.saveEdit = this.saveEdit.bind(this);
+    this.changeDoc = this.changeDoc.bind(this);
+
     // membersLoading = this.loadMembers();
     reaction(
       () => this.activeMemberId,
@@ -54,7 +67,10 @@ class MembersStore {
   }
   // membersLoading: () => membersLoading;
 
-  @action
+  get membersValues() {
+    return Array.from(this.members.values());
+  }
+
   syncToIndex() {
     if (!this.activeMemberId) return (this.dispStart = 0);
     let i = this.membersSorted.findIndex(mem => mem._id === this.activeMemberId);
@@ -69,15 +85,13 @@ class MembersStore {
     logit('syncToIndex', 'done');
   }
 
-  @computed
   get activeMember() {
     if (!this.activeMemberId) return {};
     return this.members.get(this.activeMemberId);
   }
 
-  @computed
   get selectNamesList() {
-    return this.members.values().map(member => {
+    return this.membersValues.map(member => {
       return {
         value: member._id,
         memId: member._id,
@@ -87,50 +101,46 @@ class MembersStore {
     });
   }
 
-  @computed
   get membersSorted() {
     return this.sortProp === 'name'
       ? this.membersSortedByName
       : this.membersSortedByMemNo;
   }
 
-  @computed
   get membersSortedByName() {
     const cmp = (a, b) => coll.compare(a.fullNameR, b.fullNameR);
-    return this.members.values().sort(cmp);
+    return this.membersValues.sort(cmp);
   }
 
-  @computed
   get membersSortedByMemNo() {
     const cmp = (a, b) => a.memNo - b.memNo;
-    return this.members.values().sort(cmp);
+    return this.membersValues.sort(cmp);
   }
 
-  @action
   getMemberByMemNo(id) {
     return this.members.get(id);
   }
 
-  @action
-  createNewMember = () => {
+  createNewMember() {
     const memNo =
-      this.members.values().reduce((max, mem) => Math.max(max, mem.memNo), 0) + 1;
-    this.editMember = new Member({
-      _id: 'M' + memNo,
-      memberId: 'M' + memNo,
-      accountId: 'A' + memNo,
-      newMember: true,
-    });
+      this.membersValues.reduce((max, mem) => Math.max(max, mem.memNo), 0) + 1;
+    this.editMember = new Member(
+      {
+        _id: 'M' + memNo,
+        memberId: 'M' + memNo,
+        accountId: 'A' + memNo,
+        newMember: true,
+      },
+      db,
+    );
     logit('createNewMember', memNo, this.editMember);
-  };
+  }
 
-  @action
-  addMember = member => {
-    this.members.set(member._id, new Member(member));
-  };
+  addMember(member) {
+    this.members.set(member._id, new Member(member, db));
+  }
 
-  @action
-  deleteMember = memId => {
+  deleteMember(memId) {
     const member = this.members.get(memId);
     if (member) {
       logit('delete Member ', memId, member.fullName);
@@ -138,60 +148,52 @@ class MembersStore {
       member.dbUpdate();
     }
     this.activeMemberId = null;
-  };
+  }
 
-  @action
-  setActiveMember = memberId => {
+  setActiveMember(memberId) {
     this.activeMemberId = memberId;
-  };
+  }
 
-  @action
-  setActiveMemberId = memberId => {
+  setActiveMemberId(memberId) {
     this.activeMemberId = memberId;
-  };
+  }
 
-  getAccountForMember = memId => {
+  getAccountForMember(memId) {
     const member = this.members.get(memId);
     return member && member.accountId;
-  };
+  }
 
-  @action
-  setSortProp = seq => {
+  setSortProp(seq) {
     this.sortProp = seq;
-  };
+  }
 
-  @action
-  setDispStart = no => {
+  setDispStart(no) {
     this.dispStart = no;
-  };
+  }
 
-  @action
-  resetEdit = () => {
+  resetEdit() {
     if (!this.newMember) {
       // won't match if new member being created
-      if (this.activeMember) this.editMember = new Member(toJS(this.activeMember));
+      if (this.activeMember) this.editMember = new Member(toJS(this.activeMember), db);
       else this.editMember = undefined;
     } else {
       const { _id, accountId, memberId, newMember } = this.editMember;
-      this.editMember = new Member({ _id, accountId, memberId, newMember });
+      this.editMember = new Member({ _id, accountId, memberId, newMember }, db);
     }
-  };
+  }
 
-  @action
-  saveEdit = () => {
+  saveEdit() {
     // const {newMember, ...data} = toJS(this.editMember);
     delete this.editMember.newMember;
-    this.members.set(this.editMember._id, new Member(toJS(this.editMember)));
+    this.members.set(this.editMember._id, new Member(toJS(this.editMember), db));
     this.activeMemberId = this.editMember._id;
     this.activeMember.dbUpdate();
-  };
+  }
 
-  @computed
   get membersIndex() {
     return this.sortProp === 'name' ? this.membersIndexByName : this.membersIndexByNumber;
   }
 
-  @computed
   get membersIndexByName() {
     const members = this.membersSortedByName;
     let key = [],
@@ -209,7 +211,6 @@ class MembersStore {
     return { key, index };
   }
 
-  @computed
   get membersIndexByNumber() {
     const members = this.membersSortedByMemNo;
     let key = [],
@@ -223,8 +224,7 @@ class MembersStore {
     return { key, index };
   }
 
-  @action
-  changeDoc = ({ deleted, doc, id, ...rest }) => {
+  changeDoc({ deleted, doc, id, ...rest }) {
     let member = this.members.get(id);
     logit('changeDoc', { deleted, doc, id, member, rest });
     if (deleted) {
@@ -242,10 +242,10 @@ class MembersStore {
       }
       member.updateDocument(doc);
     }
-  };
+  }
 
-  @action
-  async init() {
+  async init(setdb) {
+    db = setdb ? setdb : (db = require('../services/bookingsDB'));
     // loadMembers
     logit('loading members', '');
     const data = await db.allDocs({
@@ -260,18 +260,48 @@ class MembersStore {
         .filter(doc => doc.type === 'member')
         .sort(lastnameCmp)
         .map(doc => this.addMember(doc));
-      const savedValues = localStorage.getItem('stEdsRouter');
-      if (getSettings('router.enabled') && savedValues) {
-        const memId = JSON.parse(savedValues).memberId;
-        if (this.members.has(memId))
-          this.activeMemberId = JSON.parse(savedValues).memberId;
+      if (typeof window !== 'undefined') {
+        const savedValues = localStorage.getItem('stEdsRouter');
+        if (getSettings('router.enabled') && savedValues) {
+          const memId = JSON.parse(savedValues).memberId;
+          if (this.members.has(memId))
+            this.activeMemberId = JSON.parse(savedValues).memberId;
+        }
       }
       this.loaded = true;
     });
   }
 }
 
-export var lastnameCmp = (a, b) =>
+decorate(MembersStore, {
+  dispStart: observable,
+  sortProp: observable,
+  modalOpen: observable,
+  activeMemberId: observable,
+  loaded: observable,
+  syncToIndex: action,
+  activeMember: computed,
+  selectNamesList: computed,
+  membersSorted: computed,
+  membersSortedByName: computed,
+  membersSortedByMemNo: computed,
+  MemberByMemNo: action,
+  createNewMember: action,
+  addMember: action,
+  deleteMember: action,
+  setActiveMember: action,
+  setActiveMemberId: action,
+  setSortProp: action,
+  setDispStart: action,
+  resetEdit: action,
+  saveEdit: action,
+  membersIndex: computed,
+  membersIndexByName: computed,
+  membersIndexByNumber: computed,
+  changeDoc: action,
+  init: action,
+});
+var lastnameCmp = (a, b) =>
   coll.compare(a.lastName + ', ' + a.firstName, b.lastName + ', ' + b.firstName);
 
 const membersStore = new MembersStore();

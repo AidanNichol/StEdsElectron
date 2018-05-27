@@ -122,7 +122,6 @@ export function changeLog(props) {
       className={'logsTable ' + (props.className || '')}
       ref={el => {
         _logtable = el ? el.outerHTML : '';
-        logit('ref', _logtable);
       }}
     >
       <div className="logHeader">
