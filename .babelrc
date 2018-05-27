@@ -1,13 +1,22 @@
 {
-  "presets": ["env", "stage-0", "react"],
+  "presets": [
+    ["env", {
+      "targets": {
+        "browsers": ["chrome >= 59"],
+        "node": "8.2"
+      }
+    }],
+    "react"
+  ],
   "plugins": [
     "transform-decorators-legacy",
-    "lodash",
-    [
+    "lodash", [
       "module-resolver",
       {
         "root": ["./src"],
-        "alias": { "views": "components/views" }
+        "alias": {
+          "views": "components/views"
+        }
       }
     ]
   ]
