@@ -1,5 +1,4 @@
 node_modules*
-server
 /bookings
 pouch__all_dbs__
 _replicator
@@ -35,3 +34,11 @@ temp*.json
 /bower_components
 src000
 assetsOld
+/templates*
+output.html
+CURRENT
+LOCK
+LOG
+LOG.*
+MANIFEST-*
+launch.json
