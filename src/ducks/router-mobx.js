@@ -1,4 +1,4 @@
-// import { getSettings} from 'ducks/settings-duck';
+// import { getSettings} from 'settings';
 import { observable, action, toJS, reaction } from 'mobx';
 import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
 const { setActiveAccount } = require('mobx/AccountsStore');
@@ -7,7 +7,7 @@ const { setActiveWalk } = require('mobx/WalksStore');
 // const setActiveWalk = memId => WS.setActiveWalk(memId);
 
 import { merge } from 'lodash';
-import Logit from '../factories/logit.js';
+import Logit from 'logit';
 const logit = Logit(__filename);
 class Router {
   @observable page = null;

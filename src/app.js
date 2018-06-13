@@ -1,7 +1,7 @@
 // import 'babel-polyfill'
 // import './helpers.js'
 const electron = require('electron');
-import { getSettings } from 'ducks/settings-duck';
+import { getSettings } from 'settings';
 // const {Menu} = require('electron');
 const { app, BrowserWindow, ipcMain, shell } = electron;
 // const app = electron.app;

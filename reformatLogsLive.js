@@ -1,4 +1,4 @@
-// import Logit from 'factories/logit.js';
+// import Logit from 'logit';
 // var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
 import XDate from 'xdate'
 const dat = new XDate().toString('MMM-dd HH:mm');

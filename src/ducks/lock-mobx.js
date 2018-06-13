@@ -2,8 +2,8 @@ import React from 'react';
 import { observable, action, autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { lockSettings } from './settings-duck';
-import Logit from '../factories/logit.js';
+import { lockSettings } from './settings';
+import Logit from 'logit';
 const logit = Logit(__filename);
 // const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 const delay = async (fn, ms) =>
@@ -45,9 +45,7 @@ class lockStore {
   // }; // lock after time delay
 }
 const LS = new lockStore();
-autorun(() =>
-  logit('lock clicked', { isLocked: LS.isLocked, animate: LS.animate }),
-);
+autorun(() => logit('lock clicked', { isLocked: LS.isLocked, animate: LS.animate }));
 
 //---------------------------------------------------------------------
 //          Helpers

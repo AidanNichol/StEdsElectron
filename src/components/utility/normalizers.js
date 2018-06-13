@@ -4,7 +4,7 @@ const titleize = string =>
     return f.toUpperCase();
   });
 
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 export function normalize(field, fn) {
   let origalOnChange = field.onChange;
@@ -30,8 +30,7 @@ export function properCaseName(name) {
     pre = result[1];
     // logit('properCaseName', result);
     if (pre) {
-      if (lowerCaseNames.includes(pre.trim().toLowerCase()))
-        pre = pre.toLowerCase();
+      if (lowerCaseNames.includes(pre.trim().toLowerCase())) pre = pre.toLowerCase();
     } else pre = '';
     return pre + result[2].toUpperCase();
   } else return name;
@@ -61,10 +60,7 @@ export function properCaseAddress(address) {
   addrLines.forEach((line, index) => {
     if ((result = pcexp.exec(line)))
       line =
-        titleize(result[1]) +
-        result[2].toUpperCase() +
-        ' ' +
-        result[4].toUpperCase();
+        titleize(result[1]) + result[2].toUpperCase() + ' ' + result[4].toUpperCase();
     else {
       line = titleize(line);
       if (addressShortcuts[line]) line = addressShortcuts[line];
@@ -96,9 +92,7 @@ export function normalizePhone(value, previousValue) {
   if (onlyNums.length <= 7) {
     return onlyNums.slice(0, 4) + '-' + onlyNums.slice(4);
   }
-  return (
-    onlyNums.slice(0, 4) + '-' + onlyNums.slice(4, 7) + '-' + onlyNums.slice(7)
-  );
+  return onlyNums.slice(0, 4) + '-' + onlyNums.slice(4, 7) + '-' + onlyNums.slice(7);
 }
 
 export default normalizePhone;

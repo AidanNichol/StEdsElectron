@@ -2,7 +2,7 @@ const remote = require('electron').remote;
 const BrowserWindow = remote.BrowserWindow;
 import React from 'react';
 import { render } from 'react-dom';
-import { setSettings, getAllSettings } from 'ducks/settings-duck';
+import { setSettings, getAllSettings } from 'settings';
 
 var data = getAllSettings();
 const changed = (base, inpt) => {

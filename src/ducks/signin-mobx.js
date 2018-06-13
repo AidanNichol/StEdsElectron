@@ -1,13 +1,12 @@
 /* global PouchDB */
 const { intersection, merge, pick } = require('lodash');
 const React = require('react');
-// import { remoteCouch } from 'services/bookingsDB';
-const { getSettings, setSettings, DbSettings } = require('ducks/settings-duck');
+const { getSettings, setSettings, DbSettings } = require('settings');
 const { action, runInAction, reaction, toJS } = require('mobx');
 const { observer } = require('mobx-react');
 const state = require('../mobx/signinState');
 const { setRouterPage } = require('ducks/router-mobx');
-const Logit = require('../factories/logit.js');
+const Logit = require('logit');
 const logit = Logit(__filename);
 
 //---------------------------------------------------------------------
