@@ -12,7 +12,7 @@
 
 PouchDB.plugin(require('pouchdb-authentication'));
 var db;
-const { getSettings, setSettings, DbSettings, mode } = require('../ducks/settings-duck');
+const { getSettings, setSettings, DbSettings, mode } = require('settings');
 const { remote } = require('electron');
 const BrowserWindow = remote && remote.BrowserWindow;
 const Logit = require('logit');
