@@ -1,6 +1,6 @@
 import { PaymentsBoxes as paymentsBoxes } from 'components/views/bookings/PaymentsBoxes';
 import { inject, observer } from 'mobx-react';
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 // var logit = Logit(__filename);
 var logit = Logit(__filename);
 

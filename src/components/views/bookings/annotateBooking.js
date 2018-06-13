@@ -1,7 +1,7 @@
 import React from 'react';
 import {observer, inject} from 'mobx-react';
 import {observable, action} from 'mobx';
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 class uiState {

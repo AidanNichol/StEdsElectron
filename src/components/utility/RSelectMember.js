@@ -1,7 +1,7 @@
 /* jshint quotmark: false */
 var React = require('react');
 import Select from 'react-select';
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 var SearchBox = React.createClass({
@@ -15,17 +15,17 @@ var SearchBox = React.createClass({
   //   return <strong style={{ color: 'red' }}>{option.label} xxx </strong>;
   // },
 
-  render: function(){
-    logit('props', this.props)
+  render: function() {
+    logit('props', this.props);
     return (
       <Select
-      placeholder="enter member name"
-          name="form-field-name"
-          value="one"
-          options={this.props.options}
-          onChange={this.props.onSelected}
+        placeholder="enter member name"
+        name="form-field-name"
+        value="one"
+        options={this.props.options}
+        onChange={this.props.onSelected}
       />
     );
-  }
+  },
 });
 export default SearchBox;

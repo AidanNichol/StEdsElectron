@@ -11,7 +11,7 @@ import { Panel } from '../utility/AJNPanel';
 import AS from 'mobx/AccountsStore';
 import MS from 'mobx/MembersStore';
 
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const ShowLogs = observer(({ account }) => {
@@ -62,9 +62,7 @@ const ShowAccountConflictsUnstyled = observer(props => {
   return (
     <Panel header={title} className={'showconflicts ' + props.className}>
       <div>
-        {AS.conflictingAccounts.map(acc => (
-          <ShowLogs key={acc._id} account={acc} />
-        ))}
+        {AS.conflictingAccounts.map(acc => <ShowLogs key={acc._id} account={acc} />)}
       </div>
     </Panel>
   );

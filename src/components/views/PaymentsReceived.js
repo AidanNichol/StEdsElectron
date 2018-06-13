@@ -1,21 +1,21 @@
 /* jshint quotmark: false */
 import React from 'react';
-import { Panel } from 'components/utility/AJNPanel';
-// import MyModal from 'components/utility/AJNModal'
-import TooltipButton from 'components/utility/TooltipButton.js';
+import { Panel } from '../utility/AJNPanel';
+// import MyModal from '../utility/AJNModal'
+import TooltipButton from '../utility/TooltipButton.js';
 import classnames from 'classnames';
-import { paymentsSummaryReport3 } from 'reports/paymentsSummaryReport3';
-import { PrintButton } from 'components/utility/PrintButton';
+import { paymentsSummaryReport3 } from '../../reports/paymentsSummaryReport3';
+import { PrintButton } from '../utility/PrintButton';
 // import TooltipContent from '../utility/TooltipContent.js';
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
-import { Icon } from 'components/utility/Icon';
+import { Icon } from '../utility/Icon';
 // import {Icon} from 'ducks/walksDuck'
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const uiState = observable({
@@ -29,7 +29,7 @@ const detail = observer(({ bkng, className }) => {
     [className]: true,
     newBkng: bkng.activeThisPeriod && !(bkng.paid && bkng.paid.P > 0),
   });
-  const paid = [['+', 'Cr:'], ['T', 'T:'], ['P', '£']].map(([code, txt]) => {
+  const paid = [['+', '₢'], ['T', '₸'], ['P', '£']].map(([code, txt]) => {
     return bkng.paid && bkng.paid[code] ? (
       <span className={'paid-' + code} key={code}>
         &nbsp;{txt + bkng.paid[code]}
@@ -73,8 +73,8 @@ export const Detail = styled(detail)`
     display: inline-block;
     position: relative;
     top: 5px;
-    min-width: 120px;
-    max-width: 120px;
+    min-width: 115px;
+    max-width: 115px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -92,7 +92,7 @@ export const Detail = styled(detail)`
 
 const memberRecipt = observer(props => {
   var { data, showMemberBookings } = props;
-  logit('props', props);
+  logit('props', data.accName, props);
 
   return (
     <div className={props.className + ' member-rcpt'}>
@@ -102,11 +102,7 @@ const memberRecipt = observer(props => {
           {data.accName}
         </span>
         {data.paymentsMade > 0 ? (
-          <TooltipButton
-            className="owed"
-            label={`£${data.paymentsMade}`}
-            visible
-          />
+          <TooltipButton className="owed" label={`£${data.paymentsMade}`} visible />
         ) : null}
       </div>
       {data.logs
@@ -149,9 +145,12 @@ export const MemberRecipt = styled(memberRecipt)`
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     padding: 2px 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 243px;
 
     .who {
-      width: 190px;
+      /* width: 190px; */
       font-size: 1.1em;
       font-weight: bold;
       padding-right: 5px;
@@ -159,13 +158,15 @@ export const MemberRecipt = styled(memberRecipt)`
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex-basis: 1 1 190px;
     }
 
     .owed {
-      width: 40px;
+      /* width: 40px; */
       text-align: center;
       font-size: 0.85em;
       padding: 2px;
+      flex-basis: 0 0 40px;
     }
   }
 `;
@@ -182,25 +183,19 @@ export const payments = observer(props => {
     doc,
     lastWalk,
   } = props;
+  logit('accs', accs);
 
   var title = (
     <h4>
       Payments Made &nbsp; &nbsp; — &nbsp; &nbsp; Total Payments Received
-      <span
-        className="startDate"
-        style={{ fontSize: '0.8em', fontStyle: 'italic' }}
-      >
+      <span className="startDate" style={{ fontSize: '0.8em', fontStyle: 'italic' }}>
         (since {startDate})
       </span>
       : &nbsp; £{totalPaymentsMade}
     </h4>
   );
   return (
-    <Panel
-      className={'paymentsMade ' + className}
-      header={title}
-      style={{ margin: 20 }}
-    >
+    <Panel className={'paymentsMade ' + className} header={title} style={{ margin: 20 }}>
       <div className="all-payments">
         <div className="buttons">
           <TooltipButton
@@ -214,9 +209,7 @@ export const payments = observer(props => {
             label={uiState.showAll ? 'Only Payments' : 'All Changes'}
             onClick={uiState.toggleNewBookings}
             tiptext={
-              uiState.showAll
-                ? 'Only show new payments'
-                : 'Show all changes this period'
+              uiState.showAll ? 'Only show new payments' : 'Show all changes this period'
             }
             className="show-range"
             visible
@@ -238,16 +231,11 @@ export const payments = observer(props => {
         </div>
         {accs
           .filter(
-            acc =>
-              acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade > 0),
+            acc => acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade > 0),
           )
           .map(data => {
             return (
-              <MemberRecipt
-                data={data}
-                key={data.accId}
-                {...{ showMemberBookings }}
-              />
+              <MemberRecipt data={data} key={data.accId} {...{ showMemberBookings }} />
             );
           })}
       </div>

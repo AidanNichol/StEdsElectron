@@ -1,7 +1,7 @@
 /* jshint quotmark: false, jquery: true */
 var React = require('react');
 
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 var SelectWalk = React.createClass({

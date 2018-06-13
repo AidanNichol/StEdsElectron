@@ -6,14 +6,14 @@ import { setRouterPage } from '../../ducks/router-mobx.js';
 import { ReplicationStatus } from 'ducks/replication-mobx';
 import MembersListContainer from 'components/containers/members-list-mobx.js';
 import BookingsContainer from 'components/containers/bookings-mobx.js';
-import ShowConflicts from 'components/views/ShowConflicts.js';
+// import ShowConflicts from 'components/views/ShowConflicts.js';
 import BusListsContainer from 'components/containers/buslists-mobx.js';
 import PaymentsContainerM from 'components/containers/Payments-mobx';
 
 var packageJson = require('../../../package.json');
 
 const version = packageJson.version;
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const loadPage = (curPage, cntrl) => {
@@ -28,8 +28,8 @@ const loadPage = (curPage, cntrl) => {
       return <MembersListContainer />;
     case 'bookings':
       return <BookingsContainer />;
-    case 'showconflicts':
-      return <ShowConflicts />;
+    // case 'showconflicts':
+    //   return <ShowConflicts />;
     // case 'showaccountconflicts': return (<ShowAccountConflicts />);
     case 'payments':
       return <PaymentsContainerM />;

@@ -3,13 +3,13 @@ import React from 'react';
 import { observer } from 'mobx-react';
 var classnames = require('classnames');
 import EditMemberData from './EditMemberDataM.js';
-import TooltipButton from 'components/utility/TooltipButton.js';
-import { PrintButton } from 'components/utility/PrintButton';
-import { membershipListReport } from 'reports/membershipListPDF2';
-import { Icon } from 'components/utility/Icon';
+import TooltipButton from '../../utility/TooltipButton.js';
+import { PrintButton } from '../../utility/PrintButton';
+import { membershipListReport } from '../../../reports/membershipListPDF2';
+import { Icon } from '../../utility/Icon';
 import { Panel } from '../../utility/AJNPanel';
 
-import Logit from '../../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 // const saveChanges = (values)=>{
 //   logit('saveChanges', values);

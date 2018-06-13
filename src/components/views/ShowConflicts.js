@@ -12,10 +12,10 @@ import SelectWalk from '../utility/SelectWalk.js';
 
 import { Panel } from '../utility/AJNPanel';
 
-import WS from 'mobx/WalksStore';
+// import WS from 'mobx/WalksStore';
 // import MS from 'mobx/MembersStore'
 
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const ShowLogs = inject('MS')(
@@ -35,9 +35,7 @@ const ShowLogs = inject('MS')(
             </tr>
             <tr>
               <th>Status {data.statusOk}</th>
-              {data.status.map((stat, i) => (
-                <th key={`${versions[i]}-${i}`}>{stat}</th>
-              ))}
+              {data.status.map((stat, i) => <th key={`${versions[i]}-${i}`}>{stat}</th>)}
             </tr>
           </thead>
           <tbody>

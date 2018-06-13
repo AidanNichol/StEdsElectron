@@ -2,23 +2,23 @@
 import { connect } from 'react-redux';
 import { observer, inject } from 'mobx-react';
 import mobx from 'mobx';
-import { saveSummary } from 'ducks/paymentssummary-duck.js';
-import { ShowRecipts } from 'components/views/PaymentsReceived';
+import { saveSummary } from '../../ducks/paymentssummary-duck.js';
+import { ShowRecipts } from './PaymentsReceived';
 // import {paymentsSummaryReport} from 'reports/paymentsSummaryReport2'
 // import {setPage} from 'ducks/router-duck.js';
-import { getLogTime } from 'utilities/DateUtilities.js';
+import { getLogTime } from '../../utilities/DateUtilities.js';
 import { flatten } from 'lodash';
 import XDate from 'xdate';
 import fs from 'fs';
 
 import React from 'react';
-import { Panel } from 'components/utility/AJNPanel';
-import TooltipButton from 'components/utility/TooltipButton.js';
+import { Panel } from '../utility/AJNPanel';
+import TooltipButton from '../utility/TooltipButton.js';
 // import TooltipContent from '../utility/TooltipContent.js';
 // import {Icon} from 'ducks/walksDuck'
 // import {Lock} from 'ducks/lock-duck'
 
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 // const AccLogRec = ({log})=>{return (
@@ -39,7 +39,7 @@ const Payments = observer(({ doc, bankMoney }) => {
     openingDebt,
     openingCredit,
     startDispDate,
-    endDispDate
+    endDispDate,
   } = doc;
   var calcNew = { debt: openingDebt, credit: openingCredit };
   logit('calcNew', calcNew);
@@ -78,11 +78,9 @@ const Payments = observer(({ doc, bankMoney }) => {
     (tots.C ? tots.C[1] : 0) -
     (tots.BX ? tots.BX[1] : 0) -
     (tots.CX ? tots.CX[1] : 0);
-  const netCashAndCheques =
-    (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
+  const netCashAndCheques = (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
   const netBACS = (tots.T ? tots.T[1] : 0) - (tots.TX ? tots.TX[1] : 0);
-  const netCredit =
-    (tots['+'] ? tots['+'][1] : 0) - (tots['+X'] ? tots['+X'][1] : 0);
+  const netCredit = (tots['+'] ? tots['+'][1] : 0) - (tots['+X'] ? tots['+X'][1] : 0);
   const netPayments = netCashAndCheques + netBACS + netCredit;
   const calcDebt = openingDebt + netBookings - netPayments - creditsUsed;
   // logit('creditsUsed', creditsUsed)
@@ -104,16 +102,8 @@ const Payments = observer(({ doc, bankMoney }) => {
             <AccLineTot factor="" title="Car Bookings Made" item="C" />
             <AccLineTot factor="-" title="Bus Bookings Cancelled" item="BX" />
             <AccLineTot factor="-" title="Car Bookings Cancelled" item="CX" />
-            <AccLineTot
-              factor="-"
-              title="Bus Cancelled (no credit)"
-              item="BL"
-            />
-            <AccLineTot
-              factor="-"
-              title="Car Cancelled (no credit)"
-              item="CL"
-            />
+            <AccLineTot factor="-" title="Bus Cancelled (no credit)" item="BL" />
+            <AccLineTot factor="-" title="Car Cancelled (no credit)" item="CL" />
             <AccLine factor="+" title="Net Bookings" item={netBookings} />
             <AccLineTot factor="" title="Payments Received" item="P" />
             <AccLineTot factor="" title="Payments Received(BACS)" item="T" />
@@ -125,32 +115,12 @@ const Payments = observer(({ doc, bankMoney }) => {
           </div>
           <div>
             {/* <CreditUsed/> */}
-            <AccLine
-              factor="－"
-              opt
-              title="Net Credit Used"
-              item={creditsUsed}
-            />
-            <AccLine
-              factor="+"
-              opt
-              title="Net Credit Issused"
-              item={-creditsUsed}
-            />
+            <AccLine factor="－" opt title="Net Credit Used" item={creditsUsed} />
+            <AccLine factor="+" opt title="Net Credit Issused" item={-creditsUsed} />
           </div>
           <div>
-            <AccLine
-              factor="-"
-              opt
-              title="Net Credit Used"
-              item={creditsUsed}
-            />
-            <AccLine
-              factor="+"
-              opt
-              title="Net Credit Issued"
-              item={-creditsUsed}
-            />
+            <AccLine factor="-" opt title="Net Credit Used" item={creditsUsed} />
+            <AccLine factor="+" opt title="Net Credit Issued" item={-creditsUsed} />
           </div>
           <div>
             <AccLine title="Closing Credit" item={closingCredit} />
@@ -204,7 +174,7 @@ const Payments = observer(({ doc, bankMoney }) => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    bankMoney: doc => dispatch(saveSummary(doc))
+    bankMoney: doc => dispatch(saveSummary(doc)),
   };
 }
 
@@ -245,19 +215,20 @@ export const mapStoreToProps = function({ AS, PS }) {
     startDispDate: startDate && new XDate(startDate).toString('dd MMM HH:mm'),
     endDispDate: new XDate(endDate).toString('dd MMM HH:mm'),
     type: 'paymentSummary',
-    _id: 'BP' + endDate.substr(0, 16)
+    _id: 'BP' + endDate.substr(0, 16),
   };
   logit('logs doc', doc, __dirname);
   fs.writeFileSync(
     `${__dirname}/../../../tests/paymentsFrom${startDate
       .substr(0, 16)
       .replace(/:/g, '.')}.json`,
-    JSON.stringify(doc)
+    JSON.stringify(doc),
   );
   logit('write report');
   // paymentsSummaryReport(doc)
   return doc;
 };
-export default connect(() => ({}), mapDispatchToProps)(
-  inject(mapStoreToProps)(Payments)
-);
+export default connect(
+  () => ({}),
+  mapDispatchToProps,
+)(inject(mapStoreToProps)(Payments));

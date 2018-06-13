@@ -1,8 +1,8 @@
 import React from 'react';
-import { getSettings } from 'ducks/settings-duck';
+import { getSettings } from 'settings';
 const mode = getSettings('database.current');
 export const Panel = props => {
-  const { className = '', header, style, children, body = {}, ...other } = props;
+  const { className = '', header, children, body = {}, ...other } = props;
   // console.log('Panel', {className, header, style, children, other, props})
   const { className: clb, ...bdy } = body;
   return (

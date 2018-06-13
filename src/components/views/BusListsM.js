@@ -1,13 +1,13 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
-import { PrintButton } from 'components/utility/PrintButton';
-import { summaryReport } from 'reports/summaryReport2';
+import { PrintButton } from '../utility/PrintButton';
+import { summaryReport } from '../../reports/summaryReport2';
 
-import SelectWalk from 'components/utility/SelectWalk.js';
+import SelectWalk from '../utility/SelectWalk.js';
 
-import { Panel } from 'components/utility/AJNPanel';
+import { Panel } from '../utility/AJNPanel';
 
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 export default function BusLists(props) {
@@ -82,10 +82,7 @@ export default function BusLists(props) {
       <div className="booked-members">
         {bookings.map(bkng => (
           <div className="member" key={bkng.memId}>
-            <div
-              className="bName"
-              onClick={() => showMemberBookings(bkng.memId)}
-            >
+            <div className="bName" onClick={() => showMemberBookings(bkng.memId)}>
               {bkng.name}{' '}
             </div>
             <div className="annotation">{bkng.annotation}</div>

@@ -9,12 +9,12 @@ import classnames from 'classnames';
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
-import { Icon } from 'components/utility/Icon';
+import { Icon } from '../../utility/Icon';
 // import {Icon} from 'ducks/walksDuck'
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 
-import Logit from '../../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const uiState = observable({
@@ -54,8 +54,8 @@ export const Detail = styled(detail)`
     display: inline-block;
     position: relative;
     top: 5px;
-    min-width: 130px;
-    max-width: 130px;
+    min-width: 115px;
+    max-width: 115px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -85,19 +85,19 @@ const memberRecipt = observer(props => {
         <span className="owed">{`£${-data.balance}`}</span>
       </div>
       {data.logs
-        .filter(bkng => bkng.outstanding && bkng.owing !== 0)
+        .filter(bkng => bkng.outstanding && bkng.amount !== 0)
         .map(bkng => <Detail bkng={bkng} key={bkng.dat + 'xx'} />)}
     </div>
   );
 });
 export const MemberRecipt = styled(memberRecipt)`
   color: #31708f;
-  margin-bottom: 5px;
-  margin-right: 5px;
+  margin-bottom: 3px;
+  margin-right: 3px;
   padding-bottom: 4px;
   border: #bce8f1 thin solid;
   border-radius: 5px;
-  width: 300px;
+  width: 245px;
   flex: 0 0 auto;
 
   span {
@@ -110,7 +110,9 @@ export const MemberRecipt = styled(memberRecipt)`
     border-bottom: #bce8f1 thin solid;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    padding: 2px 5px;
+    padding: 1px 3px;
+    display: flex;
+    justify-content: space-between;
 
     .who {
       width: 190px;
@@ -128,6 +130,10 @@ export const MemberRecipt = styled(memberRecipt)`
       text-align: center;
       font-size: 0.85em;
       padding: 2px;
+      color: #333;
+      background-color: #e6e6e6;
+      border: 1px solid #adadad;
+      border-radius: 4px;
     }
   }
 `;
@@ -144,11 +150,7 @@ export const payments = observer(props => {
   } = props;
   var title = <h4> Payments Due </h4>;
   return (
-    <Panel
-      className={'paymentsDue ' + className}
-      header={title}
-      style={{ margin: 20 }}
-    >
+    <Panel className={'paymentsDue ' + className} header={title} style={{ margin: 20 }}>
       <div className="all-payments">
         <div className="buttons">
           {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
@@ -197,9 +199,9 @@ const Payments = styled(payments)`
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-content: flex-start;
     width: auto;
-    /*justify-content: flex-start;*/
+    justify-content: flex-start;
     height: 100%;
     flex: 0 0 300px;
 

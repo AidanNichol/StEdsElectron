@@ -3,18 +3,18 @@ import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
 import classnames from 'classnames';
 
-import TooltipButton from 'components/utility/TooltipButton';
+import TooltipButton from '../../utility/TooltipButton';
 import TextInput from 'react-textarea-autosize';
 
-import { Panel } from 'components/utility/AJNPanel';
+import { Panel } from '../../utility/AJNPanel';
 // import {getSubsStatus} from 'utilities/subsStatus';
 import {
   properCaseName,
   properCaseAddress,
   normalizePhone,
-} from 'components/utility/normalizers';
+} from '../../utility/normalizers';
 
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 let EditMemberData = observer(props => {

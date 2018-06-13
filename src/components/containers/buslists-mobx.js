@@ -2,9 +2,9 @@
 import DS from 'mobx/DateStore';
 import { observable } from 'mobx';
 import { inject } from 'mobx-react';
-import { setRouterPage } from 'ducks/router-mobx.js';
+import { setRouterPage } from '../../ducks/router-mobx.js';
 
-import BusLists from 'components/views/BusListsM';
+import BusLists from '../views/BusListsM';
 import Logit from 'logit.js';
 var logit = Logit(__filename);
 

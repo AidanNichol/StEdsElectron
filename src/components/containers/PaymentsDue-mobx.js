@@ -2,7 +2,7 @@ import { inject, observer } from 'mobx-react';
 import Payments from '../views/PaymentsDue';
 // import { showStats} from './PaymentsFunctions'
 import { setRouterPage } from 'ducks/router-mobx.js';
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const mapStateToProps = function(store) {

@@ -1,19 +1,21 @@
 /* global PouchDB */
 const React = require('react');
-const db = require('../services/bookingsDB');
+// const db = require('bookingsDB');
+let db;
 const styled = require('styled-components').default;
 // import styled from 'styled-components';
 const { observable, action, computed, autorun, toJS, decorate } = require('mobx');
 const { observer } = require('mobx-react');
-const { DbSettings } = require('ducks/settings-duck');
+const { DbSettings } = require('settings');
 const { Icon } = require('components/utility/Icon');
 const emitter = require('../mobx/eventBus');
 
-const Logit = require('../factories/logit');
+const Logit = require('logit');
 var logit = Logit(__filename);
 logit('styled-components', styled);
 class ReplState {
-  constructor() {
+  constructor(setdb) {
+    db = setdb;
     this.lastAction;
     this.current = 'paused';
     this.dblocal_seq;
@@ -66,7 +68,8 @@ async function updateStateFromLocalDB(txt, updatePush = false) {
   state.lastAction = txt;
 }
 
-async function monitorReplications() {
+async function monitorReplications(dbset) {
+  db = dbset;
   const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
   try {
     PouchDB.plugin(require('pouchdb-authentication'));
@@ -82,12 +85,11 @@ async function monitorReplications() {
     logit('login resp:', resp);
     await updateStateFromLocalDB('setup', true);
 
-    db
-      .sync(remoteCouch, {
-        live: true,
-        timeout: 60000,
-        retry: true,
-      })
+    db.sync(remoteCouch, {
+      live: true,
+      timeout: 60000,
+      retry: true,
+    })
       .on('change', info => {
         let direction = info.direction;
         state[direction].last_seq = info.change.last_seq;

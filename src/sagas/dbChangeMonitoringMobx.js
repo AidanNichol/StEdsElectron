@@ -1,10 +1,11 @@
-import db from '../services/bookingsDB.js';
+// import db from 'bookingsDB.js';
 // import createChannel from '../services/channel.js';
 
-import Logit from '../factories/logit.js';
-import WS from 'mobx/WalksStore';
-import MS from 'mobx/MembersStore';
-import AS from 'mobx/AccountsStore';
+import Logit from 'logit';
+import WS from '../mobx/WalksStore';
+import MS from '../mobx/MembersStore';
+import AS from '../mobx/AccountsStore';
+let db;
 
 var storeFn = {
   walk: WS.changeDoc,
@@ -24,7 +25,8 @@ const collections = {
 
 // lastSeq = 138;
 
-export async function monitorChanges() {
+export async function monitorChanges(setdb) {
+  db = setdb;
   const info = await db.info();
   logit('info', info);
   let lastSeq = info.update_seq;

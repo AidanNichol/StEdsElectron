@@ -1,6 +1,5 @@
 import { inject } from 'mobx-react';
 import Bookings from '../views/bookings/BookingsM.js';
-import { callIfUnlocked } from '../../ducks/lock-mobx.js';
 import { uiStatus } from 'components/views/bookings/PaymentsBoxes';
 import { setRouterUser } from 'ducks/router-mobx';
 import Logit from 'logit.js';
@@ -16,7 +15,6 @@ const mapStoreToProps = function(store) {
     options: store.MS.selectNamesList,
     todaysDate: store.DS.todaysDate,
     // selectNamesList,
-    callIfUnlocked,
     account: store.AS.activeAccount,
     closeWalkBookings: walkId => store.WS.walks.get(walkId).closeWalk(walkId),
     accountSelected: acc => {

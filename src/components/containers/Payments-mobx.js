@@ -1,14 +1,14 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 import { observable, autorun, toJS } from 'mobx';
-import PaymentsDue from 'components/views/PaymentsDue2.js';
-import PaymentsMade from 'components/views/PaymentsReceived.js';
-// import {mapStoreToProps as buildDoc} from 'components/views/PaymentsSummary';
-import { setRouterPage } from 'ducks/router-mobx.js';
+import PaymentsDue from '../views/PaymentsDue2.js';
+import PaymentsMade from '../views/PaymentsReceived.js';
+// import {mapStoreToProps as buildDoc} from '../views/PaymentsSummary';
+import { setRouterPage } from '../../ducks/router-mobx.js';
 import XDate from 'xdate';
 import { flatten } from 'lodash';
 // import fs from 'fs';
-import Logit from 'factories/logit.js';
+import Logit from 'logit.js';
 var logit = Logit(__filename);
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);
@@ -47,10 +47,7 @@ const mapStoreToProps = function(store) {
   // });
   // logit("debts", debts);
   // logit("credits", credits);
-  const totalPaymentsMade = accs.reduce(
-    (sum, log) => sum + log.paymentsMade,
-    0,
-  );
+  const totalPaymentsMade = accs.reduce((sum, log) => sum + (log.paymentsMade || 0), 0);
   return {
     accs: accs.filter(acc => acc.activeThisPeriod || acc.balance < 0),
     totalPaymentsMade,
@@ -67,11 +64,7 @@ const mapStoreToProps = function(store) {
 };
 const Frame = observer(props => (
   <div style={{ width: '100%', height: '100%' }}>
-    {uiState.displayingDue ? (
-      <PaymentsDue {...props} />
-    ) : (
-      <PaymentsMade {...props} />
-    )}
+    {uiState.displayingDue ? <PaymentsDue {...props} /> : <PaymentsMade {...props} />}
   </div>
 ));
 export default inject(mapStoreToProps)(Frame);
@@ -83,7 +76,7 @@ const lastWalkSummary = function({ WS }) {
 
   if (!walk || walk.closed) return null;
   let totals = { B: 0, BL: 0, BX: 0, C: 0, CX: 0 };
-  walk.bookings.values().map(({ status }) => {
+  walk.bookingsValues.map(({ status }) => {
     if (/^[BC]/.test(status)) totals[status] += 1;
   });
   return { totals, date: walk.dispDate, venue: walk.venue, fee: walk.fee };
@@ -124,9 +117,7 @@ const buildDoc = function({ AS, DS, WS, PS }) {
     endDate,
     startDate,
     payments,
-    accounts: accountsStatus.filter(
-      acc => acc.activeThisPeriod || acc.balance < 0,
-    ),
+    accounts: accountsStatus.filter(acc => acc.activeThisPeriod || acc.balance < 0),
     currentPeriodStart,
     unclearedBookings: AS.unclearedBookings(currentPeriodStart),
     // aLogs, bLogs,
