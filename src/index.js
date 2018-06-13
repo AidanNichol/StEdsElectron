@@ -6,9 +6,10 @@ import { Provider as MobxProvider } from 'mobx-react';
 import MainLayout from './components/layouts/MainLayout.js';
 import { template } from './menu/menu.js';
 import { remote } from 'electron';
-import { opts } from 'factories/logit.js';
+import { opts } from 'logit';
 import { monitorChanges } from 'sagas/dbChangeMonitoringMobx';
 import { monitorReplications } from 'ducks/replication-mobx';
+import db from 'bookingsDB';
 import WS from 'mobx/WalksStore';
 import MS from 'mobx/MembersStore';
 import AS from 'mobx/AccountsStore';
@@ -16,7 +17,7 @@ import PS from 'mobx/PaymentsSummaryStore';
 import DS from 'mobx/DateStore';
 import { router } from 'ducks/router-mobx';
 const signin = require('mobx/signinState');
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 import { reLogin } from 'ducks/signin-mobx';
 var logit = Logit(__filename);
 logit('logit:opts', opts);
@@ -27,20 +28,20 @@ logit('process', process);
 
 const cntrl = observable({ loading: true });
 // logit('mainlayout', membersLoading, accountsLoading, walksLoading);
-monitorChanges();
+monitorChanges(db);
 const monitorLoading = action(async () => {
   logit('monitorLoading', 'start');
-  await PS.init();
+  await PS.init(db);
   logit('monitorLoading', 'loaded Summary Doc');
-  await Promise.all([MS.init(), AS.init(), WS.init()]);
+  await Promise.all([MS.init(db), AS.init(db), WS.init(db)]);
   runInAction(() => {
     logit('monitorLoading', 'loaded');
     cntrl.loading = false;
-    monitorReplications();
+    monitorReplications(db);
     reLogin();
   });
 });
-monitorLoading();
+monitorLoading(db);
 
 const Menu = remote.Menu;
 const menu = Menu.buildFromTemplate(template);
