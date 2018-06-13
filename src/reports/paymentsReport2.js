@@ -1,11 +1,10 @@
-import { drawSVG } from 'reports/extract-svg-path';
-import Logit from 'factories/logit.js';
+import { drawSVG } from './extract-svg-path';
+import Logit from 'logit';
 var logit = Logit(__filename);
-import AS from 'mobx/AccountsStore';
+import AS from '../mobx/AccountsStore';
 
 const margin = 30;
 
-// import db from 'services/bookingsDB';
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
 const italic = 'Times-Italic';
@@ -36,9 +35,7 @@ export function paymentsDueReport(doc, yStart) {
   let sizes;
   const balanceCols = debts => {
     // calculate space needed for each person in the list
-    sizes = debts.map(
-      data => (data.size = nameH + gapH + data.debt.length * detailH),
-    );
+    sizes = debts.map(data => (data.size = nameH + gapH + data.debt.length * detailH));
     logit('sizes', { sizes, nameH, gapH, detailH });
     // calculate the offset to where each entry starts.
     let tot = 0;
@@ -49,7 +46,7 @@ export function paymentsDueReport(doc, yStart) {
     });
     logit('relStartY', { relStartY, tot });
     // tot is now the total space needed. find first entry that needs to be in the 2nd column
-    let i = relStartY.findIndex((item, i) => item >= tot / 2);
+    let i = relStartY.findIndex(item => item >= tot / 2);
     if (
       Math.max(relStartY[i], tot - relStartY[i]) >
       Math.max(relStartY[i - 1], tot - relStartY[i - 1])

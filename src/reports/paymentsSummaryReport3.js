@@ -1,16 +1,16 @@
-import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import XDate from 'xdate';
-import jetpack from 'fs-jetpack';
-import { drawSVG } from 'reports/extract-svg-path';
-import { shell } from 'electron';
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const XDate = require('xdate');
+const jetpack = require('fs-jetpack');
+const { drawSVG } = require('./extract-svg-path');
+const { shell } = require('electron');
 
-import Logit from 'factories/logit.js';
+const Logit = require('logit.js');
 var logit = Logit(__filename);
 const home = process.env.HOME || process.env.HOMEPATH;
 
-import WS from 'mobx/WalksStore';
-import MS from 'mobx/MembersStore';
+const WS = require('../mobx/WalksStore');
+const MS = require('../mobx/MembersStore');
 
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
@@ -21,11 +21,11 @@ const calcLineHeights = doc => {
   });
 };
 
-// import XDate from 'xdate';
+// const XDate = require( 'xdate');
 logit('env', process.env);
 logit('dirname', __dirname);
 
-export function paymentsSummaryReport3(payload, lastWalk) {
+exports.paymentsSummaryReport3 = function paymentsSummaryReport3(payload, lastWalk) {
   const printFull = true;
   const homefs = jetpack.cwd(home);
   let documents;
@@ -63,16 +63,8 @@ export function paymentsSummaryReport3(payload, lastWalk) {
     const height14 = doc.fontSize(14).currentLineHeight();
     const height4 = doc.fontSize(4).currentLineHeight();
     const fmtDate = dat => new XDate(dat).toString('ddd dd MMM');
-    // doc.rect(0, 0, 80,15).stroke('red');
-    // doc.rect(0, 0, 80,20).stroke('blue');
-    // doc.rect(0, 0, 30,30).stroke('blue');
-    // doc.rect(0, 0, 40,40).stroke('blue');
-    // doc.rect(0, 0, 50,50).stroke('blue');
-    // doc.rect(0, 0, 60,60).stroke('blue');
-    // doc.rect(0, 0, 70,70).stroke('blue');
-    // doc.rect(0, 0, 75,75).stroke('red');
     drawSVG(doc, 50, 35, 0.25, 'St_EdwardsLogoSimple');
-    // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, 30, {fit: [20, 20], continued: true})
+
     doc
       .font(bold)
       .fontSize(14)
@@ -96,13 +88,15 @@ export function paymentsSummaryReport3(payload, lastWalk) {
 
   reportBody(payload, printFull, doc, lastWalk);
   doc.end();
-  setTimeout(() => {
-    logit('about to shell', docname);
-    let ret = shell.openItem(docname);
-    logit('shell says', ret);
-  }, 500);
+  if (shell) {
+    setTimeout(() => {
+      logit('about to shell', docname);
+      let ret = shell.openItem(docname);
+      logit('shell says', ret);
+    }, 500);
+  }
   return docname.substr(home.length + 1);
-}
+};
 
 function prepareData(payload, printFull) {
   const walkIds = new Set(WS.openWalks.map(walk => walk._id));
@@ -160,7 +154,7 @@ function prepareData(payload, printFull) {
   return { accData, walkIndex, addToCredit };
 }
 
-export function reportBody(payload, printFull, doc, lastWalk) {
+function reportBody(payload, printFull, doc, lastWalk) {
   const tots = payload.tots;
   const netCashAndCheques = (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
 
@@ -287,13 +281,18 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     const bkng = log.req;
     if (log.late)
       doc
+        .save()
         .opacity(0.2)
         .rect(x2, y - 1, bkWidth, detailH)
         .fill('yellow')
-        .opacity(1);
+        .opacity(1)
+        .restore();
     let icon;
     const xtra = {};
-    if (log.owing === 0 && log.paid) {
+    const [paid, noPayTypes] = Object.entries(log.paid || {})
+      .filter(([, it]) => it > 0)
+      .reduce(([pd, no], [, it]) => [pd + it, no + 1], [0, 0]);
+    if (paid) {
       if (log.paid.P > 0) {
         icon = `check-${bkng}`;
       } else {
@@ -302,23 +301,25 @@ export function reportBody(payload, printFull, doc, lastWalk) {
         xtra.fill = bkng === 'B' ? 'green' : 'blue';
       }
     } else icon = `icon-${bkng}`;
-    // if (log.memId==='M1158')logit('icon', log.paid, icon);
-    if (log.owing !== 0 && log.owing !== log.amount)
-      xtra.fill = bkng === 'B' ? '#84C784' : '#5b5bf2';
-    // if (log.memId==='M1049')logit('text', log, xtra);
+    if (log.memId === 'M1049') {
+      logit('icon', log.paid, icon);
+    }
+    // if (log.owing !== 0 && log.owing !== log.amount)
+    //   xtra.fill = bkng === 'B' ? '#84C784' : '#5b5bf2';
+
     drawSVG(doc, x1, y - 1, 0.5, icon, xtra);
 
-    if (log.owing > 0 && log.paid) {
+    if (paid && noPayTypes > 1) {
       let text = '';
       if (log.paid.P > 0) text += ` £${log.paid.P}`;
-      else if (log.paid.T > 0) text += ` T${log.paid.T}`;
-      else if (log.paid['+'] > 0) text += ` Cr${log.paid['+']}`;
+      if (log.paid.T > 0) text += ` T${log.paid.T}`;
+      if (log.paid['+'] > 0) text += ` Cr${log.paid['+']}`;
       if (text !== '') {
-        doc
-          .fontSize(szD - 3)
-          .text(text, x2 - 1, y + 5, { width: bkWidth, align: 'right' });
+        doc.fontSize(szD - 3).text(text, x2 - 1, y + 5, {
+          width: bkWidth,
+          align: 'right',
+        });
       }
-      // if (log.memId==='M1049')logit('text', log.paid, text);
     }
   }
 
@@ -365,7 +366,7 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     y += gapH;
   });
   const lwH = (lastWalk ? 6 : 0) * fontHeight[11];
-  const lwW = colW * 0.7;
+  // const lwW = colW * 0.7;
   if (noCols === 2) {
     setEndY(y + fontHeight[12] + lwH + 8);
   } else {
@@ -380,45 +381,44 @@ export function reportBody(payload, printFull, doc, lastWalk) {
     .text('Cash & Cheques to Bank', x, y)
     .text(`£${netCashAndCheques}`, x, y, { width: colW, align: 'right' });
 
-  y += fontHeight[12] + 8;
-  logit('lastWalk', lastWalk);
-  const makeHeadBox = (bxW, bxH, r) =>
-    `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH -
-      r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+  // y += fontHeight[12] + 8;
+  // logit('lastWalk', lastWalk);
+  // const makeHeadBox = (bxW, bxH, r) =>
+  //   `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH -
+  //     r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
-  if (lastWalk) {
-    x += 45;
-    const headBox = makeHeadBox(lwW, fontHeight[11], r);
+  // if (lastWalk) {
+  //   x += 45;
+  //   const headBox = makeHeadBox(lwW, fontHeight[11], r);
 
-    const boxPt = 2;
-    doc
-      .path(`M ${x - 2 + r},${y - boxPt} ${headBox}`)
-      .lineWidth(1)
-      .fillOpacity(0.8)
-      .fillAndStroke('#ccc', '#888');
-    doc.roundedRect(x - 2, y - boxPt, lwW, lwH, r).stroke('#888');
+  //   const boxPt = 2;
+  //   doc
+  //     .path(`M ${x - 2 + r},${y - boxPt} ${headBox}`)
+  //     .lineWidth(1)
+  //     .fillOpacity(0.8)
+  //     .fillAndStroke('#ccc', '#888');
+  //   doc.roundedRect(x - 2, y - boxPt, lwW, lwH, r).stroke('#888');
 
-    doc
-      .font(normal)
-      .fontSize(11)
-      .fillColor('black');
-    doc.text(`Last Walk: `, x, y);
-    doc
-      .font(bold)
-      .text(` ${lastWalk.date}  ${lastWalk.venue}`, x + 50, y, {
-        width: lwW - 50,
-        height: fontHeight[11],
-        ellipsis: true,
-      })
-      .font(normal);
-    y += fontHeight[11] + 4;
-    doc.text(`Bus Bookings (${lastWalk.totals.B})`, x, y);
-    y += fontHeight[11];
-    doc.text(`Bus Late Cancellation (${lastWalk.totals.BL})`, x, y);
-    y += fontHeight[11];
-    doc.text(`Car Bookings (${lastWalk.totals.C})`, x, y);
-    y += fontHeight[11] + 4;
-    // doc.text(`Total Income`, x, y);
-    // doc.font(bold).text(`£${total}`, x, y, opts);
-  }
+  //   doc
+  //     .font(normal)
+  //     .fontSize(11)
+  //     .fillColor('black');
+  //   doc.text(`Last Walk: `, x, y);
+  //   doc
+  //     .font(bold)
+  //     .text(` ${lastWalk.date}  ${lastWalk.venue}`, x + 50, y, {
+  //       width: lwW - 50,
+  //       height: fontHeight[11],
+  //       ellipsis: true,
+  //     })
+  //     .font(normal);
+  //   y += fontHeight[11] + 4;
+  //   doc.text(`Bus Bookings (${lastWalk.totals.B})`, x, y);
+  //   y += fontHeight[11];
+  //   doc.text(`Bus Late Cancellation (${lastWalk.totals.BL})`, x, y);
+  //   y += fontHeight[11];
+  //   doc.text(`Car Bookings (${lastWalk.totals.C})`, x, y);
+  //   y += fontHeight[11] + 4;
+  // }
 }
+exports.reportBody = reportBody;

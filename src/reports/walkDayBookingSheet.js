@@ -1,20 +1,19 @@
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 import { toJS } from 'mobx';
 import R from 'ramda';
-import { drawSVG } from 'reports/extract-svg-path';
+import { drawSVG } from './extract-svg-path';
 import { union, flattenDeep, fromPairs } from 'lodash';
 var logit = Logit(__filename);
-import AS from 'mobx/AccountsStore';
-import WS from 'mobx/WalksStore';
-import MS from 'mobx/MembersStore';
-// import DS from 'mobx/DateStore';
+import AS from '../mobx/AccountsStore';
+import WS from '../mobx/WalksStore';
+import MS from '../mobx/MembersStore';
+// import DS from '../mobx/DateStore';
 
 function walkDaySet() {
   const walkId = WS.bookableWalksId[0];
   const memIds = WS.walks
     .get(walkId)
-    .bookings.entries()
-    .filter(([, booking]) => /^[BCW]$/.test(booking.status))
+    .bookingsEntries.filter(([, booking]) => /^[BCW]$/.test(booking.status))
     .map(([memId]) => memId);
   logit('walkDaySet', memIds);
   return memIds;
@@ -26,9 +25,9 @@ function fullSet() {
   logit('recentWalks', walkIds);
   var memIds = [];
   walkIds.forEach(walkId => {
-    const bookings = WS.walks.get(walkId).bookings;
+    const bookingsKeys = WS.walks.get(walkId).bookingsKeys;
     // logit('fullset', walkId, bookings.keys().length, bookings.keys().sort(cmpNo))
-    memIds = union(memIds, bookings.keys().sort(cmpNo));
+    memIds = union(memIds, bookingsKeys.sort(cmpNo));
   });
   const bal = AS.allAccountsStatus.filter(acc => acc.balance !== 0).map(acc => {
     const account = AS.accounts.get(acc.accId) || {};
@@ -72,8 +71,7 @@ function gatherData(memberSet, printFull) {
       let bkng = R.repeat('-', walkIds.length);
       walkIds.forEach((walkId, i) => {
         // logit('gather', memId, walkId, WS)
-        let status =
-          (WS.walks.get(walkId).bookings.get(memId) || {}).status || 'Chk';
+        let status = (WS.walks.get(walkId).bookings.get(memId) || {}).status || 'Chk';
         if (i === 0 && status !== 'W' && status !== 'Chk') reserve = false;
         status = status[1] === 'X' ? 'Chk' : status;
         // if (!printFull && status === 'Chk') status = 'Blank';
@@ -93,7 +91,14 @@ function gatherData(memberSet, printFull) {
           if (walkIdsIndex[debt.walkId] !== undefined) {
             member.bkng[walkIdsIndex[debt.walkId]] = 'P';
           } else {
-            let code = WS.walks.get([debt.walkId]).code;
+            // let code = WS.walks.get([debt.walkId]).code;
+            let www = WS.walks.get(debt.walkId);
+            let code;
+            if (www) code = www.code;
+            else {
+              logit('debt???', debt.walkId, debt, WS.walks.entries);
+              code = '????';
+            }
             let i = data.xtra.indexOf(code);
             if (i < 0) {
               data.xtra.push(code);
@@ -133,8 +138,7 @@ const calcCharWidths = doc => {
   let res = {};
   Array.from(' -0123456789()').forEach(chr => {
     res[chr] =
-      doc.fontSize(11).text(chr, 20, 80, { continued: true, lineBreak: false })
-        .x - 20;
+      doc.fontSize(11).text(chr, 20, 80, { continued: true, lineBreak: false }).x - 20;
     logit('calcCharWidths', doc.x, doc.y);
   });
   logit('charWidth', res);
@@ -144,8 +148,8 @@ const calcCharWidths = doc => {
 logit('env', process.env);
 logit('dirname', __dirname);
 const makeHeadBox = (bxW, bxH, r) =>
-  `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH -
-    r}  h -${bxW} v -${bxH - r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
+  `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH -
+    r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
 
 export function walkDayBookingSheet(doc, printFull) {
   doc.addPage();
@@ -200,16 +204,7 @@ export function walkDayBookingSheet(doc, printFull) {
       .fontSize(szH)
       .text(name, x, y);
   };
-  const showMoney = (
-    x,
-    y,
-    dY,
-    value,
-    text,
-    rectFill,
-    rectStroke,
-    textColor,
-  ) => {
+  const showMoney = (x, y, dY, value, text, rectFill, rectStroke, textColor) => {
     doc
       .roundedRect(x + boxOff, y + dY - 2, boxWidth, detailH - 2, r)
       .fillAndStroke(rectFill, rectStroke);
@@ -241,13 +236,7 @@ export function walkDayBookingSheet(doc, printFull) {
   };
   const printPaidBox = (x, y, dY) => {
     doc
-      .roundedRect(
-        x + boxOff + boxWidth + 30,
-        y + dY - 2,
-        moneyWidth,
-        detailH - 2,
-        r,
-      )
+      .roundedRect(x + boxOff + boxWidth + 30, y + dY - 2, moneyWidth, detailH - 2, r)
       .stroke('#888');
     doc
       .fillColor('black')
@@ -292,10 +281,8 @@ export function walkDayBookingSheet(doc, printFull) {
     const dY = detailH * (1 + (data.members.size - 1) * 0.5) + 1;
 
     printAccountHeader(x, y, accHeight, data.sortname);
-    if (data.debt)
-      showMoney(x, y, dY, data.debt, 'Owed', '#f88', '#800', 'black');
-    if (data.credit)
-      showMoney(x, y, dY, data.credit, 'Credit', '#cfe', '#484', 'blue');
+    if (data.debt) showMoney(x, y, dY, data.debt, 'Owed', '#f88', '#800', 'black');
+    if (data.credit) showMoney(x, y, dY, data.credit, 'Credit', '#cfe', '#484', 'blue');
     printPaidBox(x, y, dY);
 
     printWalkCodes(x, y, data.xtra, walknames.map(nm => nm.code));
@@ -344,11 +331,7 @@ export function walkDayBookingSheet(doc, printFull) {
             .opacity(1)
             .fontSize(szD - 2)
             .fillColor('red')
-            .text(
-              no,
-              x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.2,
-              y + 2,
-            );
+            .text(no, x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.2, y + 2);
         }
       });
       y += detailH;
@@ -397,8 +380,8 @@ export function walkDayBookingSheet(doc, printFull) {
   let accHeight = 2 + nameH + detailH;
   let noBlanks = 10;
   const spaceFor = Math.floor((checkBoxesStart - y) / accHeight);
-  if (col === 0)
-    setEndY(pHeight); // force new column
+  if (col === 0) setEndY(pHeight);
+  // force new column
   else noBlanks = Math.min(10, spaceFor) - 1;
   logit('space For', { spaceFor, noBlanks, y, checkBoxesStart, accHeight });
   for (var i = 0; i < noBlanks; i++) {

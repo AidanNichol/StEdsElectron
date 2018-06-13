@@ -1,15 +1,13 @@
 const margin = 30;
 
-import Logit from '../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
-// import db from 'services/bookingsDB';
+
 import XDate from 'xdate';
-import WS from 'mobx/WalksStore';
+import WS from '../mobx/WalksStore';
 const _today = new XDate().toString('Wyyyy-MM-dd');
 logit('env', process.env);
 logit('dirname', __dirname);
-
-// import db from 'services/bookingsDB';
 
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';

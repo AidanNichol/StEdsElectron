@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit';
 import XDate from 'xdate';
 import fs from 'fs';
 import { shell } from 'electron';
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 // var logit = (...args) => console.log(...args);
 const home = process.env.HOME || process.env.HOMEPATH;
@@ -30,8 +30,6 @@ if (!isDirSync(docs)) {
 }
 let docname = docs + '/membersList.pdf';
 logit('name', { docname });
-
-// import db from 'services/bookingsDB';
 
 export function membershipListReport(members) {
   const columns = [
@@ -76,7 +74,7 @@ export function membershipListReport(members) {
 
     // let subs = getSubsStatus(mem);
     let subs = mem.subsStatus;
-    stat = `${mem.subscription ? "'" + parseInt(mem.subscription) % 100 : '---'}`;
+    stat = `${mem.subscription ? "'" + (parseInt(mem.subscription) % 100) : '---'}`;
     let atts = subsMap[subs.status];
     if (mem.memberId === 'M2031') logit('subs', subs, stat, atts);
     return [stat, atts];

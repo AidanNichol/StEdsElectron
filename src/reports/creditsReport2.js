@@ -1,7 +1,7 @@
-import { drawSVG } from 'reports/extract-svg-path';
-import Logit from 'factories/logit.js';
+const { drawSVG } = require('./extract-svg-path');
+const Logit = require('logit.js');
 var logit = Logit(__filename);
-import AS from 'mobx/AccountsStore';
+const AS = require('../mobx/AccountsStore');
 
 const calcLineHeights = doc => {
   const h14 = doc.fontSize(14).text(' ', margin, 80).y - 80;
@@ -12,7 +12,6 @@ const calcLineHeights = doc => {
 
 const margin = 30;
 
-// import db from 'services/bookingsDB';
 // import {getAllDebts} from '../components/containers/PaymentsFunctions';
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
@@ -21,7 +20,7 @@ const italic = 'Times-Italic';
 logit('env', process.env);
 logit('dirname', __dirname);
 // let icons = {};
-export function creditsOwedReport(doc) {
+function creditsOwedReport(doc) {
   doc.addPage();
   doc.font(normal);
   const pWidth = doc.page.width;
@@ -64,7 +63,7 @@ export function creditsOwedReport(doc) {
     let logs = [];
     for (let log of acc.logs.reverse()) {
       if (log.balance === 0) break;
-      logs.unshift(log);
+      if (/^[BC]/.test(log.req)) logs.unshift(log);
     }
     acc.logs = logs;
     return acc;
@@ -125,3 +124,4 @@ export function creditsOwedReport(doc) {
   maxY = Math.max(y, maxY);
   return maxY;
 }
+exports.creditsOwedReport = creditsOwedReport;

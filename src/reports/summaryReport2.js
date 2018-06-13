@@ -1,14 +1,14 @@
 import PDFDocument from 'pdfkit';
-import { drawSVG } from 'reports/extract-svg-path';
-import { busListReport } from 'reports/busListPDF';
-import { paymentsDueReport } from 'reports/paymentsReport2';
-import { creditsOwedReport } from 'reports/creditsReport2';
-import { walkDayBookingSheet } from 'reports/walkDayBookingSheet';
+import { drawSVG } from './extract-svg-path';
+import { busListReport } from './busListPDF';
+import { paymentsDueReport } from './paymentsReport2';
+import { creditsOwedReport } from './creditsReport2';
+import { walkDayBookingSheet } from './walkDayBookingSheet';
 import { shell } from 'electron';
 import fs from 'fs';
 import XDate from 'xdate';
 
-import Logit from '../factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const home = process.env.HOME || process.env.HOMEPATH;
@@ -26,8 +26,6 @@ function isDirSync(aPath) {
 }
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';
-
-// import db from 'services/bookingsDB';
 
 export function summaryReport(printFull) {
   let docs = home + '/Documents';
@@ -54,14 +52,6 @@ export function summaryReport(printFull) {
   doc.on('pageAdded', () => {
     const height14 = doc.fontSize(14).currentLineHeight();
     const height4 = doc.fontSize(4).currentLineHeight();
-    // doc.rect(0, 0, 80,15).stroke('red');
-    // doc.rect(0, 0, 80,20).stroke('blue');
-    // doc.rect(0, 0, 30,30).stroke('blue');
-    // doc.rect(0, 0, 40,40).stroke('blue');
-    // doc.rect(0, 0, 50,50).stroke('blue');
-    // doc.rect(0, 0, 60,60).stroke('blue');
-    // doc.rect(0, 0, 70,70).stroke('blue');
-    // doc.rect(0, 0, 75,75).stroke('red');
 
     // doc.image(__dirname+'/../assets/steds-logo.jpg', 30, marginV, {fit: [20, 20], continued: true})
     drawSVG(doc, 48, 28, 0.2, 'St_EdwardsLogoSimple');
