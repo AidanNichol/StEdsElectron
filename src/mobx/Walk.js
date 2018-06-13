@@ -4,18 +4,16 @@ let db;
 const XDate = require('xdate');
 const emitter = require('./eventBus');
 const { merge } = require('lodash');
-// const { resolveConflicts } = require( 'ducks/settings-duck');
+// const { resolveConflicts } = require( 'settings');
 
 const { logger } = require('logger.js');
-const Logit = require('../factories/logit.js');
+const Logit = require('logit');
 var logit = Logit(__filename);
 // var logit2 = logit;
 const { observable, computed, action, autorun, toJS, decorate } = require('mobx');
 const Booking = require('../mobx/Booking');
 const MS = require('../mobx/MembersStore');
-const AS = require('../mobx/AccountsStore');
 const memberName = memId => (MS.members.get(memId) || {}).fullName;
-const accountName = accId => (AS.accounts.get(accId) || {}).name;
 class Walk {
   // addMemberName(memId){
   //   // let memName = MS.members.get(memId).fullName;
@@ -43,7 +41,7 @@ class Walk {
     this.dbUpdate = this.dbUpdate.bind(this);
     this.updateDocument = this.updateDocument.bind(this);
 
-    db = dbset ? dbset : require('../services/bookingsDB');
+    db = dbset;
 
     autorun(() => logit('autorun', this.report, this));
     // Object.entries(walk.bookings || {}).forEach(([memId, booking])=>this.bookings.set(memId, new Booking(booking, memId, {getWalk: this.getWalk})))
@@ -53,7 +51,6 @@ class Walk {
     this.logger = logger.child({ walk: this.walkId, venue: this.venue });
     this.logger.addSerializers({
       memId: memId => `${memId} - ${memberName(memId)}`,
-      accId: accId => `${accId} - ${accountName(accId)}`,
     });
   }
 
@@ -64,6 +61,12 @@ class Walk {
 
   get bookingsValues() {
     return Array.from(this.bookings.values());
+  }
+  get bookingsKeys() {
+    return Array.from(this.bookings.keys());
+  }
+  get bookingsEntries() {
+    return Array.from(this.bookings.entries());
   }
 
   get dispDate() {
@@ -192,9 +195,7 @@ class Walk {
   resetLateCancellation(memId) {
     logit('resetLateCancellation', memId);
     var booking = this.bookings.get(memId) || {};
-    if (booking.status !== 'BL') return false;
-    booking.resetLateCancellation();
-    this.dbUpdate();
+    if (booking.resetLateCancellation()) this.dbUpdate();
     return;
   }
 
@@ -233,12 +234,6 @@ class Walk {
       if (this.bookings.has(memId))
         this.bookings.get(memId).updateBookingFromDoc(booking);
       else {
-        logit('creating booking', {
-          memId,
-          booking,
-          walk: this,
-          getWalk: this.getWalk(),
-        });
         this.bookings.set(
           memId,
           new Booking(booking, memId, { getWalk: this.getWalk, walk: this }),

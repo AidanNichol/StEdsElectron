@@ -27,7 +27,7 @@ class Member {
     this.updateField = this.updateField.bind(this);
     this.dbUpdate = this.dbUpdate.bind(this);
 
-    db = dbset ? dbset : require('../services/bookingsDB');
+    db = dbset;
     // autorun(() => console.log('autorun Member', this.report, this));
     // for(let [key, val] of Object.entries(member)){
     //   this[key] = val;

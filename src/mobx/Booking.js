@@ -44,8 +44,8 @@ class Booking {
   }
   getMember() {
     const member = MS.members.get(this.memId);
-    const { accountId, firstName, fullName } = member || {};
-    return { memId: this.memId, accountId, firstName, fullName };
+    const { accountId, firstName, fullName, shortName } = member || {};
+    return { memId: this.memId, accountId, firstName, fullName, shortName };
   }
   insertLogRecsFromConflicts(logs) {
     for (const log of logs) {
@@ -109,7 +109,7 @@ class Booking {
     }
     this.status = req;
 
-    var newLog = { dat: DS.logTime, who: updater(), req };
+    var newLog = { dat: DS.logTime, who: updater, req };
     this.walk.logger.info({ memId: this.memId, req }, 'Booking change');
     const deletable = this.logsValues.filter(log => DS.datetimeIsRecent(log.dat));
     logit('reversable?', req, {
@@ -140,10 +140,10 @@ class Booking {
       req[0],
       req.length,
       req.length % 2,
-      req.length % 2 + 1,
+      (req.length % 2) + 1,
       this.status.length,
     );
-    return this.status[0] === req[0] && this.status.length === req.length % 2 + 1;
+    return this.status[0] === req[0] && this.status.length === (req.length % 2) + 1;
   }
 
   updateAnnotation(note) {
@@ -164,11 +164,12 @@ class Booking {
   }
 
   resetLateCancellation() {
-    if (this.status !== 'BL') return false;
-    this.status = 'BX';
     this.walk.logger.info({ memId: this.memId }, 'Reset late cancellation');
-    const bLog = this.logsValues.filter(log => log.req !== 'A').reverse()[0];
-    if (bLog.req === 'BL') bLog.req = 'BX';
+    const bLog = this.logsValues.filter(log => log.req === 'BL').reverse()[0];
+    if (bLog) bLog.req = 'BX';
+    else return false;
+    if (this.status === 'BL') this.status = 'BX';
+    return true;
   }
 
   updateBookingFromDoc(bookingDoc) {
@@ -185,10 +186,9 @@ class Booking {
   }
 
   get mergeableLogs() {
+    let forefited = false;
     let logs = (this.logsValues || []).sort(cmpDate).map(log => {
       log = log.mergeableLog;
-      let forefited = false;
-      // if (limit && log.dat >= limit) continue;
       if (log.req === 'BL') forefited = true;
       else if (forefited) log.amount = 0;
       return log;

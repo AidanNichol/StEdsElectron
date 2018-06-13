@@ -1,4 +1,4 @@
-const { getSettings } = require('../ducks/settings-duck');
+const { getSettings } = require('settings');
 const {
   observable,
   computed,
@@ -245,7 +245,7 @@ class MembersStore {
   }
 
   async init(setdb) {
-    db = setdb ? setdb : (db = require('../services/bookingsDB'));
+    db = setdb;
     // loadMembers
     logit('loading members', '');
     const data = await db.allDocs({

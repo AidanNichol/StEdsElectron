@@ -112,17 +112,17 @@ class AccountsStore {
       payments = [];
     this.accountsValues.sort(nameCmp).forEach(account => {
       // ["A1182", "A608"].forEach((accId)=>{
-      let debt = account.accountStatus;
-      if (!debt || debt.balance < 0) debts.push(debt);
-      if (!debt || debt.balance > 0) credits.push(debt);
-      if (debt.paymentsMade > 0) payments.push(debt);
+      let acc = account.accountStatusNew;
+      if (!acc || acc.balance < 0) debts.push(acc);
+      if (!acc || acc.balance > 0) credits.push(acc);
+      if (acc.paymentsMade > 0) payments.push(acc);
     });
     return { debts, credits, payments };
   }
 
   get allAccountsStatus() {
     return this.accountsValues.sort(nameCmp).map(account => {
-      return account.accountStatus;
+      return account.accountStatusNew;
     });
   }
   fixupAllAccounts() {
@@ -182,7 +182,7 @@ class AccountsStore {
   // };
 
   async init(dbset) {
-    db = dbset ? dbset : require('../services/bookingsDB');
+    db = dbset;
     //load accounts
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     // const dataBP = await db.allDocs({

@@ -8,16 +8,16 @@ const {
   toJS,
   decorate,
 } = require('mobx');
-const { useFullHistory } = require('../ducks/settings-duck');
+const { useFullHistory } = require('settings');
 
 let db;
-// const {getSettings} =require( 'ducks/settings-duck');
+// const {getSettings} =require( 'settings');
 const R = require('ramda');
 const Logit = require('logit.js');
 var logit = Logit(__filename);
 console.log('import');
 const DS = require('./DateStore');
-const Walk = require('../mobx/Walk');
+const Walk = require('./Walk');
 const MS = require('./MembersStore');
 const PS = require('./PaymentsSummaryStore');
 
@@ -40,6 +40,8 @@ class WalksStore {
     this.resetLateCancellation = this.resetLateCancellation.bind(this);
     this.resetLateCancellation = this.resetLateCancellation.bind(this);
     this.changeDoc = this.changeDoc.bind(this);
+    // this.historyStarts = this.historyStarts.bind(this);
+    // this.prehistoryStarts = this.prehistoryStarts.bind(this);
 
     if (walks) this.addWalks(walks);
     // else walksLoading = this.loadWalks();
@@ -50,10 +52,10 @@ class WalksStore {
   // walksLoading: () => walksLoading;
 
   get walksValues() {
-    return Array.from(this.walks.values());
+    return !this.walks ? [] : Array.from(this.walks.values());
   }
   get walksKeys() {
-    return Array.from(this.walks.keys());
+    return !this.walks ? [] : Array.from(this.walks.keys());
   }
   get bookableWalksId() {
     const today = DS.todaysDate;
@@ -81,7 +83,7 @@ class WalksStore {
   get recentWalksId() {
     const no = 3;
     const nextWalk = this.bookableWalksId[0];
-    const i = Math.max(this.walks.keys().indexOf(nextWalk) - no, 0);
+    const i = Math.max(this.walksKeys.indexOf(nextWalk) - no, 0);
 
     const recent = [...this.walksKeys.slice(i, i + no), ...this.bookableWalksId];
     logit('walkDay recent', recent, i, nextWalk, this.walksKeys);
@@ -96,6 +98,18 @@ class WalksStore {
     const walk = this.walks.get(lastWalkId);
     logit('last walk', nextWalk, i, lastWalkId, walk);
     return walk;
+  }
+  get historyStarts() {
+    const nextWalk = this.bookableWalksId[0];
+    const i = Math.max(this.walksKeys.indexOf(nextWalk) - 1, 0);
+
+    const walk = this.walks.get(this.walksKeys[i]);
+    logit('last walk', nextWalk, i, walk);
+    return walk && walk.firstBooking;
+  }
+  get prehistoryStarts() {
+    const nextWalk = this.bookableWalksId[0];
+    return DS.dateNmonthsAgo(nextWalk.substr(1), 6);
   }
 
   get nextPeriodStart() {
@@ -123,14 +137,12 @@ class WalksStore {
     // logit('allWalkLogsByAccount',this)
     let map = {};
     this.walksValues.forEach(walk => {
-      logit('allWalkLogsByAccount:walk', walk._id, walk.venue, walk.walkLogsByMembers);
       Object.entries(walk.walkLogsByMembers).map(([memId, logs]) => {
         let member = MS.members.get(memId);
         let accId = member.accountId;
         if (!map[accId]) map[accId] = logs;
         else map[accId] = R.concat(map[accId], logs);
       });
-      logit('allWalkLogsByAccount:walk', walk._id, walk.venue);
     });
     return map;
   }
@@ -172,7 +184,7 @@ class WalksStore {
   }
 
   async init(setdb) {
-    db = setdb ? setdb : (db = require('../services/bookingsDB'));
+    db = setdb;
 
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const endkey = 'W' + DS.lastAvailableDate;

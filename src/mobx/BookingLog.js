@@ -1,5 +1,5 @@
 const { merge } = require('lodash');
-// const Logit = require( 'factories/logit.js');
+// const Logit = require( 'logit');
 // var logit = Logit(__filename);
 const { observable, computed, action, decorate } = require('mobx');
 const dateDisplay = require('./DateStore').dispDate;
@@ -51,13 +51,13 @@ class BookingLog {
       memId: member.memId,
       dispDate: dateDisplay(this.dat),
       accId: member.accountId,
-      name: member.firstName,
+      name: `[${member.firstName}]`,
     };
+    extra.text = (walk.venue || '').replace(/\(.*\)/, '');
     if (this.req === 'A') {
-      extra.text = this.note || '';
+      extra.text = `(${extra.text}) ${this.note || ''}`;
     } else {
       extra.amount = (walk.fee || 8) * chargeFactor[this.req];
-      extra.text = (walk.venue || '').replace(/\(.*\)/, '');
     }
     const log = { ...this, ...extra };
     return log;

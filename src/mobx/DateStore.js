@@ -1,6 +1,6 @@
 const XDate = require('xdate');
 const { observable, computed, decorate } = require('mobx');
-// const Logit = require( 'factories/logit.js');
+// const Logit = require( 'logit');
 // var logit = Logit(__filename);
 
 // export const dateDisplay = dat => new XDate(dat).toString('dd MMM HH:mm');
@@ -22,8 +22,8 @@ class DateStore {
     this.today = newDate;
   }
 
-  datetimePlus1(oldDate) {
-    return new XDate(oldDate).addMilliseconds(1).toString('i');
+  datetimePlus1(oldDate, inc = 1) {
+    return new XDate(oldDate).addMilliseconds(inc).toString('i');
   }
 
   dispDate(dat) {
@@ -74,6 +74,12 @@ class DateStore {
 
   dateMinus3Weeks(dat) {
     return new XDate(dat).addWeeks(-4).toString('yyyy-MM-dd');
+  }
+  date1YearAgo(dat) {
+    return new XDate(dat).addYears(-1).toString('yyyy-MM-dd');
+  }
+  dateNmonthsAgo(dat, n) {
+    return new XDate(dat).addMonths(-1 * n).toString('yyyy-MM-dd');
   }
 }
 decorate(DateStore, {

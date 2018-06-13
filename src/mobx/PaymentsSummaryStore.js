@@ -59,7 +59,7 @@ class PaymentsSummaryStore {
   }
 
   async init(dbset) {
-    db = dbset ? dbset : require('../services/bookingsDB');
+    db = dbset;
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const dataBP = await db.allDocs({
       descending: true,
