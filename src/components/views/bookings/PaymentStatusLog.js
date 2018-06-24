@@ -1,12 +1,13 @@
 /* jshint quotmark: false */
 import React from 'react';
 import { findDOMNode } from 'react-dom';
-import { Icon } from 'components/utility/Icon';
+import { Icon } from '../../utility/Icon';
 import classNames from 'classnames';
 import { ipcRenderer } from 'electron';
+import { Switch } from '@blueprintjs/core';
 
 // import Select from 'react-select';
-import Logit from 'factories/logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const EditButton = ({
@@ -62,47 +63,54 @@ class TheTable extends React.Component {
     // }
   }
   render() {
-    const { logs = [], showAll, ...rest } = this.props;
+    const { logs, showAll, ...rest } = this.props;
     logit('TheTable', { logs, rest, props: this.props });
     return (
       <div className="scrollBox">
-        {logs.filter(log => showAll || !log.hideable).map((log, i) => {
-          let rCl = classNames({
-            logData: true,
-            logRec: true,
-            outstanding: log.outstanding,
-            historic: log.historic,
-            inbalance: log.balance === 0,
-          });
-          let aCl = classNames({
-            logData: true,
-            logAmount: true,
-            logPay: log.req === 'P',
-            fee: log.req !== 'P' && log.amount < 0,
-            credit: log.amount > 0,
-          });
-          let bCl = classNames({
-            logData: true,
-            logBal: true,
-            credit: log.balance > 0,
-            owing: log.balance < 0,
-          });
-          return (
-            <div key={i} className={rCl}>
-              <span className="logDate">{log.dispDate}</span>
-              <Icon type={log.req} />
-              <span className="logText">
-                {log.type !== 'A' &&
-                  log.name && <span className="name">[{log.name}] </span>}
-                <span className="text">{log.text}</span>
-              </span>
-              <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
-              <span className={aCl}>{log.amount < 0 ? -log.amount : ''}</span>
-              <span className={bCl}>{log.balance}</span>
-              <EditButton log={log} {...rest} />
-            </div>
-          );
-        })}
+        {logs
+          .filter(log => (showAll || !log.hideable) && log.req[0] !== '_')
+          .map((log, i) => {
+            let rCl = classNames({
+              logData: true,
+              logRec: true,
+              outstanding: log.outstanding,
+              historic: log.historic || log.hideable,
+              inbalance: !log.restartPoint && log.balance === 0,
+              cleared: log.restartPoint,
+            });
+            let aCl = classNames({
+              logData: true,
+              logAmount: true,
+              logPay: log.req === 'P',
+              fee: log.req !== 'P' && log.amount < 0,
+              credit: log.amount > 0,
+            });
+            let bCl = classNames({
+              logData: true,
+              logBal: true,
+              credit: log.balance > 0,
+              owing: log.balance < 0,
+            });
+            return (
+              <div key={i} className={rCl}>
+                <span className="logDate">{log.dispDate}</span>
+                <Icon type={log.req} />
+                <span className="logText">
+                  {log.type !== 'A' &&
+                    log.name && <span className="name">{log.name} </span>}
+                  <span className="text" title={log.type === 'W' ? log.walkId : ''}>
+                    {log.text}
+                  </span>
+                </span>
+                <span className={aCl}>{log.amount > 0 ? log.amount : ''}</span>
+                <span className={aCl}>{log.amount < 0 ? -log.amount : ''}</span>
+                <span className={bCl}>
+                  {/^[BC]/.test(log.req) || log.type === 'A' ? log.balance : ''}
+                </span>
+                <EditButton log={log} {...rest} />
+              </div>
+            );
+          })}
       </div>
     );
   }
@@ -124,6 +132,51 @@ export function changeLog(props) {
         _logtable = el ? el.outerHTML : '';
       }}
     >
+      <span className="showMode screenOnly">
+        <span
+          onClick={() => props.changeMode(1)}
+          className={props.showMode === 1 ? 'active' : ''}
+        >
+          Old
+        </span>
+        <span
+          onClick={() => props.changeMode(2)}
+          className={props.showMode === 2 ? 'active' : ''}
+        >
+          New
+        </span>
+        <span
+          onClick={() => props.changeMode(3)}
+          className={props.showMode === 3 ? 'active' : ''}
+        >
+          Future
+        </span>
+      </span>
+
+      <Switch
+        style={{ display: 'inline-block', paddingRight: '2em' }}
+        label="Old"
+        checked={props.showOld}
+        onChange={props.toggleShowOld}
+      />
+      {props.showOld ? null : (
+        <span>
+          {' '}
+          <Switch
+            style={{ display: 'inline-block', paddingRight: '2em' }}
+            label="All"
+            checked={props.showAll}
+            onChange={props.toggleShowAll}
+          />
+          <Switch
+            style={{ display: 'inline-block', paddingRight: '2em' }}
+            label="History"
+            checked={props.showHistory}
+            onChange={props.toggleShowHistory}
+          />
+        </span>
+      )}
+
       <div className="logHeader">
         <span className="logDate">Date</span>
         <Icon type="Blank" style={{ opacity: 0 }} />

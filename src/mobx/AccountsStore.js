@@ -11,12 +11,14 @@ class AccountsStore {
     this.accounts = observable.map({});
     this.activeAccountId = null;
     this.loaded = false;
+    this.useFullHistory = true;
     this.createNewAccount = this.createNewAccount.bind(this);
     this.addAccount = this.addAccount.bind(this);
     this.setActiveAccount = this.setActiveAccount.bind(this);
     this.addAccounts = this.addAccounts.bind(this);
     this.getAccountStore = this.getAccountStore.bind(this);
     this.changeDoc = this.changeDoc.bind(this);
+    this.setFullHistory = this.setFullHistory.bind(this);
 
     if (accounts) this.addAccounts(accounts);
     // else accountsLoading = this.loadAccounts();
@@ -46,6 +48,9 @@ class AccountsStore {
 
   get conflictingAccounts() {
     return this.accountsValues.filter(entry => (entry._conflicts || []).length > 0);
+  }
+  setFullHistory(val) {
+    this.useFullHistory = val;
   }
 
   addAccount(account) {
@@ -89,8 +94,8 @@ class AccountsStore {
   //   return new XDate(this.lastPaymentsBanked).toString('ddd dd MMM');
   // }
   getAccountStore() {
-    const { loaded, activeAccountId } = this;
-    return { loaded, activeAccountId };
+    const { loaded, activeAccountId, useFullHistory } = this;
+    return { loaded, activeAccountId, useFullHistory };
   }
 
   unclearedBookings(dat) {
@@ -127,7 +132,7 @@ class AccountsStore {
   }
   fixupAllAccounts() {
     this.accountsValues.forEach(acc => {
-      let logs = acc.accountStatus.logs;
+      let logs = acc.accountStatusNew.logs;
       acc.fixupAccLogs(logs);
     });
   }
@@ -268,6 +273,8 @@ decorate(AccountsStore, {
   allAccountsStatus: computed,
   changeDoc: action,
   init: action,
+  useFullHistory: observable,
+  setFullHistory: action,
 });
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);

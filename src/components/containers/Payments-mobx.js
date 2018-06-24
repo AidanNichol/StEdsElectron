@@ -119,23 +119,13 @@ const buildDoc = function({ AS, DS, WS, PS }) {
     payments,
     accounts: accountsStatus.filter(acc => acc.activeThisPeriod || acc.balance < 0),
     currentPeriodStart,
-    unclearedBookings: AS.unclearedBookings(currentPeriodStart),
+    // unclearedBookings: AS.unclearedBookings(currentPeriodStart),
     // aLogs, bLogs,
     cLogs,
     tots,
   };
   logit('logs doc', doc, __dirname);
 
-  logit.table(
-    flatten(Object.values(doc.unclearedBookings)),
-    // .map(bkng => ({
-    //   // name: MS.getMemberByMemNo(bkng.memId).fullName,
-    //   ...pick(bkng, ['memId', 'req', 'text', 'dispDate', 'walkId'])
-    // }))
-  );
-  logit.table(doc.unclearedBookings);
-  // fs.writeFileSync(`${__dirname}/../../../tests/paymentsFrom${startDate.substr(0,16).replace(/:/g, '.')}.json`, JSON.stringify(doc))
-  // logit('write report');
-  // paymentsSummaryReport(doc)
+  //
   return doc;
 };

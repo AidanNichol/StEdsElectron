@@ -1,101 +1,131 @@
 const WS = require('./WalksStore');
 const { sprintf } = require('sprintf-js');
-
 const nbsp = '\u00A0';
 
 module.exports = class FundsManager {
-  constructor() {
+  constructor(trace) {
     this.owedForWalks = new Set();
-    this.available = { P: 0, T: 0, '+': 0 };
+    this.available = { '+': 0, T: 0, P: 0 };
+    this.balance = 0;
     this.cashReceivedThisPeriod = 0;
-    this.traceMe = false;
-    this.addWalk = this.addWalk.bind(this);
-    this.addCredit = this.addCredit.bind(this);
-    this.addPayment = this.addPayment.bind(this);
-    this.allDone = this.allDone.bind(this);
-    this.applyFunds = this.applyFunds.bind(this);
-    this.useFunds = this.useFunds.bind(this);
-    this.showLog = this.showLog.bind(this);
-    this.showPaid = this.showPaid.bind(this);
+    this.traceMe = Boolean(trace);
+    // this.traceMe = true;
+    this.activeThisPeriod = false;
+    this.newFunds = 0;
+    this.prevBalance = 0;
+    this.payType = '?';
+    this.realActivity = false;
+    // this.addCredit = this.addCredit.bind(this);
+    // this.addPayment = this.addPayment.bind(this);
+    // this.allDone = this.allDone.bind(this);
+    // this.useFunds = this.useFunds.bind(this);
+    // this.showLog = this.showLog.bind(this);
+    // this.showPaid = this.showPaid.bind(this);
   }
-
-  addWalk(i, log) {
-    if (log.billable) {
-      log.owing = log.amount;
-      log.paid = { P: 0, T: 0, '+': 0 };
-      this.owedForWalks.add(log);
-      this.applyFunds(log.activeThisPeriod);
+  get okToAddDummyPayments() {
+    return (
+      this.newFunds === this.balance && this.realActivity
+      // this.newFunds === this.available['P'] + this.available['T'] && this.realActivity
+    );
+  }
+  applyToThisWalk(logs, outstanding) {
+    // let text = [logs[0].walkId, logs[0].text, ...logs.map(log => log.req)].join(' ');
+    // const sum = logs.reduce((sum, log) => sum + (log.amount || 0), 0);
+    // console.log('check ', sum, text);
+    let booking;
+    logs.forEach(log => {
+      this.realActivity = this.realActivity || log.amount !== 0;
+      if (/^[BC]$/.test(log.req)) {
+        booking = log;
+      } else if (booking && log.req === booking.req + 'X') {
+        booking.ignore = true;
+        log.ignore = true;
+        this.showLog(booking);
+        this.showLog(log);
+        booking = undefined;
+      } else if (/^[BC]X$/.test(log.req)) {
+        this.addCredit(log);
+      }
+    });
+    if (booking && booking.amount > 0) {
+      booking.chargable = true;
+      if (this.balance - booking.amount >= 0) {
+        this.useFunds(booking);
+        return true;
+      } else {
+        this.showLog(booking, '💰👎🏼');
+        // console.log( booking.dat, booking.text, booking.amount, this.balance, 'not enough funds', );
+      }
+      outstanding && (booking.outstanding = true);
+      return false;
     }
-    this.showLog(i, log);
+    return true;
   }
 
-  addCredit(i, log) {
+  addCredit(log) {
     if (!log.ignore) {
       this.available['+'] += Math.abs(log.amount);
-      this.applyFunds(log.activeThisPeriod || false);
+      this.balance = Object.values(this.available).reduce((sum, it) => sum + it, 0);
+      // this.applyFunds(log.activeThisPeriod || false);
     }
 
-    this.showLog(i, log);
+    this.showLog(log);
   }
 
-  addPayment(i, log) {
-    let amount = Math.abs(log.amount) * (log.req.length > 1 ? -1 : 1);
+  addPayment(log) {
+    this.realActivity = false;
+    let amount = Math.abs(log.amount) * (log.req[1] === 'X' ? -1 : 1);
     if (log.activeThisPeriod && log.req[0] === 'P') {
       this.cashReceivedThisPeriod += amount;
     }
-    this.available[log.req] += amount;
-
-    this.showLog(i, log, ' ', this.available);
-
-    this.applyFunds(log.activeThisPeriod);
-
-    // if this isn't a current payment then transfer all remaining amounts to credits
-    if (!log.activeThisPeriod) {
-      ['P', 'T'].forEach(key => {
-        this.available['+'] += this.available[key];
-        this.available[key] = 0;
-      });
+    if (!this.activeThisPeriod && log.activeThisPeriod) {
+      this.transferSurplusToCredit();
+      this.activeThisPeriod = log.activeThisPeriod;
     }
+    if (amount !== 0) this.available[log.req[0]] += amount;
+    this.prevBalance = this.balance;
+    this.prevFunds = this.available['P'] + this.available['T'];
+    this.payType = log.req[0];
+    this.balance += amount;
+    this.newFunds = amount;
+    this.showLog(log, ' ', this.available);
+
+    // this.applyFunds(log.activeThisPeriod);
+  }
+  transferSurplusToCredit() {
+    if (this.activeThisPeriod || this.available.P + this.available.T === 0) return;
+    this.available['+'] += this.available.P + this.available.T;
+    this.available.P = 0;
+    this.available.T = 0;
+    // this.showLog();
   }
 
-  allDone() {
-    this.owedForWalks.forEach(log => (log.outstanding = true));
-  }
-
-  applyFunds(activeThisPeriod) {
-    this.owedForWalks.forEach(oLog => {
-      Object.keys(this.available).forEach(key => {
-        this.available[key] = this.useFunds(
-          oLog,
-          this.available[key],
-          key,
-          activeThisPeriod,
-        );
-      });
+  useFunds(log) {
+    let owing = log.amount;
+    Object.entries(this.available).forEach(([key, val]) => {
+      if (!owing) return;
+      const spend = Math.min(owing, val);
+      log.paid[key] += spend;
+      this.available[key] -= spend;
+      owing -= spend;
+      this.balance -= spend;
+      if (key === 'P')
+        log.activeThisPeriod = log.activeThisPeriod || this.activeThisPeriod;
     });
-  }
-
-  useFunds(log, amount, type, activeThisPeriod) {
-    if (amount <= 0 || !log) return amount;
-    const spend = Math.min(log.owing || 0, amount);
-    log.owing -= spend;
-    log.activeThisPeriod = activeThisPeriod;
-    log.paid[type] += spend;
-    if (log.owing === 0) this.owedForWalks.delete(log);
-    amount -= spend;
-    this.showLog(0, log, '*', this.available);
-    return amount;
+    this.showLog(log, '👍🏽');
+    return;
   }
 
   /*-------------------------------------------------*/
   /*         Routines to help with debugging         */
   /*-------------------------------------------------*/
-  showLog(i, log, what = nbsp) {
+  showLog(log, what = nbsp) {
     if (!this.traceMe) return;
-    var color = log.type === 'A' ? 'blue' : log.owing === 0 ? 'green' : 'red';
-    if (log.ignore) color = 'black';
-    color = 'color: ' + color;
-    const showBool = (name, show = name) => (log[name] ? show + ' ' : '');
+    if (!log) {
+      console.log(sprintf('%-86s %s', ' ', this.showPaid(this.available)));
+      return;
+    }
+    const showBool = (bool, label = bool) => (log[bool] ? label + ' ' : '');
     let walk = '';
     if (log.type === 'W') {
       if (WS.walks.get(log.walkId)) walk = WS.walks.get(log.walkId).names.code;
@@ -103,48 +133,45 @@ module.exports = class FundsManager {
         walk = '?';
       }
     }
+    if (log.name) walk += ' ' + log.name.substr(1, 4);
     var txt2 =
       showBool('hideable', 'hide') +
       showBool('activeThisPeriod', 'actv') +
       showBool('historic', 'hist') +
       showBool('ignore', 'ignr');
-    var txt3 =
-      log.type === 'W'
-        ? sprintf('Owe:%3d %10s', log.owing || 0, this.showPaid(log.paid || 0))
-        : '';
+    // var txt3 = log.type === 'W' ? this.showPaid(log.paid || 0) : '';
+    var txt3 = this.showPaid(log.paid || {});
     var txt = sprintf(
-      '%2s%.1s %.16s %-16s %2s A:%3d B:%3d, %-18s, %12s',
-      i,
-      what,
+      '%s %.16s %-21s %2s Am:%3d Bal:%3d, Pd: %-6s, Av: %-7s%s %s',
+      log.type === 'A' ? '\n' : '',
       log.dat,
       log.type === 'W' ? `${log.walkId} ${walk}` : 'Payment',
       log.req,
       log.amount || 0,
-      log.balance || 0,
+      this.balance,
       txt3,
-      txt2,
-    );
-    console.log(
-      '%c%s %c%s',
-      color,
-      txt,
-      'color: white; background: black',
       this.showPaid(this.available),
+      txt2,
+      what,
     );
+    console.log(txt);
+    // const resetColor = 'color: white; background: black';
+    // if (log.type === 'A') console.log(' ');
+    // console.log('%c%s %c%s', color, txt, resetColor, this.showPaid(this.available));
     return (
-      `${(i + what).padStart(3)} ${log.dat.substr(0, 16)} ` +
-      (log.type === 'W' ? log.walkId : 'Payment'.padEnd(11, nbsp)) +
-      ` ${log.req.padEnd(2, nbsp)} ${walk.padEnd(4, nbsp)} `
+      sprintf('%-5s %.16s', '-' + what, log.dat) +
+      (log.type === 'W'
+        ? log.walkId
+        : sprintf(`$' 11 $' 2 $' 4`, 'Payment', log.req, walk)) // eslint-disable-line no-irregular-whitespace
     );
   }
 
   showPaid(paid) {
-    const xx = { P: '£', T: 'T', '+': 'Cr' };
-    let txt = '';
-    Object.keys(paid || {}).forEach(key => {
-      if (paid[key] != 0) txt += xx[key] + ': ' + paid[key] + ' ';
-    });
-    return (txt.length > 0 ? ' ' : '') + txt;
+    const xx = { P: '£', T: '₸', '+': '₢' };
+    return Object.entries(paid)
+      .filter(([, val]) => val !== 0)
+      .map(([key, val]) => `${xx[key]}${val}`)
+      .join(' ');
   }
 };
 // export default new FundsManager();

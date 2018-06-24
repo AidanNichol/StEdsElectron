@@ -1,7 +1,6 @@
 // const mobx = require('mobx');
 let db;
 const emitter = require('./eventBus');
-const { useFullHistory } = require('settings');
 const R = require('ramda');
 const _ = require('lodash');
 
@@ -15,11 +14,32 @@ const MS = require('./MembersStore');
 const WS = require('./WalksStore');
 const DS = require('./DateStore');
 const PS = require('./PaymentsSummaryStore');
+let { useFullHistory } = require('settings');
+
 const { logger } = require('logger.js');
 
 const AccLog = require('./AccLog');
 let limit;
 logit('dateStore', DS);
+const requiredLogProperties = [
+  'req',
+  'machine',
+  'dat',
+  'who',
+  'type',
+  'walkId',
+  'memId',
+  'dispDate',
+  'accId',
+  'name',
+  'text',
+  'amount',
+  'toCredit',
+  'logsFrom',
+  'oldLogs',
+  'restartPoint',
+  'outstanding',
+];
 
 class Account {
   constructor(accountDoc, accessors, dbset) {
@@ -30,7 +50,8 @@ class Account {
     this.members = [];
     this.logs = observable.map({}, { deep: false });
     this.accountId;
-    this.prehistoricLogs = [];
+    this.latePaymentLogs = [];
+
     this.logger;
     this.deleteMemberFromAccount = this.deleteMemberFromAccount.bind(this);
     this.addMemberToAccount = this.addMemberToAccount.bind(this);
@@ -78,7 +99,7 @@ class Account {
 
   get report() {
     return `Account: ${this._id} ${this.name} ${this.logs.size} ${this.logs.get(
-      this.logs.keys().pop(),
+      Array.from(this.logs.keys()).pop(),
     )}`;
   }
 
@@ -124,9 +145,13 @@ class Account {
 
   async dbUpdate() {
     logit('DB Update start', this);
-    let { _conflicts, ...newDoc } = toJS(this);
-    newDoc.logs = Object.values(newDoc.logs);
-    logit('DB Update', newDoc, newDoc._deleted, _conflicts, this);
+    const props = ['_id', '_rev', '_deleted', 'type', 'logs', 'members'];
+    let newDoc = _.pick(toJS(this), props);
+    newDoc.logs = Object.values(newDoc.logs)
+      .sort(cmpDate)
+      .map(basicLog);
+    // .map(log => _.pick(log, requiredLogProperties));
+    logit('DB Update', newDoc, newDoc._deleted, this);
     const res = await db.put(newDoc);
     this._rev = res.rev;
     const info = await db.info();
@@ -151,6 +176,7 @@ class Account {
     const loggerData = { req, amount, inFull };
     if (note && note !== '') loggerData.note = note;
     this.logger.info(loggerData, 'Payment');
+    this.fixupAccLogs();
     this.dbUpdate();
   }
 
@@ -166,76 +192,19 @@ class Account {
     }
     this.deleteConflictingDocs(conflicts);
   }
-
   deletePayment(dat) {
     this.logs.delete(dat);
     this.dbUpdate();
   }
-
+  get dummyLogs() {
+    return Array.from(this.logs.values()).filter(log => log.req[0] === '_');
+  }
   get accountLogs() {
     // logit('accountLogs', this)
     return Array.from(this.logs.values())
       .filter(log => log.req !== 'A' && log.req !== 'S')
       .filter(log => !limit || log.dat < limit)
       .map(log => log.mergeableLog);
-  }
-  /*----------------------------------------------------------------
-  This function looks at all account status records and find the latest
-  point before the input date when the account is in balance i.e. all booked
-  walks paid for and no credit available.
-  In the process it accumulates walk log records for any walks that took
-  place prior to that date. The the account went in to balance then it creates
-  a dummy zero payment record.
-  These log records are save in the payment summary document and used to
-  enable the account status to be established without having to work through
-  from when this system was established.
-  ------------------------------------------------------------------*/
-  unclearedBookings(dat) {
-    // logit('account:unclearedBookings', this, dat);
-    let logs = [];
-    let acc = this.accountStatus;
-    for (let log of acc.logs.reverse()) {
-      if (log.dat > dat) continue;
-      if (log.balance === 0) {
-        if (log.type !== 'W') break;
-        // went into balance by using a credit. create a dummy Payment record
-        // one millisecond later to make it easier to recognize what has happended
-        logs.push({
-          accId: this._id,
-          type: 'A',
-          req: 'P',
-          dat: DS.datetimePlus1(log.dat),
-          dispDate: DS.dispDate(DS.datetimePlus1(log.dat)),
-          who: log.who,
-          amount: 0,
-          inFull: true,
-        });
-        break;
-      }
-      if (log.type !== 'W' || log.walkId.substr(1) > dat) continue;
-      // logit('unclearedBookings', { log, logs });
-      logs.push(
-        R.pick(
-          [
-            'text',
-            'machine',
-            'dat',
-            'req',
-            'who',
-            'type',
-            'walkId',
-            'memId',
-            'dispDate',
-            'accId',
-            'billable',
-            'amount',
-            'name',
-          ],
-          log,
-        ),
-      );
-    }
-    return logs;
   }
 
   get accountFrame() {
@@ -281,70 +250,86 @@ class Account {
     let traceMe = this._id === this.getAccountStore().activeAccountId;
     // traceMe = true;
     var paymentPeriodStart = PS.lastPaymentsBanked;
-    var currentPeriodStart = PS.currentPeriodStart;
-    const historyStarts = 'W' + WS.historyStarts;
-    const prehistoryStarts = 'W' + WS.prehistoryStarts;
-    let oldestNeededWalk;
-    const walkAndMember = log => log.walkId + log.memId;
-    const confirmClearedUpto = (logs, clearedUpto) => {
-      if (!clearedUpto) return undefined;
-      const ok = logs.every(log => log.dat > clearedUpto);
-      if (ok) return DS.datetimePlus1(clearedUpto);
-      else return undefined;
-    };
-    const dummyPayment = (dat, lines) => ({
-      dat,
-      dispDate: DS.dispDate(dat),
-      clearedUpto: dat,
-      type: 'A',
-      req: '_',
-      amount: 0,
-      lines,
-      balance: 0,
-      text: '',
-    });
+    const historyStarts = WS.historyStarts;
+    const prehistoryStarts = WS.prehistoryStarts;
+    const darkAgesStarts = WS.darkAgesStarts;
+    let walksAfter = WS.availableWalksStart;
+    let useFullHistory = this.getAccountStore().useFullHistory;
 
+    const setOldLogs = (aLog, clearedLogs) => {
+      const oldLogs = _.filter(clearedLogs, 'prehistoric').map(basicLog);
+      if (_.isEmpty(oldLogs)) return;
+      aLog.oldLogs = oldLogs;
+    };
+    const setLogsFrom = (aLog, clearedLogs, unclearedLogs) => {
+      const logs = _.reject(clearedLogs, 'prehistoric').map(basicLog);
+      aLog.logsFrom = getOldestDate(logs, unclearedLogs);
+    };
+    const walkAndMember = log => log.walkId + log.memId;
+    const dummyPayment = (cLogs, uLogs, final = false) => {
+      let aLog = { type: 'A', amount: 0, text: '', machine: 'auto', balance: 0 };
+      aLog.req = final ? '__' : '_';
+      if (!final) aLog.restartPoint = true;
+      aLog.dat = DS.datetimePlus1(getNewestDate(cLogs));
+      aLog.dispDate = DS.dispDate(aLog.dat);
+      setLogsFrom(aLog, cLogs, uLogs);
+      setOldLogs(aLog, cLogs);
+      return aLog;
+    };
     const funds = new FundsManager(traceMe);
+    let balance = 0;
 
     let bAllLogs = WS.allWalkLogsByAccount;
     let bLogs = bAllLogs[this._id] || [].sort(cmpDate);
     let aLogs = [...this.accountLogs].sort(cmpDate);
-    if (useFullHistory) currentPeriodStart = null;
-    currentPeriodStart = null;
-    if (currentPeriodStart) {
-      bLogs = bLogs
-        .filter(log => log.walkId > 'W' + currentPeriodStart)
-        .concat(this.latePaymentLogs || []);
-      bLogs = _.uniqBy(bLogs, 'dat');
+    if (!useFullHistory) {
+      [aLogs, bLogs] = adjustToRestartPoint(aLogs, bLogs, darkAgesStarts);
     }
+    // if (!useFullHistory) {
+    //   let firstOKacc = findRestartPoint(aLogs, darkAgesStarts);
+
+    //   if (firstOKacc >= 0) {
+    //     aLogs = aLogs.slice(firstOKacc);
+    //     const logsFrom = getOldestDate(_.map(aLogs, 'logsFrom'));
+    //     const paymentsMade = aLogs.length > 0;
+    //     bLogs = _.unionBy(
+    //       bLogs.filter(log => !paymentsMade || log.dat >= logsFrom),
+    //       _.map(aLogs, l => l.oldLogs || []),
+    //       'dat',
+    //     );
+    //   }
+    // }
+    aLogs = aLogs.filter(log => log.req[0] !== '_');
     if (this.members.length <= 1) bLogs.forEach(log => (log.name = ''));
     if (traceMe) {
-      logit('accountUpdateNew traceMe', this._id, currentPeriodStart);
-      // this.logTableToConsole(aLogs, 'account logs');
-      // this.logTableToConsole(bLogs, 'booking logs');
-      //  this.logTableToConsole(previousUnclearedBookings[this._id] || []);
+      logit('accountUpdateNew traceMe', this._id, walksAfter);
     }
-    // logit('accountStatus:logs', bLogs,logs)
-    let balance = 0;
     let activeThisPeriod = false;
-    // let walkPast = 'W' + DS.now.substr(0, 10);
     let historic = true;
     let hideable = true;
     const setSomeFlags = log => {
-      log.activeThisPeriod = log.dat > paymentPeriodStart;
-      activeThisPeriod = log.dat > paymentPeriodStart;
-      if ((log.walkId || '') > historyStarts) historic = false;
+      log.activeThisPeriod = activeThisPeriod = log.dat > paymentPeriodStart;
+      if ((log.walkId || '') > 'W'+historyStarts) historic = false;
       if ((log.walkId || '') > WS.lastClosed) hideable = false;
-      if (!historic && log.walkId < prehistoryStarts) log.prehistoric = true;
+      if (!historic && log.walkId < 'W'+prehistoryStarts) log.prehistoric = true;
+      if (log.dat < darkAgesStarts) log.darkage = true;
       return log;
     };
+    const isRestartPoint = (balance, cleared, uncleared) => {
+      return balance === 0 && getNewestDate(cleared) < getOldestDate(uncleared);
+    };
     let mergedlogs = [];
-    let clearedLogs = [];
+
     while (aLogs.length > 0) {
+      let clearedLogs = [];
+      let prevBalance = balance;
       let aLog = aLogs.shift();
       setSomeFlags(aLog);
-      // available += (aLog.req[1] === 'X' ? -1 : -1) * aLog.amount;
       funds.addPayment(aLog);
+      // let restartPt = isRestartPoint(balance, mergedlogs, bLogs);
+
+      // if (restartPt) (_.last(mergedlogs) || {}).restartPoint = true;
+
       let availBlogs = bLogs.filter(log => log.dat < aLog.dat);
       availBlogs = _.values(_.groupBy(walkSort(availBlogs), walkAndMember));
       bLogs = bLogs.filter(log => log.dat >= aLog.dat);
@@ -353,10 +338,6 @@ class Account {
       ┃   check all uncleared bookings logs                      ┃
       ┃   at the time of the payment and clear what we can       ┃
       ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ */
-      let lines = 0;
-      if (aLog.dat === '2018-05-16T19:03:08.574') {
-        lines = 0;
-      }
       while (availBlogs.length > 0) {
         let wLogs = availBlogs.shift(); // all current log records for a walk
         wLogs = wLogs.map(log => setSomeFlags(log));
@@ -368,122 +349,97 @@ class Account {
           break;
         }
         clearedLogs.push(...wLogs);
-
-        if (funds.okToAddDummyPayments && availBlogs.length > 0) {
-          //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-          //┃   zero balance point reach using credits or the like     ┃
-          //┃   Add dummy payment so we can record the clearedUpTo     ┃
-          //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-          clearedLogs.sort(cmpDate);
-          let uncleared = [..._.flatten(availBlogs), ...bLogs].sort(cmpDate);
-          let dat = _.takeRight(clearedLogs, 1)[0].dat;
-          let clearedUpto = confirmClearedUpto(uncleared, dat);
-          if (clearedUpto) {
-            clearedLogs.push({ ...clearedLogs.pop(), clearedUpto });
-            clearedLogs.push(dummyPayment(clearedUpto, clearedLogs.length));
-            lines = 0;
-          }
-        }
+        if (_.isEmpty(availBlogs) || !funds.okToAddDummyPayments) continue;
+        if (!isRestartPoint(0, [mergedlogs, clearedLogs], [availBlogs, bLogs])) continue;
+        //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        //┃   zero balance point reach using credits or the like     ┃
+        //┃   Add dummy payment so we can record the restartPoint    ┃
+        //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        prevBalance = resortAndAdjustBalance(clearedLogs, prevBalance);
+        (_.last(clearedLogs) || {}).restartPoint = true;
+        clearedLogs.push(dummyPayment(clearedLogs, availBlogs));
+        funds.realActivity = false;
+        // restartPt = true;
+        mergedlogs.push(...clearedLogs);
+        clearedLogs = [];
       }
       //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-      //┃   resort the cleared logs into date order and recalulate balance  ┃
-      //┃   Return all unused booking logs to be avialable for next payment ┃
+      //┃   re-sort the cleared logs into date order and recalulate balance ┃
+      //┃   Return all unused booking logs to be available for next payment ┃
+      //┃   Add any the cleared logs to the output                          ┃
       //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-      let clearedUpto;
-      balance = 0;
-      clearedLogs.sort(cmpDate).forEach(log => {
-        balance -= log.toCredit || log.amount || 0;
-        log.balance = balance;
-        clearedUpto = log.dat;
-        if (!historic && (!oldestNeededWalk || log.walkId < oldestNeededWalk))
-          oldestNeededWalk = log.walkId;
-      });
-
-      availBlogs = _.flatten(availBlogs);
-      clearedUpto = confirmClearedUpto(availBlogs, clearedUpto);
-      bLogs.unshift(...availBlogs); // return any we didn't use
+      resortAndAdjustBalance(clearedLogs, prevBalance, historic, hideable);
+      bLogs.unshift(..._.flatten(availBlogs).sort(cmpDate));
+      mergedlogs.push(...clearedLogs);
+      // clearedLogs = [];
       //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-      //┃   Add in the payment record if all used up               ┃
+      //┃   Add in the payment record suitably ajdusted            ┃
       //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
       balance = funds.balance;
-      aLog = { ...aLog, clearedUpto, balance, toCredit: -balance };
-      if (balance === 0) {
-        clearedLogs.push({
-          ...aLog,
-          lines,
-        });
-        aLog = undefined;
-      }
-      //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-      //┃   Set historic and hideable flags                        ┃
-      //┃   Add any the cleared logs to the output                 ┃
-      //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-      clearedLogs = clearedLogs.map(log => ({
-        ...log,
-        historic,
-        hideable,
-      }));
-      mergedlogs.push(...clearedLogs);
-      clearedLogs = aLog ? [aLog] : [];
+      aLog = { ...aLog, balance, toCredit: -balance, historic };
+      setLogsFrom(aLog, clearedLogs, bLogs);
+      setOldLogs(aLog, clearedLogs);
+      let restartPt = isRestartPoint(balance, mergedlogs, bLogs);
+      if (restartPt) aLog.restartPoint = true;
+
+      if (balance !== 0) funds.transferSurplusToCredit();
+      mergedlogs.push(aLog);
     }
-    //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    //┃   Add any remaining cleared logs to the output           ┃
-    //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-    mergedlogs.push(...clearedLogs);
     /*
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃               uncleared Bookings                         ┃
     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ */
+    const newestClearedLog = getNewestDate(mergedlogs);
     let unclearedLogs = [];
     let holdBalance = funds.balance;
     bLogs = _.values(_.groupBy(walkSort(bLogs), walkAndMember));
     bLogs.forEach(wLogs => {
       funds.applyToThisWalk(wLogs, true);
     });
-    bLogs = _.flatten(bLogs);
+    bLogs = _.flattenDeep(bLogs);
     bLogs.sort(cmpDate);
     balance = holdBalance;
-    // bLogs.forEach(bLog => {
-    let lines = 0;
+
     while (bLogs.length > 0) {
       const bLog = bLogs.shift();
-      if (bLog.walkId < oldestNeededWalk) oldestNeededWalk = bLog.walkId;
+      if (isBooking(bLog)) historic = false;
+      // if (/^[BC]/.test(bLog.req)) historic = false;
       setSomeFlags(bLog);
 
       balance -= bLog.amount || 0;
       unclearedLogs.push({ ...bLog, balance });
-      lines++;
-      if (balance === 0) {
-        let clearedUpto = confirmClearedUpto(bLogs, bLog.dat);
-        if (clearedUpto) {
-          unclearedLogs.push({
-            ...unclearedLogs.pop(),
-            clearedUpto,
-          });
-          unclearedLogs.push(dummyPayment(clearedUpto, lines));
-          lines = 0;
-        }
-      }
+      if (!isRestartPoint(balance, [newestClearedLog, unclearedLogs], bLogs)) continue;
+      if (!isBooking(bLog.req) || _.isEmpty(bLogs) || bLog.dat > historyStarts) continue;
+      _.last(unclearedLogs).restartPoint = true;
+      setHistoricFlags(unclearedLogs, historic, hideable);
+
+      unclearedLogs.push(dummyPayment(unclearedLogs, bLogs));
+      mergedlogs.push(...unclearedLogs);
+      unclearedLogs = [];
+    }
+    setHistoricFlags(unclearedLogs, historic, hideable);
+    //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    //┃   If we have prehistoric logs uncleared then add a       ┃
+    //┃   special dummy payment to hold them                     ┃
+    //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    const aLog = dummyPayment(unclearedLogs, bLogs, balance !== 0);
+    aLog.balance = balance;
+    if (!_.isEmpty(unclearedLogs) && aLog.oldLogs) {
+      unclearedLogs.push(aLog);
     }
 
     mergedlogs.push(...unclearedLogs);
-    // mergedlogs.sort(cmpSeqDate);
+
     if (traceMe) {
       this.logTableToConsole(mergedlogs, 'accountUpdateNew mergedlogs');
     }
     let debt = [];
 
     if (balance !== 0) debt = mergedlogs.filter(log => log.outstanding);
-    this.prehistoricLogs = mergedlogs.filter(log => log.prehistoric);
-    // this.logTableToConsole(this.accountLogs, 'account logsfinal');
-
-    // logit('logs final', {accId: this._id, balance, debt, logs, lastHistory, accName: this.name, sortname});
     return {
       accId: this._id,
       balance,
       activeThisPeriod: activeThisPeriod || funds.activeThisPeriod,
-      oldestNeededWalk,
       available: funds.available,
       paymentsMade: funds.cashReceivedThisPeriod,
       debt,
@@ -492,28 +448,34 @@ class Account {
       sortname: this.sortname,
     }; // lastHistory,
   }
+
   get accountStatus() {
     logit('accountStore', this.getAccountStore());
     let traceMe = this._id === this.getAccountStore().activeAccountId;
     // traceMe = true;
     var paymentPeriodStart = PS.lastPaymentsBanked;
     var currentPeriodStart = PS.currentPeriodStart;
-    var previousUnclearedBookings = PS.previousUnclearedBookings || {};
+    // var previousUnclearedBookings = PS.previousUnclearedBookings || {};
     let bookingLogs = WS.allWalkLogsByAccount[this._id] || [];
-    let fullLogs = this.accountLogs.concat(bookingLogs).sort(cmpDate);
+    let fullLogs = this.accountLogs
+      .filter(l => l.req[0] !== '_')
+      .concat(bookingLogs)
+      .sort(cmpDate);
     let logs;
     if (useFullHistory) currentPeriodStart = null;
     if (currentPeriodStart) {
-      bookingLogs = bookingLogs
-        .filter(log => log.walkId > 'W' + currentPeriodStart)
-        .concat(previousUnclearedBookings[this._id] || []);
+      bookingLogs = bookingLogs.filter(log => log.walkId > 'W' + currentPeriodStart);
+      // .concat(previousUnclearedBookings[this._id] || []);
       // only 1 member in the account => no need to show member name in transaction
       if (this.members.length === 1) {
         bookingLogs.forEach(log => {
           delete log.name;
         });
       }
-      logs = this.accountLogs.concat(bookingLogs).sort(cmpDate);
+      logs = this.accountLogs
+        .filter(l => l.req[0] !== '_')
+        .concat(bookingLogs)
+        .sort(cmpDate);
       logs = this.trimOldAccountLogs(logs, currentPeriodStart);
     } else {
       logs = fullLogs;
@@ -522,10 +484,6 @@ class Account {
       logit('accountStatus traceMe', this._id, currentPeriodStart);
       this.logTableToConsole(fullLogs, 'fullLogs');
       this.logTableToConsole(logs, 'logs');
-      this.logTableToConsole(
-        previousUnclearedBookings[this._id] || [],
-        'previousUnclearedBookings',
-      );
     }
     // logit('accountStatus:logs', bookingLogs,logs)
     let balance = 0;
@@ -620,7 +578,7 @@ class Account {
     /*          e.g. a walk booked a while ago being paid for by new funds    */
     /*------------------------------------------------------------------------*/
     const fundsManager = new FundsManager0();
-    fundsManager.traceMe = this._id === 'A1180' || this._id === 'A2032';
+    // fundsManager.traceMe = this._id === 'A1180' || this._id === 'A2032';
 
     for (let i = lastResolved + 1; i < logs.length; i++) {
       let log = logs[i];
@@ -685,33 +643,69 @@ class Account {
     );
   }
 
-  fixupAccLogs(logs) {
-    // make sure the inFull flag in account records is set correctly
-    let newLogs = toJS(logs);
+  async fixupAccLogs(save = false) {
+    // check current state against the account document and update the latter
     let changed = false;
-    for (let [i, log] of newLogs.entries()) {
+    const mergedlogs = this.accountStatusNew.logs;
+    const props = ['restartPoint', 'logsFrom', 'oldLogs'];
+    let diffs = '';
+    const comp = (nowRec, wasRec, key) => {
+      const now = nowRec[key],
+        was = wasRec[key];
+      return now === was ? '' : `\n\t\t\t${key}: ${was} => ${now}`;
+    };
+    const comp2 = (nowRec, wasRec, key) => {
+      const nowA = nowRec[key] || [],
+        wasA = wasRec[key] || [];
+      if (_.isEqual(nowRec, wasRec)) return '';
+      const added = _.differenceBy(nowA, wasA, 'dat');
+      const deled = _.differenceBy(wasA, nowA, 'dat');
+      const report = (A, s) =>
+        A.reduce((txt, I) => txt + `\n\t\t\t${s}${I.dat}: ${I.text} => ${I.name}`, '');
+      return report(added, 'added ') + report(deled, 'deled ');
+    };
+    const whatsDifferent = (nowLog, wasLog) => {
+      diffs = '';
+
+      diffs += comp(nowLog, wasLog, 'restartPoint');
+      diffs += comp(nowLog, wasLog, 'logsFrom');
+      diffs += comp2(nowLog, wasLog, 'oldLogs');
+      return diffs;
+    };
+    // check for dummy payments that have been removed
+    _.differenceBy(this.dummyLogs, mergedlogs, 'dat').forEach(log => {
+      this.logs.delete(log.dat);
+    });
+    for (const log of mergedlogs.filter(log => log.type === 'A')) {
       if (log.type !== 'A' || log.req === 'A') continue;
-      let actualLogRec = this.logs.get(log.dat);
-      let actualInFull = log.balance === 0;
-      if (actualInFull === log.inFull) continue;
-      newLogs[i].inFull = actualInFull;
-      var logRec = { ...actualLogRec, inFull: actualInFull };
+      let actLog = this.logs.get(log.dat);
+      if (!actLog) {
+        if (log.req[0] === '_') {
+          this.logs.set(log.dat, new AccLog(log));
+          const diffs = whatsDifferent(log, {});
+          console.log(log.dat, log.req, log.amount, diffs);
+          changed = true;
+        }
+        continue;
+      }
+      const newVal = _.pick(log, props);
+      if (newVal.oldLogs) newVal.oldLogs = newVal.oldLogs.map(basicLog);
+      if (_.isEqual(newVal, _.pick(actLog, props))) continue;
+      const diffs = whatsDifferent(newVal, _.pick(actLog, props));
+      console.log(log.dat, log.amount, diffs);
+      delete actLog.oldLogs;
+      var logRec = { ...actLog, ...newVal };
       this.logs.set(log.dat, new AccLog(logRec));
       changed = true;
     }
+    // save any old debts in the account document.
 
-    if (changed) {
-      logit('fixupAccLogs changes made', {
-        id: this._id,
-        old: this.logs,
-        new: newLogs,
-        logs,
-      });
-      this.dbUpdate();
+    if (changed && save) {
+      logit('fixupAccLogs changes made', { id: this._id, old: this.logs, mergedlogs });
+      await this.dbUpdate();
     }
-    return newLogs;
+    return changed;
   }
-
   /*-------------------------------------------------*/
   /*                                                 */
   /*         Replication Conflicts                   */
@@ -749,6 +743,88 @@ class Account {
     return sum;
   }
 }
+/*-------------------------------------------------*/
+/*                                                 */
+/*         Helper Functions                   */
+/*                                                 */
+/*-------------------------------------------------*/
+const getNewestDate = (...args) => {
+  return args.reduce((newest, item) => {
+    const dat = _.isArray(item)
+      ? getNewestDate(...item)
+      : _.isString(item)
+        ? item
+        : item.dat;
+    return dat > newest ? dat : newest;
+  }, '000-00-00');
+};
+
+const getOldestDate = (...args) => {
+  return args.filter(log => log).reduce((oldest, log) => {
+    const dat = _.isArray(log) ? getOldestDate(...log) : _.isString(log) ? log : log.dat;
+    return dat < oldest ? dat : oldest;
+  }, '9999-99-99');
+};
+// function isBillable(log) {
+//   return /^[BC]X?$/.test(log.req || '');
+// }
+function isBooking(log) {
+  return /^[BC]/.test(log.req || '');
+}
+
+function setHistoricFlags(logs, historic, hideable) {
+  logs.forEach(l => {
+    l.historic = historic;
+    l.hideable = hideable;
+  });
+}
+function resortAndAdjustBalance(cLog, prevBalance, historic, hideable) {
+  let balance = prevBalance;
+  cLog.sort(cmpDate).forEach(log => {
+    if (log.type === 'A') return;
+    balance -= log.toCredit || log.amount || 0;
+    log.balance = balance;
+    log.historic = historic;
+    log.hideable = hideable;
+  });
+  return balance;
+}
+function adjustToRestartPoint(aLogs, bLogs, darkAgesStarts) {
+  const firstOKacc = findRestartPoint(aLogs, darkAgesStarts);
+  if (firstOKacc >= 0) {
+    const lastPayment = (aLogs[firstOKacc - 1] || {}).dat || '0000-00-00';
+    aLogs = aLogs.slice(firstOKacc);
+    const logsFrom = getOldestDate(_.map(aLogs, 'logsFrom'), lastPayment);
+    // const paymentsMade = !_.isEmpty(aLogs);
+    bLogs = _.unionBy(
+      bLogs.filter(log => log.dat >= logsFrom),
+      ..._.map(aLogs, l => l.oldLogs || []),
+      'dat',
+    );
+  }
+  return [aLogs, bLogs];
+}
+
+function findRestartPoint(aLogs, darkAgesStarts) {
+  let ok = true;
+  let lastDark = -1;
+  for (let i = 0; i < aLogs.length; i++) {
+    const { logsFrom, restartPoint, req } = aLogs[i];
+    if (req === '__') return i;
+    if (logsFrom && logsFrom < darkAgesStarts) {
+      ok = false;
+    }
+    if (restartPoint) {
+      if (ok) {
+        return lastDark + 1;
+      } else {
+        lastDark = i;
+        ok = true;
+      }
+    }
+  }
+  return lastDark + 1;
+}
 
 decorate(Account, {
   members: observable,
@@ -774,6 +850,9 @@ decorate(Account, {
   conflictingDocs: computed,
   conflictsByDate: computed,
 });
+const basicLog = log => {
+  return _.pick(log, requiredLogProperties);
+};
 const getRev = rev => parseInt(rev.split('-')[0]);
 var coll = new Intl.Collator();
 var logCmpDate = (a, b) => coll.compare(a[0], b[0]);

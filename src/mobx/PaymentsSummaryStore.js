@@ -13,7 +13,7 @@ class PaymentsSummaryStore {
     this.paymentsLogsLimit;
     this.currentPeriodStart;
     this.id;
-    this.previousUnclearedBookings;
+    // this.previousUnclearedBookings;
     this.bankMoney = this.bankMoney.bind(this);
     this.changeBPdoc = this.changeBPdoc.bind(this);
     this.changeDoc = this.changeDoc.bind(this);
@@ -36,7 +36,7 @@ class PaymentsSummaryStore {
     this.openingCredit = doc.closingCredit;
     this.openingDebt = doc.closingDebt;
     this.currentPeriodStart = doc.currentPeriodStart;
-    this.previousUnclearedBookings = doc.unclearedBookings;
+    // this.previousUnclearedBookings = doc.unclearedBookings;
     this.id = doc._id;
     logit('changeBPdoc', doc, this.lastPaymentsBanked, this.currentPeriodStart);
   }

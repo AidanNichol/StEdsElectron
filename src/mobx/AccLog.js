@@ -1,4 +1,4 @@
-const { merge } = require('lodash');
+const _ = require('lodash');
 const { observable, action, computed, decorate } = require('mobx');
 const Logit = require('logit.js');
 var logit = Logit(__filename);
@@ -15,6 +15,7 @@ const chargeFactor = {
   // WL: 0,
   // BX: -1,
   // BL: 0, // no credit
+  _: 1,
   '+': -1,
   P: -1,
   T: -1,
@@ -26,7 +27,21 @@ const chargeFactor = {
   // CL: -0.5,
   // A: 0,
 };
-
+const requiredLogProperties = [
+  'req',
+  'machine',
+  'dat',
+  'who',
+  'type',
+  'dispDate',
+  'accId',
+  'note',
+  'amount',
+  'toCredit',
+  'logsFrom',
+  'oldLogs',
+  'restartPoint',
+];
 class AccLog {
   constructor(log) {
     this.dat;
@@ -50,8 +65,12 @@ class AccLog {
     };
   }
 
+  get basicLog() {
+    return _.pick(this, requiredLogProperties);
+  }
+
   updateLog(data) {
-    merge(this, data);
+    _.merge(this, data);
   }
 }
 

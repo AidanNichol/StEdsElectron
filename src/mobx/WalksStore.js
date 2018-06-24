@@ -19,7 +19,7 @@ console.log('import');
 const DS = require('./DateStore');
 const Walk = require('./Walk');
 const MS = require('./MembersStore');
-const PS = require('./PaymentsSummaryStore');
+// const PS = require('./PaymentsSummaryStore');
 
 // export let walksLoading;
 // import PouchDb from 'pouchdb'
@@ -55,7 +55,7 @@ class WalksStore {
     return !this.walks ? [] : Array.from(this.walks.values());
   }
   get walksKeys() {
-    return !this.walks ? [] : Array.from(this.walks.keys());
+    return !this.walks ? [] : Array.from(this.walks.keys()).sort(valCmp);
   }
   get bookableWalksId() {
     const today = DS.todaysDate;
@@ -101,7 +101,7 @@ class WalksStore {
   }
   get historyStarts() {
     const nextWalk = this.bookableWalksId[0];
-    const i = Math.max(this.walksKeys.indexOf(nextWalk) - 1, 0);
+    const i = Math.max(this.walksKeys.indexOf(nextWalk) - 5, 0);
 
     const walk = this.walks.get(this.walksKeys[i]);
     logit('last walk', nextWalk, i, walk);
@@ -109,9 +109,18 @@ class WalksStore {
   }
   get prehistoryStarts() {
     const nextWalk = this.bookableWalksId[0];
-    return DS.dateNmonthsAgo(nextWalk.substr(1), 6);
+    return DS.dateNmonthsAgo(nextWalk.substr(1), 8);
   }
-
+  get darkAgesStarts() {
+    // const nextWalk = this.bookableWalksId[0];
+    const yearago = 'W' + DS.date1YearAgo('');
+    const oldestWalk = this.walksKeys.filter(walk => walk >= yearago)[0];
+    return DS.datePlusNDays(oldestWalk.substr(1), 3);
+  }
+  get availableWalksStart() {
+    if (useFullHistory) return 'W2016-11-01';
+    else return this.darkAgesStarts;
+  }
   get nextPeriodStart() {
     const nextWalk = this.bookableWalksId[0];
     const i = Math.max(this.walksKeys.indexOf(nextWalk) - 2, 0);
@@ -188,9 +197,7 @@ class WalksStore {
 
     // const data = await db.allDocs({include_docs: true, conflicts: true, startkey: 'W', endkey: 'W9999999' });
     const endkey = 'W' + DS.lastAvailableDate;
-    var periodStartDate = PS.currentPeriodStart;
-    const startkey =
-      useFullHistory || !periodStartDate ? 'W2016-11-01' : 'W' + periodStartDate;
+    const startkey = useFullHistory ? 'W2016-11-01' : 'W' + DS.date1YearAgo('');
     logit('loadWalks', startkey, '<-->', endkey, useFullHistory);
     const data = await db.allDocs({
       include_docs: true,
@@ -211,6 +218,7 @@ class WalksStore {
 }
 var coll = new Intl.Collator();
 var idCmp = (a, b) => coll.compare(a._id, b._id);
+var valCmp = (a, b) => coll.compare(a, b);
 
 // const getRev = (rev)=> parseInt(rev.split('-')[0]);
 

@@ -9,7 +9,7 @@ import classnames from 'classnames';
 // import PaymentsSummary from './PaymentsSummary'
 // import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
-import { Icon } from '../../utility/Icon';
+import { Icon } from '../utility/Icon';
 // import {Icon} from 'ducks/walksDuck'
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
