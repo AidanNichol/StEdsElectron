@@ -76,10 +76,13 @@ class DateStore {
     return new XDate(dat).addWeeks(-4).toString('yyyy-MM-dd');
   }
   date1YearAgo(dat) {
-    return new XDate(dat).addYears(-1).toString('yyyy-MM-dd');
+    return (dat ? new XDate(dat) : new XDate()).addYears(-1).toString('yyyy-MM-dd');
   }
   dateNmonthsAgo(dat, n) {
     return new XDate(dat).addMonths(-1 * n).toString('yyyy-MM-dd');
+  }
+  datePlusNDays(dat, n) {
+    return new XDate(dat).addDays(-1 * n).toString('yyyy-MM-dd');
   }
 }
 decorate(DateStore, {
