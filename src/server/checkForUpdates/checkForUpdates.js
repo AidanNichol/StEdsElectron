@@ -220,7 +220,7 @@ function dispAccount(logs, oldest) {
     else txt += '          ';
 
     txt += ' ║\n';
-    if (log.type === 'A' && log.clearedUpto) txt += '╟' + '─'.repeat(80) + '╢\n';
+    if (log.type === 'A' && log.restartPoint) txt += '╟' + '─'.repeat(80) + '╢\n';
     else if (balance === 0 && amount !== 0) {
       if (log.type === 'A' || /[BC]X?/.test(req)) txt += '╟' + '╴'.repeat(80) + '╢\n';
     }
