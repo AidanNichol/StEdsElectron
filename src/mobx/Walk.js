@@ -83,9 +83,10 @@ class Walk {
 
   get code() {
     if (this.shortCode) return this.shortCode;
-    let code = this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
-    if (code.length > 4) code = code.substr(0, 2) + code.substr(-2);
-    return code;
+    return this.venue.substr(0, 4);
+    // let code = this.shortname[0] + this.shortname.substr(1).replace(/[aeiou]/gi, '');
+    // if (code.length > 4) code = code.substr(0, 2) + code.substr(-2);
+    // return code;
   }
 
   get names() {
