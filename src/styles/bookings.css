@@ -1,4 +1,3 @@
-
 .pt-dialog {
   dt {
     font-weight: bold;
@@ -11,37 +10,34 @@
   & .mems1.panel-body .panel-contents {
     grid-template-columns: 400px auto;
   }
-
   & .mems2.panel-body .panel-contents {
     grid-template-columns: 500px auto;
   }
-
   & .mems3.panel-body .panel-contents {
     grid-template-columns: 600px auto;
   }
-
   & .panel-body .panel-contents {
     display: grid;
-
     & .select {
       grid-column: 1;
       grid-row: 1;
       width: 300px;
     }
-
     .bTable {
       grid-column: 1;
       grid-row: 2;
       align-self: start;
     }
-
     .logsTable {
       grid-column: 2;
       grid-row: 1 / span 2;
       padding-bottom: 10px;
       max-width: 510px;
+      .showOld {
+        border: solid thin black;
+        cursor: pointer;
+      }
     }
-
     /* .logsTable.mobx {
       grid-column: 3;
       grid-row: 1 / span 2;
@@ -49,7 +45,6 @@
       max-width: 480px;
     } */
   }
-
   .heading,
   .walk {
     display: grid;
@@ -60,35 +55,29 @@
     max-height: 62px;
     min-height: 62px;
     height: 62px;
-
     .date {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     div {
       border: solid black thin;
       padding-top: 10px;
       padding-bottom: 10px;
       min-height: 62px;
-
       &.avail {
         padding-top: 20px;
         padding-bottom: 20px;
       }
-
       &.bookingcell {
         font-size: 1.5em;
         padding-bottom: 0;
         padding-top: 0;
         overflow: hidden;
-
         .normal {
           padding-top: 7px;
           width: 32px;
         }
-
         .annotation {
           padding-top: 0;
           font-size: 0.6em;
@@ -97,36 +86,28 @@
           white-space: nowrap;
           width: 100%;
         }
-
         .hotspot {
           display: none;
         }
-
         &:hover {
           font-size: 1.3em;
-
           .hotspot {
             display: inline-block;
           }
-
           .normal {
             display: none;
           }
-
           .fullwidth {
             width: 100%;
             height: 30px;
             display: inline-block;
           }
-
           .halfwidth {
             width: 50%;
             height: 30px;
             display: inline-block;
           }
-
           background-color: #f5edc3;
-
           span:hover {
             background-color: #eada88;
           }
@@ -134,24 +115,20 @@
       }
     }
   }
-
   .bookings {
     h5 {
       font-size: 2em;
     }
   }
-
   .tooltip-inner {
     max-width: none;
   }
-
   .heading {
-
     .suspended {
       &::before {
         /*@import './watermark2.css';*/
         bottom: 0;
-        color: black;
+        color: rgb(0, 0, 0);
         content: 'Member Suspended';
         cursor: default;
         display: block;
@@ -172,8 +149,6 @@
         transform: rotate(-45deg);
         user-select: none;
         z-index: 9999;
-
-
         content: 'Suspended';
         color: red;
         opacity: 0.2;
@@ -183,7 +158,6 @@
         top: 46.5%;
       }
     }
-
     .guest {
       &::before {
         /*@import './watermark2.css';*/
@@ -209,8 +183,6 @@
         transform: rotate(-45deg);
         user-select: none;
         z-index: 9999;
-
-
         content: 'Guest';
         color: blue;
         opacity: 0.2;
@@ -219,7 +191,6 @@
         top: 38%;
       }
     }
-
     .due {
       &::before {
         /*@import './watermark2.css';*/
@@ -245,8 +216,6 @@
         transform: rotate(-45deg);
         user-select: none;
         z-index: 9999;
-
-
         content: 'Subs Due .';
         color: green;
         font-size: 250%;
@@ -256,7 +225,6 @@
         top: 41%;
       }
     }
-
     .late {
       &::before {
         /*@import './watermark2.css';*/
@@ -282,8 +250,6 @@
         transform: rotate(-45deg);
         user-select: none;
         z-index: 9999;
-
-
         content: 'Subs Late .';
         color: blue;
         font-size: 250%;

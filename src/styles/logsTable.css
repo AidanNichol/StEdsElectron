@@ -12,40 +12,47 @@
     }
   }
 }
+
 .logsTable {
   margin-left: 10px;
   border: #bce8f1 solid thin;
-
   .scrollBox {
     overflow: auto;
     max-height: 500px;
   }
-
+  span.showMode {
+    span {
+      display: inline-block;
+      width: 4em;
+      background-color: darkseagreen;
+      text-align: center;
+      &.active {
+        background-color: bisque;
+      }
+    }
+  }
   .logHeader {
     color: #31708f;
     background-color: #d9edf7;
-    border-bottom: #bce8f1 solid thin;
-    // display: flex;
-
+    border-bottom: #bce8f1 solid thin; // display: flex;
     .showAll {
       margin-left: 40px;
       cursor: pointer;
     }
-
     span {
       text-align: center;
     }
   }
-
   .logRec {
     position: relative;
     display: flex;
     align-items: center;
-
     &.inbalance {
+      border-bottom: blue thin dashed;
+    }
+    &.cleared {
       border-bottom: black thin solid;
     }
-
     .edit_button {
       position: relative;
       left: -1.5em;
@@ -53,24 +60,20 @@
       overflow: visible;
       white-space: nowrap;
       cursor: pointer;
-
       img {
         width: 20px;
       }
     }
-
     &:hover {
       .edit_button {
         display: inline-block;
       }
     }
   }
-
   .logRec.outstanding {
     color: navy;
     font-weight: bold;
     overflow: hidden;
-
     .logText {
       font-size: 1.1em;
       white-space: nowrap;
@@ -83,36 +86,29 @@
     text-align: right;
     padding-right: 1em;
   }
-
   span.logText:hover {
     overflow: auto;
     background-color: rgb(234, 236, 238);
-
     .text {
       white-space: normal;
     }
   }
-
   .logBal {
     text-align: right;
     padding-right: 2em;
     display: inline-block;
     min-width: 5em;
-
     &.credit {
       position: relative;
       right: -18px;
-
       &::after {
         content: ' Cr';
       }
     }
-
     &.owing {
       color: red;
     }
   }
-
   &.historic {
     opacity: 0.3;
   }
@@ -132,11 +128,9 @@ span.logText {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
   .text {
     white-space: nowrap;
   }
-
   .name {
     font-style: italic;
     font-size: 0.9em;
