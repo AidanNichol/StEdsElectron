@@ -31,19 +31,46 @@ logit.debug('debug');
 const init = async () => {
   logit('monitorLoading', 'start');
   await PS.init(db);
-  await Promise.all([MS.init(db), AS.init(db), WS.init(db)]);
+  // await Promise.all([MS.init(db), AS.init(db), WS.init(db)]);
+  await MS.init(db);
+  await WS.init(db);
+  await AS.init(db);
   logit('monitorLoading', 'loaded');
   let accId;
   accId = 'A2005'; //margaret Evans
-  accId = 'A2024'; // DAvid & Lisa Harris
-  // accId = 'A2001'; // Julie Edwardson
+  accId = 'A2024'; // David & Lisa Harris
+  accId = 'A2001'; // Julie Edwardson
   accId = 'A122'; // Phil Hickey
   accId = 'A988'; // Gordon Philpott
+  accId = 'A718'; // Peter Humpreys
+  accId = 'A2041'; // Gwyn Castiaux
+  accId = 'A1060'; // Richard Gibson
+  accId = 'A1002'; // Christine Ratcliffe
+  accId = 'A1003'; // Andrea Bradford
+  accId = 'A2052'; // Karen Mallander
+  accId = 'A1160'; // Lorraine Allan
+  accId = 'A816'; // Jim & Val Davis
+  accId = 'A1049'; // Aidan Nichol
+  accId = 'A1118'; // Judith Moore
+  accId = 'A2069'; // Claire Sandercock
+  accId = 'A2027'; // Louise Karmazyn
+  accId = 'A1193'; // Lorraine Cooper
   AS.setActiveAccount(accId);
   const me = AS.activeAccount;
   const data = me.accountStatusNew;
   logit('stat', data.accName, data);
+  let changed = await me.fixupAccLogs(true);
+
   dispAccount(data);
+  if (changed) {
+    logit('changes made', { id: me._id, old: me.logs, logs: data.logs });
+    await me.dbUpdate();
+  }
+  AS.setFullHistory(false);
+  const data2 = me.accountStatusNew;
+  logit('stat', data2.accName, data2);
+  dispAccount(data2);
+
   console.log('\n\n\ndone😀');
   // let oldest = {};
 };
@@ -57,23 +84,27 @@ const init = async () => {
 const { sprintf } = require('sprintf-js');
 
 function dispAccount(data) {
-  const { logs, oldest, accName, activeThisPeriod, paymentsMade, balance } = data;
+  const { accId, logs, accName, activeThisPeriod, paymentsMade, balance } = data;
   let txt = '\n\n';
   txt += sprintf(
-    'history: %s,  prehistory: %s,  oldest: %s, active:%s, payments: %d, balance: %d\n\n%s\n\n',
+    'history: %s,  prehistory: %s,  darkage: %s, active:%s, payments: %d, balance: %d\n\n%s %s\n\n',
     WS.historyStarts,
     WS.prehistoryStarts,
-    oldest,
+    WS.darkAgesStarts,
     activeThisPeriod,
     paymentsMade,
     balance,
+    accId,
     accName,
   );
   txt += '╔' + '═'.repeat(80) + '╗\n';
   logs.forEach(log => {
     let { dispDate, amount = '', balance = '', text, req, name = '', walkId = ' ' } = log;
-    let { hideable, historic, prehistoric } = log;
-    const stat = historic ? '⫷' : (hideable ? '⪡' : '<') + (prehistoric ? '!' : '');
+    let { darkage, hideable, historic, outstanding, prehistoric, logsFrom } = log;
+    const stat =
+      (darkage ? 'D' : historic ? '⫷' : hideable ? '⪡' : '<') +
+      (outstanding ? '£' : '') +
+      (prehistoric ? '!' : '');
 
     txt += sprintf(
       '║ %-12s %-2s %-11s %-34s %-5s',
@@ -86,8 +117,8 @@ function dispAccount(data) {
     if (req !== 'A') txt += sprintf('£%3d  £%3d', amount, balance);
     else txt += '          ';
 
-    txt += ' ║\n';
-    if (log.type === 'A' && log.clearedUpto) txt += '╟' + '─'.repeat(80) + '╢\n';
+    txt += ' ║ ' + (logsFrom ? logsFrom : '') + '\n';
+    if (log.restartPoint) txt += '╟' + '─'.repeat(80) + '╢\n';
     else if (balance === 0 && amount !== 0) {
       if (log.type === 'A' || /[BC]X?/.test(req)) txt += '╟' + '╴'.repeat(80) + '╢\n';
     }
