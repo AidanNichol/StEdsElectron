@@ -12,9 +12,9 @@ var stream = new MemoryStream();
 
 PouchDB.plugin(replicationStream.plugin);
 
+const settingsFile = '/Users/aidan/Library/Preferences/stedsbookings-nodejs/config.json';
 const fs = require('fs');
 // var db = new PouchDB('http://aidan:admin@localhost:5984/bookings', {});
-
 (async function() {
   try {
     var source = new PouchDB('http://nicholware.com:5984/bookings', {});
@@ -23,16 +23,11 @@ const fs = require('fs');
     await db.destroy();
     let dest = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
     await dest.compact();
-    var settingsStr = fs.readFileSync(
-      '/Users/aidan/Library/Application Support/Electron/Settings',
-    );
+    var settingsStr = fs.readFileSync(settingsFile);
     var settings = JSON.parse(settingsStr);
     settings.database.developement.resetLocalBookings = true;
     settings.database.current = 'developement';
-    fs.writeFileSync(
-      '/Users/aidan/Library/Application Support/Electron/Settings',
-      JSON.stringify(settings),
-    );
+    fs.writeFileSync(settingsFile, JSON.stringify(settings));
     await Promise.all([source.dump(stream), dest.load(stream)]);
     console.log('Hooray the stream replication is complete!');
     const info = await dest.info();
