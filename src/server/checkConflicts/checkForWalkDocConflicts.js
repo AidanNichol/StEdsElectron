@@ -359,19 +359,20 @@ function sendEmail(body) {
 
     html = `<html>${msg}   <br/><br/> Aidan ${body}</html>`;
   }
-  const to =
-    'aidan@nicholware.co.uk' +
-    (argv.mailall ? ', bookings@stedwardsfellwalkers.co.uk' : '');
   var data = {
     from: 'Aidan Nichol <aidan@mg.nicholware.co.uk>',
     // to: 'bookings@stedwardsfellwalker.co.uk',
     // cc: 'aidan@nicholware.co.uk',
     // to: 'aidan@nicholware.co.uk',
-    to: to,
+    to: 'aidan@nicholware.co.uk',
     subject: 'Replication Conflicts @ ' + DS.now,
     text: 'Significant replication conflicts detected - action required!',
     html: html,
   };
+  if (argv.mailall) {
+    data.to = 'bookings@stedwardsfellwalkers.co.uk';
+    data.cc = 'aidan@nicholware.co.uk';
+  }
 
   mailgun.messages().send(data, function(error, body) {
     console.log(body);
