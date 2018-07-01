@@ -29,6 +29,9 @@ logit('process', process);
 const cntrl = observable({ loading: true });
 // logit('mainlayout', membersLoading, accountsLoading, walksLoading);
 monitorChanges(db);
+// .error(error => {
+//   logit('monitorChanges failed', error);
+// });
 const monitorLoading = action(async () => {
   logit('monitorLoading', 'start');
   await PS.init(db);
@@ -46,15 +49,6 @@ monitorLoading(db);
 const Menu = remote.Menu;
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
-
-const isOnline = require('is-online');
-if (navigator.onLine) {
-  isOnline((err, online) => {
-    logit(`are we on line? online: ${online}, err: ${err}`); // we're online if online is true, offline if false
-  });
-} else {
-  logit(` we're offline`);
-}
 
 render(
   <MobxProvider

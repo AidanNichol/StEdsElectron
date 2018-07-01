@@ -1,6 +1,3 @@
-// import db from 'bookingsDB.js';
-// import createChannel from '../services/channel.js';
-
 import Logit from 'logit';
 import WS from '../mobx/WalksStore';
 import MS from '../mobx/MembersStore';
@@ -36,7 +33,6 @@ export async function monitorChanges(setdb) {
     .on('change', info => handleChange(info))
     .on('complete', () => {})
     .on('error', error => logit('changes_error', error));
-
   // The subscriber must return an unsubscribe function
   return () => monitor.cancel();
 }
