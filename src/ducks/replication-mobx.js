@@ -5,7 +5,15 @@ const styled = require('styled-components').default;
 const { observable, computed, autorun, toJS, decorate } = require('mobx');
 const { observer } = require('mobx-react');
 const { DbSettings } = require('settings');
-const { Icon } = require('components/utility/Icon');
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCloud,
+  faServer,
+  faWifi,
+  faArrowUp,
+  faArrowDown,
+} from '@fortawesome/pro-solid-svg-icons';
+
 const emitter = require('../mobx/eventBus');
 const path = require('path');
 let remoteDB;
@@ -20,13 +28,14 @@ logit('styled-components', styled);
 class ReplState {
   constructor(setdb) {
     db = setdb;
-    this.lastAction = 'initial';
-    this.current = 'paused';
     this.waiting = parseInt(localStorage.getItem('stEdsWaiting')) || 0;
     this.pushed = 0;
-    this.curr_seq;
-    this.start_seq;
+    this.curr_seq = 0;
+    this.start_seq = 0;
     this.pullOn = false;
+    this.pullActive = false;
+    this.pushActive = false;
+    this.internet = 'ok';
   }
 
   get pulled() {
@@ -34,11 +43,13 @@ class ReplState {
   }
 }
 decorate(ReplState, {
-  lastAction: observable,
-  current: observable,
   curr_seq: observable,
+  start_seq: observable,
   waiting: observable,
   pushed: observable,
+  pushActive: observable,
+  pullActive: observable,
+  internet: observable,
   pulled: computed,
 });
 let state = new ReplState();
@@ -63,34 +74,30 @@ emitter.on('dbChanged', data => {
 //┃   replication processes                                  ┃
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-let notifyRecent = '';
 function notify(status) {
   const message = {
     offline: `Connection Lost.😟  Internet connection is not available.`,
     unreachable: `Connection Lost.😟  Internet connection seems to be working but the server isn't reponding.
                Pleaase inform Aidan of the situation.`,
 
-    paused: 'Connection to server restablished 😊 👍 ',
+    ok: 'Connection to server restablished 😊 👍 ',
   };
-  if (state.current === status) return;
-  if (!/(offline|unreachable|paused|error)/.test(state.current)) return;
-  logit('notify', status, state.current, notifyRecent);
-  state.current = status;
-  state.lastAction = 'online check';
-  if (status === notifyRecent) return;
-  if (status === 'paused' && state.waiting > 0) pushReplication();
-  if (status === 'paused') setTimeout(pullReplication, 100);
-  notifyRecent = status;
+  if (state.internet === status) return;
+  logit('notify', status, state.internet);
+  state.internet = status;
+  // if (status === notifyRecent) return;
+  if (status === 'ok') {
+    if (state.start_seq === 0) monitorReplications();
+    else {
+      if (state.waiting > 0) pushReplication();
+      setTimeout(pullReplication, 100);
+    }
+  }
   new Notification('Booking System Internet Conection', {
     body: message[status],
-    icon: path.join(__dirname, '../assets/steds-logo.jpg'), // Absolute path (doesn't work on balloons)
+    icon: path.join(__dirname, '../assets/steds-logo.jpg'),
     time: 0,
   });
-  // if the network is bouncing don't send multiple messages
-  setTimeout(() => {
-    logit('reset notifyRecent', notifyRecent);
-    notifyRecent = '';
-  }, 120000);
 }
 //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 //┃   Validate that we can still reach our server.           ┃
@@ -102,10 +109,10 @@ function checkInternet() {
   try {
     remoteDB
       .info()
-      .then(() => notify('paused'))
+      .then(() => notify('ok'))
       .catch(() => {
         fetch('http://www.google.co.uk:80', { cache: 'no-cache' })
-          .then(() => notify('reachable'))
+          .then(() => notify('unreachable'))
           .catch(() => notify('offline'));
       });
   } catch (error) {
@@ -121,11 +128,9 @@ setInterval(checkInternet, 60000);
 
 const replicationDone = async (seq, action) => {
   logit(action, seq);
+  state.lastAction = action;
   if (!seq) seq = (await db.info()).update_seq;
   state.curr_seq = seq;
-  state.lastAction = action;
-  state.current = 'paused';
-  // localStorage.setItem('stEdsReplSeq', seq);
 };
 //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 //┃   Push Replication - send changes to server              ┃
@@ -137,23 +142,24 @@ const replicationDone = async (seq, action) => {
 async function pushReplication(data) {
   try {
     logit('start push replication', data);
-    state.current = 'push';
     db.replicate
       .to(remoteDB)
       .on('complete', async info => {
         logit('push complete', info);
+        state.pushActive = false;
         state.pushed += state.waiting;
         state.waiting = 0;
         replicationDone(info.last_seq, 'push complete');
       })
       .on('active', () => {
         logit('push active');
-        state.lastAction = 'push started';
-        state.current = 'push';
+        state.pushActive = true;
+        state.lastAction = 'push active';
       })
       .on('error', err => {
         logit('on push error', err);
-        state.current = 'paused';
+        state.lastAction = 'push error';
+        state.pushActive = false;
         checkInternet();
       });
   } catch (err) {
@@ -182,31 +188,27 @@ async function pullReplication() {
         // retry: true,
       })
       .on('change', async () => {
-        // logit('pull change', info);
         replicationDone(null, 'pull change');
       })
       .on('paused', async () => {
-        // logit('pull paused');
-        // const info = await db.info();
+        state.pullActive = false;
         replicationDone(null, 'pull paused');
       })
-      .on('active', info => {
-        logit('pull active', info);
-
-        state.lastAction = 'pull started';
-        state.current = 'pull';
+      .on('active', () => {
+        state.lastAction = 'pull active';
+        state.pullActive = true;
       })
-      .on('error', err => {
-        logit('on pull error', err);
-        state.current = 'paused';
+      .on('error', () => {
+        state.lastAction = 'pull error';
+        state.pushActive = false;
         state.pullOn = false;
-        checkInternet();
       });
   } catch (err) {
     logit('sync error', err);
     logit('send restart request');
   }
 }
+checkInternet();
 setInterval(pullReplication, 180000); // just in case it's stopped
 
 //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -216,7 +218,7 @@ setInterval(pullReplication, 180000); // just in case it's stopped
 
 async function monitorReplications(dbset) {
   logit('Start Monitoring');
-  db = dbset;
+  db = dbset ? dbset : db;
   const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
   try {
     PouchDB.plugin(require('pouchdb-authentication'));
@@ -238,6 +240,7 @@ async function monitorReplications(dbset) {
     setTimeout(pullReplication, 1000);
   } catch (err) {
     logit('sync error', err);
+    checkInternet();
   }
 }
 exports.monitorReplications = monitorReplications;
@@ -246,66 +249,52 @@ exports.monitorReplications = monitorReplications;
 //┃   Component to display the replcation status             ┃
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-const replicationStatus = observer(props => {
-  const { className } = props;
-  var xtra = {};
-  if (state.pulled || state.curr_seq === 0) {
-    xtra[`data-pulled`] = state.pulled;
-  }
-  if (state.waiting > 0) {
-    xtra[`data-waiting`] = state.waiting;
-  } else if (state.pushed) {
-    xtra[`data-pushed`] = state.pushed;
-  }
-  return (
-    <span className={className} {...xtra}>
-      <Icon name={`cloud-${state.current}`} />
+const ReplicationStatus = observer(({ className }) => {
+  const { pushed, pulled, waiting, internet, pushActive, pullActive } = state;
+  // internet = 'unreachable';
+  const UpArrow = () => (
+    <FontAwesomeIcon icon={faArrowUp} inverse transform="shrink-10 right-6 down-1" />
+  );
+  const DownArrow = () => (
+    <FontAwesomeIcon icon={faArrowDown} inverse transform="shrink-10 left-5 up-1" />
+  );
+  const Wifi = () => (
+    <FontAwesomeIcon
+      icon={faWifi}
+      transform="shrink-7"
+      style={{ color: internet === 'ok' ? 'green' : 'orange' }}
+    />
+  );
+  const Server = () => (
+    <FontAwesomeIcon icon={faServer} transform="shrink-7" style={{ color: 'red' }} />
+  );
+  const PulledCounter = () => (
+    <span
+      className="fa-layers-counter fa-layers-bottom-left"
+      style={{ background: 'blue' }}
+    >
+      {pulled}
     </span>
+  );
+  const PushedCounter = ({ count, color }) => (
+    <span className="fa-layers-counter" style={{ background: color }}>
+      {count}
+    </span>
+  );
+  const count = waiting ? waiting : pushed;
+  const color = waiting ? 'red' : 'green';
+  return (
+    <div className={className + ' fa-3x'}>
+      <span className="fa-layers fa-fw">
+        <FontAwesomeIcon icon={faCloud} transform="grow-1 up-2" />
+        {internet === 'unreachable' ? <Server /> : <Wifi />}
+        {pushActive ? <UpArrow /> : null}
+        {pullActive ? <DownArrow /> : null}
+        {count ? <PushedCounter count={count} color={color} /> : null}
+        {pulled ? <PulledCounter /> : null}
+      </span>
+    </div>
   );
 });
 
-const ReplicationStatus = styled(replicationStatus)`
-  position: relative;
-  width: 24px;
-
-  &[data-sent]:after,
-  &[data-waiting]:after,
-  &[data-pushed]:after,
-  &[data-pulled]:before {
-    position: absolute;
-    font-size: 0.7em;
-    color: white;
-    min-width: 18px;
-    height: 18px;
-    text-align: center;
-    line-height: 18px;
-    border-radius: 50%;
-    box-shadow: 0 0 1px #333;
-  }
-  &[data-pushed]:after {
-    content: attr(data-pushed);
-    top: -8px;
-    right: -8px;
-    background: green;
-  }
-  &[data-pulled]:before {
-    content: attr(data-pulled);
-    background: blue;
-    left: -8px;
-    bottom: -8px;
-  }
-  &[data-sent]:after {
-    content: attr(data-sent);
-    top: -8px;
-    right: -8px;
-    background: green;
-  }
-
-  &[data-waiting]:after {
-    content: attr(data-waiting);
-    top: -8px;
-    right: -8px;
-    background: red;
-  }
-`;
 exports.ReplicationStatus = ReplicationStatus;
