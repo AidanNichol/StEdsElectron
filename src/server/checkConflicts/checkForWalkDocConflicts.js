@@ -272,9 +272,6 @@ function getDifferncesInConflict(doc, conflictDoc) {
         }
       }
     }
-    // const imgstyle = req => {
-    //   return `background: url(http://new.stedwardsfellwalkers.co.uk/images/icon-${req}.png);display: inline-block; width: 32px; height: 32px;`;
-    // };
 
     if (!argv.verbose && !mismatch) return;
     mLogs.forEach(log => {

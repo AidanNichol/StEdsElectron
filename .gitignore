@@ -42,3 +42,4 @@ LOG
 LOG.*
 MANIFEST-*
 launch.json
+backup*.txt

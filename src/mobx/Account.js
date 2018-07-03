@@ -309,9 +309,11 @@ class Account {
     let hideable = true;
     const setSomeFlags = log => {
       log.activeThisPeriod = activeThisPeriod = log.dat > paymentPeriodStart;
-      if ((log.walkId || '') > 'W'+historyStarts) historic = false;
+      if ((log.walkId || '') > 'W' + historyStarts) {
+        historic = false;
+      }
       if ((log.walkId || '') > WS.lastClosed) hideable = false;
-      if (!historic && log.walkId < 'W'+prehistoryStarts) log.prehistoric = true;
+      if (!historic && log.walkId < 'W' + prehistoryStarts) log.prehistoric = true;
       if (log.dat < darkAgesStarts) log.darkage = true;
       return log;
     };
@@ -355,7 +357,12 @@ class Account {
         //┃   zero balance point reach using credits or the like     ┃
         //┃   Add dummy payment so we can record the restartPoint    ┃
         //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        prevBalance = resortAndAdjustBalance(clearedLogs, prevBalance);
+        prevBalance = resortAndAdjustBalance(
+          clearedLogs,
+          prevBalance,
+          historic,
+          hideable,
+        );
         (_.last(clearedLogs) || {}).restartPoint = true;
         clearedLogs.push(dummyPayment(clearedLogs, availBlogs));
         funds.realActivity = false;
@@ -376,7 +383,7 @@ class Account {
       //┃   Add in the payment record suitably ajdusted            ┃
       //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
       balance = funds.balance;
-      aLog = { ...aLog, balance, toCredit: -balance, historic };
+      aLog = { ...aLog, balance, toCredit: -balance, historic, hideable };
       setLogsFrom(aLog, clearedLogs, bLogs);
       setOldLogs(aLog, clearedLogs);
       let restartPt = isRestartPoint(balance, mergedlogs, bLogs);

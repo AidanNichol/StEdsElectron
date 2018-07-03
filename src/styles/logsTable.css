@@ -36,7 +36,7 @@
     background-color: #d9edf7;
     border-bottom: #bce8f1 solid thin; // display: flex;
     .showAll {
-      margin-left: 40px;
+      margin-left: 20px;
       cursor: pointer;
     }
     span {

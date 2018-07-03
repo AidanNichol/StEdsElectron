@@ -153,13 +153,13 @@ export function changeLog(props) {
         </span>
       </span>
 
-      <Switch
+      {/* <Switch
         style={{ display: 'inline-block', paddingRight: '2em' }}
         label="Old"
         checked={props.showOld}
         onChange={props.toggleShowOld}
-      />
-      {props.showOld ? null : (
+      /> */}
+      {/* {props.showOld ? null : (
         <span>
           {' '}
           <Switch
@@ -175,7 +175,7 @@ export function changeLog(props) {
             onChange={props.toggleShowHistory}
           />
         </span>
-      )}
+      )} */}
 
       <div className="logHeader">
         <span className="logDate">Date</span>
@@ -188,7 +188,7 @@ export function changeLog(props) {
         <span onClick={props.toggleShowAll} className="showAll screenOnly">
           {props.showAll ? '🔽' : '▶️'}
         </span>
-        <span onClick={requestPrint} className="print screenOnly">
+        <span onClick={requestPrint} className="showAll print screenOnly">
           '🖨'
         </span>
       </div>

@@ -55,6 +55,7 @@ const init = async () => {
   accId = 'A2069'; // Claire Sandercock
   accId = 'A2027'; // Louise Karmazyn
   accId = 'A1193'; // Lorraine Cooper
+  accId = 'A2063'; // Alan Fletcher
   AS.setActiveAccount(accId);
   const me = AS.activeAccount;
   const data = me.accountStatusNew;

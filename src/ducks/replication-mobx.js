@@ -106,6 +106,7 @@ function notify(status) {
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 function checkInternet() {
+  if (!remoteDB) return;
   try {
     remoteDB
       .info()
@@ -208,7 +209,6 @@ async function pullReplication() {
     logit('send restart request');
   }
 }
-checkInternet();
 setInterval(pullReplication, 180000); // just in case it's stopped
 
 //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -233,6 +233,7 @@ async function monitorReplications(dbset) {
     });
     logit('login resp:', resp);
     // initial state from the database
+    checkInternet();
     const { update_seq } = await db.info();
     state.start_seq = state.curr_seq = update_seq - state.waiting;
     // start replication
