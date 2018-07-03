@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import { Icon } from '../../utility/Icon';
 import classNames from 'classnames';
 import { ipcRenderer } from 'electron';
-import { Switch } from '@blueprintjs/core';
+// import { Switch } from '@blueprintjs/core';
 
 // import Select from 'react-select';
 import Logit from 'logit';
@@ -189,7 +189,7 @@ export function changeLog(props) {
           {props.showAll ? '🔽' : '▶️'}
         </span>
         <span onClick={requestPrint} className="showAll print screenOnly">
-          '🖨'
+          🖨
         </span>
       </div>
       <TheTable {...props} />
