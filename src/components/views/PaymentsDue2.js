@@ -150,7 +150,7 @@ export const payments = observer(props => {
   } = props;
   var title = <h4> Payments Due </h4>;
   return (
-    <Panel className={'paymentsDue ' + className} header={title} style={{ margin: 20 }}>
+    <Panel className={'paymentsDue ' + className} header={title}>
       <div className="all-payments">
         <div className="buttons">
           {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
@@ -204,6 +204,8 @@ const Payments = styled(payments)`
     justify-content: flex-start;
     height: 100%;
     flex: 0 0 300px;
+    min-width: 0;
+    overflow: scroll;
 
     .buttons {
       display: flex;

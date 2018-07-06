@@ -195,7 +195,7 @@ export const payments = observer(props => {
     </h4>
   );
   return (
-    <Panel className={'paymentsMade ' + className} header={title} style={{ margin: 20 }}>
+    <Panel className={'paymentsMade ' + className} header={title}>
       <div className="all-payments">
         <div className="buttons">
           <TooltipButton
@@ -275,6 +275,8 @@ const Payments = styled(payments)`
     align-items: flex-start;
     height: 100%;
     flex: 0 0 300px;
+    min-width: 0;
+    overflow: scroll;
 
     .buttons {
       display: flex;

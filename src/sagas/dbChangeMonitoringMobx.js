@@ -2,13 +2,15 @@ import Logit from 'logit';
 import WS from '../mobx/WalksStore';
 import MS from '../mobx/MembersStore';
 import AS from '../mobx/AccountsStore';
+import BP from '../mobx/PaymentsSummaryStore';
 let db;
 
 var storeFn = {
   walk: WS.changeDoc,
   account: AS.changeDoc,
   member: MS.changeDoc,
-  bankPayments: AS.changeBPdoc,
+  bankPayments: AS.changeDoc,
+  paymentSummary: BP.changeDoc,
 };
 
 var logit = Logit(__filename);
@@ -16,7 +18,7 @@ const collections = {
   M: 'member',
   W: 'walk',
   A: 'account',
-  BP: 'bankPayments',
+  BP: 'paymentSummary',
   BS: 'bankSubscriptions',
 };
 
