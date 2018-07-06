@@ -318,7 +318,10 @@ class Account {
       return log;
     };
     const isRestartPoint = (balance, cleared, uncleared) => {
-      return balance === 0 && getNewestDate(cleared) < getOldestDate(uncleared);
+      const walks = logs => _.filter(logs, log => /[BC]X?/.test(log.type));
+      return (
+        balance === 0 && getNewestDate(walks(cleared)) < getOldestDate(walks(uncleared))
+      );
     };
     let mergedlogs = [];
 
