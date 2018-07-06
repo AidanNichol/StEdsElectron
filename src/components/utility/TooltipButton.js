@@ -3,31 +3,12 @@ var React = require('react');
 import classnames from 'classnames';
 import { Icon } from './Icon.js';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
 
 import Logit from 'logit';
 var logit = Logit(__filename);
-var TooltipButton = React.createClass({
-  propTypes: {
-    // You can declare that a prop is a specific JS primitive. By default, these
-    // are all optional.
-    active: PropTypes.bool,
-    img: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    lable: PropTypes.string,
-    onClick: PropTypes.func,
-    placement: PropTypes.string,
-    tiptext: PropTypes.string,
-    visible: PropTypes.bool,
-    // currentWalk: React.PropTypes.string.isRequired,
-  },
-  getDefaultProps: function() {
-    return {
-      visible: true,
-    };
-  },
-  render: function() {
+class TooltipButton extends React.Component {
+  visible: true;
+  render() {
     var {
       img,
       icon,
@@ -67,8 +48,8 @@ var TooltipButton = React.createClass({
         {overlay ? <span className="overlay">{overlay}</span> : ''}
       </button>
     );
-  },
-});
+  }
+}
 export default styled(TooltipButton)`
   color: #333;
   background-color: #e6e6e6;
