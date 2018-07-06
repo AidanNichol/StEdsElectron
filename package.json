@@ -167,7 +167,7 @@
     "react-dom": "^15.4.2",
     "react-modal": "^3",
     "react-object-editor": "^0.1.2",
-    "react-select": "^1.0.0-rc.3",
+    "react-select": "1.2",
     "react-textarea-autosize": "^5",
     "sprintf-js": "^1.0.3",
     "styled-components": "^2.2.2",
