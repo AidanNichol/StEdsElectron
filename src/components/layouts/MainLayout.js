@@ -6,7 +6,6 @@ import { setRouterPage } from '../../ducks/router-mobx.js';
 import { ReplicationStatus } from 'ducks/replication-mobx';
 import MembersListContainer from 'components/containers/members-list-mobx.js';
 import BookingsContainer from 'components/containers/bookings-mobx.js';
-// import ShowConflicts from 'components/views/ShowConflicts.js';
 import BusListsContainer from 'components/containers/buslists-mobx.js';
 import PaymentsContainerM from 'components/containers/Payments-mobx';
 
@@ -28,9 +27,6 @@ const loadPage = (curPage, cntrl) => {
       return <MembersListContainer />;
     case 'bookings':
       return <BookingsContainer />;
-    // case 'showconflicts':
-    //   return <ShowConflicts />;
-    // case 'showaccountconflicts': return (<ShowAccountConflicts />);
     case 'payments':
       return <PaymentsContainerM />;
     case 'buslists':
@@ -63,8 +59,6 @@ const comp = observer(({ membersAdmin, bookingsAdmin, setPage, cntrl, router }) 
         <div className="nav">
           <Link page="bookings" name="Bookings" show={bookingsAdmin} />
           <Link page="buslists" name="Buslist" show={bookingsAdmin} />
-          {/* <Link page="showconflicts" name="ShowConflicts" show={bookingsAdmin}/>
-          <Link page="showaccountconflicts" name="ShowAccountConflicts" show={bookingsAdmin}/> */}
           <Link page="payments" name="Payments" show={bookingsAdmin} />
           <Link page="membersList" name="Members" show={membersAdmin} />
         </div>
