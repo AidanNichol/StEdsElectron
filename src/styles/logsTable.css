@@ -16,10 +16,8 @@
 .logsTable {
   margin-left: 10px;
   border: #bce8f1 solid thin;
-  .scrollBox {
-    overflow: auto;
-    max-height: 500px;
-  }
+  display: grid;
+  grid-template-rows: 18px 29px 1fr;
   span.showMode {
     span {
       display: inline-block;
@@ -42,6 +40,10 @@
     span {
       text-align: center;
     }
+  }
+  .scrollBox {
+    min-height: 0;
+    overflow: scroll;
   }
   .logRec {
     position: relative;
@@ -110,7 +112,7 @@
     }
   }
   &.historic {
-    opacity: 0.3;
+    opacity: 0.5;
   }
 }
 

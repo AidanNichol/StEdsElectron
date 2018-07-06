@@ -7,16 +7,17 @@
 }
 
 #steds_bookings {
-  & .mems1.panel-body .panel-contents {
-    grid-template-columns: 400px auto;
-  }
-  & .mems2.panel-body .panel-contents {
-    grid-template-columns: 500px auto;
-  }
-  & .mems3.panel-body .panel-contents {
-    grid-template-columns: 600px auto;
-  }
   & .panel-body .panel-contents {
+    & .mems1 {
+      grid-template-columns: 400px auto;
+    }
+    & .mems2 {
+      grid-template-columns: 500px auto;
+    }
+    & .mems3 {
+      grid-template-columns: 600px auto;
+    }
+    grid-template-rows: auto 1fr 60px;
     display: grid;
     & .select {
       grid-column: 1;

@@ -15,10 +15,10 @@
   padding: 1.5em 1.5em 1em;
   color: inherit;
   text-decoration: none;
-
   &::before {
     border: 0.1em solid #aaa;
-    content: ''; /* To generate the box */
+    content: '';
+    /* To generate the box */
     position: absolute;
     top: 0;
     right: 0;
@@ -32,14 +32,11 @@
     transform: perspective(5px) rotateX(2deg);
     transform-origin: bottom;
   }
-
   &:hover {
     cursor: pointer;
   }
-
   &.selected {
     z-index: 2;
-
     &::before {
       margin-bottom: -1px;
       border-top-width: 1px;
@@ -50,7 +47,6 @@
 
 .nav.left .link {
   padding: 1.5em 2em 1em 1em;
-
   &::before {
     transform-origin: bottom left;
   }
@@ -58,7 +54,6 @@
 
 .nav.right .link {
   padding: 1em 1em 1em 1.5em;
-
   &::before {
     transform-origin: bottom right;
   }
@@ -68,10 +63,10 @@
   background: #eee;
   border: 0.1em solid #aaa;
   display: block;
-  margin: -17px 0 0 0;
+  margin: 0px 0 0 0;
   padding: 1em;
   border-radius: 3px;
-  max-width: 1280px;
-  min-width: 1280px;
+  max-width: 100%;
+  min-width: 100%;
   box-sizing: border-box;
 }

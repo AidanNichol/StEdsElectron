@@ -4,9 +4,7 @@ import { findDOMNode } from 'react-dom';
 import { Icon } from '../../utility/Icon';
 import classNames from 'classnames';
 import { ipcRenderer } from 'electron';
-// import { Switch } from '@blueprintjs/core';
 
-// import Select from 'react-select';
 import Logit from 'logit';
 var logit = Logit(__filename);
 
@@ -83,12 +81,12 @@ class TheTable extends React.Component {
               logAmount: true,
               logPay: log.req === 'P',
               fee: log.req !== 'P' && log.amount < 0,
-              credit: log.amount > 0,
+              credit: log.amount > 0 && log.req !== 'A',
             });
             let bCl = classNames({
               logData: true,
               logBal: true,
-              credit: log.balance > 0,
+              credit: log.balance > 0 && log.req[0] !== 'W',
               owing: log.balance < 0,
             });
             return (
@@ -153,30 +151,6 @@ export function changeLog(props) {
         </span>
       </span>
 
-      {/* <Switch
-        style={{ display: 'inline-block', paddingRight: '2em' }}
-        label="Old"
-        checked={props.showOld}
-        onChange={props.toggleShowOld}
-      /> */}
-      {/* {props.showOld ? null : (
-        <span>
-          {' '}
-          <Switch
-            style={{ display: 'inline-block', paddingRight: '2em' }}
-            label="All"
-            checked={props.showAll}
-            onChange={props.toggleShowAll}
-          />
-          <Switch
-            style={{ display: 'inline-block', paddingRight: '2em' }}
-            label="History"
-            checked={props.showHistory}
-            onChange={props.toggleShowHistory}
-          />
-        </span>
-      )} */}
-
       <div className="logHeader">
         <span className="logDate">Date</span>
         <Icon type="Blank" style={{ opacity: 0 }} />
@@ -186,7 +160,7 @@ export function changeLog(props) {
         <span className="logAmount">Inc.</span>
         <span className="logBal">Balance</span>
         <span onClick={props.toggleShowAll} className="showAll screenOnly">
-          {props.showAll ? '🔽' : '▶️'}
+          {props.showAll ? '🔽' : '▶️️'}
         </span>
         <span onClick={requestPrint} className="showAll print screenOnly">
           🖨
