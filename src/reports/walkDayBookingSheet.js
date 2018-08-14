@@ -82,7 +82,7 @@ function gatherData(memberSet, printFull) {
     });
 
     // get details of old walks still unpaid
-    const status = AS.accounts.get(accId).accountStatus;
+    const status = AS.accounts.get(accId).accountStatusNew;
     if (status.balance < 0) {
       const debts = status.debt;
       debts.forEach(debt => {
