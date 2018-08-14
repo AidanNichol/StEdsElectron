@@ -21,6 +21,7 @@ class Member {
     this.nextOfKin = '';
     this.medical = '';
     this.memberStatus = 'Guest';
+    this.roles = '';
     this.suspended = false;
     this.subscription = '';
     this.updateDocument = this.updateDocument.bind(this);
@@ -56,16 +57,40 @@ class Member {
     if (account.members.length <= 1) return '';
     return parens ? `(${this.firstName})` : this.firstName;
   }
-
+  get toObject() {
+    return {
+      _id: this._id,
+      type: this.type,
+      memberId: this.memberId,
+      accountId: this.accountId,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      address: this.address,
+      phone: this.phone,
+      email: this.email,
+      mobile: this.mobile,
+      joined: this.joined,
+      nextOfKin: this.nextOfKin,
+      medical: this.medical,
+      memberStatus: this.memberStatus,
+      roles: this.roles,
+      suspended: this.suspended,
+      subscription: this.subscription,
+      // subsStatus: this.subsStatus,
+    };
+  }
   get subsStatus() {
+    return Member.getSubsStatus(this.memberStatus, this.subscription);
+  }
+  static getSubsStatus(memberStatus, subscription) {
     let _today = new Date();
     // DS.todaysDate;
     let status = 'ok';
-    if (this.memberStatus === 'HLM') return { due: false, status, showSubsButton: false };
-    if (this.memberStatus === 'Guest')
+    if (memberStatus === 'HLM') return { due: false, status, showSubsButton: false };
+    if (memberStatus === 'Guest')
       return { due: false, status: 'guest', showSubsButton: false };
 
-    const currentUserSubs = parseInt(this.subscription || 0);
+    const currentUserSubs = parseInt(subscription || 0);
 
     let fee = 15;
     // const _today = new Date();
@@ -91,6 +116,7 @@ class Member {
     return { due: true, year, fee, status, showSubsButton };
   }
   updateField(field, value) {
+    logit('updateField', field, value);
     this[field] = value;
   }
 
@@ -125,6 +151,7 @@ decorate(Member, {
   nextOfKin: observable,
   medical: observable,
   memberStatus: observable,
+  roles: observable,
   suspended: observable,
   subscription: observable,
   report: computed,
