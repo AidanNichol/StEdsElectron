@@ -228,6 +228,8 @@ class Account {
           lastName: mem.lastName,
           suspended: mem.suspended,
           subs: mem.subsStatus.status,
+          email: mem.email,
+          roles: mem.roles,
         };
       }),
     );
@@ -249,6 +251,7 @@ class Account {
     logit('accountStore', this.getAccountStore());
     let traceMe = this._id === this.getAccountStore().activeAccountId;
     // traceMe = true;
+    traceMe = false;
     var paymentPeriodStart = PS.lastPaymentsBanked;
     const historyStarts = WS.historyStarts;
     const prehistoryStarts = WS.prehistoryStarts;
@@ -412,14 +415,16 @@ class Account {
 
     while (bLogs.length > 0) {
       const bLog = bLogs.shift();
-      if (isBooking(bLog)) historic = false;
+      if (isBooking(bLog) && balance !== 0) historic = false;
       // if (/^[BC]/.test(bLog.req)) historic = false;
       setSomeFlags(bLog);
-
       balance -= bLog.amount || 0;
+      // bLog.hideable = hideable && balance === 0;
+      // bLog.historic = historic;
       unclearedLogs.push({ ...bLog, balance });
+      if (_.isEmpty(bLogs)) continue;
       if (!isRestartPoint(balance, [newestClearedLog, unclearedLogs], bLogs)) continue;
-      if (!isBooking(bLog.req) || _.isEmpty(bLogs) || bLog.dat > historyStarts) continue;
+      if (!isBooking(bLog)) continue;
       _.last(unclearedLogs).restartPoint = true;
       setHistoricFlags(unclearedLogs, historic, hideable);
 
