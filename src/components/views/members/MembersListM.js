@@ -33,7 +33,7 @@ class Memberslist extends React.Component {
     var {
       dispStart,
       dispLength,
-      editMember,
+      editMember = {},
       sortProp,
       editMode,
       allList,
@@ -136,6 +136,7 @@ class Memberslist extends React.Component {
           {members}
         </div>
         <EditMemberData
+          key={editMember._rev || editMember._id}
           className="details"
           {...{
             editMember,
