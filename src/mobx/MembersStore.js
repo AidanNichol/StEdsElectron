@@ -182,11 +182,13 @@ class MembersStore {
     }
   }
 
-  saveEdit() {
+  saveEdit(memData) {
     // const {newMember, ...data} = toJS(this.editMember);
-    delete this.editMember.newMember;
-    this.members.set(this.editMember._id, new Member(toJS(this.editMember), db));
-    this.activeMemberId = this.editMember._id;
+    delete memData.newMember;
+    const current = this.members.get(memData._id);
+    if (current && current._rev) memData._rev = current._rev;
+    this.members.set(memData._id, new Member(memData, db));
+    this.activeMemberId = memData._id;
     this.activeMember.dbUpdate();
   }
 
@@ -281,6 +283,7 @@ decorate(MembersStore, {
   loaded: observable,
   syncToIndex: action,
   activeMember: computed,
+  editMember: observable,
   selectNamesList: computed,
   membersSorted: computed,
   membersSortedByName: computed,
