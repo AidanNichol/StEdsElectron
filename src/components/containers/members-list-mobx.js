@@ -1,6 +1,6 @@
 // import React from 'react';
 import { observer, inject } from 'mobx-react';
-import { observable, autorun } from 'mobx';
+// import { observable, autorun } from 'mobx';
 import MembersList from '../views/members/MembersListM.js';
 // import * as actions from '../../actions/membersList-actions.js';
 import { setRouterPage } from '../../ducks/router-mobx.js';
@@ -8,18 +8,18 @@ import { setRouterPage } from '../../ducks/router-mobx.js';
 import Logit from 'logit.js';
 var logit = Logit(__filename);
 
-var uiState = observable({
-  editMode: false,
-  dirty: false,
-  deletePending: false,
-  bacs: false,
-});
-autorun(() => {
-  if (!uiState.editMode) {
-    uiState.dirty = false;
-    uiState.deletePending = false;
-  }
-});
+// var uiState = observable({
+//   editMode: false,
+//   dirty: false,
+//   deletePending: false,
+//   bacs: false,
+// });
+// autorun(() => {
+//   if (!uiState.editMode) {
+//     uiState.dirty = false;
+//     uiState.deletePending = false;
+//   }
+// });
 
 // const newMember = createSelector(
 //   getSortedMembersList,
@@ -41,7 +41,7 @@ const mapStoreToProps = function(store) {
     dispLength: MS.dispLength,
     sortProp: MS.sortProp,
     editMember: editMember,
-    editMode: uiState.editMode,
+    // editMode: uiState.editMode,
     // syncPos: getDispStart(allList, id, state),
     // newMember: (state.membersList.displayMember === 'new'),
     allList: MS.membersSorted,
@@ -55,20 +55,20 @@ const mapStoreToProps = function(store) {
       setRouterPage({ page: 'membersList', memberId: memId, accountId: null });
     },
     editFunctions: {
-      deletePending: uiState.deletePending,
-      dirty: uiState.dirty,
-      bacs: uiState.bacs,
-      resetEdit: () => {
-        MS.resetEdit();
-        uiState.dirty = false;
-      },
-      saveEdit: () => {
+      // deletePending: uiState.deletePending,
+      // dirty: uiState.dirty,
+      // bacs: uiState.bacs,
+      // resetEdit: () => {
+      //   MS.resetEdit();
+      //   uiState.dirty = false;
+      // },
+      saveEdit: memData => {
         logit('saveEdit', editMember);
         if (editMember.newMember) {
           AS.createNewAccount(editMember.accountId, [editMember._id]);
         }
-        MS.saveEdit();
-        uiState.editMode = false;
+        MS.saveEdit(memData);
+        // uiState.editMode = false;
       },
       deleteMember: () => {
         const { _id, accountId, fullName } = editMember;
@@ -76,26 +76,26 @@ const mapStoreToProps = function(store) {
         const account = AS.accounts.get(accountId);
         if (account) account.deleteMemberFromAccount(editMember._id);
         MS.deleteMember(editMember._id);
-        uiState.editMode = false;
+        // uiState.editMode = false;
       },
-      cancelEdit: () => {
-        uiState.editMode = false;
-        MS.resetEdit();
-      },
-      setDeletePending: bool => (uiState.deletePending = bool),
-      setBacs: bool => (uiState.bacs = bool),
-      onChangeData: (field, value) => {
-        uiState.dirty = true;
-        editMember.updateField(field, value);
-      },
+      // cancelEdit: () => {
+      //   uiState.editMode = false;
+      //   MS.resetEdit();
+      // },
+      // setDeletePending: bool => (uiState.deletePending = bool),
+      // setBacs: bool => (uiState.bacs = bool),
+      // onChangeData: (field, value) => {
+      //   uiState.dirty = true;
+      //   editMember.updateField(field, value);
+      // },
     },
     createNewMember: () => {
       MS.createNewMember();
-      uiState.editMode = true;
+      // uiState.editMode = true;
     },
     setDispStart: no => MS.setDispStart(no),
     setSortProp: no => MS.setSortProp(no),
-    setEditMode: bool => (uiState.editMode = bool),
+    // setEditMode: bool => (uiState.editMode = bool),
   };
   logit('props', props, MS);
   return props;
