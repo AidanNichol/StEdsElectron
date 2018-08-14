@@ -8,6 +8,7 @@
   grid-template-rows: 45px auto;
   background-color: white;
   color: #444;
+  overflow: hidden;
 }
 
 .box {
