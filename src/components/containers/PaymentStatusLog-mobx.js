@@ -4,9 +4,9 @@ import { changeLog } from '../views/bookings/PaymentStatusLog.js';
 import Logit from 'logit';
 var logit = Logit(__filename);
 const uiState = observable({
-  showMode: 1,
+  showMode: 2,
   showAll: false,
-  showOld: true,
+  showOld: false,
   showHistory: true,
 });
 
