@@ -1,15 +1,10 @@
 #!/usr/bin/env node
-// const _ = require('lodash');
+const _ = require('lodash');
 // const XDate = require('xdate');
 const debug = require('debug');
-let db = require('bookingsDB')();
-let R = require('ramda');
-// var PouchDB = require('pouchdb-core')
-//   .plugin(require('pouchdb-adapter-http'))
-//   .plugin(require('pouchdb-authentication'));
+let db = require('bookingsDB')(true);
+let generateEmail = require('./generateEmail');
 
-var fs = require('fs');
-// var path = require('path');
 const Conf = require('conf');
 const DS = require('../../mobx/DateStore');
 const WS = require('../../mobx/WalksStore');
@@ -17,16 +12,21 @@ const MS = require('../../mobx/MembersStore');
 const AS = require('../../mobx/AccountsStore');
 const PS = require('../../mobx/PaymentsSummaryStore');
 
+// const path = require('path');
 const settings = new Conf({
-  // projectName: 'StEdsBookings',
-  // configName: 'StEdsBooking',
-  // cwd: '~/Documents/StEdwards',
+  // projectName: 'StEdsBookingsCheckForUpdates',
+  configName: 'checkForUpdates',
+  // cwd: process.cwd(),
 });
 
 console.log(settings.get());
 console.log(settings.store);
+console.log(settings.path);
 
-debug.enable('*, -pouchdb*');
+// let { mailgunConf } = require(path.resolve(process.cwd(), './config.js'));
+let mailgunConf = settings.get('mailgunConf');
+
+debug.enable('updates, -pouchdb*');
 var logit = debug('updates');
 logit.log = console.log.bind(console);
 logit.debug = console.debug.bind(console);
@@ -51,189 +51,227 @@ logToConsole.prototype.write = function(rec) {
 //   ],
 //   src: false, // Optional, see "src" section
 // });
-let argv = require('minimist')(process.argv.slice(2), {
-  boolean: ['remote', 'mail', 'fix', 'cleanup', 'verbose', 'mailall', 'prod', 'test'],
-  // default: { fix: false, remote: false, mail: false, cleanup: false },
-  unknown: arg => {
-    console.log('unknown option: ', arg);
-    return false;
-  },
-});
-argv.setopts = function(str, val) {
-  let self = this;
-  str.split(/ +/g).forEach(item => {
-    self[item] = val;
-  });
-  return self;
-};
-argv.set = function(str) {
-  return this.setopts(str, true);
-};
-argv.unset = function(str) {
-  return this.setopts(str, false);
-};
-if (argv.prod) argv.set('mailall remote').unset('prod');
-if (argv.test) argv.unset('remote test mail mailall').set('verbose');
-if (argv.cleanup) argv.unset('mail fix verbose').set('verbose');
-if (argv.mailall) argv.set('mail');
-argv.local = !argv.remote;
-const argvOn = Object.keys(argv)
-  .reduce((res, key) => (argv[key] === true ? [...res, key] : res), [])
-  .join(', ');
-logit('argv', argvOn, argv);
-// monitorChanges();
-const lastRun = '2018-05-19';
+
+// let lastRun = '2018-07-20';
+let lastRun = settings.get('lastRun');
+let changedAccounts = {};
 const init = async () => {
-  const accounts = {};
-  const count = {};
   logit('monitorLoading', 'start');
+  const info = await db.info();
+  logit('monitorLoading', 'info', info);
   await PS.init(db);
-  await Promise.all([MS.init(db), AS.init(db), WS.init(db)]);
+  logit('monitorLoading', 'PS');
+  await MS.init(db);
+  logit('monitorLoading', 'MS');
+  await WS.init(db);
+  logit('monitorLoading', 'WS');
+  await AS.init(db);
+  logit('monitorLoading', 'AS');
+  const monitoring = monitorChanges(db, info);
   logit('monitorLoading', 'loaded');
-  AS.setActiveAccount('A2005');
-  const me = AS.activeAccount;
-  const data = me.accountStatusNew;
-  logit('stat', data.accName, data);
-  dispAccount(data.logs, data.oldestNeededWalk);
-  let oldest = {};
-
-  AS.accountsValues.forEach(account => {
-    let dat = account.accountStatusNew.oldestNeededWalk;
-    if (dat < 'W2018') console.log(dat, account._id, account.name);
-    oldest[dat] = (oldest[dat] || 0) + 1;
+  monitoring
+    .then(data => {
+      console.warn('monitoring resolved', data);
+      return data;
+    })
+    .catch(error => {
+      console.warn('monitoring errored', error);
+    });
+};
+init()
+  .then(() => {
+    for (const account of AS.accountsValues) {
+      getMailAddress(account);
+    }
+  })
+  .catch(error => {
+    console.log('init caught error', error.stack);
   });
-  oldest = R.toPairs(oldest);
-  oldest = R.sortBy(R.prop(0), oldest);
-  console.log('oldest');
-  oldest.forEach(([dat, count]) => console.log(dat, count));
-  /*
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃                                                          ┃
-    ┃                extract recent bookings                   ┃
-    ┃                                                          ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-  */
-  logit('walks', WS.walks);
-  for (let walk of WS.walks.values()) {
-    try {
-      if (walk.closed) continue;
-      const { walkId, venue } = walk;
-      for (let [memId, booking] of walk.bookings.entries()) {
-        const accId = MS.getAccountForMember(memId);
-        for (let log of booking.logs.values()) {
-          if (log.dat < lastRun) continue;
-          const dat = log.dat.substr(0, 10);
-          count[dat] = (count[dat] || 0) + 1;
-          if (!accounts[accId]) accounts[accId] = { bookings: [], payments: [] };
-          accounts[accId].bookings.push({ ...log, memId, walkId, venue });
-        }
-      }
-    } catch (error) {
-      logit('recent changes', accounts, count);
-      console.warn(error.stack);
-    }
-  }
-  /*
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃                                                          ┃
-    ┃                extract recent payments                   ┃
-    ┃                                                          ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-  */
-  logit('accounts', AS.accounts);
-  for (let [accId, account] of AS.accounts.entries()) {
-    try {
-      // const accId = account._id;
-      for (let log of account.logs.values()) {
-        if (log.dat < lastRun) continue;
-        const dat = log.dat.substr(0, 10);
-        count[dat] = (count[dat] || 0) + 1;
-        if (!accounts[accId]) accounts[accId] = { bookings: [], payments: [] };
-        accounts[accId].payments.push({ ...log, accId });
-      }
-    } catch (error) {
-      logit('recent changes', accounts, count);
-      console.warn(error.stack);
-    }
-  }
-
-  logit('accounts', count, accounts);
-
-  /*
+/*
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃                                                          ┃
     ┃                display recent activity                   ┃
     ┃                                                          ┃
     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
   */
-  let txt = '';
 
-  for (let [accId, entry] of Object.entries(accounts)) {
-    const account = AS.accounts.get(accId);
-    txt += `\n\nAccount (${accId})  ${account.name}\n`;
-    for (let booking of entry.bookings) {
-      const memName = MS.getMemberByMemNo(booking.memId).shortName(account, true);
-      txt += DS.dispDate(booking.dat) + ' ';
-      txt += `booking: ${booking.walkId.substr(1)} ${booking.venue} ${memName} \n`;
-    }
-    for (let payment of entry.payments) {
-      txt += DS.dispDate(payment.dat) + ' ';
-      txt += `payment: £${payment.amount} \n`;
-    }
+async function processChanges() {
+  console.log('process changes', changedAccounts);
+  let accIds;
+  [changedAccounts, accIds] = [{}, changedAccounts];
+  for (let accId of Object.keys(accIds)) {
+    AS.setActiveAccount(accId);
+    const account = await AS.activeAccount;
+    const email = getMailAddress(account);
+    console.log('mail address', accId, account.name, email);
+    // if (!isValidEmail(email)) console.warn('oh dear - email not valid');
+    if (!email) continue;
+    const mail = generateEmail(account, lastRun, WS.openWalks, 'W' + DS.todaysDate);
+    sendEmail(mail, email);
   }
-  console.log(txt);
-};
+  lastRun = DS.getLogTime();
+  settings.set('lastRun', lastRun);
+}
+
+const Emittery = require('emittery');
+const emitter = new Emittery();
+let timeoutId = null;
+const idletime = 60 * 1000;
+
+emitter.on('accChanged', accId => {
+  changedAccounts[accId] = true;
+  if (timeoutId) clearTimeout(timeoutId);
+  timeoutId = setTimeout(processChanges, idletime);
+  console.log('accChanged', accId, changedAccounts);
+});
 /*
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃                                                          ┃
-    ┃                display account status                    ┃
+    ┃                extract recent bookings                   ┃
     ┃                                                          ┃
     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
   */
-const { sprintf } = require('sprintf-js');
 
-function dispAccount(logs, oldest) {
-  let txt = '\n\n';
-  txt += sprintf(
-    'history: %s,  prehistory: %s,  oldest: %s\n\n',
-    WS.historyStarts,
-    WS.prehistoryStarts,
-    oldest,
-  );
-  txt += '╔' + '═'.repeat(80) + '╗\n';
-  logs.forEach(log => {
-    let { dispDate, amount = '', balance = '', text, req, name = '', walkId = ' ' } = log;
-    let { hideable, historic, prehistoric } = log;
-    const stat = historic
-      ? 'hist'
-      : (hideable ? 'hide' : 'curr') + (prehistoric ? '!' : '');
+function getWalkChanges(id) {
+  const walk = WS.walks.get(id);
+  if (walk.closed || !walk.bookings) return;
 
-    txt += sprintf(
-      '║ %-12s %-2s %-11s %-34s %-5s',
-      dispDate,
-      req,
-      walkId,
-      text + name,
-      stat,
-    );
-    if (req !== 'A') txt += sprintf('£%3d  £%3d', amount, balance);
-    else txt += '          ';
-
-    txt += ' ║\n';
-    if (log.type === 'A' && log.restartPoint) txt += '╟' + '─'.repeat(80) + '╢\n';
-    else if (balance === 0 && amount !== 0) {
-      if (log.type === 'A' || /[BC]X?/.test(req)) txt += '╟' + '╴'.repeat(80) + '╢\n';
-    }
-  });
-  txt += '╚' + '═'.repeat(80) + '╝\n';
-  // let { mailgunConf } = require(path.resolve(process.cwd(), './config.js'));
-  fs.writeFileSync('output.txt', txt);
-
-  logit('formated\n\n', txt);
+  for (let [memId, booking] of walk.bookings.entries()) {
+    let logs = booking.logsValues.filter(log => log.dat > lastRun);
+    if (logs.length === 0) continue;
+    const accId = MS.getAccountForMember(memId);
+    emitter.emit('accChanged', accId);
+  }
 }
-init().catch(error => {
-  console.log(error.stack);
-});
+/*
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃                                                          ┃
+    ┃                extract recent payments                   ┃
+    ┃                                                          ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  */
+function getAccountChanges(accId) {
+  const account = AS.accounts.get(accId);
+  let logs = Array.from(account.logs.values()).filter(log => log.dat > lastRun);
+  if (logs.length > 0) emitter.emit('accChanged', accId);
+}
+/*
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃                                                          ┃
+    ┃      Generate and send the email about the changes       ┃
+    ┃                                                          ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  */
+var mailgun = require('mailgun-js')(mailgunConf);
+function sendEmail(body, email) {
+  var data = {
+    from: 'St.Edwards Booking System <aidan@mg.nicholware.co.uk>',
+    to: email,
+    bcc: 'aidan@nicholware.co.uk, patjohnson613@gmail.com, sandysandy48@hotmail.co.uk',
+    subject: 'Booking Receipt ' + DS.now,
+    text: 'Bookings and/or payments made to: ' + email,
+    html: body,
+  };
+
+  mailgun.messages().send(data, function(error, body) {
+    console.log(body);
+  });
+}
+function getMailAddress(account) {
+  let mems = account.accountMembers;
+  mems = mems
+    .filter(mem => (mem.email || '').includes('@'))
+    .filter(mem => {
+      if (isValidEmail(mem.email)) return true;
+      console.warn('oh dear - email not valid');
+      console.log(mem.memId, mem.firstName, mem.lastName, mem.email);
+      return false;
+    })
+    .filter(mem => (mem.roles || '').includes('tester'))
+    .filter(mem => !(mem.roles || '').includes('no-receipt'));
+  let emails = mems.reduce((acc, mem) => [...acc, mem.email], []);
+  if (emails.length === 0) return false;
+  return _.uniq(emails).join(', ');
+}
+const tester = /^[-!#$%&'*+/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+// Thanks to:
+// http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+// http://thedailywtf.com/Articles/Validating_Email_Addresses.aspx
+// http://stackoverflow.com/questions/201323/what-is-the-best-regular-expression-for-validating-email-addresses/201378#201378
+const isValidEmail = email => {
+  if (!email) return false;
+
+  if (email.length > 254) return false;
+
+  var valid = tester.test(email);
+  if (!valid) return false;
+
+  // Further checking of some things regex can't handle
+  var parts = email.split('@');
+  if (parts[0].length > 64) return false;
+
+  var domainParts = parts[1].split('.');
+  if (
+    domainParts.some(function(part) {
+      return part.length > 63;
+    })
+  )
+    return false;
+
+  return true;
+};
+/*
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃                                                          ┃
+  ┃                monitor db changes                        ┃
+  ┃                                                          ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  */
+
+var storeFn = {
+  walk: WS.changeDoc,
+  account: AS.changeDoc,
+  member: MS.changeDoc,
+  bankPayments: AS.changeDoc,
+};
+
+const collections = {
+  M: 'member',
+  W: 'walk',
+  A: 'account',
+  BP: 'paymentSummary',
+  BS: 'bankSubscriptions',
+};
+
+let lastSeq;
+
+async function monitorChanges(db, info) {
+  logit('info', info);
+  // lastSeq = info.update_seq;
+  lastSeq = settings.get('lastSeq');
+  // lastSeq -= 60;
+  let monitor = db
+    .changes({ since: lastSeq, live: true, timeout: false, include_docs: true })
+    .on('change', info => handleChange(info))
+    .on('complete', () => {})
+    .on('error', error => logit('changes_error', error));
+  // The subscriber must return an unsubscribe function
+  return () => monitor.cancel();
+}
+
+const handleChange = change => {
+  if (change.id[0] === '_' || (change.doc && !change.doc.type)) return;
+  var collection =
+    (change.doc && change.doc.type) || collections[change.id.match(/$([A-Z]+)/)[0]];
+  logit('change', { change, collection });
+  if (storeFn[collection]) {
+    storeFn[collection](change); // update Mobx store
+    lastSeq = change.seq;
+    settings.set('lastSeq', change.seq);
+    if (collection === 'walk' && !change.deleted) getWalkChanges(change.id);
+    if (collection === 'account' && !change.deleted) getAccountChanges(change.id);
+  }
+};
 
 // const getRev = rev => parseInt(rev.split('━')[0]);
 // var coll = new Intl.Collator();
