@@ -22,9 +22,6 @@ The content of this message, with the exception of this
 information box is what would be sent to members if this system were introduced.<br/>
 In testing I neeed to establish a number of things.
 <ol>
-<li>Is the mailing mechanism working? For now, could you let me know 
-that you received this message. Also, let me know if you make bookings etc. and 
-don't receive an email</li>
 <li>If there a problems viewing this message then 
 please let me know.</li>
 <li>Finally, could the content of the message could be improved.</li>
