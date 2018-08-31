@@ -21,8 +21,10 @@ const OPTIONS = [
   { type: '+X', title: 'Remove Credit' },
 ];
 class UiStatus {
-  @observable helpIsOpen = false;
-  @observable paymentType;
+  @observable
+  helpIsOpen = false;
+  @observable
+  paymentType;
 
   self = this;
   @action.bound
@@ -126,20 +128,20 @@ const PaymentsBoxesUnstyled = observer(props => {
   return (
     <div className={props.className}>
       {credit ? <span className="credit">Credit £{credit}</span> : null}
-      {/* {(!owing) || setPaymentType[0] != "P" || setPaymentType[1] !== 1 ? null : */}
-      {!owing ? null : (
-        <span>
+      {!owing ? (
+        <span />
+      ) : (
+        <div>
           <TooltipButton
             lable={`Payment Due £${owing}`}
             onClick={paidInFull}
             tiptext="Paid Full Amount"
             visible
-          />{' '}
-          &nbsp; or
-        </span>
+          />
+          &nbsp; or &nbsp;
+        </div>
       )}
       <div className="payment-boxes">
-        {/* <span className="pay-box"> */}
         <MySelect
           className="pt-select"
           onChange={uiStatus.changePaymentType.bind(uiStatus)}
@@ -152,33 +154,31 @@ const PaymentsBoxesUnstyled = observer(props => {
         />
         <TooltipContent tiptext="Enter paid amount and press enter" visible>
           <span>
-            {' '}
-            &nbsp;£ &nbsp;<input
+            &nbsp;£ &nbsp;
+            <input
               size="3"
               type="text"
               onKeyDown={handleKeydown}
               onChange={amountChange}
-            />{' '}
-          </span>
-          <span>
-            {' '}
-            Note &nbsp;{' '}
-            <input
-              size="30"
-              type="text"
-              onKeyDown={handleKeydown}
-              onChange={noteChange}
-            />{' '}
-            &nbsp;
+            />
           </span>
         </TooltipContent>
-        <span
+        Note
+        <input
+          style={{ marginLeft: 8 }}
+          className="note"
+          type="text"
+          placeholder="Optionally Enter text and press enter"
+          onKeyDown={handleKeydown}
+          onChange={noteChange}
+        />
+        <div
           className="pt-icon-standard pt-icon-help"
           onClick={() => uiStatus.showHelp()}
+          style={{ justifySelf: 'center' }}
         >
           &nbsp;
-        </span>
-        {/* </span> */}
+        </div>
         <HelpDialog
           setHelp={uiStatus.hideHelp.bind(uiStatus)}
           isOpen={uiStatus.helpIsOpen}
@@ -190,36 +190,27 @@ const PaymentsBoxesUnstyled = observer(props => {
   );
 });
 export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
-  grid-column: 2;
+  grid-column: 1 / span 2;
   grid-row: 3;
   min-height: 1px;
   margin-top: 10px;
-  max-height: 60px;
-  display: flex;
-  flex-direction: row;
-  align-content: center;
+  display: grid;
+  grid-template-columns:auto 1fr;
   align-items: center;
   margin-left: 10px;
-
-  * + * {
-    margin-left: 10px;
-  }
-
+  
   .payment-boxes {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
+    display: grid;
+    grid-template-columns: 210px 55px 30px 1fr 24px;
     align-items: center;
     background: rgb(238, 238, 238);
     border: rgb(170, 170, 170) solid 2px;
     border-radius: 4px;
     padding: 5px;
     padding-right: 0;
+    margin-left:0;
+    margin-top:5px;
   }
-
-    span {
-      padding-right: 0;
-    }
 
     .pt-icon-help {
       cursor: pointer;

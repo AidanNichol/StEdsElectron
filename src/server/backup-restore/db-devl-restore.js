@@ -5,7 +5,7 @@ var replicationStream = require('pouchdb-replication-stream');
 
 PouchDB.plugin(replicationStream.plugin);
 
-const filename = '';
+const filename = 'backup-development-2018-07-03_13-09-51.txt';
 var stream = fs.createReadStream(filename);
 // var live = new PouchDB('http://nicholware.com:5984/bookings', {});
 var devl = new PouchDB('http://aidan:admin@localhost:5984/devbookings', {});
