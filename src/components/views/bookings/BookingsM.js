@@ -119,9 +119,11 @@ class Bookings extends React.Component {
           <h5>{account.name}</h5>
         </div>
         <div className="bTable">
-          <div className="heading">
+          <div className={'heading bLine mems' + accNames.length}>
             <div className="title date">
-              Date<br />Venue
+              Date
+              <br />
+              Venue
             </div>
             <div className="title avail">Available</div>
             {accNames.map((member, i) => (
@@ -131,7 +133,10 @@ class Bookings extends React.Component {
             ))}
           </div>
           {openWalks.map((walk, w) => (
-            <div className="walk" key={w + 'XYZ' + walk.walkId}>
+            <div
+              className={'walk bLine mems' + accNames.length}
+              key={w + 'XYZ' + walk.walkId}
+            >
               <div className="date">
                 {walk.walkDate}
                 {closeit(walk)}
