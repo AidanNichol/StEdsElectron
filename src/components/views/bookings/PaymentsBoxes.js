@@ -152,16 +152,9 @@ const PaymentsBoxesUnstyled = observer(props => {
           value={uiStatus.paymentType || OPTIONS[0]}
           valueComponent={IconValue}
         />
+        £
         <TooltipContent tiptext="Enter paid amount and press enter" visible>
-          <span>
-            &nbsp;£ &nbsp;
-            <input
-              size="3"
-              type="text"
-              onKeyDown={handleKeydown}
-              onChange={amountChange}
-            />
-          </span>
+          <input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange} />
         </TooltipContent>
         Note
         <input
@@ -201,7 +194,7 @@ export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   
   .payment-boxes {
     display: grid;
-    grid-template-columns: 210px 55px 30px 1fr 24px;
+    grid-template-columns: 210px 15px 55px 30px 1fr 24px;
     align-items: center;
     background: rgb(238, 238, 238);
     border: rgb(170, 170, 170) solid 2px;
