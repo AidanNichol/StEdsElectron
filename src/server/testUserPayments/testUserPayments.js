@@ -56,6 +56,7 @@ const init = async () => {
   accId = 'A2027'; // Louise Karmazyn
   accId = 'A1193'; // Lorraine Cooper
   accId = 'A2063'; // Alan Fletcher
+  accId = 'A1197'; // Peter Robinson
   AS.setActiveAccount(accId);
   const me = AS.activeAccount;
   const data = me.accountStatusNew;
@@ -130,6 +131,8 @@ function dispAccount(data) {
 
   logit('formated\n\n', txt);
 }
-init().catch(error => {
+try {
+  init();
+} catch (error) {
   console.log(error.stack);
-});
+}
