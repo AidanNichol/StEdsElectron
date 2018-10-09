@@ -36,7 +36,7 @@ module.exports = class FundsManager {
     logs.forEach(log => {
       this.realActivity = this.realActivity || log.amount !== 0;
       if (/^[BC]$/.test(log.req)) {
-        booking = log;
+        booking = booking || log;
       } else if (booking && log.req === booking.req + 'X') {
         booking.ignore = true;
         log.ignore = true;
