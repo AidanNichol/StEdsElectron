@@ -67,16 +67,12 @@ const init = async () => {
   logit('monitorLoading', 'WS');
   await AS.init(db);
   logit('monitorLoading', 'AS');
-  const monitoring = monitorChanges(db, info);
-  logit('monitorLoading', 'loaded');
-  monitoring
-    .then(data => {
-      console.warn('monitoring resolved', data);
-      return data;
-    })
-    .catch(error => {
-      console.warn('monitoring errored', error);
-    });
+  //  monitorChanges(db, info);
+  emitter.emit('startMonitoring', db);
+  //   })
+  //   .catch(error => {
+  //     console.warn('monitoring errored', error);
+  //   });
 };
 init()
   .then(() => {
@@ -244,9 +240,13 @@ const collections = {
 };
 
 let lastSeq;
+emitter.on('startMonitoring', db => {
+  monitorChanges(db);
+  logit('monitorLoading', 'loaded');
+});
 
-async function monitorChanges(db, info) {
-  logit('info', info);
+async function monitorChanges(db) {
+  // logit('info', info);
   // lastSeq = info.update_seq;
   lastSeq = settings.get('lastSeq');
   // lastSeq -= 60;
@@ -254,7 +254,10 @@ async function monitorChanges(db, info) {
     .changes({ since: lastSeq, live: true, timeout: false, include_docs: true })
     .on('change', info => handleChange(info))
     .on('complete', () => {})
-    .on('error', error => logit('changes_error', error));
+    .on('error', error => {
+      logit('changes_error', error);
+      timeoutId = setTimeout(() => emitter.emit('startMonitoring', db), idletime);
+    });
   // The subscriber must return an unsubscribe function
   return () => monitor.cancel();
 }

@@ -1,4 +1,4 @@
-node_modules*
+/node_modules*
 /bookings
 pouch__all_dbs__
 _replicator
