@@ -147,7 +147,7 @@
     "madge": "^3.1.1",
     "mailgun-js": "^0.18.0",
     "minimist": "^1.2.0",
-    "mobx": "^4.3.0yarn run",
+    "mobx": "^4.3.0",
     "mobx-react": "^5.1.2",
     "mobx-react-devtools": "^5.0.1",
     "mobx-utils": "^4.0.1",

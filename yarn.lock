@@ -6908,9 +6908,9 @@ mobx-utils@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/mobx-utils/-/mobx-utils-4.0.1.tgz#1bd8648332be7ca83d7023aaa0ba24bbf389a300"
 
-"mobx@^4.3.0yarn run":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-4.3.0.tgz#50a5e63fd0197a83c68166ff83ada45b65c859f8"
+mobx@^4.3.0:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-4.5.2.tgz#d7ddfb1ac953197dff62e1da7175c5c8ad9de790"
 
 module-definition@^2.2.4:
   version "2.2.4"

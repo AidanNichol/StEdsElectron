@@ -3,7 +3,7 @@ date_default_timezone_set('Europe/London');
         $dbname = "sqlite:../kohsteds/data/StEdsWalks.sdb";
         $db = new PDO($dbname, '', '', array(PDO::ATTR_PERSISTENT => false));
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $walks = $db->query('SELECT date as _id, time, region, organizer, map, area as venue FROM walkday WHERE date > "2018-01-01" ')->fetchAll(PDO::FETCH_ASSOC);
+        $walks = $db->query('SELECT date as _id, time, region, organizer, map, area as venue FROM walkday WHERE date > "2019-01-01" ')->fetchAll(PDO::FETCH_ASSOC);
 
 // print_r($walks);
 
