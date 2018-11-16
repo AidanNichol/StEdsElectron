@@ -47,3 +47,4 @@ email.html
 src/server/email/email.js
 src/server/checkForUpdates/generateEmail.1.js
 stedsWalks.json
+.env

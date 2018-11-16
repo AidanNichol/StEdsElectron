@@ -47,7 +47,7 @@ class Account {
     this._id = 0;
     this.type = 'account';
     this._conflicts = [];
-    this.members = [];
+    this.members = accountDoc.members || [];
     this.logs = observable.map({}, { deep: false });
     this.accountId;
     this.latePaymentLogs = [];
@@ -62,6 +62,7 @@ class Account {
     reaction(() => this.logs.size, () => logit('autorun', this.report, this.isLoading()));
     (accountDoc.logs || []).forEach(log => this.logs.set(log.dat, new AccLog(log)));
     delete accountDoc.logs;
+    delete accountDoc.members;
     _.merge(this, accountDoc);
     // this.updateDocument(accountDoc);
     this.logger = logger.child({ accId: `${this._id} - ${this.name}` });
@@ -768,17 +769,23 @@ const getNewestDate = (...args) => {
     const dat = _.isArray(item)
       ? getNewestDate(...item)
       : _.isString(item)
-        ? item
-        : item.dat;
+      ? item
+      : item.dat;
     return dat > newest ? dat : newest;
   }, '000-00-00');
 };
 
 const getOldestDate = (...args) => {
-  return args.filter(log => log).reduce((oldest, log) => {
-    const dat = _.isArray(log) ? getOldestDate(...log) : _.isString(log) ? log : log.dat;
-    return dat < oldest ? dat : oldest;
-  }, '9999-99-99');
+  return args
+    .filter(log => log)
+    .reduce((oldest, log) => {
+      const dat = _.isArray(log)
+        ? getOldestDate(...log)
+        : _.isString(log)
+        ? log
+        : log.dat;
+      return dat < oldest ? dat : oldest;
+    }, '9999-99-99');
 };
 // function isBillable(log) {
 //   return /^[BC]X?$/.test(log.req || '');

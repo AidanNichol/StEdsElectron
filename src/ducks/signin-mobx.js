@@ -1,5 +1,5 @@
 /* global PouchDB */
-const { intersection, merge, pick } = require('lodash');
+const { intersection, merge } = require('lodash');
 const React = require('react');
 const { getSettings, setSettings, DbSettings } = require('settings');
 const { action, runInAction, reaction, toJS } = require('mobx');
@@ -77,10 +77,10 @@ export const login = action(async (name, password) => {
         JSON.stringify({ username: name, name, password }),
       );
       // const {username, password} = JSON.parse(localStorage.getItem('stEdsSignin'));
-      merge(state, pick(resp, ['name', 'roles']), {
-        loggedIn: true,
-        authError: '',
-      });
+      state.name = resp.name;
+      state.roles.replace(resp.roles);
+      state.loggedIn = true;
+      state.authError = '';
       lastAction = 'Login';
       setSettings('user.' + name, {
         roles: state.roles,
@@ -106,11 +106,11 @@ const logout = action(async () => {
   localStorage.removeItem('stEdsRouter');
   runInAction('update state after logout', () => {
     lastAction = 'Logout';
+    state.roles.replace([]);
     merge(state, {
       loggedIn: false,
       name: '',
       password: '',
-      roles: '',
       authError: '',
     });
   });
@@ -141,7 +141,9 @@ const localLogin = action('localLogin', (username, password) => {
       ' !== ' +
       getHash(password)}`;
   lastAction = 'reLogin';
-  merge(state, { name: username, roles, loggedIn: true });
+  state.name = username;
+  state.roles.replace(roles);
+  state.loggedIn = true;
   logit(
     'relogin successful',
     username,
