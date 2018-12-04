@@ -1,5 +1,4 @@
 import React from 'react';
-// import {Icon} from 'ducks/walksDuck'
 import { Icon } from 'Icon';
 export const PaymentHelp = () => (
   <div className="payments-help">
