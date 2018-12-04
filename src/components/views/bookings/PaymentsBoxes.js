@@ -1,93 +1,67 @@
 import React from 'react';
-import { observable, toJS, action } from 'mobx';
+import { observable, toJS, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import { Icon } from '../../utility/Icon';
-import { PaymentHelp } from '../../help/PaymentHelp';
-import { HelpDialog } from '../../help/HelpDialog';
+import { PaymentHelpDialog } from '../../help/PaymentHelpDialog';
 import TooltipButton from '../../utility/TooltipButton.js';
 import TooltipContent from '../../utility/TooltipContent.js';
-import classNames from 'classnames';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Logit from 'logit';
 var logit = Logit(__filename);
 
-const OPTIONS = [
-  { type: 'P', title: 'Paid cash' },
-  { type: 'PX', title: 'Refund Payment' },
-  { type: 'T', title: 'Paid via Treasurer' },
-  { type: 'TX', title: 'Refund via Treasurer' },
-  { type: '+', title: 'Add Credit' },
-  { type: '+X', title: 'Remove Credit' },
+const paymentOptions = [
+  { value: 'P', label: 'Paid cash' },
+  { value: 'PX', label: 'Refund Payment' },
+  { value: 'T', label: 'Paid via Treasurer' },
+  { value: 'TX', label: 'Refund via Treasurer' },
+  { value: '+', label: 'Add Credit' },
+  { value: '+X', label: 'Remove Credit' },
 ];
 class UiStatus {
-  @observable
-  helpIsOpen = false;
-  @observable
-  paymentType;
+  // helpIsOpen = false;
+  paymentType = paymentOptions[0];
 
   self = this;
-  @action.bound
-  changePaymentType(type) {
+  changePaymentType = type => {
     logit('changePaymentType', type, this);
     this.paymentType = type;
-  }
-  @action.bound
-  resetPaymentType() {
-    this.paymentType = undefined;
+  };
+  resetPaymentType = () => {
+    this.paymentType = paymentOptions[0];
     logit('resetPaymentType', toJS(this));
-  }
-  @action.bound
-  showHelp() {
-    this.helpIsOpen = true;
-  }
-  @action.bound
-  hideHelp() {
-    this.helpIsOpen = false;
-  }
+  };
+  // showHelp = () => {
+  //   this.helpIsOpen = true;
+  // };
+  // toggleHelp = () => {
+  //   this.helpIsOpen = !this.helpIsOpen;
+  // };
+  // hideHelp = () => {
+  //   this.helpIsOpen = false;
+  // };
 }
+decorate(UiStatus, {
+  helpIsOpen: observable,
+  paymentType: observable,
+  changePaymentType: action,
+  resetPaymentType: action,
+  showHelp: action,
+  hideHelp: action,
+});
 export const uiStatus = new UiStatus();
 
 const PaymentsBoxesUnstyled = observer(props => {
-  // render () {
-  const IconOption = ({ option, className, onSelect, onFocus, isFocused }) => {
-    const handleMouseDown = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      onSelect(option, event);
-    };
-    const handleMouseEnter = event => {
-      onFocus(option, event);
-    };
-    const handleMouseMove = event => {
-      if (isFocused) return;
-      onFocus(option, event);
-    };
-    const disabled = option.type === '+X' && !credit;
-
-    return (
-      <div
-        className={classNames(className, { disabled })}
-        onMouseDown={!disabled && handleMouseDown}
-        onMouseEnter={handleMouseEnter}
-        onMouseMove={handleMouseMove}
-        title={option.title}
-      >
-        <Icon type={option.type} />
-        {option.title}
-      </div>
-    );
-  };
-
-  const IconValue = ({ value }) => (
-    <span className="Select-value-label">
+  const IconValue = ({ data, innerProps }) => (
+    <div {...innerProps}>
       &nbsp;
-      <Icon type={value.type} />
-      {value.title}
-    </span>
+      <Icon type={data.value} />
+      {data.label}
+    </div>
   );
+
   const { accId, owing, credit, accountUpdatePayment } = props;
-  const paymentType = uiStatus.paymentType || OPTIONS[0];
+  const paymentType = uiStatus.paymentType || paymentOptions[0];
   logit('PaymentsBoxes:props', paymentType, props);
   if (!accId) return null;
   let handleKeydown = event => {
@@ -124,6 +98,16 @@ const PaymentsBoxesUnstyled = observer(props => {
     accountUpdatePayment(accId, owing, note, 'P', true);
     event.target.value = '';
   };
+  const Option = props =>
+    props.value === '+X' && !credit ? null : <IconValue {...props} />;
+  const SingleValue = props => <IconValue {...props} />;
+
+  const customStyles = {
+    menu: provided => {
+      let { top, ...providedO } = provided; //eslint-disable-line no-unused-vars
+      return { ...providedO, bottom: '100%' };
+    },
+  };
 
   return (
     <div className={props.className}>
@@ -142,15 +126,12 @@ const PaymentsBoxesUnstyled = observer(props => {
         </div>
       )}
       <div className="payment-boxes">
-        <MySelect
-          className="pt-select"
+        <Select
           onChange={uiStatus.changePaymentType.bind(uiStatus)}
-          optionComponent={IconOption}
-          options={OPTIONS}
-          clearable={false}
-          menuBuffer={800}
-          value={uiStatus.paymentType || OPTIONS[0]}
-          valueComponent={IconValue}
+          components={{ Option, SingleValue }}
+          styles={customStyles}
+          options={paymentOptions}
+          defaultValue={uiStatus.paymentType || paymentOptions[0]}
         />
         £
         <TooltipContent tiptext="Enter paid amount and press enter" visible>
@@ -165,19 +146,14 @@ const PaymentsBoxesUnstyled = observer(props => {
           onKeyDown={handleKeydown}
           onChange={noteChange}
         />
-        <div
+        {/* <div
           className="pt-icon-standard pt-icon-help"
-          onClick={() => uiStatus.showHelp()}
+          onClick={() => uiStatus.toggleHelp()}
           style={{ justifySelf: 'center' }}
         >
           &nbsp;
-        </div>
-        <HelpDialog
-          setHelp={uiStatus.hideHelp.bind(uiStatus)}
-          isOpen={uiStatus.helpIsOpen}
-        >
-          <PaymentHelp />
-        </HelpDialog>
+        </div> */}
+        <PaymentHelpDialog />
       </div>
     </div>
   );
@@ -194,7 +170,7 @@ export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   
   .payment-boxes {
     display: grid;
-    grid-template-columns: 210px 15px 55px 30px 1fr 24px;
+    grid-template-columns: 220px 15px 55px 30px 1fr 50px;
     align-items: center;
     background: rgb(238, 238, 238);
     border: rgb(170, 170, 170) solid 2px;
@@ -211,33 +187,33 @@ export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   }
 `;
 
-const MySelect = styled(Select)`
-  width: 180px;
+// const MySelect = styled(Select)`
+//   width: 180px;
 
-  .Select-control {
-    width: 200px;
-    background-color: rgb(238, 238, 238);
-  }
+//   .Select-control {
+//     width: 200px;
+//     background-color: rgb(238, 238, 238);
+//   }
 
-  .Select-menu-outer {
-    min-height: 215px;
-    margin-bottom: 10px;
-  }
+//   .Select-menu-outer {
+//     min-height: 215px;
+//     margin-bottom: 10px;
+//   }
 
-  .Select-menu {
-    min-height: 210px;
-  }
+//   .Select-menu {
+//     min-height: 210px;
+//   }
 
-  .disabled {
-    color: #ccc;
-  }
+//   .disabled {
+//     color: #ccc;
+//   }
 
-  .Select-multi-value-wrapper {
-    overflow: hidden;
-    white-space: nowrap;
-  }
+//   .Select-multi-value-wrapper {
+//     overflow: hidden;
+//     white-space: nowrap;
+//   }
 
-  .icon {
-    height: 16px;
-  }
-`;
+//   .icon {
+//     height: 16px;
+//   }
+// `;
