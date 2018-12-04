@@ -2,9 +2,9 @@ module.exports = {
   plugins: [
     require('postcss-import')({}),
     require('postcss-inline-comment')({}),
-    require('postcss-cssnext')(),
+    require('postcss-preset-env')(),
     require('postcss-nested')({}),
   ],
-  dir: "app/styles/",
+  dir: 'app/styles/',
   // verbose: true,
-}
+};
