@@ -1,9 +1,0 @@
-{
-  "use":["postcss-less", "postcss-cssnext"],
-  "dir": "app/styles",
-  "local-plugins": true,
-  "watch": true,
-  "input": "src/styles/*",
-  "postcss-less": {},
-  "postcss-cssnext": {}
-}
