@@ -1,4 +1,5 @@
-/* global PouchDB */
+const PouchDB = require('pouchdb-browser');
+
 const { intersection, merge } = require('lodash');
 const React = require('react');
 const { getSettings, setSettings, DbSettings } = require('settings');
@@ -16,26 +17,6 @@ var lastAction = '';
 const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;
 
 var remoteDB = new PouchDB(remoteCouch, { skip_setup: true });
-// export class SigninState {
-//   @observable name = '';
-//   @observable password = '';
-//   @observable authError = '';
-//   @observable loggedIn = false;
-//   @observable roles = [];
-//   machine = null;
-//   @computed
-//   get isBookingsAdmin() {
-//     return intersection(this.roles, ['_admin', 'admin', 'bookings']).length > 0;
-//   }
-//   @computed
-//   get isMembersAdmin() {
-//     return (
-//       intersection(this.roles, ['_admin', 'admin', 'membership', 'bookings']).length > 0
-//     );
-//   }
-// }
-// export const state = new SigninState();
-// export const getUpdater = () => state.name;
 reaction(
   () => ({ loggedIn: state.loggedIn, roles: state.roles, authError: state.authError }),
   () => {
