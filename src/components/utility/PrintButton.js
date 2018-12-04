@@ -6,11 +6,11 @@ import Logit from 'logit';
 var logit = Logit(__filename);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const state = {
-  @observable printRunning: false,
-  @observable icon: 'Printer',
+const state = observable({
+  printRunning: false,
+  icon: 'Printer',
   reportName: undefined,
-};
+});
 const runReport = action(async function(rptFn) {
   state.printRunning = true;
   state.icon = 'spin';

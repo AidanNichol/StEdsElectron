@@ -1,5 +1,5 @@
 // import { getSettings} from 'settings';
-import { observable, action, toJS, reaction } from 'mobx';
+import { observable, action, toJS, reaction, decorate } from 'mobx';
 import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
 const { setActiveAccount } = require('mobx/AccountsStore');
 const { setActiveWalk } = require('mobx/WalksStore');
@@ -10,11 +10,11 @@ import { merge } from 'lodash';
 import Logit from 'logit';
 const logit = Logit(__filename);
 class Router {
-  @observable page = null;
-  @observable memberId = null;
-  @observable accountId = null;
-  @observable initialized = false;
-  @observable walkId = null;
+  page = null;
+  memberId = null;
+  accountId = null;
+  initialized = false;
+  walkId = null;
 
   constructor() {
     // const savedValues = localStorage.getItem('stEdsRouter')
@@ -53,30 +53,40 @@ class Router {
       fireImmediately: true,
     });
   }
-  @action
+
   setAndSaveState = payload => {
     merge(this, payload);
   };
-  @action
+
   setPage = payload => {
     logit('setPage', payload);
     merge(this, payload);
     // this.resetAccountId();
   };
-  @action
+
   setUser = (memberId, accountId) => {
     logit('setUser (act)', memberId, accountId);
     this.memberId = memberId[0] === 'M' ? memberId : null;
     // this.accountId = accountId[0] === 'A' ? accountId : null;
     // this.resetAccountId();
   };
-  @action
+
   resetAccountId = () => {
     if (this.memberId && !this.accountId)
       this.accountId = getAccountForMember(this.memberId);
   };
 }
-
+decorate(Router, {
+  page: observable,
+  memberId: observable,
+  accountId: observable,
+  initialized: observable,
+  walkId: observable,
+  setAndSaveState: action,
+  setPage: action,
+  setUser: action,
+  resetAccountId: action,
+});
 export const router = new Router();
 export const setRouterPage = router.setPage;
 export const setRouterUser = router.setUser;

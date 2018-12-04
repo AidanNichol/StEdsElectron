@@ -4,7 +4,7 @@ import { remote, ipcRenderer } from 'electron';
 import React from 'react';
 import { render } from 'react-dom';
 import _ from 'lodash';
-import { observable, computed, action, toJS, autorun } from 'mobx';
+import { observable, computed, action, toJS, autorun, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import debug from 'debug';
 import styled from 'styled-components';
@@ -20,8 +20,8 @@ var logitCodes = JSON.parse(localStorage.getItem('logitCodes') || '[]').sort();
 logme(logitCodes);
 const select = { YES: true, SOME: '???', NO: false };
 class Bool {
-  @observable state = select.NO;
-  @observable enableString = '';
+  state = select.NO;
+  enableString = '';
   parent = null;
   token = null;
   type = 'Bool';
@@ -52,36 +52,34 @@ class Bool {
     logmeB('count', this.token, bc);
     return bc;
   }
-  @action
-  getEnableString(parentDerivedState) {
+
+  getEnableString = parentDerivedState => {
     if (parentDerivedState === this.state) return '';
     this.enableString = (parentDerivedState === select.YES ? ',-' : ',') + this.partName;
     return this.enableString;
-  }
-  @computed
+  };
+
   get string() {
     return this.enableString;
   }
-  @action
-  setAncestors(val) {
+
+  setAncestors = val => {
     this.parent && this.parent.setState(val);
-  }
+  };
   setChildren() {}
   get children() {
     return [];
   }
 
-  @action
-  setState(val) {
+  setState = val => {
     if (this.state === val) return;
     logmeP('setBoolState', this.partName, val);
     this.state = val;
     this.setParentState(val);
     data.count;
     // }
-  }
-  @action
-  setParentState(val) {
+  };
+  setParentState = val => {
     let parent = this.parent;
     if (!parent) {
       logmeP('no parent', this.partName, val);
@@ -99,12 +97,20 @@ class Bool {
 
     logmeP('setParentState', parent.partName, `${parent.state} ==> ${resVal}(${val})`);
     parent.setState(resVal, false);
-  }
+  };
 }
-
+decorate(Bool, {
+  state: observable,
+  enableString: observable,
+  string: computed,
+  getEnableString: action,
+  setAncestors: action,
+  setState: action,
+  setParentState: action,
+});
 class Group extends Bool {
   type = 'Group';
-  @observable derivedState = select.SOME;
+  derivedState = select.SOME;
   constructor(...args) {
     super(...args);
     // autorun(() => logmeA(this.partName, this.state));
@@ -119,14 +125,14 @@ class Group extends Bool {
   isGroup() {
     return true;
   }
-  @action
-  addChild(key, child) {
+
+  addChild = (key, child) => {
     this.childrenObj[key] = child;
-  }
-  getChild(key) {
+  };
+  getChild = key => {
     return this.childrenObj[key];
-  }
-  @computed
+  };
+
   get children() {
     return Object.values(this.childrenObj || {});
   }
@@ -153,8 +159,8 @@ class Group extends Bool {
     logmeP('count 2', this.partName, gc, this.derivedState);
     return gc;
   }
-  @action
-  getEnableString(parentDerivedState) {
+
+  getEnableString = parentDerivedState => {
     this.enableString = '';
     if (this.state !== select.SOME) {
       if (parentDerivedState === this.state) return '';
@@ -179,10 +185,9 @@ class Group extends Bool {
     );
     logmeP('string 2', this.partName, this.derivedState, this.enableString);
     return this.enableString;
-  }
+  };
 
-  @action
-  setChildren(val) {
+  setChildren = val => {
     this.children.forEach(child => {
       logmeC(child.partName, child.token, val);
       child.state = val;
@@ -190,9 +195,9 @@ class Group extends Bool {
         child.setChildren(val);
       }
     });
-  }
-  @action
-  setState(val, down = true) {
+  };
+
+  setState = (val, down = true) => {
     if (this.state === val) return;
 
     logmeP(`set${this.type}State`, this.partName, `${this.state} ==> ${val}`);
@@ -200,8 +205,16 @@ class Group extends Bool {
     down && this.setChildren(val);
     this.setParentState(val);
     data.count;
-  }
+  };
 }
+decorate(Group, {
+  derivedState: observable,
+  addChild: action,
+  getEnableString: action,
+  setChildren: action,
+  setState: action,
+  children: computed,
+});
 /* 
 get table of current logit codes and built the data hierarchy
 
