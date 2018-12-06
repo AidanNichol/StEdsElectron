@@ -2,15 +2,17 @@
 // import Logit from 'logit';
 // var logit = Logit('color:white; background:black;', 'mobx:WalksStore');
 // var prettyFormat = require('pretty-format')
-var PouchDB = require('pouchdb');
+
+var PouchDB = require('pouchdb-core')
+  .plugin(require('pouchdb-adapter-http'))
+  .plugin(require('pouchdb-replication'));
+
 var replicationStream = require('pouchdb-replication-stream');
 var MemoryStream = require('memorystream');
 
 PouchDB.plugin(replicationStream.plugin);
 PouchDB.adapter('writableStream', replicationStream.adapters.writableStream);
 var stream = new MemoryStream();
-
-PouchDB.plugin(replicationStream.plugin);
 
 const settingsFile = '/Users/aidan/Library/Preferences/stedsbookings-nodejs/config.json';
 const fs = require('fs');
