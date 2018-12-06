@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from 'react-modal';
+import ReactModal from 'react-modal';
 import TooltipButton from './TooltipButton.js';
 const closeStyle = {
   background: '#606061',
@@ -14,43 +14,45 @@ const closeStyle = {
   fontWeight: 'bold',
   borderRadius: '12px',
   boxShadow: '1px 1px 3px #000',
-  cursor: 'pointer'
-}
-class AJNModal extends React.Component{
+  cursor: 'pointer',
+};
+ReactModal.setAppElement('#root');
+class AJNModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = { modalIsOpen: false };
   }
 
+  openModal = () => {
+    this.setState({ modalIsOpen: true });
+  };
 
-  openModal(){
-    this.setState({modalIsOpen: true})
-  }
+  closeModal = () => {
+    this.setState({ modalIsOpen: false });
+  };
 
-  closeModal(){
-    this.setState({modalIsOpen: false})
-  }
-
-
-  render(){
+  render() {
     return (
       <div>
-      <TooltipButton icon={this.props.icon} onClick={this.openModal} tiptext={this.props.tiptext} visible/>
-      <Modal
-        isOpen={this.state.modalIsOpen}
-        // onAfterOpen={afterOpenFn}
-        onRequestClose={this.closeModal}
-        // closeTimeoutMS={n}
-        // style={customStyle}
-        contentLabel="Modal"
-      >
-
-      <a style={closeStyle} onClick={this.closeModal}>X</a>
-      {this.props.children}
-
-      </Modal>
+        <TooltipButton
+          icon={this.props.icon}
+          onClick={this.openModal}
+          tiptext={this.props.tiptext}
+          iconStyle={this.props.iconStyle}
+          visible
+        />
+        <ReactModal
+          isOpen={this.state.modalIsOpen}
+          onRequestClose={this.closeModal}
+          contentLabel="Modal"
+        >
+          <a style={closeStyle} onClick={this.closeModal}>
+            X
+          </a>
+          {this.props.children}
+        </ReactModal>
       </div>
-    )
+    );
   }
 }
 export default AJNModal;
