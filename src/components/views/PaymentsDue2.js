@@ -1,13 +1,9 @@
 /* jshint quotmark: false */
 import React from 'react';
 import { Panel } from '../utility/AJNPanel';
-// import MyModal from '../utility/AJNModal'
 import TooltipButton from '../utility/TooltipButton.js';
 import classnames from 'classnames';
 
-// import TooltipContent from '../utility/TooltipContent.js';
-// import PaymentsSummary from './PaymentsSummary'
-// import showNewWindow from 'utilities/showNewWindow.js';
 import styled from 'styled-components';
 import { Icon } from '../utility/Icon';
 // import {Icon} from 'ducks/walksDuck'
@@ -86,7 +82,9 @@ const memberRecipt = observer(props => {
       </div>
       {data.logs
         .filter(bkng => bkng.outstanding && bkng.amount !== 0)
-        .map(bkng => <Detail bkng={bkng} key={bkng.dat + 'xx'} />)}
+        .map(bkng => (
+          <Detail bkng={bkng} key={bkng.dat + 'xx'} />
+        ))}
     </div>
   );
 });
@@ -139,7 +137,6 @@ export const MemberRecipt = styled(memberRecipt)`
 `;
 
 export const payments = observer(props => {
-  // const showPaymentSummary = ()=>{showNewWindow('paymentsSummary')}
   logit('payments props', props, uiState);
   var {
     accs,
@@ -153,26 +150,24 @@ export const payments = observer(props => {
     <Panel className={'paymentsDue ' + className} header={title}>
       <div className="all-payments">
         <div className="buttons">
-          {/* <TooltipButton label={uiState.showAll ? "Payments" : "All"} onClick={uiState.toggleNewBookings} tiptext={uiState.showAll ? 'Only show new payments' : 'Show all changes this period'} visible/> */}
           <TooltipButton
             label="Show Payments Made"
             onClick={showPaymentsMade}
             tiptext="Show Payments Made"
             visible
           />
-          {/* <MyModal icon="bank"  tiptext='View payments summary'>
-            <PaymentsSummary />
-          </MyModal> */}
         </div>
-        {accs.filter(acc => acc.balance < 0).map(data => {
-          return (
-            <MemberRecipt
-              data={data}
-              key={data.accId}
-              {...{ showMemberBookings, accountUpdatePayment }}
-            />
-          );
-        })}
+        {accs
+          .filter(acc => acc.balance < 0)
+          .map(data => {
+            return (
+              <MemberRecipt
+                data={data}
+                key={data.accId}
+                {...{ showMemberBookings, accountUpdatePayment }}
+              />
+            );
+          })}
       </div>
     </Panel>
   );
