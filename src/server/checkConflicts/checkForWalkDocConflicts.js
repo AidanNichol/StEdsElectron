@@ -127,9 +127,11 @@ async function init() {
       startkey: 'M000000',
       endkey: 'M999999',
     });
-    mdata.rows.map(row => row.doc).forEach(doc => {
-      memNames[doc._id] = `${doc.firstName} ${doc.lastName}`;
-    });
+    mdata.rows
+      .map(row => row.doc)
+      .forEach(doc => {
+        memNames[doc._id] = `${doc.firstName} ${doc.lastName}`;
+      });
     const endkey = 'W' + DS.lastAvailableDate;
     const startkey = 'W' + DS.nowMinus3Weeks;
     logit('loadWalks', startkey, '<-->', endkey);
@@ -288,7 +290,7 @@ function getDifferncesInConflict(doc, conflictDoc) {
       </tr>
       `;
     });
-    diffs = `<h3 style="margin-left: 15px">${memId} ${memNames[memId]}</h3>
+    diffs += `<h3 style="margin-left: 15px">${memId} ${memNames[memId]}</h3>
     <table style="margin-left:45px;">
     <thead><tr><td>Curr</td><td>Conf</td><td colspan=2>Field</td><td>When</td><td>Conf Id</td></tr></thead>
     ${diff}</table></h4>`;
