@@ -1,4 +1,7 @@
-import 'babel-polyfill';
+// import 'babel-polyfill';
+const PouchDB = require('pouchdb-browser');
+window.PouchDB = PouchDB;
+
 import React from 'react';
 import { render } from 'react-dom';
 import { observable, action, runInAction } from 'mobx';
