@@ -22,7 +22,7 @@ const EditButton = ({
         onClick={() => resetLateCancellation(log.walkId, log.memId)}
         className="edit_button"
       >
-        <Icon type="BL" />&rArr; <Icon type="BX" />
+        <Icon type="BL" /> &rArr; <Icon type="BX" />
       </span>
     );
   }
@@ -91,11 +91,29 @@ class TheTable extends React.Component {
             });
             return (
               <div key={i} className={rCl}>
-                <span className="logDate">{log.dispDate}</span>
+                <span className="logDate">
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 12,
+                    }}
+                  >
+                    {log.outOfSequence ? (
+                      <img
+                        src="../assets/long-arrow-down.svg"
+                        style={{ width: 12, paddingRight: 2 }}
+                      />
+                    ) : (
+                      <> </>
+                    )}
+                  </span>
+                  {log.dispDate}
+                </span>
                 <Icon type={log.req} />
                 <span className="logText">
-                  {log.type !== 'A' &&
-                    log.name && <span className="name">{log.name} </span>}
+                  {log.type !== 'A' && log.name && (
+                    <span className="name">{log.name} </span>
+                  )}
                   <span className="text" title={log.type === 'W' ? log.walkId : ''}>
                     {log.text}
                   </span>
@@ -126,9 +144,9 @@ export function changeLog(props) {
   return (
     <div
       className={'logsTable ' + (props.className || '')}
-      ref={el => {
-        _logtable = el ? el.outerHTML : '';
-      }}
+      // ref={el => {
+      //   _logtable = el ? el.outerHTML : '';
+      // }}
     >
       <span className="showMode screenOnly">
         <span
