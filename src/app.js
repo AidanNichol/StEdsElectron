@@ -1,9 +1,16 @@
 // import 'babel-polyfill'
 // import './helpers.js'
+// import 'whatwg-fetch';
+console.log('Versions', process.versions);
+const logo = __dirname + '/steds-logo.png';
+console.log('logo', logo);
 const electron = require('electron');
 import { getSettings } from 'settings';
 // const {Menu} = require('electron');
 const { app, BrowserWindow, ipcMain, shell } = electron;
+
+let logoimage = electron.nativeImage.createFromPath(logo);
+console.log(logoimage);
 // const app = electron.app;
 // const BrowserWindow = electron.BrowserWindow;
 
@@ -15,25 +22,26 @@ const path = require('path');
 const POUCHDB_INSPECTOR = 'hbhhpaojmpfimakffndmpmpndcmonkfa';
 // var ESI = require('electron-single-instance');
 app.setName('stedsbookings');
-
 let mainWindow, printWorkerWindow, loadingScreen;
 // let windowParams = { width: 1280, height: 774, x: 0, y: 100, show: false };
-const shouldQuit = app.makeSingleInstance(() => {
-  // Someone tried to run a second instance, we should focus our window.
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
-  }
-});
+const gotTheLock = app.requestSingleInstanceLock();
 
-if (shouldQuit) {
+if (!gotTheLock) {
   app.quit();
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
 }
-
 // if(process.env.ENV !== 'development'){
 //   crashReporter.start();
 //   //appMenu.append(devMenu);
 // }
+app.dock.setIcon(logoimage);
 app.on('window-all-closed', () => {
   app.quit();
 });
@@ -42,7 +50,14 @@ function isDev() {
 }
 function createWindow(width, height) {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width, height, x: 0, y: 0, show: false });
+  mainWindow = new BrowserWindow({
+    width,
+    height,
+    x: 0,
+    y: 0,
+    show: false,
+    logoimage,
+  });
   if (isDev()) {
     installExtension(REACT_DEVELOPER_TOOLS)
       .then(name => console.log(`Added Extension:  ${name}`))
