@@ -157,7 +157,7 @@ class Account {
     this._rev = res.rev;
     const info = await db.info();
     logit('info', info);
-    emitter.emit('dbChanged', 'account changed');
+    await emitter.emit('dbChanged', 'account changed');
   }
 
   async deleteConflictingDocs(conflicts) {
@@ -374,16 +374,21 @@ class Account {
         clearedLogs.push(dummyPayment(clearedLogs, availBlogs));
         funds.realActivity = false;
         // restartPt = true;
-        mergedlogs.push(...clearedLogs);
+        mergedlogs.push(...clearedLogs.sort(cmpDate));
         clearedLogs = [];
       }
       //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
       //┃   re-sort the cleared logs into date order and recalulate balance ┃
       //┃   Return all unused booking logs to be available for next payment ┃
-      //┃   Add any the cleared logs to the output                          ┃
+      //┃   Add the cleared logs to the output                              ┃
       //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+      const outOfSequence = availBlogs.length > 0;
       resortAndAdjustBalance(clearedLogs, prevBalance, historic, hideable);
-      bLogs.unshift(..._.flatten(availBlogs).sort(cmpDate));
+      bLogs.unshift(
+        ..._.flatten(availBlogs)
+          .map(log => ({ ...log, outOfSequence }))
+          .sort(cmpDate),
+      );
       mergedlogs.push(...clearedLogs);
       // clearedLogs = [];
       //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
