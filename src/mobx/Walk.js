@@ -1,5 +1,5 @@
 const R = require('ramda');
-// const _ = require( 'lodash');
+const _ = require('lodash');
 let db;
 const XDate = require('xdate');
 const emitter = require('./eventBus');
@@ -214,10 +214,13 @@ class Walk {
   }
 
   async dbUpdate() {
+    const logFields = ['dat', 'req', 'who', 'machine', 'fixed'];
     logit('DB Update start', this);
-    let { _conflicts, ...newDoc } = toJS(this);
+    let { _conflicts, logger, ...newDoc } = _.omitBy(toJS(this), _.isFunction); //eslint-disable-line no-unused-vars
     Object.entries(newDoc.bookings).map(([memId, booking]) => {
-      newDoc.bookings[memId].logs = Object.values(booking.logs);
+      const newBooking = _.omitBy(booking, _.isFunction);
+      newBooking.logs = Object.values(newBooking.logs).map(log => _.pick(log, logFields));
+      newDoc.bookings[memId] = newBooking;
     });
 
     // newDoc.logs = Object.values(newDoc.logs)
@@ -226,9 +229,8 @@ class Walk {
     this._rev = res.rev;
     const info = await db.info();
     logit('info', info);
-    emitter.emit('dbChanged', 'walk changed');
+    await emitter.emit('dbChanged', 'walk changed');
   }
-
   updateDocument(walkDoc) {
     // const added = R.difference(Object.keys(walkDoc.bookings), this.bookings.keys());
     Object.entries(walkDoc.bookings || {}).forEach(([memId, booking]) => {
