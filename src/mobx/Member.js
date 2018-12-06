@@ -1,4 +1,4 @@
-const { merge } = require('lodash');
+const _ = require('lodash');
 let db;
 const { observable, computed, action, runInAction, toJS, decorate } = require('mobx');
 const emitter = require('./eventBus');
@@ -37,7 +37,7 @@ class Member {
       logit('constructor bad', member);
       return;
     }
-    merge(this, member);
+    _.merge(this, member);
     this.memNo = parseInt(this._id.substr(1));
   }
 
@@ -121,12 +121,12 @@ class Member {
   }
 
   updateDocument(member) {
-    merge(this, member);
+    _.merge(this, member);
     return;
   }
 
   async dbUpdate() {
-    let { _conflicts, ...newDoc } = toJS(this); // eslint-disable-line no-unused-vars
+    let { _conflicts, ...newDoc } = _.omitBy(toJS(this), _.isFunction); // eslint-disable-line no-unused-vars
     logit('DB Update', newDoc._deleted, newDoc);
     const res = await db.put(newDoc);
     runInAction('after doc update', () => {
@@ -134,7 +134,7 @@ class Member {
     });
     const info = await db.info();
     logit('info', info);
-    emitter.emit('dbChanged', 'member changed');
+    await emitter.emit('dbChanged', 'member changed');
   }
 }
 
