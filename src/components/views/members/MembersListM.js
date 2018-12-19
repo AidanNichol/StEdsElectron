@@ -41,7 +41,7 @@ const Memberslist = observer(
         newMember,
         setActiveMember,
         activeMemberId,
-
+        getAccountNames,
         setEditMode,
         memberIndex,
         createNewMember,
@@ -147,6 +147,7 @@ const Memberslist = observer(
               editMode,
               newMember,
               ...editFunctions,
+              getAccountNames,
               setEditMode,
               membersAdmin,
             }}
