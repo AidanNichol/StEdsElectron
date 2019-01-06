@@ -8,7 +8,7 @@ const presets = [
       },
     },
   ],
-  // '@babel/preset-typescript',
+  '@babel/preset-typescript',
   '@babel/react',
 ];
 
@@ -16,6 +16,7 @@ const plugins = [
   '@babel/plugin-transform-spread',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
   '@babel/plugin-transform-flow-strip-types',
+  'babel-plugin-styled-components',
   'lodash',
   [
     'module-resolver',
