@@ -1,4 +1,4 @@
-{
+module.exports = {
   // I want to use babel-eslint for parsing!
   "parser": "babel-eslint",
   "env": {
@@ -11,14 +11,15 @@
   },
   // React
   "plugins": [
-    "react",
-    # "no-unused-vars-rest"
+    "react"
   ],
   "extends": "eslint:recommended",
   // To give you an idea how to override rule options:
-  "rules": {
-    # "no-unused-vars": 0,
-    # "no-unused-vars-rest/no-unused-vars": [2, {"ignoreDestructuredVarsWithRest": true}],
+  "rules": {#
+    "no-unused-vars": 0,
+    // #"no-unused-vars-rest/no-unused-vars": [2, {
+    //   "ignoreDestructuredVarsWithRest": true
+    // }],
     "quotes": [0, "single"],
     "eol-last": [0],
     "no-mixed-requires": [0],
