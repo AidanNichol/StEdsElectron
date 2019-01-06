@@ -14,8 +14,8 @@ const pickOpt = roles => {
   return _.filter(roleOptions, opt => _.includes(vals, opt.value));
 };
 const SelectRole = props => {
-  const roles = pickOpt(props.roles);
-  logit('SelectRoles', roles, props.disabled);
+  const roles = pickOpt(props.value);
+  logit('SelectRoles', roles, props.disabled, props);
 
   const customStyles = { control: prov => ({ ...prov, minWidth: 257 }) };
 
@@ -26,8 +26,8 @@ const SelectRole = props => {
         styles={customStyles}
         onChange={roles => {
           logit('SelectRoles changed', roles);
-          this.setState({ roles });
-          this.props.onChangeData('roles', roles.map(r => r.value).join(','));
+          // this.setState({ roles });
+          props.onChange({ target: { value: roles.map(r => r.value).join(',') } });
         }}
         options={roleOptions}
         isClearable={false}
