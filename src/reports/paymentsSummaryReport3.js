@@ -93,7 +93,7 @@ exports.paymentsSummaryReport3 = function paymentsSummaryReport3(payload, lastWa
       logit('about to shell', docname);
       let ret = shell.openItem(docname);
       logit('shell says', ret);
-    }, 500);
+    }, 1500);
   }
   return docname.substr(home.length + 1);
 };
@@ -104,10 +104,10 @@ function prepareData(payload, printFull) {
   const accData = [];
   let addToCredit = false;
   payload.accounts
-    .filter(acc => acc.activeThisPeriod && (printFull || acc.paymentsMade > 0))
+    .filter(acc => acc.activeThisPeriod && (printFull || acc.paymentsMade !== 0))
     // .filter(acc=>acc.accId === 'A1049')
     .forEach(acc => {
-      // logit('acc', acc.accName, acc);
+      if (acc.accId === 'A2078') logit('acc', acc.accName, acc);
       const { paymentsMade, accId, available, accName } = acc;
       const grid = {};
       acc.logs
@@ -130,7 +130,7 @@ function prepareData(payload, printFull) {
         };
       }
       const memIds = Object.keys(grid).sort((a, b) => grid[a].name > grid[b].name);
-      if (available.P) addToCredit = true;
+      if (available.P !== 0) addToCredit = true;
       accData.push({
         paymentsMade,
         accId,
@@ -156,7 +156,7 @@ function prepareData(payload, printFull) {
 
 function reportBody(payload, printFull, doc, lastWalk) {
   const tots = payload.tots;
-  const netCashAndCheques = (tots.P ? tots.P[1] : 0) - (tots.PC ? tots.PC[1] : 0);
+  const netCashAndCheques = (tots.P ? tots.P[1] : 0) - (tots.PX ? tots.PX[1] : 0);
 
   const { walkIndex, accData, addToCredit } = prepareData(payload, printFull);
   const noWalks = walkIndex.size;
@@ -259,7 +259,7 @@ function reportBody(payload, printFull, doc, lastWalk) {
 
   function showMoney(x, y, dY, value, text, rectFill, rectStroke, textColor) {
     const boxWidth = 20,
-      moneyWidth = 15;
+      moneyWidth = 18;
     const boxOff = (1.1 * bkWidth - boxWidth) / 2;
     const x1 = x + colW - bkWidth * (noWalks - paidCol);
     doc
@@ -268,7 +268,7 @@ function reportBody(payload, printFull, doc, lastWalk) {
     doc
       .fillColor(textColor)
       .fontSize(szD - 2)
-      .text(`£${Math.abs(value)}`, x1 + boxOff, y + dY, {
+      .text(`£${value}`, x1 + boxOff, y + dY, {
         align: 'right',
         width: moneyWidth,
       });
@@ -352,7 +352,7 @@ function reportBody(payload, printFull, doc, lastWalk) {
     });
     if (addToCredit) {
       doc
-        .fontSize(szD)
+        .fontSize(szD - 2)
         .text(
           `£${addToCredit}`,
           x + colW - bkWidth * (noWalks + 1 - 0.5) - detailH * 0.4,
@@ -360,7 +360,7 @@ function reportBody(payload, printFull, doc, lastWalk) {
           { height: detailH * 0.8 },
         );
     }
-    if (paymentsMade > 0)
+    if (paymentsMade !== 0)
       showMoney(x, startY, dY, paymentsMade, 'Paid', '#cfe', '#484', 'blue');
     y = startY + accHeight;
     y += gapH;

@@ -101,7 +101,7 @@ const memberRecipt = observer(props => {
           {' '}
           {data.accName}
         </span>
-        {data.paymentsMade > 0 ? (
+        {data.paymentsMade !== 0 ? (
           <TooltipButton className="owed" label={`£${data.paymentsMade}`} visible />
         ) : null}
       </div>
@@ -119,7 +119,9 @@ const memberRecipt = observer(props => {
             );
           return bkng;
         })
-        .map(bkng => <Detail bkng={bkng} key={bkng.dat + 'xx'} />)}
+        .map(bkng => (
+          <Detail bkng={bkng} key={bkng.dat + 'xx'} />
+        ))}
       {/* {data.logs.filter((bkng)=>bkng.paid || bkng.outstanding).map((bkng)=>(<Detail bkng={bkng} key={bkng.dat+'xx'}/>))} */}
     </div>
   );
@@ -208,6 +210,7 @@ export const payments = observer(props => {
           <TooltipButton
             label={uiState.showAll ? 'Only Payments' : 'All Changes'}
             onClick={uiState.toggleNewBookings}
+            placement="bottom"
             tiptext={
               uiState.showAll ? 'Only show new payments' : 'Show all changes this period'
             }
@@ -215,12 +218,14 @@ export const payments = observer(props => {
             visible
           />
           <PrintButton
+            placement="bottom"
             onClick={() => paymentsSummaryReport3(doc, lastWalk)}
             tiptext="Print Summary Report"
             visible
           />
           <TooltipButton
             icon="bank"
+            placement="bottom"
             onClick={() => {
               paymentsSummaryReport3(doc, lastWalk);
               bankMoney(doc);
@@ -231,7 +236,7 @@ export const payments = observer(props => {
         </div>
         {accs
           .filter(
-            acc => acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade > 0),
+            acc => acc.activeThisPeriod && (uiState.showAll || acc.paymentsMade !== 0),
           )
           .map(data => {
             return (
