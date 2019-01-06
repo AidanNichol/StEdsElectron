@@ -16,6 +16,13 @@ import { AnnotateBooking, openAnnotationDialog } from './annotateBooking';
 // import {getTodaysDate} from 'utilities/DateUtilities.js';
 import Logit from 'logit';
 var logit = Logit(__filename);
+const delSettings = {
+  D: { text: 'Subs Due', style: { '--color': 'green' } },
+  G: { text: 'Guest', style: { '--color': 'blue' } },
+  L: { text: 'Subs Late', style: { '--color': 'red' } },
+  S: { text: 'Suspended', style: { '--color': 'black' } },
+  X: { text: 'Delete Me', style: { '--color': 'red' } },
+};
 
 const Bookings = observer(
   class Bookings extends React.Component {
@@ -31,6 +38,7 @@ const Bookings = observer(
       var accId = account._id;
       logit('props', this.props);
       var accNames = account.accountMembers || [];
+
       var newBooking = (walk, memId, full, i) => {
         // logit('newBookings', {walkId,memId, full, i})
         let reqType = full ? 'W' : 'B';
@@ -58,6 +66,7 @@ const Bookings = observer(
           </div>
         );
       };
+
       var oldBooking = (walk, booking, i) => {
         const { memId, status, annotation } = booking;
         const width = status === 'W' ? ' halfwidth' : ' fullwidth';
@@ -91,12 +100,14 @@ const Bookings = observer(
           </div>
         );
       };
+
       var title = <h4>Bookings</h4>;
       var bCl = classnames({
         bookings: true,
         ['mems' + accNames.length]: true,
       });
       var mCl = accNames.map((member, i) => {
+        logit('member', member);
         return classnames({
           avail: true,
           ['member' + i]: true,
@@ -132,7 +143,11 @@ const Bookings = observer(
               </div>
               <div className="title avail">Available</div>
               {accNames.map((member, i) => (
-                <div className={mCl[i]} key={member.memId}>
+                <div
+                  className={mCl[i]}
+                  key={member.memId}
+                  {...delSettings[member.showState]}
+                >
                   {member.firstName}
                 </div>
               ))}

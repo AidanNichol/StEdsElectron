@@ -35,7 +35,8 @@ export function properCaseName(name) {
     return pre + result[2].toUpperCase();
   } else return name;
 }
-export function properCaseAddress(address) {
+export function properCaseAddress(address: string, oldValue) {
+  if (address.substr(0, oldValue.length) !== oldValue) return address;
   const addressShortcuts = {
     Wb: 'Whitley Bay',
     'W/b': 'Whitley Bay',
@@ -56,6 +57,7 @@ export function properCaseAddress(address) {
   };
   let result,
     addrLines = address.split('\n'),
+    //Post Code validation
     pcexp = /^([^]*)([abcdefghijklmnoprstuwyz]{1}[abcdefghklmnopqrstuvwxy]?[0-9]{1,2})(\s*)([0-9]{1}[abdefghjlnpqrstuwxyz]{2})$/i;
   addrLines.forEach((line, index) => {
     if ((result = pcexp.exec(line)))
