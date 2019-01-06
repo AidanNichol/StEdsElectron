@@ -1,11 +1,8 @@
-// import _ from 'lodash';
 import React from 'react';
-// import Select from 'react-select';
 const Member = require('../../../mobx/Member.js');
 import AccountMembers from './AccountMembers';
 import SelectRole from './SelectRole';
 import SubscriptionButton from './SubscriptionButton';
-import DeleteButtons from './DeleteButtons';
 import SuspendButtons from './SuspendButtons';
 import FormLine from './FormLine';
 import ff from './WrappedFormFields';
@@ -15,10 +12,8 @@ import { toJS } from 'mobx';
 import classnames from 'classnames';
 
 import TooltipButton from '../../utility/TooltipButton';
-// import TextInput from 'react-textarea-autosize';
 
 import { Panel } from '../../utility/AJNPanel';
-// import {getSubsStatus} from 'utilities/subsStatus';
 import {
   properCaseName,
   properCaseAddress,
@@ -32,18 +27,15 @@ const EditMemberData = observer(
   class EditMemberData extends React.Component {
     constructor(props) {
       super(props);
-      let mem = (props.editMember || {}).toObject || {};
+      let { showState, ...mem } = (props.editMember || {}).toObject || {};
       let subsStatus = Member.getSubsStatus(mem.memberStatus, mem.subscription);
-      mem.deleteState = subsStatus.status === 'ok' ? '' : subsStatus.status[0];
-      if (mem.suspended && mem.deleteState < 'S') mem.deleteState = 'S';
-      // let mem = eMem.toObject;
       this.state = {
         dirty: false,
         newMember: (props.editMember || {}).newMember,
         editMode: (props.editMember || {}).newMember,
-        deletePending: false,
+        showState,
         bacs: false,
-        member: mem || {},
+        member: mem,
         subsStatus: subsStatus,
       };
       this.discardChanges = this.discardChanges.bind(this);
@@ -82,52 +74,51 @@ const EditMemberData = observer(
       const { firstName, lastName, subscription, memberStatus, suspended } =
         toJS(editMember) || {};
 
-      const onChange = (event, name, normalize) => {
-        const target = event.target;
-        var value = target.type === 'checkbox' ? target.checked : target.value;
-        logit('handleInputChange', name, target.value);
-        if (normalize) value = normalize(value);
-        onChangeData(name, value);
-      };
       const onChangeData = (name, v) => {
         if (this.state.member[name] === v) return; // unchanged
-        this.setState(prev => ({ member: { ...prev.member, [name]: v }, dirty: true }));
-        if (['subscription', 'memberStatus'].includes(name)) {
-          let mem = this.state.member;
+        const mem = { ...this.state.member, [name]: v };
+        this.setState({ member: mem, dirty: true });
+        if (['subscription', 'memberStatus', 'deleteState'].includes(name)) {
           const subsStatus = Member.getSubsStatus(mem.memberStatus, mem.subscription);
-          this.setState(() => ({ subsStatus }));
+          const showState = Member.getShowState(subsStatus.status, mem.deleteState);
+          this.setState(() => ({ subsStatus, showState }));
+          logit('onChangeData', name, v, mem, subsStatus, showState, this.state);
         }
       };
 
       var showMode = !this.state.editMode;
 
-      // var subsPaid = (fee, bacs)=>change(props.form, '_subspaid', fee, bacs);
       var subsPaid = (fee, bacs) => {
         logit('subsPaid', { fee, bacs });
       };
-      // let showSubs = null;
-      const { editMode, dirty, deletePending, bacs, newMember } = this.state;
-      const { setDeletePending, setEditMode } = this;
+      const { editMode, dirty, deletePending, bacs, newMember, showState } = this.state;
       const subsStatus = this.state.subsStatus || {}; // {due: true, year: 2016, fee: 15, status: 'late'}
-      if (subsStatus.status !== 'OK')
-        // showSubs = <span className="subsStatus">subsStatus.status</span>;
-        var title = (
-          <div style={{ width: '100%' }}>
-            {firstName} {lastName} {dirty ? '(changed)' : ''}
-            <span
-              style={{
-                float: 'right',
-                hidden: !(editMode && dirty),
-                cursor: 'pointer',
-              }}
-              className="closeWindow"
-              onClick={() => this.setEditMode(false)}
-            >
-              {showMode || dirty ? '' : 'X'}
-            </span>
-          </div>
-        );
+      // if (subsStatus.status !== 'OK')
+      var title = (
+        <div style={{ width: '100%' }}>
+          {firstName} {lastName} {dirty ? '(changed)' : ''}
+          <span
+            style={{
+              float: 'right',
+              hidden: !(editMode && dirty),
+              cursor: 'pointer',
+            }}
+            className="closeWindow"
+            onClick={() => this.setEditMode(false)}
+          >
+            {showMode || dirty ? '' : 'X'}
+          </span>
+        </div>
+      );
       let vals = editMember;
+      const delSettings =
+        {
+          D: { text: 'Subs Due', style: { '--color': 'green' } },
+          G: { text: 'Guest', style: { '--color': 'blue' } },
+          L: { text: 'Subs Late', style: { '--color': 'red' } },
+          S: { text: 'Suspended', style: { '--color': 'black' } },
+          X: { text: 'Delete Me', style: { '--color': 'red' } },
+        }[showState] || {};
       let clss = classnames(
         {
           ['form-horizontal user-details modal-body ']: true,
@@ -137,6 +128,7 @@ const EditMemberData = observer(
         subsStatus.status,
         memberStatus,
       ).toLowerCase();
+      logit('showState', this.state, showState, delSettings);
       if (!this.props.editMember._id) return null;
       const memOpts = { Member: 'Member', Guest: 'Guest', HLM: 'Honary Life Member' };
       const base = { onChangeData, vals, disabled: !editMode };
@@ -149,14 +141,14 @@ const EditMemberData = observer(
           className={'show-member-details ' + (editMode ? 'editmode' : 'showMode')}
           header={title}
         >
-          <div className={clss}>
-            <fieldset className="form" disabled={showMode} size={40}>
-              <FormLine name="firstName" normalize={properCaseName} {...input} />
-              <FormLine name="lastName" normalize={properCaseName} {...input} />
-              <FormLine name="address" normalize={properCaseAddress} {...input} />
+          <div className={clss} {...delSettings}>
+            <fieldset className="form" size={40}>
+              <FormLine name="firstName" normalize={properCaseName} {...input} required />
+              <FormLine name="lastName" normalize={properCaseName} {...input} required />
+              <FormLine name="address" normalize={properCaseAddress} {...textarea} />
               <FormLine name="phone" normalize={normalizePhone} {...input} />
               <FormLine name="email" {...input} />
-              <FormLine name="mobile" {...input} className="sub" />
+              <FormLine name="mobile" {...input} />
 
               <FormLine
                 name="subscription"
@@ -167,7 +159,7 @@ const EditMemberData = observer(
                 <SubscriptionButton
                   {...{
                     editMode,
-                    deletePending,
+                    showState,
                     bacs,
                     setBacs: this.setBacs,
                     subsStatus: this.state.subsStatus,
@@ -178,31 +170,24 @@ const EditMemberData = observer(
                 />
               </FormLine>
               <FormLine name="memberStatus" {...select} options={memOpts} />
-              <div
-                className={
-                  'form-line' +
-                  (memberStatus === 'Guest' || memberStatus === 'HLM' ? ' hidden' : '')
-                }
-              >
-                <label className="item-label">subscription</label>
-                <input
-                  value={vals.subscription}
-                  onChange={evt => onChange(evt, 'subscription')}
-                  size={5}
-                />
-              </div>
               <FormLine name="nextOfKin" {...textarea} />
               <FormLine name="medical" {...textarea} />
 
               <FormLine name="roles" {...special} Type={SelectRole} />
               <FormLine name="memberId" {...input} disabled />
 
-              <div className="account-box">
-                <FormLine name="accountId" {...input} disabled={!newMember} />
-                <AccountMembers id={vals.accountId} className="account-edit" />
+              <div>
+                <FormLine name="accountId" {...input} disabled={!newMember}>
+                  <AccountMembers
+                    id={vals.accountId}
+                    memId={vals.memberId}
+                    accId={vals.accountId}
+                    {...{ editMode }}
+                  />
+                </FormLine>
               </div>
             </fieldset>
-            {deletePending ? (
+            {showState === 'X' ? (
               <img className="stamp" src="../assets/Deleted Member.svg" />
             ) : null}
             <div className="edit-buttons">
@@ -228,19 +213,7 @@ const EditMemberData = observer(
                 tiptext="Save All Changes to this Member"
                 visible={editMode && !deletePending && dirty}
               />
-              <SuspendButtons {...{ editMode, deletePending, suspended, onChangeData }} />
-              <DeleteButtons
-                {...{
-                  editMode,
-                  suspended,
-                  saveEdit: this.saveEdit,
-                  deleteMember: this.deleteMember,
-                  deletePending,
-                  onChangeData,
-                  setDeletePending,
-                  setEditMode,
-                }}
-              />
+              <SuspendButtons {...{ editMode, showState, onChangeData }} />
             </div>
             {/* </form> */}
           </div>

@@ -49,11 +49,12 @@ class Account {
     this._conflicts = [];
     this.members = accountDoc.members || [];
     this.logs = observable.map({}, { deep: false });
-    this.accountId;
+    // this.accountId;
     this.latePaymentLogs = [];
 
     this.logger;
     this.deleteMemberFromAccount = this.deleteMemberFromAccount.bind(this);
+    this.mergeInAccount = this.mergeInAccount.bind(this);
     this.addMemberToAccount = this.addMemberToAccount.bind(this);
     this.updateDocument = this.updateDocument.bind(this);
     this.dbUpdate = this.dbUpdate.bind(this);
@@ -69,7 +70,7 @@ class Account {
   }
 
   get accountStore() {
-    return this.getAccountStore();
+    return this.getAccountStore()();
   }
 
   // generate name for account based on members names in the account
@@ -84,6 +85,13 @@ class Account {
     return Object.entries(nameMap)
       .map(([lName, fName]) => `${fName.join(' & ')} ${lName}`)
       .join(' & ');
+  }
+
+  get memberNames() {
+    return this.members.map(memId => {
+      let mem = MS.members.get(memId) || { firstName: '????', lastName: memId };
+      return mem.firstName + ' ' + mem.lastName;
+    });
   }
 
   get sortname() {
@@ -144,6 +152,20 @@ class Account {
     this.dbUpdate();
   }
 
+  async mergeInAccount(otherAccount) {
+    logit('mergeInAccount', otherAccount, this._id);
+    otherAccount.logs.forEach(log => this.logs.set(log.dat, log));
+    otherAccount.members.forEach(mem => {
+      this.members.push(mem);
+      MS.members.get(mem).updateAccount(this._id);
+    });
+
+    this.dbUpdate();
+    otherAccount.members = [];
+    otherAccount.logs.clear();
+    otherAccount.dbUpdate();
+  }
+
   async dbUpdate() {
     logit('DB Update start', this);
     const props = ['_id', '_rev', '_deleted', 'type', 'logs', 'members'];
@@ -155,8 +177,8 @@ class Account {
     logit('DB Update', newDoc, newDoc._deleted, this);
     const res = await db.put(newDoc);
     this._rev = res.rev;
-    const info = await db.info();
-    logit('info', info);
+    // const info = await db.info();
+    // logit('info', info);
     await emitter.emit('dbChanged', 'account changed');
   }
 
@@ -228,6 +250,8 @@ class Account {
           firstName: mem.firstName,
           lastName: mem.lastName,
           suspended: mem.suspended,
+          deleteState: mem.deleteState,
+          showState: mem.showState,
           subs: mem.subsStatus.status,
           email: mem.email,
           roles: mem.roles,

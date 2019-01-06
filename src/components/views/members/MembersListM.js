@@ -61,7 +61,7 @@ const Memberslist = observer(
         let subsStatus = member.subsStatus.status;
         let clss = classnames(
           'list-line',
-          (`${member.memberStatus}`: true),
+          member.memberStatus,
           { current: activeMemberId === member.memberId },
           member.suspended ? 'suspended' : subsStatus,
         );

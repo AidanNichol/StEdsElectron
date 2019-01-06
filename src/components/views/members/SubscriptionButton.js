@@ -5,7 +5,7 @@ import TooltipButton from '../../utility/TooltipButton';
 const SubscriptionButton = props => {
   const {
     onChangeData,
-    deletePending,
+    showState,
     editMode,
     subsStatus,
     subsPaid,
@@ -16,13 +16,12 @@ const SubscriptionButton = props => {
     ...other
   } = props;
   style.whiteSpace = 'nowrap';
-  if (!editMode || deletePending) return null;
+  if (!editMode || showState >= 'S') return null;
   if (!subsStatus.showSubsButton || subscription === subsStatus.year) return null;
   return (
     <span style={{ whiteSpace: 'nowrap' }}>
       <span className="bacs">
-        {' '}
-        bacs{' '}
+        &nbsp; bacs{' '}
         <input
           value={bacs}
           type="checkbox"

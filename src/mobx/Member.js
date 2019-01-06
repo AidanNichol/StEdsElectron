@@ -23,10 +23,12 @@ class Member {
     this.memberStatus = 'Guest';
     this.roles = '';
     this.suspended = false;
+    this.deleteState = '';
     this.subscription = '';
     this.updateDocument = this.updateDocument.bind(this);
     this.updateField = this.updateField.bind(this);
     this.dbUpdate = this.dbUpdate.bind(this);
+    this.updateAccount = this.updateAccount.bind(this);
 
     db = dbset;
     // autorun(() => console.log('autorun Member', this.report, this));
@@ -37,7 +39,8 @@ class Member {
       logit('constructor bad', member);
       return;
     }
-    _.merge(this, member);
+    this.updateDocument(member);
+    // _.merge(this, member);
     this.memNo = parseInt(this._id.substr(1));
   }
 
@@ -52,7 +55,18 @@ class Member {
   get fullNameR() {
     return `${this.lastName}, ${this.firstName}`;
   }
-
+  get showState() {
+    return Member.getShowState(this.subsStatus.status, this.deleteState);
+    // const subs = this.subsStatus.status;
+    // let state = subs === 'ok' ? '' : subs.toUpperCase()[0];
+    // if (this.deleteState >= 'S') state = 'S';
+    // return state;
+  }
+  static getShowState(subsStatus, deleteState) {
+    let state = subsStatus === 'ok' ? '' : subsStatus.toUpperCase()[0];
+    if (deleteState >= 'S') state = deleteState;
+    return state;
+  }
   shortName(account, parens) {
     if (account.members.length <= 1) return '';
     return parens ? `(${this.firstName})` : this.firstName;
@@ -75,6 +89,8 @@ class Member {
       memberStatus: this.memberStatus,
       roles: this.roles,
       suspended: this.suspended,
+      deleteState: this.deleteState,
+      showState: this.showState,
       subscription: this.subscription,
       // subsStatus: this.subsStatus,
     };
@@ -119,9 +135,15 @@ class Member {
     logit('updateField', field, value);
     this[field] = value;
   }
+  updateAccount(newAccountId) {
+    this.accountId = newAccountId;
+    this.dbUpdate();
+  }
 
   updateDocument(member) {
+    if (member.suspended && !member.deleteState) member.deleteState = 'S';
     _.merge(this, member);
+    if (member.suspended) logit('suspended memember', member, this);
     return;
   }
 
@@ -153,8 +175,10 @@ decorate(Member, {
   memberStatus: observable,
   roles: observable,
   suspended: observable,
+  deleteState: observable,
   subscription: observable,
   report: computed,
+  showState: computed,
   fullName: computed,
   fullNameR: computed,
   subsStatus: computed,

@@ -23,7 +23,7 @@ class TooltipButton extends React.Component {
       iconStyle,
       ...other
     } = this.props;
-    if (typeof visible != 'boolean') logit('props', this.props);
+    logit('props', this.props);
     if (lable) label = lable;
     if (!visible) return null;
 
@@ -39,6 +39,7 @@ class TooltipButton extends React.Component {
       <button
         className={clnm}
         aria-label={tiptext}
+        type="button"
         style={{ position: 'relative', ...style }}
         {...other}
       >

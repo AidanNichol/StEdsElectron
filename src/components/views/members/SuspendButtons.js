@@ -1,25 +1,55 @@
 // import _ from 'lodash';
 import React from 'react';
+import styled from 'styled-components';
 
 import TooltipButton from '../../utility/TooltipButton';
 
 const SuspendButtons = props => {
-  const { suspended, deletePending, onChangeData, editMode } = props;
+  const { onChangeData, editMode, deleteMember, showState, className } = props;
+  if (!editMode) return null;
+  const curState = showState >= 'S' ? showState : 'OK';
+  const prevState = {
+    X: { icon: 'user-undelete', newstate: 'S', tiptext: 'Clear the Delete Request' },
+    S: { icon: 'user-enable', newstate: '', tiptext: 'Unsuspend this Member' },
+    OK: { visible: false },
+  }[curState];
+  const nextState = {
+    X: {
+      label: 'Delete Member',
+      onClick: deleteMember,
+      tiptext: 'Permanently Delete Member',
+    },
+    S: { icon: 'user-delete', newstate: 'X', tiptext: 'Request Member Deletion' },
+    OK: { icon: 'user-disable', newstate: 'S', tiptext: 'Suspend this Member' },
+  }[curState];
   return (
-    <span>
+    <div className={'suspend-buttons ' + className}>
       <TooltipButton
-        icon="user-disable"
-        onClick={() => onChangeData('suspended', true)}
-        tiptext="Suspend this Member"
-        visible={editMode && !suspended}
+        visible
+        onClick={() => onChangeData('deleteState', nextState.newstate)}
+        {...nextState}
       />
       <TooltipButton
-        icon="user-enable"
-        onClick={() => onChangeData('suspended', false)}
-        tiptext="Unsuspend this Member"
-        visible={editMode && !deletePending && suspended}
+        visible
+        {...prevState}
+        onClick={() => onChangeData('deleteState', prevState.newstate)}
       />
-    </span>
+    </div>
   );
 };
-export default SuspendButtons;
+export default styled(SuspendButtons)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  button,
+  a[type='button'] {
+    img {
+      height: 40px;
+    }
+
+    padding: 3px 8px;
+  }
+  img.icon {
+    height: 40px;
+  }
+`;
