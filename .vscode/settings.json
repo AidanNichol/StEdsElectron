@@ -2,5 +2,9 @@
   "files.associations": {
     "*.js": "javascriptreact",
     "*.css": "scss"
-  }
+  },
+  "prettier.trailingComma": "all",
+  "prettier.stylelintIntegration": true,
+  "prettier.printWidth": 90,
+  "editor.tabSize": 2
 }
