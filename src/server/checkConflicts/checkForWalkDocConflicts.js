@@ -220,6 +220,10 @@ async function init() {
 function getDifferncesInConflict(doc, conflictDoc) {
   var diffs = '';
   Object.entries(conflictDoc.bookings).forEach(([memId, cBooking]) => {
+    if (memId === 'M2077') {
+      console.log('Got M2077'.rainbow);
+      return;
+    }
     let booking = doc.bookings[memId];
     const versId = conflictDoc._rev.substr(0, 10) + '...';
     const mLogs = mergeLogs((booking || {}).logs, cBooking.logs);
