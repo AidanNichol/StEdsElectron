@@ -242,9 +242,9 @@ class Account {
   }
 
   get accountMembers() {
-    return toJS(
-      this.members.map(memId => {
+    return toJS(this.members ||[]).map(memId => {
         let mem = MS.members.get(memId);
+        if (!mem)return {};
         return {
           memId: memId,
           firstName: mem.firstName,
@@ -256,8 +256,7 @@ class Account {
           email: mem.email,
           roles: mem.roles,
         };
-      }),
-    );
+      }) ;
   }
 
   trimOldAccountLogs(logs, currentPeriodStart) {

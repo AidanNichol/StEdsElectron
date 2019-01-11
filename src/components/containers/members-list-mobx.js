@@ -29,9 +29,9 @@ const mapStoreToProps = function(store) {
     },
     editFunctions: {
       saveEdit: memData => {
-        logit('saveEdit', editMember);
+        logit('saveEdit', editMember, memData);
         if (editMember.newMember) {
-          AS.createNewAccount(editMember.accountId, [editMember._id]);
+          AS.createNewAccount(memData.accountId, [editMember._id]);
         }
         MS.saveEdit(memData);
       },

@@ -75,6 +75,7 @@ const EditMemberData = observer(
         toJS(editMember) || {};
 
       const onChangeData = (name, v) => {
+        logit('onChangeData', name, v, this.state.member);
         if (this.state.member[name] === v) return; // unchanged
         const mem = { ...this.state.member, [name]: v };
         this.setState({ member: mem, dirty: true });
@@ -85,6 +86,7 @@ const EditMemberData = observer(
           logit('onChangeData', name, v, mem, subsStatus, showState, this.state);
         }
       };
+      const deleteMember = this.deleteMember;
 
       var showMode = !this.state.editMode;
 
@@ -213,7 +215,7 @@ const EditMemberData = observer(
                 tiptext="Save All Changes to this Member"
                 visible={editMode && !deletePending && dirty}
               />
-              <SuspendButtons {...{ editMode, showState, onChangeData }} />
+              <SuspendButtons {...{ editMode, showState, onChangeData, deleteMember }} />
             </div>
             {/* </form> */}
           </div>

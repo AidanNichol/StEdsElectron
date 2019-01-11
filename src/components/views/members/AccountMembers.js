@@ -40,11 +40,10 @@ const AccountMembers = observer(
       };
       const showIf = v => (state.stage === v ? true : false);
       const hideIf = v => (state.stage !== v ? true : false);
+      const thisAccount = props.AS.accounts.get(props.id) || {accountMembers: []};
       return (
         <div className={`account-box ${props.className}`}>
-          {props.AS.accounts
-            .get(props.id)
-            .accountMembers.filter(mem => mem.memId !== props.memId)
+          {thisAccount.accountMembers.filter(mem => mem.memId !== props.memId)
             .map(mem => (
               <div key={mem.memId}>
                 &nbsp;Also: {mem.memId} {mem.firstName} {mem.lastName}
