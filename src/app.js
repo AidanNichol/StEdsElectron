@@ -1,11 +1,12 @@
 // import 'babel-polyfill'
 // import './helpers.js'
 // import 'whatwg-fetch';
+require('steds-settings-setup').setup();
 console.log('Versions', process.versions);
 const logo = __dirname + '/steds-logo.png';
 console.log('logo', logo);
 const electron = require('electron');
-import { getSettings } from 'settings';
+const { getSettings } =require( 'StEdsSettings');
 // const {Menu} = require('electron');
 const { app, BrowserWindow, ipcMain, shell } = electron;
 
