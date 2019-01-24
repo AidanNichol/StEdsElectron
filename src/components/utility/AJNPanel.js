@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSettings } from 'settings';
+import { getSettings } from 'StEdsSettings';
 const mode = getSettings('database.current');
 export const Panel = props => {
   const { className = '', header, children, body = {}, ...other } = props;

@@ -1,10 +1,7 @@
-// import { getSettings} from 'StEdsSettings';
 import { observable, action, toJS, reaction, decorate } from 'mobx';
 import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
 const { setActiveAccount } = require('mobx/AccountsStore');
 const { setActiveWalk } = require('mobx/WalksStore');
-// const WS = require('mobx/WalksStore');
-// const setActiveWalk = memId => WS.setActiveWalk(memId);
 
 import { merge } from 'lodash';
 import Logit from 'logit';
@@ -17,11 +14,6 @@ class Router {
   walkId = null;
 
   constructor() {
-    // const savedValues = localStorage.getItem('stEdsRouter')
-    // const savedRoutingEnabled = getSettings('router.enabled')
-    // if (savedRoutingEnabled && savedValues)
-    //   merge(this, JSON.parse(savedValues));
-    // logit('constructor', savedValues, savedRoutingEnabled, this)
     reaction(
       () => {
         return {
@@ -67,8 +59,6 @@ class Router {
   setUser = (memberId, accountId) => {
     logit('setUser (act)', memberId, accountId);
     this.memberId = memberId[0] === 'M' ? memberId : null;
-    // this.accountId = accountId[0] === 'A' ? accountId : null;
-    // this.resetAccountId();
   };
 
   resetAccountId = () => {
