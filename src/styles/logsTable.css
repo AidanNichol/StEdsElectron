@@ -37,7 +37,8 @@
   .logHeader {
     color: #31708f;
     background-color: #d9edf7;
-    border-bottom: #bce8f1 solid thin; // display: flex;
+    border-bottom: #bce8f1 solid thin;
+    display: flex;
 
     .showAll {
       margin-left: 19px;

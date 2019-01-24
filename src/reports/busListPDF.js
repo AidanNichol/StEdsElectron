@@ -4,7 +4,7 @@ import Logit from 'logit';
 var logit = Logit(__filename);
 
 import XDate from 'xdate';
-import WS from '../mobx/WalksStore';
+import {WS} from 'StEdsStore';
 const _today = new XDate().toString('Wyyyy-MM-dd');
 logit('env', process.env);
 logit('dirname', __dirname);

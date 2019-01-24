@@ -1,7 +1,7 @@
 import { drawSVG } from './extract-svg-path';
 import Logit from 'logit';
 var logit = Logit(__filename);
-import AS from '../mobx/AccountsStore';
+import {AS} from 'StEdsStore';
 
 const margin = 30;
 

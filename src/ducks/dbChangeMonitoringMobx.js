@@ -1,10 +1,6 @@
 import Logit from 'logit';
 import {WS, MS, AS, PS} from 'StEdsStore';
 
-// import WS from '../mobx/WalksStore';
-// import MS from '../mobx/MembersStore';
-// import AS from '../mobx/AccountsStore';
-// import PS from '../mobx/PaymentsSummaryStore';
 let db;
 
 var storeFn = {

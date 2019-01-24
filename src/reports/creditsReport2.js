@@ -1,7 +1,7 @@
 const { drawSVG } = require('./extract-svg-path');
 const Logit = require('logit');
 var logit = Logit(__filename);
-const AS = require('../mobx/AccountsStore');
+const {AS} = require('StEdsStore');
 
 const calcLineHeights = doc => {
   const h14 = doc.fontSize(14).text(' ', margin, 80).y - 80;

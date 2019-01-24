@@ -5,7 +5,8 @@ const React = require('react');
 const { getSettings, setSettings, DbSettings } = require('StEdsSettings');
 const { action, runInAction, reaction, toJS } = require('mobx');
 const { observer } = require('mobx-react');
-const state = require('../mobx/signinState');
+const state = require('StEdsStore').signinState;
+
 const { setRouterPage } = require('ducks/router-mobx');
 const Logit = require('logit');
 const logit = Logit(__filename);

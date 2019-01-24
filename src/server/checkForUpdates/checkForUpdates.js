@@ -1,16 +1,11 @@
 #!/usr/bin/env node
 const _ = require('lodash');
-// const XDate = require('xdate');
 const debug = require('debug');
 let db = require('bookingsDB')(true);
 let generateEmail = require('./generateEmail');
 
 const Conf = require('conf');
-const DS = require('../../mobx/DateStore');
-const WS = require('../../mobx/WalksStore');
-const MS = require('../../mobx/MembersStore');
-const AS = require('../../mobx/AccountsStore');
-const PS = require('../../mobx/PaymentsSummaryStore');
+import {WS, MS, AS, PS, DS} from 'StEdsStore';
 
 // const path = require('path');
 const settings = new Conf({

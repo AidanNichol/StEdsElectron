@@ -9,12 +9,7 @@ let db = require('bookingsDB')();
 // var fs = require('fs');
 // var path = require('path');
 const Conf = require('conf');
-// const DS = require('../../mobx/DateStore');
-const WS = require('../../mobx/WalksStore');
-const MS = require('../../mobx/MembersStore');
-const AS = require('../../mobx/AccountsStore');
-const PS = require('../../mobx/PaymentsSummaryStore');
-// const AccLog = require('../../mobx/AccLog.js');
+import {WS, MS, AS, PS} from 'StEdsStore';
 
 const settings = new Conf({
   // projectName: 'StEdsBookings',

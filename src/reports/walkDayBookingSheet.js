@@ -4,10 +4,7 @@ import R from 'ramda';
 import { drawSVG } from './extract-svg-path';
 import { union, flattenDeep, fromPairs } from 'lodash';
 var logit = Logit(__filename);
-import AS from '../mobx/AccountsStore';
-import WS from '../mobx/WalksStore';
-import MS from '../mobx/MembersStore';
-// import DS from '../mobx/DateStore';
+import {WS, MS, AS} from 'StEdsStore';
 
 function walkDaySet() {
   const walkId = WS.bookableWalksId[0];

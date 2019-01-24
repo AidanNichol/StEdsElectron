@@ -14,7 +14,7 @@ import {
   faArrowDown,
 } from '@fortawesome/pro-solid-svg-icons';
 
-const emitter = require('../mobx/eventBus');
+const emitter = require('StEdsStore').eventBus;
 const path = require('path');
 let remoteDB;
 

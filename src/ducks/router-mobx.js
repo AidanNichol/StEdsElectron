@@ -1,7 +1,7 @@
 import { observable, action, toJS, reaction, decorate } from 'mobx';
-import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
-const { setActiveAccount } = require('mobx/AccountsStore');
-const { setActiveWalk } = require('mobx/WalksStore');
+const { setActiveMember, getAccountForMember } = require('StEdsStore').MS;
+const { setActiveAccount } = require('StEdsStore').AS;
+const { setActiveWalk } = require('StEdsStore').WS;
 
 import { merge } from 'lodash';
 import Logit from 'logit';

@@ -6,10 +6,7 @@ let db = require('bookingsDB')();
 var fs = require('fs');
 // var path = require('path');
 const Conf = require('conf');
-const WS = require('../../mobx/WalksStore');
-const MS = require('../../mobx/MembersStore');
-const AS = require('../../mobx/AccountsStore');
-const PS = require('../../mobx/PaymentsSummaryStore');
+import {WS, MS, AS, PS} from 'StEdsStore';
 
 const settings = new Conf({
   // projectName: 'StEdsBookings',

@@ -1,5 +1,5 @@
 import React from 'react';
-const Member = require('../../../mobx/Member.js');
+import {Member}  from 'StEdsStore';
 import AccountMembers from './AccountMembers';
 import SelectRole from './SelectRole';
 import SubscriptionButton from './SubscriptionButton';

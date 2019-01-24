@@ -8,9 +8,7 @@ const { shell } = require('electron');
 const Logit = require('logit');
 var logit = Logit(__filename);
 const home = process.env.HOME || process.env.HOMEPATH;
-
-const WS = require('../mobx/WalksStore');
-const MS = require('../mobx/MembersStore');
+import {WS, MS} from 'StEdsStore';
 
 const normal = 'Times-Roman';
 const bold = 'Times-Bold';

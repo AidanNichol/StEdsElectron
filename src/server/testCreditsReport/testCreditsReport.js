@@ -8,11 +8,7 @@ const { drawSVG } = require('../../reports/extract-svg-path');
 const { creditsOwedReport } = require('../../reports/creditsReport2');
 
 const Conf = require('conf');
-const WS = require('../../mobx/WalksStore');
-const MS = require('../../mobx/MembersStore');
-const AS = require('../../mobx/AccountsStore');
-const PS = require('../../mobx/PaymentsSummaryStore');
-// const DS = require('../../mobx/DateStore');
+import {WS, MS, AS, PS} from 'StEdsStore';
 
 const settings = new Conf({
   // projectName: 'StEdsBookings',

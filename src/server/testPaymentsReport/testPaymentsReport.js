@@ -6,13 +6,9 @@ const _ = require('lodash');
 // let R = require('ramda');
 const paymentsSummaryReport3 = require('../../reports/paymentsSummaryReport3')
   .paymentsSummaryReport3;
-
+  import {WS, MS, AS, PS, DS} from 'StEdsStore';
 const Conf = require('conf');
-const WS = require('../../mobx/WalksStore');
-const MS = require('../../mobx/MembersStore');
-const AS = require('../../mobx/AccountsStore');
-const PS = require('../../mobx/PaymentsSummaryStore');
-const DS = require('../../mobx/DateStore');
+
 const { toJS } = require('mobx');
 
 var nameColl = new Intl.Collator();
