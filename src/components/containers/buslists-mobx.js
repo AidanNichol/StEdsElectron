@@ -5,7 +5,7 @@ import { inject } from 'mobx-react';
 import { setRouterPage } from '../../ducks/router-mobx.js';
 
 import BusLists from '../views/BusListsM';
-import Logit from 'logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 // var datColl = new Intl.Collator();

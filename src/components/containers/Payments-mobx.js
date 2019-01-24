@@ -8,7 +8,7 @@ import { setRouterPage } from '../../ducks/router-mobx.js';
 import XDate from 'xdate';
 import { flatten } from 'lodash';
 // import fs from 'fs';
-import Logit from 'logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 var nameColl = new Intl.Collator();
 var nameCmp = (a, b) => nameColl.compare(a.sortname, b.sortname);

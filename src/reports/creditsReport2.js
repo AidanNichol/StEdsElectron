@@ -1,5 +1,5 @@
 const { drawSVG } = require('./extract-svg-path');
-const Logit = require('logit.js');
+const Logit = require('logit');
 var logit = Logit(__filename);
 const AS = require('../mobx/AccountsStore');
 

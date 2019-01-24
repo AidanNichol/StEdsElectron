@@ -49,3 +49,6 @@ src/server/checkForUpdates/generateEmail.1.js
 stedsWalks.json
 .env*
 tree.txt
+yalc.*
+.yalc
+yarn-error.log

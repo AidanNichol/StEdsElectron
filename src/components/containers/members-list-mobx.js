@@ -5,7 +5,7 @@ import MembersList from '../views/members/MembersListM.js';
 // import * as actions from '../../actions/membersList-actions.js';
 import { setRouterPage } from '../../ducks/router-mobx.js';
 
-import Logit from 'logit.js';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const mapStoreToProps = function(store) {

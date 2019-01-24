@@ -8,12 +8,12 @@ const {
   toJS,
   decorate,
 } = require('mobx');
-const { useFullHistory } = require('settings');
+const { useFullHistory } = require('StEdsSettings');
 
 let db;
-// const {getSettings} =require( 'settings');
+// const {getSettings} =require( 'StEdsSettings');
 const R = require('ramda');
-const Logit = require('logit.js');
+const Logit = require('logit');
 var logit = Logit(__filename);
 console.log('import');
 const DS = require('./DateStore');
@@ -213,7 +213,6 @@ class WalksStore {
       this.loaded = true;
       logit('WalkStore', this, this.walks);
     });
-    // this.walks.forEach(walk => walk.resolveConflicts());
   }
 }
 var coll = new Intl.Collator();

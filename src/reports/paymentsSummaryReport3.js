@@ -5,7 +5,7 @@ const jetpack = require('fs-jetpack');
 const { drawSVG } = require('./extract-svg-path');
 const { shell } = require('electron');
 
-const Logit = require('logit.js');
+const Logit = require('logit');
 var logit = Logit(__filename);
 const home = process.env.HOME || process.env.HOMEPATH;
 

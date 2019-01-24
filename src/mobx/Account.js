@@ -5,7 +5,7 @@ const R = require('ramda');
 const _ = require('lodash');
 
 // const {sprintf} = require( 'sprintf-js');
-const Logit = require('logit.js');
+const Logit = require('logit');
 var logit = Logit(__filename);
 const { observable, computed, toJS, reaction, action, decorate } = require('mobx');
 const FundsManager = require('./fundsManager');
@@ -14,9 +14,9 @@ const MS = require('./MembersStore');
 const WS = require('./WalksStore');
 const DS = require('./DateStore');
 const PS = require('./PaymentsSummaryStore');
-let { useFullHistory } = require('settings');
+let { useFullHistory } = require('StEdsSettings');
 
-const { logger } = require('logger.js');
+const { logger } = require('StEdsLogger');
 
 const AccLog = require('./AccLog');
 let limit;

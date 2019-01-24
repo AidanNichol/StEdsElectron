@@ -2,7 +2,7 @@ const PouchDB = require('pouchdb-browser');
 
 const { intersection, merge } = require('lodash');
 const React = require('react');
-const { getSettings, setSettings, DbSettings } = require('settings');
+const { getSettings, setSettings, DbSettings } = require('StEdsSettings');
 const { action, runInAction, reaction, toJS } = require('mobx');
 const { observer } = require('mobx-react');
 const state = require('../mobx/signinState');

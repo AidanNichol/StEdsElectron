@@ -1,4 +1,4 @@
-// import { getSettings} from 'settings';
+// import { getSettings} from 'StEdsSettings';
 import { observable, action, toJS, reaction, decorate } from 'mobx';
 import { setActiveMember, getAccountForMember } from 'mobx/MembersStore';
 const { setActiveAccount } = require('mobx/AccountsStore');

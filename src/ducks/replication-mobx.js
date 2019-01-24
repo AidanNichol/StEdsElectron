@@ -4,7 +4,7 @@ let db;
 const styled = require('styled-components').default;
 const { observable, computed, autorun, toJS, decorate } = require('mobx');
 const { observer } = require('mobx-react');
-const { DbSettings } = require('settings');
+const { DbSettings } = require('StEdsSettings');
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCloud,
