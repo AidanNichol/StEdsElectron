@@ -25,9 +25,10 @@ const AccountMembers = observer(
       }
     }
     render() {
-      const { AS, accId } = this.props;
+      const { AS, accId, editMode } = this.props;
+      logit('props1 ...', this.props, editMode);
       const { props, state } = this;
-      logit('props...', state, props);
+      logit('props...', state, props, editMode);
       if (!props.id) return null;
       const mergeRequested = () => this.setState(() => ({ stage: '?' }));
       const reset = () => this.setState(defaultState);
@@ -49,13 +50,13 @@ const AccountMembers = observer(
                 &nbsp;Also: {mem.memId} {mem.firstName} {mem.lastName}
               </div>
             ))}
-          {!props.editMode && (
+          {editMode && (
             <div>
               <TooltipButton
                 label="+"
                 onClick={mergeRequested}
                 tiptext="merge another account into this one"
-                visible={!props.editMode && showIf('')}
+                visible={editMode && showIf('')}
               />
               {hideIf('') && (
                 <div className="active">

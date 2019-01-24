@@ -184,7 +184,7 @@ const EditMemberData = observer(
                     id={vals.accountId}
                     memId={vals.memberId}
                     accId={vals.accountId}
-                    {...{ editMode }}
+                    editMode={ editMode }
                   />
                 </FormLine>
               </div>
