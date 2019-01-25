@@ -158,8 +158,8 @@ export function walkDayBookingSheet(doc, printFull) {
   const colHeadY = 55;
   const r = 3;
   const fontHeight = calcLineHeights(doc);
-  const charWidth = calcCharWidths(doc);
-  logit('charWidth', charWidth);
+  // const charWidth = calcCharWidths(doc);
+  // logit('charWidth', charWidth);
   const szH = 10,
     szD = 11;
   const nameH = fontHeight[szH],
@@ -173,6 +173,7 @@ export function walkDayBookingSheet(doc, printFull) {
     moneyWidth = 15;
   let x, y;
   let col = 0;
+
   const setEndY = endY => {
     if (pHeight - marginV - endY - 1 <= 0) {
       x = pWidth - margin - colW;
@@ -239,7 +240,6 @@ export function walkDayBookingSheet(doc, printFull) {
       .fontSize(szD - 2)
       .text('Paid ', x + boxOff + boxWidth + 10, y + dY);
   };
-
   const memberSet = printFull ? fullSet() : walkDaySet();
   const bMap = gatherData(memberSet, printFull);
   logit('bMap', printFull, bMap);
@@ -335,112 +335,7 @@ export function walkDayBookingSheet(doc, printFull) {
     y = startY + accHeight;
     y += gapH;
   });
-  const printBlanks = (x, y) => {
-    var startY = y;
-    const dY = detailH + 1;
-    let accHeight = 2 + nameH + detailH;
 
-    printAccountHeader(x, y, accHeight, '');
-    printPaidBox(x, y, dY);
-    let noWalks = walknames.length;
-    printWalkCodes(x, y, [], walknames.map(nm => nm.code));
-    y += nameH;
-    //
-    // Print Member name
-    //
-    doc.fontSize(szD);
-
-    for (var i = 0; i < walknames.length; i++) {
-      doc.image(
-        `${__dirname}/../assets/icon-Chk.jpg`,
-        x + colW - bkWidth * (noWalks - i - 0.5) - detailH * 0.4,
-        y,
-        { height: detailH * 0.8 },
-      );
-    }
-    y += detailH;
-
-    y = startY + accHeight;
-    y += gapH;
-    return [x, y];
-  };
-
-  // set up some constants for the checkboxes
-  const gap = 10;
-  const sz = (bxW + gap) / walkAvailability.length;
-  const iw = detailH * 0.6;
-  const bw = iw + 2;
-  let checkBoxesStart = pHeight - marginV - (detailH + 4 * bw + 6);
-
-  // howmany blank boxes can we squeeze in
-  let accHeight = 2 + nameH + detailH;
-  let noBlanks = 10;
-  const spaceFor = Math.floor((checkBoxesStart - y) / accHeight);
-  if (col === 0) setEndY(pHeight);
-  // force new column
-  else noBlanks = Math.min(10, spaceFor) - 1;
-  logit('space For', { spaceFor, noBlanks, y, checkBoxesStart, accHeight });
-  for (var i = 0; i < noBlanks; i++) {
-    setEndY(y + accHeight);
-    [x, y] = printBlanks(x, y);
-  }
-
-  const aHeadBox = makeHeadBox(sz - gap + 2, detailH, r);
-  let oldY = y;
-
-  y = checkBoxesStart;
-  if (y < oldY) setEndY(pHeight); // force new column or page
-  // if (y < oldY) {
-  //   x = pWidth-margin - colW;
-  //   col = (col++)%2;
-  //   if (col === 0){
-  //     x = margin;
-  //     doc.addPage();
-  //   }
-  // }
-  walkAvailability.forEach(({ free, display }, i) => {
-    if (printFull || i > 0) {
-      const name = walknames[i].shortname;
-      const x1 = x + sz * i;
-      logit('avail', { x1, sz, iw, bw, gap }, doc._fontSize);
-      if (display.substr(0, 3) === '0 (') display = display.substr(2);
-      var dispSz = Array.from(display).reduce(
-        (acc, chr) => acc + (charWidth[chr] || charWidth['0']),
-        0,
-      );
-      // dispSz = 20;
-      // if (display.length > 4) dispSz = dispSz - 29;
-      // const dispSz = display.length * 8;
-      // const dispSz = display.length * ;
-      doc
-        .path(`M ${x1 - 2 + r},${y - 2} ${aHeadBox}`)
-        .lineWidth(1)
-        .fillOpacity(0.8)
-        .fillAndStroke('#ccc', '#888');
-      doc
-        .roundedRect(x1 - 2, y - 2, sz - gap + 2, detailH + 4 * bw + 6, r)
-        .stroke('#888');
-      logit('dispSz', { display, dispSz, sz, gap }, doc._fontSize);
-      doc
-        .fillColor('black')
-        .text(name, x1, y, {
-          width: sz - gap - 2 - dispSz,
-          height: detailH,
-          lineBreak: false,
-          ellipsis: true,
-        })
-        .text(display, x1, y, { align: 'right', width: sz - gap - 2 });
-      for (let j = 0; j < 20; j++) {
-        var y1 = y + detailH + Math.floor(j / 5) * bw;
-        doc.image(
-          `${__dirname}/../assets/icon-${j < free ? 'Chk' : 'Wchk'}.jpg`,
-          x1 + (j % 5) * bw,
-          y1,
-          { height: iw },
-        );
-      }
-    }
-  });
 }
 var coll = new Intl.Collator();
 const cmpAccName = (a, b) => coll.compare(a[1].sortname, b[1].sortname);
