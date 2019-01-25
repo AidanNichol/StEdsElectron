@@ -344,7 +344,13 @@ function reportBody(payload, printFull, doc, lastWalk) {
         .fontSize(szD)
         .fillColor('black')
         .text(name, x, y);
-      bkngs.forEach(log => printWalkIcon(x, y, log));
+      
+      const bkngsR = Object.values(bkngs).reduce((acc, bkng)=>{
+        if (bkng.req==='A')return acc;
+        acc[bkng.walkId]=bkng; 
+        return acc;}, {})
+      logit ('printWalkIcon', memId,  bkngs, bkngsR)
+      Object.values(bkngsR).forEach(log => printWalkIcon(x, y, log));
       y += detailH;
     });
     if (addToCredit) {
@@ -378,44 +384,6 @@ function reportBody(payload, printFull, doc, lastWalk) {
     .text('Cash & Cheques to Bank', x, y)
     .text(`£${netCashAndCheques}`, x, y, { width: colW, align: 'right' });
 
-  // y += fontHeight[12] + 8;
-  // logit('lastWalk', lastWalk);
-  // const makeHeadBox = (bxW, bxH, r) =>
-  //   `h ${bxW - 2 * r} a ${r},${r} 0 0 1 ${r},${r} v ${bxH - r}  h -${bxW} v -${bxH -
-  //     r} a ${r},${r} 0 0 1 ${r},${-r} Z`;
-
-  // if (lastWalk) {
-  //   x += 45;
-  //   const headBox = makeHeadBox(lwW, fontHeight[11], r);
-
-  //   const boxPt = 2;
-  //   doc
-  //     .path(`M ${x - 2 + r},${y - boxPt} ${headBox}`)
-  //     .lineWidth(1)
-  //     .fillOpacity(0.8)
-  //     .fillAndStroke('#ccc', '#888');
-  //   doc.roundedRect(x - 2, y - boxPt, lwW, lwH, r).stroke('#888');
-
-  //   doc
-  //     .font(normal)
-  //     .fontSize(11)
-  //     .fillColor('black');
-  //   doc.text(`Last Walk: `, x, y);
-  //   doc
-  //     .font(bold)
-  //     .text(` ${lastWalk.date}  ${lastWalk.venue}`, x + 50, y, {
-  //       width: lwW - 50,
-  //       height: fontHeight[11],
-  //       ellipsis: true,
-  //     })
-  //     .font(normal);
-  //   y += fontHeight[11] + 4;
-  //   doc.text(`Bus Bookings (${lastWalk.totals.B})`, x, y);
-  //   y += fontHeight[11];
-  //   doc.text(`Bus Late Cancellation (${lastWalk.totals.BL})`, x, y);
-  //   y += fontHeight[11];
-  //   doc.text(`Car Bookings (${lastWalk.totals.C})`, x, y);
-  //   y += fontHeight[11] + 4;
-  // }
+  
 }
 exports.reportBody = reportBody;
