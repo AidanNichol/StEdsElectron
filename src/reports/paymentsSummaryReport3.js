@@ -1,6 +1,6 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-const XDate = require('xdate');
+import {format} from 'date-fns';
 const jetpack = require('fs-jetpack');
 const { drawSVG } = require('./extract-svg-path');
 const { shell } = require('electron');
@@ -19,7 +19,6 @@ const calcLineHeights = doc => {
   });
 };
 
-// const XDate = require( 'xdate');
 logit('env', process.env);
 logit('dirname', __dirname);
 
@@ -60,7 +59,7 @@ exports.paymentsSummaryReport3 = function paymentsSummaryReport3(payload, lastWa
   doc.on('pageAdded', () => {
     const height14 = doc.fontSize(14).currentLineHeight();
     const height4 = doc.fontSize(4).currentLineHeight();
-    const fmtDate = dat => new XDate(dat).toString('ddd dd MMM');
+    const fmtDate = dat => format(new Date(dat), 'EEE dd MMM');
     drawSVG(doc, 50, 35, 0.25, 'St_EdwardsLogoSimple');
 
     doc
@@ -70,7 +69,7 @@ exports.paymentsSummaryReport3 = function paymentsSummaryReport3(payload, lastWa
     doc
       .font(normal)
       .fontSize(9)
-      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, 30 + (20 - height4) / 2, {
+      .text(format(new Date(), 'yyyy-MM-dd HH:mm'), 30, 30 + (20 - height4) / 2, {
         align: 'right',
       });
     // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})
@@ -147,7 +146,7 @@ function prepareData(payload, printFull) {
     data.name =
       WS.walks.get(walkId).names.code +
       ' ' +
-      new XDate(walkId.substr(1)).toString('dd MMM');
+      format(new Date(walkId.substr(1)), 'dd MMM');
   });
   return { accData, walkIndex, addToCredit };
 }

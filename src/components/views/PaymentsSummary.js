@@ -6,9 +6,14 @@ import { saveSummary } from '../../ducks/paymentssummary-duck.js';
 import { ShowRecipts } from './PaymentsReceived';
 // import {paymentsSummaryReport} from 'reports/paymentsSummaryReport2'
 // import {setPage} from 'ducks/router-duck.js';
-import { getLogTime } from '../../utilities/DateUtilities.js';
+import {cloneDeep, pickBy, keys} from 'lodash';
+import {format} from 'date-fns/fp';
+const dispDate = format('dd MMM HH:mm');
+
+var formatISOdate = format("yyyy-MM-dd'T'HH:mm:ss.SSS");
+var getLogTime = ()=>formatISOdate(new Date());
+
 import { flatten } from 'lodash';
-import XDate from 'xdate';
 import fs from 'fs';
 
 import React from 'react';
@@ -212,8 +217,8 @@ export const mapStoreToProps = function({ AS, PS }) {
     // aLogs, bLogs,
     cLogs,
     tots,
-    startDispDate: startDate && new XDate(startDate).toString('dd MMM HH:mm'),
-    endDispDate: new XDate(endDate).toString('dd MMM HH:mm'),
+    startDispDate: dispDate(startDate && new Date(startDate)),
+    endDispDate: dispDate(new Date(endDate)),
     type: 'paymentSummary',
     _id: 'BP' + endDate.substr(0, 16),
   };

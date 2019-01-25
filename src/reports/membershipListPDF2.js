@@ -1,5 +1,5 @@
 import PDFDocument from 'pdfkit';
-import XDate from 'xdate';
+import {format} from 'date-fns';
 import fs from 'fs';
 import { shell } from 'electron';
 import Logit from 'logit';
@@ -105,7 +105,7 @@ export function membershipListReport(members) {
   const gapH = doc.fontSize(9).currentLineHeight();
   let x, y, x1, y1, y2;
 
-  const timestamp = new XDate().toString('yyyy-MM-dd HH:mm');
+  const timestamp = format(new Date(), 'yyyy-MM-dd HH:mm');
 
   doc.on('pageAdded', () => {
     currentPage += 1;

@@ -1,5 +1,5 @@
 // import React from 'react';
-import DS from 'mobx/DateStore';
+import {DS} from 'StEdsStore';
 import { observable } from 'mobx';
 import { inject } from 'mobx-react';
 import { setRouterPage } from '../../ducks/router-mobx.js';

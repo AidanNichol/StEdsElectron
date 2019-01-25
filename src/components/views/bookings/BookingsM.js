@@ -1,19 +1,16 @@
 /* jshint quotmark: false, jquery: true */
 import React from 'react';
 import classnames from 'classnames';
-// import {observable, action, toJS} from 'mobx';
 import { observer } from 'mobx-react';
 
 import { Panel } from '../../utility/AJNPanel';
 import SelectMember from '../../utility/RSelectMember.js';
 import { Icon } from '../../utility/Icon';
 
-// import {Payment} from '../../containers/PaymentStatusLog-container.js';
 import { PaymentsBoxes } from '../../containers/PaymentsBoxes-mobx';
-// import {ChangeLog} from '../../containers/PaymentStatusLog-container.js';
 import { ChangeLogM } from '../../containers/PaymentStatusLog-mobx';
 import { AnnotateBooking, openAnnotationDialog } from './annotateBooking';
-// import {getTodaysDate} from 'utilities/DateUtilities.js';
+
 import Logit from 'logit';
 var logit = Logit(__filename);
 const delSettings = {

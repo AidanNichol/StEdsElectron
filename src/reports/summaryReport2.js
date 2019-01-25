@@ -6,7 +6,7 @@ import { creditsOwedReport } from './creditsReport2';
 import { walkDayBookingSheet } from './walkDayBookingSheet';
 import { shell } from 'electron';
 import fs from 'fs';
-import XDate from 'xdate';
+import {format} from 'date-fns';
 
 import Logit from 'logit';
 var logit = Logit(__filename);
@@ -62,7 +62,7 @@ export function summaryReport(printFull) {
     doc
       .font(normal)
       .fontSize(9)
-      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, marginV + (20 - height4) / 2, {
+      .text(format(new Date(), 'yyyy-MM-dd HH:mm'), 30, marginV + (20 - height4) / 2, {
         align: 'right',
       });
   });

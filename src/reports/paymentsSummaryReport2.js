@@ -2,7 +2,7 @@ import Logit from 'logit';
 var logit = Logit(__filename);
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
-import XDate from 'xdate';
+import {format} from 'date-fns';
 import jetpack from 'fs-jetpack';
 
 const home = process.env.HOME || process.env.HOMEPATH;
@@ -57,7 +57,7 @@ export function paymentsSummaryReport(payload) {
     doc
       .font(normal)
       .fontSize(9)
-      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, 30 + (20 - height4) / 2, {
+      .text(format(new Date(), 'yyyy-MM-dd HH:mm'), 30, 30 + (20 - height4) / 2, {
         align: 'right',
       });
     // doc.fontSize(14).text(`${payload.startDispDate} to ${payload.endDispDate}`, 30, 30+(20+height14)/2, {align: 'center'})

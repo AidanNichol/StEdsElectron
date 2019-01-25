@@ -141,7 +141,6 @@ const calcCharWidths = doc => {
   logit('charWidth', res);
   return res;
 };
-// import XDate from 'xdate';
 logit('env', process.env);
 logit('dirname', __dirname);
 const makeHeadBox = (bxW, bxH, r) =>

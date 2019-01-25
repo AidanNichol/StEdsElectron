@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var PouchDB = require('pouchdb');
 var replicationStream = require('pouchdb-replication-stream');
-var XDate = require('xdate');
+const {format} = require('date-fns');
 
 PouchDB.plugin(replicationStream.plugin);
 PouchDB.adapter('writableStream', replicationStream.adapters.writableStream);
@@ -9,7 +9,7 @@ PouchDB.adapter('writableStream', replicationStream.adapters.writableStream);
 PouchDB.plugin(replicationStream.plugin);
 
 const fs = require('fs');
-const now = new XDate().toString('yyyy-MM-dd_HH-mm-ss');
+const now = format(new Date(), 'yyyy-MM-dd_HH-mm-ss');
 const filename = `backup-production-${now}.txt`;
 
 var stream = fs.createWriteStream(filename);

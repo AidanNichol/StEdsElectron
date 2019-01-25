@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const _ = require('lodash');
-const XDate = require('xdate');
+const {format} = require('date-fns');
 const debug = require('debug');
 var fs = require('fs');
 var path = require('path');
@@ -66,22 +66,22 @@ console.log('argv', argvOn, argv);
 class DateStore {
   constructor(today) {
     if (today) {
-      this.today = new XDate(today);
+      this.today = new Date(today);
     } else {
-      this.today = new XDate();
+      this.today = new Date();
     }
     console.log(this);
   }
 
   dispDate(dat) {
-    return new XDate(dat).toString('dd MMM HH:mm');
+    return format(new Date(dat), 'dd MMM HH:mm');
   }
 
   get todaysDate() {
     return this.today.toString('yyyy-MM-dd');
   }
   get now() {
-    return new XDate().toString('dd MMM HH:mm:ss');
+    return format(new Date(), 'dd MMM HH:mm:ss');
   }
 
   get lastAvailableDate() {

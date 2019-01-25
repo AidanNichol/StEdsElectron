@@ -5,8 +5,10 @@ import PaymentsDue from '../views/PaymentsDue2.js';
 import PaymentsMade from '../views/PaymentsReceived.js';
 // import {mapStoreToProps as buildDoc} from '../views/PaymentsSummary';
 import { setRouterPage } from '../../ducks/router-mobx.js';
-import XDate from 'xdate';
 import { flatten } from 'lodash';
+import {format} from 'date-fns/fp';
+const dispDate = format('dd MMM HH:mm');
+
 // import fs from 'fs';
 import Logit from 'logit';
 var logit = Logit(__filename);
@@ -104,8 +106,8 @@ const buildDoc = function({ AS, DS, WS, PS }) {
   var doc = {
     _id: 'BP' + endDate.substr(0, 16),
     type: 'paymentSummary',
-    startDispDate: startDate && new XDate(startDate).toString('dd MMM HH:mm'),
-    endDispDate: new XDate(endDate).toString('dd MMM HH:mm'),
+    startDispDate: dispDate(startDate && new Date(startDate)),
+    endDispDate: dispDate(new Date(endDate)),
     closingCredit: accountsStatus
       .filter(acc => acc.balance > 0)
       .reduce((sum, item) => sum + item.balance, 0),

@@ -15,7 +15,6 @@ const calcLineHeights = doc => {
   return [h14, h12, h12 / 4];
 };
 
-// import XDate from 'xdate';
 logit('env', process.env);
 logit('dirname', __dirname);
 export function paymentsDueReport(doc, yStart) {

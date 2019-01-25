@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const debug = require('debug');
 let db = require('bookingsDB')();
-const XDate = require('xdate');
+const {format} = require('date-fns');
 const _ = require('lodash');
 // let R = require('ramda');
 const paymentsSummaryReport3 = require('../../reports/paymentsSummaryReport3')
@@ -60,8 +60,8 @@ const init = async () => {
   }, {});
   let currentPeriodStart = WS.currentPeriodStart;
   var doc = {
-    startDispDate: startDate && new XDate(startDate).toString('dd MMM HH:mm'),
-    endDispDate: new XDate(endDate).toString('dd MMM HH:mm'),
+    startDispDate: format(startDate && new Date(startDate), 'dd MMM HH:mm'),
+    endDispDate: format(new Date(endDate), 'dd MMM HH:mm'),
     tots,
     startDate,
     endDate,

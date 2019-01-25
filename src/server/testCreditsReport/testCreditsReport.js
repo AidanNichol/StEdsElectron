@@ -27,7 +27,7 @@ console.log('logit enabled:', logit.enabled);
 
 logit.debug('debug');
 const fs = require('fs');
-const XDate = require('xdate');
+const {format} = require('date-fns');
 
 const home = process.env.HOME || process.env.HOMEPATH;
 logit('home', home);
@@ -73,7 +73,7 @@ const init = async () => {
     doc
       .font(normal)
       .fontSize(9)
-      .text(new XDate().toString('yyyy-MM-dd HH:mm'), 30, marginV + (20 - height4) / 2, {
+      .text(format(new Date(), 'yyyy-MM-dd HH:mm'), 30, marginV + (20 - height4) / 2, {
         align: 'right',
       });
   });

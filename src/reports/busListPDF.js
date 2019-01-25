@@ -3,9 +3,9 @@ const margin = 30;
 import Logit from 'logit';
 var logit = Logit(__filename);
 
-import XDate from 'xdate';
+import {format} from 'date-fns';
 import {WS} from 'StEdsStore';
-const _today = new XDate().toString('Wyyyy-MM-dd');
+const _today = format(new Date(), "'W'yyyy-MM-dd");
 logit('env', process.env);
 logit('dirname', __dirname);
 
@@ -87,9 +87,9 @@ export function busListReport(doc) {
   let col = 0;
   WS.bookableWalksId.filter(walkId => walkId >= _today).forEach(walkId => {
     let walk = WS.walks.get(walkId);
-    let dispDate = new XDate(walk.walkDate).toString('dd MMM');
+    let dispDate = format(new Date(walk.walkDate), 'dd MMM');
     let venue = walk.venue.replace(/\(.*\)/, '');
-    logit(walkId, { x, walk, dispDate, venue });
+    logit(walkId, { walk, dispDate, venue });
     let busBookings = walk.busBookings;
     let carBookings = walk.carBookings;
     let waitlist = walk.waitingList;
