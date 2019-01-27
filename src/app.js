@@ -3,10 +3,11 @@
 // import 'whatwg-fetch';
 require('steds-settings-setup').setup();
 console.log('Versions', process.platform, process.versions);
+console.log('STEDS_debug_devtoolsOpen', process.env.STEDS_debug_devtoolsOpen);
+
 const logo = __dirname + '/steds-logo.png';
 console.log('logo', logo);
 const electron = require('electron');
-const { getSettings } =require( 'StEdsSettings');
 // const {Menu} = require('electron');
 const { app, BrowserWindow, ipcMain, shell } = electron;
 
@@ -77,7 +78,7 @@ function createWindow(width, height) {
       .catch(err => console.log('An error occurred: ', err));
     }
     // Open the DevTools.
-    if (getSettings('debug.devtoolsOpen')){
+    if (process.env.STEDS_debug_devtoolsOpen==="true"){
       mainWindow.webContents.openDevTools();
       console.log(`Added Extension:  Chrome Developer Tools`);
     }
