@@ -1,6 +1,6 @@
 import { inject } from 'mobx-react';
-import Payments from 'components/views/PaymentsRecieved';
-import { setRouterPage } from 'ducks/router-mobx.js';
+import Payments from '../views/PaymentsRecieved';
+import { setRouterPage } from '../../ducks/router-mobx.js';
 
 const mapStateToProps = store => {
   const accs = store.AS.allAccountsStatus

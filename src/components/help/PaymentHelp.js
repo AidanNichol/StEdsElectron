@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from 'Icon';
+import { Icon } from '../utility/Icon';
 export const PaymentHelp = () => (
   <div className="payments-help">
     <dl>

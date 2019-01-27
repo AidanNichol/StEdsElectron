@@ -3,8 +3,8 @@ const presets = [
     '@babel/env',
     {
       targets: {
-        chrome: 66,
-        node: '9.2',
+        chrome: 69,
+        node: '10.11',
       },
     },
   ],
@@ -18,14 +18,5 @@ const plugins = [
   '@babel/plugin-transform-flow-strip-types',
   'babel-plugin-styled-components',
   'lodash',
-  [
-    'module-resolver',
-    {
-      root: ['./src'],
-      alias: {
-        views: 'components/views',
-      },
-    },
-  ],
 ];
 module.exports = { presets, plugins };

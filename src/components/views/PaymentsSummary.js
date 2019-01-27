@@ -4,8 +4,6 @@ import { observer, inject } from 'mobx-react';
 import mobx from 'mobx';
 import { saveSummary } from '../../ducks/paymentssummary-duck.js';
 import { ShowRecipts } from './PaymentsReceived';
-// import {paymentsSummaryReport} from 'reports/paymentsSummaryReport2'
-// import {setPage} from 'ducks/router-duck.js';
 import {cloneDeep, pickBy, keys} from 'lodash';
 import {format} from 'date-fns/fp';
 const dispDate = format('dd MMM HH:mm');
@@ -19,9 +17,6 @@ import fs from 'fs';
 import React from 'react';
 import { Panel } from '../utility/AJNPanel';
 import TooltipButton from '../utility/TooltipButton.js';
-// import TooltipContent from '../utility/TooltipContent.js';
-// import {Icon} from 'ducks/walksDuck'
-// import {Lock} from 'ducks/lock-duck'
 
 import Logit from 'logit';
 var logit = Logit(__filename);

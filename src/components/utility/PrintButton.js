@@ -1,5 +1,5 @@
 import React from 'react';
-import TooltipButton from 'components/utility/TooltipButton';
+import TooltipButton from './TooltipButton';
 import { observable, autorun, action } from 'mobx';
 import { observer } from 'mobx-react';
 import Logit from 'logit';

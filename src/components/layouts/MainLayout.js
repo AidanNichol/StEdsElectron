@@ -3,11 +3,11 @@ import classnames from 'classnames';
 import { observer, inject } from 'mobx-react';
 import { SigninForm } from '../../ducks/signin-mobx.js';
 import { setRouterPage } from '../../ducks/router-mobx.js';
-import { ReplicationStatus } from 'ducks/replication-mobx';
-import MembersListContainer from 'components/containers/members-list-mobx.js';
-import BookingsContainer from 'components/containers/bookings-mobx.js';
-import BusListsContainer from 'components/containers/buslists-mobx.js';
-import PaymentsContainerM from 'components/containers/Payments-mobx';
+import { ReplicationStatus } from '../../ducks/replication-mobx';
+import MembersListContainer from '../containers/members-list-mobx.js';
+import BookingsContainer from '../containers/bookings-mobx.js';
+import BusListsContainer from '../containers/buslists-mobx.js';
+import PaymentsContainerM from '../containers/Payments-mobx';
 
 var packageJson = require('../../../package.json');
 

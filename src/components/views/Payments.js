@@ -6,8 +6,8 @@ import TooltipButton from '../utility/TooltipButton.js';
 import TooltipContent from '../utility/TooltipContent.js';
 import PaymentsSummary from './PaymentsSummary';
 // import showNewWindow from 'utilities/showNewWindow.js';
-import { Icon } from 'ducks/walksDuck';
-import { Lock } from 'ducks/lock-duck';
+import { Icon } from '../../ducks/walksDuck';
+import { Lock } from '../../ducks/lock-duck';
 
 import Logit from 'logit';
 var logit = Logit(__filename);

@@ -6,7 +6,6 @@ import classnames from 'classnames';
 
 import styled from 'styled-components';
 import { Icon } from '../utility/Icon';
-// import {Icon} from 'ducks/walksDuck'
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 

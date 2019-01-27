@@ -1,7 +1,7 @@
 import { inject, observer } from 'mobx-react';
 import Payments from '../views/PaymentsDue';
 // import { showStats} from './PaymentsFunctions'
-import { setRouterPage } from 'ducks/router-mobx.js';
+import { setRouterPage } from '../../ducks/router-mobx.js';
 import Logit from 'logit';
 var logit = Logit(__filename);
 

@@ -1,7 +1,7 @@
 import { inject } from 'mobx-react';
 import Bookings from '../views/bookings/BookingsM.js';
-import { uiStatus } from 'components/views/bookings/PaymentsBoxes';
-import { setRouterUser } from 'ducks/router-mobx';
+import { uiStatus } from '../views/bookings/PaymentsBoxes';
+import { setRouterUser } from '../../ducks/router-mobx';
 import Logit from 'logit';
 var logit = Logit(__filename);
 

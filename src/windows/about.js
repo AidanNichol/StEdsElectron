@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import jetpack from 'fs-jetpack';
-var open = require('open');
+import {shell} from 'electron';
 
 var links = [
   [
@@ -31,6 +31,7 @@ var links = [
   ],
   // ['PouchDB Authenticate', 'PouchDB Authenticate', 'https://github.com/nolanlawson/pouchdb-authentication'],
 ];
+const open = url=> shell.openExternal(url)
 const GetIcon = ({ name, ...rest }) => {
   const iName = `../assets/mark-${name.toLowerCase()}`;
   const xName = `mark-${name.toLowerCase()}`;
