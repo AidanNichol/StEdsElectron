@@ -1,4 +1,4 @@
-const remote = require('electron').remote;
+import { remote, ipcRenderer } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 import React from 'react';
 import { render } from 'react-dom';
@@ -6,13 +6,15 @@ import { setSettings, getAllSettings } from 'StEdsSettings';
 
 var data = getAllSettings();
 const changed = (base, inpt) => {
+  console.log('changed', base, inpt.value);
   setSettings(base, inpt.value);
 };
 const dbSelected = (base, inpt) => {
   setSettings(base, inpt.value);
-  BrowserWindow.getFocusedWindow().reload();
+  ipcRenderer.send('reload-main', {[base]: inpt.value});
 };
 const toggled = (base, inpt) => {
+  console.log('changed', base, inpt.checked);
   setSettings(base, inpt.checked);
 };
 var mode = data.database.current;
@@ -37,8 +39,9 @@ const strng = (val, base, name) => {
   let inputValue;
   return (
     <div key={base}>
-      <span key={base + 'S'}>{name}</span>
+      <span key={base + 'S'}>{name.toString()}</span>
       <input
+        className={name+''}
         key={base + 'I'}
         onChange={() => changed(base, inputValue)}
         ref={input => (inputValue = input)}
@@ -50,6 +53,7 @@ const strng = (val, base, name) => {
 };
 const bool = (val, base, name, changed = toggled) => {
   let inputValue;
+  console.log('bool', base, name, val );
   return (
     <div key={base}>
       <span key={base + 'S'}>{name}</span>
@@ -67,7 +71,7 @@ const bool = (val, base, name, changed = toggled) => {
 const advancedBool = (val, base, name) => {
   const advancedToggle = (base, inpt) => {
     toggled(base, inpt);
-    BrowserWindow.getFocusedWindow().reload();
+    ipcRenderer.send('reload-main', {[base]: val});
   };
   return bool(val, base, name, advancedToggle);
 };
@@ -110,7 +114,7 @@ const objectTree = (obj, base, name) => {
   };
   base = base ? base + '.' : '';
   return (
-    <div className="obj" key={'obj:' + base}>
+    <div className={"obj "+name} key={'obj:' + base}>
       {name && <h4 className={mode}>{name}</h4>}
       <div>
         {Object.keys(obj).map(name => {
@@ -157,7 +161,6 @@ render(
     </div>
     <div>
       {objectTree(data)}
-      {/* <ObjectTree obj={data} key='' base='' /> */}
     </div>
   </div>,
   document.getElementById('root')
