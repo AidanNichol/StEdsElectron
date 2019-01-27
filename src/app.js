@@ -2,7 +2,7 @@
 // import './helpers.js'
 // import 'whatwg-fetch';
 require('steds-settings-setup').setup();
-console.log('Versions', process.versions);
+console.log('Versions', process.platform, process.versions);
 const logo = __dirname + '/steds-logo.png';
 console.log('logo', logo);
 const electron = require('electron');
@@ -12,8 +12,6 @@ const { app, BrowserWindow, ipcMain, shell } = electron;
 
 let logoimage = electron.nativeImage.createFromPath(logo);
 console.log(logoimage);
-// const app = electron.app;
-// const BrowserWindow = electron.BrowserWindow;
 
 import installExtension, { REACT_DEVELOPER_TOOLS, MOBX_DEVTOOLS } from 'electron-devtools-installer';
 const os = require('os');
@@ -42,7 +40,7 @@ if (!gotTheLock) {
 //   crashReporter.start();
 //   //appMenu.append(devMenu);
 // }
-app.dock.setIcon(logoimage);
+process.platform==='darwin' && app.dock.setIcon(logoimage);
 app.on('window-all-closed', () => {
   app.quit();
 });
@@ -52,6 +50,9 @@ function isDev() {
 function createWindow(width, height) {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
     width,
     height,
     x: 0,
@@ -59,22 +60,27 @@ function createWindow(width, height) {
     show: false,
     logoimage,
   });
-  if (isDev()) {
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then(name => console.log(`Added Extension:  ${name}`))
-      .catch(err => console.log('An error occurred: ', err));
-    installExtension(MOBX_DEVTOOLS)
-      .then(name => console.log(`Added Extension:  ${name}`))
-      .catch(err => console.log('An error occurred: ', err));
-    installExtension(POUCHDB_INSPECTOR)
-      .then(name => console.log(`Added Extension:  ${name}`))
-      .catch(err => console.log('An error occurred: ', err));
-  }
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
-
+  
   // mainWindow.setProgressBar(-1); // hack: force icon refresh
   mainWindow.webContents.on('did-finish-load', () => {
+    if (isDev()) {
+      installExtension(REACT_DEVELOPER_TOOLS)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
+      installExtension(MOBX_DEVTOOLS)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
+      installExtension(POUCHDB_INSPECTOR)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
+    }
+    // Open the DevTools.
+    if (getSettings('debug.devtoolsOpen')){
+      mainWindow.webContents.openDevTools();
+      console.log(`Added Extension:  Chrome Developer Tools`);
+    }
     mainWindow.show();
     if (loadingScreen) {
       let loadingScreenBounds = loadingScreen.getBounds();
@@ -85,8 +91,6 @@ function createWindow(width, height) {
   });
 
   // ESI.ensureSingleInstance('StEdsBookings', mainWindow); //mainWindow is optional
-  // Open the DevTools.
-  getSettings('debug.devtoolsOpen') && mainWindow.webContents.openDevTools();
   // mainWindow.webContents.openDevTools();
   // require('electron-debug')({showDevTools: true});
 
@@ -99,7 +103,7 @@ function createWindow(width, height) {
     printWorkerWindow && printWorkerWindow.close();
   });
 
-  printWorkerWindow = new BrowserWindow();
+  printWorkerWindow = new BrowserWindow({ webPreferences: { nodeIntegration: true, },});
   printWorkerWindow.hide();
   printWorkerWindow.loadURL('file://' + __dirname + '/windows/printWorker.html');
   printWorkerWindow.webContents.on('did-finish-load', () => {
@@ -113,7 +117,7 @@ function createWindow(width, height) {
 }
 
 function createLoadingScreen() {
-  let windowParams = { width: 1280, height: 774, x: 0, y: 100, show: false };
+  let windowParams = {  webPreferences: { nodeIntegration: false, },width: 1280, height: 774, x: 0, y: 100, show: false };
   loadingScreen = new BrowserWindow(Object.assign(windowParams, { parent: mainWindow }));
   loadingScreen.loadURL('file://' + __dirname + '/windows/loading.html');
   loadingScreen.on('closed', () => (loadingScreen = null));

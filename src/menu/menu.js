@@ -5,7 +5,7 @@ function showAboutWindow() {
   var win = new BrowserWindow({
     width: 800,
     height: 600,
-    webPreferences: { experimentalFeatures: true },
+    webPreferences: { nodeIntegration: true },
   });
   win.loadURL(`file://${__dirname}/../windows/about.html`);
 }
@@ -13,7 +13,7 @@ function showSettingsWindow() {
   var win = new BrowserWindow({
     width: 700,
     height: 750,
-    webPreferences: { experimentalFeatures: true },
+    webPreferences: { nodeIntegration: true },
   });
   win.loadURL(`file://${__dirname}/../windows/settings.html`);
 }
@@ -21,7 +21,7 @@ function showDebugOptionsWindow() {
   var win = new BrowserWindow({
     width: 700,
     height: 750,
-    webPreferences: { experimentalFeatures: true },
+    webPreferences: { nodeIntegration: true },
   });
   win.loadURL(`file://${__dirname}/../windows/debugOptions.html`);
 }
