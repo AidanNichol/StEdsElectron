@@ -11,7 +11,7 @@ function showAboutWindow() {
 }
 function showSettingsWindow() {
   var win = new BrowserWindow({
-    width: 1000,
+    width: 900,
     height: 750,
     webPreferences: { nodeIntegration: true },
   });
@@ -19,7 +19,7 @@ function showSettingsWindow() {
 }
 function showDebugOptionsWindow() {
   var win = new BrowserWindow({
-    width: 1000,
+    width: 900,
     height: 750,
     webPreferences: { nodeIntegration: true },
   });

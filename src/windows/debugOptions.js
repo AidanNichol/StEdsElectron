@@ -271,7 +271,7 @@ var save = () => {
   let enableString = data.getEnableString(select.NO).substr(1);
   logmeP('save me', enableString);
   localStorage.setItem('debug', JSON.stringify(enableString));
-  ipcRenderer.send('reload-main', 'ping');
+  ipcRenderer.send('reload-main', {});
   // BrowserWindow.getFocusedWindow().close();
 };
 ipcRenderer.on('reload-reply', (event, arg) => {

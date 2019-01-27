@@ -67,6 +67,8 @@ function createWindow(width, height) {
   // mainWindow.setProgressBar(-1); // hack: force icon refresh
   mainWindow.webContents.on('did-finish-load', () => {
     if (isDev()) {
+      mainWindow.webContents.openDevTools();
+      console.log(`Added Extension:  Chrome Developer Tools`);
       installExtension(REACT_DEVELOPER_TOOLS)
       .then(name => console.log(`Added Extension:  ${name}`))
       .catch(err => console.log('An error occurred: ', err));
@@ -76,11 +78,6 @@ function createWindow(width, height) {
       installExtension(POUCHDB_INSPECTOR)
       .then(name => console.log(`Added Extension:  ${name}`))
       .catch(err => console.log('An error occurred: ', err));
-    }
-    // Open the DevTools.
-    if (process.env.STEDS_debug_devtoolsOpen==="true"){
-      mainWindow.webContents.openDevTools();
-      console.log(`Added Extension:  Chrome Developer Tools`);
     }
     mainWindow.show();
     if (loadingScreen) {
@@ -136,8 +133,14 @@ app.on('ready', () => {
   createWindow(width, height);
   console.log('creating listeners');
   ipcMain.on('reload-main', (event, arg) => {
-    console.log('reload request received', arg);
-    event.sender.send('reload-reply', 'pong');
+    console.log('reload request received', arg, typeof arg);
+    Object.entries(arg).forEach(([key,val])=>{
+      const vvv = 'STEDS_'+key.replace('.','_');
+      process.env[vvv] = String(val);
+      console.log('set env:',vvv, String(val) );
+    })
+    console.log('reloading')
+    // event.sender.send('reload-reply', 'pong');
     mainWindow.reload();
   });
 });

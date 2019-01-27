@@ -1175,7 +1175,7 @@ CSSwhat@0.4:
 
 "StEdsSettings@https://github.com/AidanNichol/StEdsSettings":
   version "1.0.5"
-  resolved "https://github.com/AidanNichol/StEdsSettings#352e046d4c4f09c54f3e79c1dbae19c1fa63593d"
+  resolved "https://github.com/AidanNichol/StEdsSettings#97716a652c1234034994d6ea740e4cce92798c83"
   dependencies:
     conf "^2.1.0"
     dotenv "^6.2.0"
@@ -6812,7 +6812,7 @@ log-symbols@^2.2.0:
 
 "logit@https://github.com/AidanNichol/logit":
   version "1.0.1"
-  resolved "https://github.com/AidanNichol/logit#d238ac164fa19f53279c573cc2f1da11a01b99bf"
+  resolved "https://github.com/AidanNichol/logit#080f4eb982cade0d62304fb3e2b6e126d0e22203"
   dependencies:
     debug "^4.1.0"
     lodash "^4.17.11"
@@ -10529,7 +10529,7 @@ statuses@~1.3.1:
 
 "steds-settings-setup@https://github.com/AidanNichol/steds-settings-setup":
   version "1.0.0"
-  resolved "https://github.com/AidanNichol/steds-settings-setup#62ce72edd994e61fc6ed0d9866db74721d7913ee"
+  resolved "https://github.com/AidanNichol/steds-settings-setup#10b2363400b8053cf3dffdd7917905a5977b9889"
   dependencies:
     conf "^2.1.0"
     dotenv "^6.2.0"
