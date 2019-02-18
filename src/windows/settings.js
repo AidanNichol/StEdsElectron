@@ -2,7 +2,7 @@ import { remote, ipcRenderer } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 import React from 'react';
 import { render } from 'react-dom';
-import { setSettings, getAllSettings } from 'StEdsSettings';
+import { setSettings, getAllSettings } from '@steds/settings';
 
 var data = getAllSettings();
 const changed = (base, inpt) => {
@@ -70,9 +70,8 @@ const bool = (val, base, name, changed = toggled) => {
 };
 const advancedBool = (val, base, name) => {
   const advancedToggle = (base, inpt) => {
-    console.log('advanced toggle', base, inpt.checked, name)
     toggled(base, inpt);
-    ipcRenderer.send('reload-main', {[base]: inpt.checked});
+    ipcRenderer.send('reload-main', {[base]: val});
   };
   return bool(val, base, name, advancedToggle);
 };
