@@ -70,8 +70,9 @@ const bool = (val, base, name, changed = toggled) => {
 };
 const advancedBool = (val, base, name) => {
   const advancedToggle = (base, inpt) => {
+    console.log('advanced toggle', base, inpt.checked, name)
     toggled(base, inpt);
-    ipcRenderer.send('reload-main', {[base]: val});
+    ipcRenderer.send('reload-main', {[base]: inpt.checked});
   };
   return bool(val, base, name, advancedToggle);
 };
