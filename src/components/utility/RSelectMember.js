@@ -9,6 +9,9 @@ var SearchBox = function(props) {
   const Option = props => {
     var regex = new RegExp(`^(.*?)(${props.selectProps.inputValue})(.*)$`, 'i');
     const parts = props.label.match(regex);
+    if (!parts) {
+      return null;
+    }
     return (
       <components.Option {...props}>
         {parts[1]}
@@ -21,7 +24,7 @@ var SearchBox = function(props) {
   var noFound = 0;
   const ValueContainer = ({ children, ...props }) => {
     logit('ValueContainer', found, noFound, props, children);
-    return <components.ValueContainer {...props}>{children}</components.ValueContainer>;
+    return <components.ValueContainer {...props}> {children} </components.ValueContainer>;
   };
   const MenuList = props => {
     noFound = props.children.length;
@@ -35,10 +38,7 @@ var SearchBox = function(props) {
       components={{ Option, MenuList, ValueContainer }}
       styles={{
         singleValue: base => ({ ...base, color: 'white' }),
-        valueContainer: base => ({
-          ...base,
-          background: found ? 'cyan' : 'white',
-        }),
+        valueContainer: base => ({ ...base, background: found ? 'cyan' : 'white' }),
       }}
       name="form-field-name"
       value="one"
