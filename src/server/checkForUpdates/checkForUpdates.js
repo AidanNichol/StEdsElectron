@@ -5,7 +5,7 @@ let db = require('bookingsDB')(true);
 let generateEmail = require('./generateEmail');
 
 const Conf = require('conf');
-import {WS, MS, AS, PS, DS} from 'StEdsStore';
+const {WS, MS, AS, PS, DS} = require('StEdsStore');
 
 // const path = require('path');
 const settings = new Conf({
