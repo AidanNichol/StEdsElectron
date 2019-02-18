@@ -2,7 +2,7 @@ import { remote, ipcRenderer } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 import React from 'react';
 import { render } from 'react-dom';
-import { setSettings, getAllSettings } from '@steds/settings';
+import { setSettings, getAllSettings } from 'StEdsSettings';
 
 var data = getAllSettings();
 const changed = (base, inpt) => {
@@ -11,7 +11,7 @@ const changed = (base, inpt) => {
 };
 const dbSelected = (base, inpt) => {
   setSettings(base, inpt.value);
-  ipcRenderer.send('reload-main', {[base]: inpt.value});
+  ipcRenderer.send('reload-main', { [base]: inpt.value });
 };
 const toggled = (base, inpt) => {
   console.log('changed', base, inpt.checked);
@@ -41,7 +41,7 @@ const strng = (val, base, name) => {
     <div key={base}>
       <span key={base + 'S'}>{name.toString()}</span>
       <input
-        className={name+''}
+        className={name + ''}
         key={base + 'I'}
         onChange={() => changed(base, inputValue)}
         ref={input => (inputValue = input)}
@@ -53,7 +53,7 @@ const strng = (val, base, name) => {
 };
 const bool = (val, base, name, changed = toggled) => {
   let inputValue;
-  console.log('bool', base, name, val );
+  console.log('bool', base, name, val);
   return (
     <div key={base}>
       <span key={base + 'S'}>{name}</span>
@@ -71,7 +71,7 @@ const bool = (val, base, name, changed = toggled) => {
 const advancedBool = (val, base, name) => {
   const advancedToggle = (base, inpt) => {
     toggled(base, inpt);
-    ipcRenderer.send('reload-main', {[base]: val});
+    ipcRenderer.send('reload-main', { [base]: val });
   };
   return bool(val, base, name, advancedToggle);
 };
@@ -85,7 +85,8 @@ const list = (val, base, name, obj) => {
         type="checkbox"
         onChange={() => dbSelected(base, inputValue)}
         ref={input => (inputValue = input)}
-        defaultValue={val}>
+        defaultValue={val}
+      >
         {Object.keys(obj)
           .filter(n => typeof obj[n] === 'object')
           .map(n => (
@@ -98,8 +99,7 @@ const list = (val, base, name, obj) => {
     </div>
   );
 };
-const adapter = (val, base, name) =>
-  list(val, base, name, { idb: {}, websql: {} });
+const adapter = (val, base, name) => list(val, base, name, { idb: {}, websql: {} });
 
 const objectTree = (obj, base, name) => {
   const typeMap = {
@@ -110,35 +110,25 @@ const objectTree = (obj, base, name) => {
     'user.current': list,
     'database.current': list,
     advanced: advancedBool,
-    adapter: adapter
+    adapter: adapter,
   };
   base = base ? base + '.' : '';
   return (
-    <div className={"obj "+name} key={'obj:' + base}>
+    <div className={'obj ' + name} key={'obj:' + base}>
       {name && <h4 className={mode}>{name}</h4>}
       <div>
         {Object.keys(obj).map(name => {
           let val = obj[name];
           const baseN = base + name;
-          if (
-            base === 'user.' &&
-            name !== data.user.current &&
-            name !== 'current'
-          )
+          if (base === 'user.' && name !== data.user.current && name !== 'current')
             return null;
-          if (base === 'database.' && name !== mode && name !== 'current')
-            return null;
+          if (base === 'database.' && name !== mode && name !== 'current') return null;
           if (!advanced && base === 'database.' && name !== mode) return null;
-          if (
-            !advanced &&
-            base === `database.${mode}.` &&
-            name.substr(0, 5) !== 'reset'
-          )
+          if (!advanced && base === `database.${mode}.` && name.substr(0, 5) !== 'reset')
             return null;
 
           if (typeMap[name]) return typeMap[name](val, base + name, name, obj);
-          if (typeMap[baseN])
-            return typeMap[baseN](val, base + name, name, obj);
+          if (typeMap[baseN]) return typeMap[baseN](val, base + name, name, obj);
           return typeMap[typeof val](val, baseN, name);
         })}
       </div>
@@ -159,9 +149,7 @@ render(
         <div style={{ fontSize: '1em' }}>Settings</div>
       </div>
     </div>
-    <div>
-      {objectTree(data)}
-    </div>
+    <div>{objectTree(data)}</div>
   </div>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
