@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const _ = require('lodash');
-const {format} = require('date-fns');
+const {format, addDays, addWeeks} = require('date-fns');
 const debug = require('debug');
 var fs = require('fs');
 var path = require('path');
@@ -78,24 +78,18 @@ class DateStore {
   }
 
   get todaysDate() {
-    return this.today.toString('yyyy-MM-dd');
+    return format(this.today, 'yyyy-MM-dd');
   }
   get now() {
     return format(new Date(), 'dd MMM HH:mm:ss');
   }
 
   get lastAvailableDate() {
-    return this.today
-      .clone()
-      .addDays(59)
-      .toString('yyyy-MM-dd');
+    return format(addDays(this.today, 59 ) ,'yyyy-MM-dd');
   }
-
+  
   get nowMinus3Weeks() {
-    return this.today
-      .clone()
-      .addWeeks(-4)
-      .toString('yyyy-MM-dd');
+    return format(addWeeks(this.today, -4 ) ,'yyyy-MM-dd');
   }
 }
 
