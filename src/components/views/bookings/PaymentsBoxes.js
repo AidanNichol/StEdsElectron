@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observable, toJS, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import { Icon } from '../../utility/Icon';
@@ -8,68 +8,79 @@ import TooltipContent from '../../utility/TooltipContent.js';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Logit from 'logit';
+import { isNoSubstitutionTemplateLiteral } from 'typescript';
 var logit = Logit(__filename);
 
 const paymentOptions = [
-  { value: 'P', label: 'Paid cash' },
-  { value: 'PX', label: 'Refund Payment' },
-  { value: 'T', label: 'Paid via Treasurer' },
-  { value: 'TX', label: 'Refund via Treasurer' },
-  { value: '+', label: 'Add Credit' },
-  { value: '+X', label: 'Remove Credit' },
+  { type: 'P', label: 'Paid cash' },
+  { type: 'PX', label: 'Refund Payment' },
+  { type: 'T', label: 'Paid via Treasurer' },
+  { type: 'TX', label: 'Refund via Treasurer' },
+  { type: '+', label: 'Add Credit' },
+  { type: '+X', label: 'Remove Credit' },
 ];
-class UiStatus {
-  // helpIsOpen = false;
-  paymentType = paymentOptions[0];
 
-  self = this;
-  changePaymentType = type => {
-    logit('changePaymentType', type, this);
-    this.paymentType = type;
+const PaymentsBoxesUnstyled = props => {
+  const PushUpSelectUnstyled = ({ options, value, changed, className }) => {
+    const [showOptions, setShowOptions] = useState(false);
+    const toggleShow = () => {
+      setShowOptions(!showOptions);
+      logit('toggle showOptions', showOptions);
+    };
+    const open = showOptions ? ' open' : ' closed';
+    logit('PushUpSelect', options, value);
+    return (
+      <div onClick={toggleShow} className={'payment-types ' + className + open}>
+        <div className={showOptions ? 'show' : 'hide'}>
+          {options.map(option => (
+            <div onClick={() => changed(option)}>
+              <Icon type={option.type} /> {option.label}
+            </div>
+          ))}
+        </div>
+        <div className="valueBox">
+          <Icon type={value.type} /> {value.label}
+        </div>
+      </div>
+    );
   };
-  resetPaymentType = () => {
-    this.paymentType = paymentOptions[0];
-    logit('resetPaymentType', toJS(this));
-  };
-  // showHelp = () => {
-  //   this.helpIsOpen = true;
-  // };
-  // toggleHelp = () => {
-  //   this.helpIsOpen = !this.helpIsOpen;
-  // };
-  // hideHelp = () => {
-  //   this.helpIsOpen = false;
-  // };
-}
-decorate(UiStatus, {
-  helpIsOpen: observable,
-  paymentType: observable,
-  changePaymentType: action,
-  resetPaymentType: action,
-  showHelp: action,
-  hideHelp: action,
-});
-export const uiStatus = new UiStatus();
-
-const PaymentsBoxesUnstyled = observer(props => {
-  const IconValue = ({ data, innerProps }) => (
-    <div {...innerProps}>
-      &nbsp;
-      <Icon type={data.value} />
-      {data.label}
-    </div>
-  );
-
+  const PushUpSelect = styled(PushUpSelectUnstyled)`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow-y: visible;
+    cursor: pointer;
+    max-height: 52px;
+    align-self: flex-end;
+    margin-right: 8px;
+    &.open {
+      position: relative;
+      bottom: 14px;
+    }
+    div.hide {
+      display: none;
+    }
+    div.show {
+      background-color: #fff;
+      border: 1px solid hsl(0, 0%, 90%);
+    }
+    .valueBox {
+      border: 1px solid hsl(0, 0%, 80%);
+      border-radius: 5px;
+      height: 38px;
+      background-color: #fff;
+      min-height: 38px;
+      padding-top: 6px;
+    }
+  `;
+  const [paymentType, setPaymentType] = useState(paymentOptions[0]);
   const { accId, owing, credit, accountUpdatePayment } = props;
-  const paymentType = uiStatus.paymentType || paymentOptions[0];
   logit('PaymentsBoxes:props', paymentType, props);
   if (!accId) return null;
   let handleKeydown = event => {
-    logit('keydown', { amount, note, event });
     if (event.which === 13 && amount) {
       event.preventDefault();
       amount = parseInt(amount);
-      // if (paymentType.type[1] === 'X')amount = -amount;
       accountUpdatePayment(
         accId,
         amount,
@@ -79,7 +90,7 @@ const PaymentsBoxesUnstyled = observer(props => {
       );
       if (amountTarget) amountTarget.value = '';
       if (noteTarget) noteTarget.value = '';
-      uiStatus.changePaymentType(undefined);
+      setPaymentType(paymentOptions[0]);
     }
   };
   let amount = '',
@@ -98,42 +109,30 @@ const PaymentsBoxesUnstyled = observer(props => {
     accountUpdatePayment(accId, owing, note, 'P', true);
     event.target.value = '';
   };
-  const Option = props =>
-    props.value === '+X' && !credit ? null : <IconValue {...props} />;
-  const SingleValue = props => <IconValue {...props} />;
-
-  const customStyles = {
-    menu: provided => {
-      let { top, ...providedO } = provided; //eslint-disable-line no-unused-vars
-      return { ...providedO, bottom: '100%' };
-    },
-  };
 
   return (
     <div className={props.className}>
-      {credit ? <span className="credit">Credit £{credit}</span> : null}
-      {!owing ? (
-        <span />
-      ) : (
-        <div>
-          <TooltipButton
-            lable={`Payment Due £${owing}`}
-            onClick={paidInFull}
-            tiptext="Paid Full Amount"
-            visible
-          />
-          &nbsp; or &nbsp;
-        </div>
-      )}
+      <div>
+        {credit ? <span className="credit"> Credit £ {credit} &nbsp;</span> : null}
+        {owing ? (
+          <div>
+            <TooltipButton
+              lable={`Payment Due £${owing}`}
+              onClick={paidInFull}
+              tiptext="Paid Full Amount"
+              visible
+            />
+            &nbsp; or &nbsp;
+          </div>
+        ) : null}
+      </div>
       <div className="payment-boxes">
-        <Select
-          onChange={uiStatus.changePaymentType.bind(uiStatus)}
-          components={{ Option, SingleValue }}
-          styles={customStyles}
+        <PushUpSelect
           options={paymentOptions}
-          defaultValue={uiStatus.paymentType || paymentOptions[0]}
+          value={paymentType}
+          changed={setPaymentType}
         />
-        £
+        &nbsp;£
         <TooltipContent tiptext="Enter paid amount and press enter" visible>
           <input size="3" type="text" onKeyDown={handleKeydown} onChange={amountChange} />
         </TooltipContent>
@@ -146,74 +145,39 @@ const PaymentsBoxesUnstyled = observer(props => {
           onKeyDown={handleKeydown}
           onChange={noteChange}
         />
-        {/* <div
-          className="pt-icon-standard pt-icon-help"
-          onClick={() => uiStatus.toggleHelp()}
-          style={{ justifySelf: 'center' }}
-        >
-          &nbsp;
-        </div> */}
         <PaymentHelpDialog />
       </div>
     </div>
   );
-});
+};
 export const PaymentsBoxes = styled(PaymentsBoxesUnstyled)`
   grid-column: 1 / span 2;
   grid-row: 3;
   min-height: 1px;
   margin-top: 10px;
   display: grid;
-  grid-template-columns:auto 1fr;
-  align-items: center;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
   margin-left: 10px;
-  
+
   .payment-boxes {
     display: grid;
-    grid-template-columns: 220px 15px 55px 30px 1fr 50px;
-    align-items: center;
+    grid-template-columns: 225px 15px 55px 30px 1fr 50px;
+    align-items: baseline;
     background: rgb(238, 238, 238);
     border: rgb(170, 170, 170) solid 2px;
     border-radius: 4px;
     padding: 5px;
     padding-right: 0;
-    margin-left:0;
-    margin-top:5px;
+    margin-left: 0;
+    margin-top: 5px;
+    max-height: 52px;
+  }
+  .payment-boxes > div:not(.payment-types) {
+    padding-top: 8px;
   }
 
-    .pt-icon-help {
-      cursor: pointer;
-    }
+  .pt-icon-help {
+    cursor: pointer;
   }
 `;
-
-// const MySelect = styled(Select)`
-//   width: 180px;
-
-//   .Select-control {
-//     width: 200px;
-//     background-color: rgb(238, 238, 238);
-//   }
-
-//   .Select-menu-outer {
-//     min-height: 215px;
-//     margin-bottom: 10px;
-//   }
-
-//   .Select-menu {
-//     min-height: 210px;
-//   }
-
-//   .disabled {
-//     color: #ccc;
-//   }
-
-//   .Select-multi-value-wrapper {
-//     overflow: hidden;
-//     white-space: nowrap;
-//   }
-
-//   .icon {
-//     height: 16px;
-//   }
-// `;
