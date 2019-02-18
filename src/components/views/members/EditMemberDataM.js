@@ -1,5 +1,5 @@
 import React from 'react';
-import {Member}  from 'StEdsStore';
+import { Member } from '@steds/store';
 import AccountMembers from './AccountMembers';
 import SelectRole from './SelectRole';
 import SubscriptionButton from './SubscriptionButton';
@@ -20,7 +20,7 @@ import {
   normalizePhone,
 } from '../../utility/normalizers';
 
-import Logit from 'logit';
+import Logit from '@steds/logit';
 var logit = Logit(__filename);
 
 const EditMemberData = observer(
@@ -144,7 +144,7 @@ const EditMemberData = observer(
           header={title}
         >
           <div className={clss} {...delSettings}>
-            <fieldset className="form" size={40}>
+            <div className="form">
               <FormLine name="firstName" normalize={properCaseName} {...input} required />
               <FormLine name="lastName" normalize={properCaseName} {...input} required />
               <FormLine name="address" normalize={properCaseAddress} {...textarea} />
@@ -184,11 +184,11 @@ const EditMemberData = observer(
                     id={vals.accountId}
                     memId={vals.memberId}
                     accId={vals.accountId}
-                    editMode={ editMode }
+                    editMode={editMode}
                   />
                 </FormLine>
               </div>
-            </fieldset>
+            </div>
             {showState === 'X' ? (
               <img className="stamp" src="../assets/Deleted Member.svg" />
             ) : null}

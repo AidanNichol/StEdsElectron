@@ -1,26 +1,33 @@
 /* scss-lint:disable QualifyingElement Comment SelectorFormat */
 
+.show-member-details .panel-contents {
+  display: block;
+  height: 100%;
+}
 .show-member-details .panel-contents .user-details {
   margin-right: 10px;
   width: 470px;
   display: grid;
   grid-template-columns: 80px auto;
-  grid-template-rows: 50px auto 60px 1fr;
-  grid-template-areas: "edit form"
-    "edit form"
-    "buttons buttons";
+  grid-template-rows: 1fr;
+  grid-template-areas: "buttons form";
+  height: 100%;
 
   .edit-button {
-    grid-area: edit;
-    justify-content: flex-start;
+    grid-area: buttons;
+    justify-content: flex-end;
   }
 
   .form {
     grid-area: form;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .edit-buttons {
-    grid-area: edit;
+    grid-area: buttons;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;

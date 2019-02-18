@@ -4,7 +4,7 @@
   align-items: center;
   grid-gap: 0;
   grid-template-columns: 80px 240px 50px 500px;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr;
   background-color: #fff;
   color: #444;
   height: 100%;
@@ -27,6 +27,9 @@
     grid-area: names;
     align-self: start;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     &[hidden] {
       display: none;
@@ -42,10 +45,9 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: center;
+    justify-content: space-between;
 
     div {
-      padding-bottom: 7px;
 
       &.allVisible {
         background-color: #ccc;
@@ -76,7 +78,7 @@
 
   .list-line {
     width: 100%;
-    height: 4.3%;
+    /* height: 4.3%; */
     display: flex;
     justify-content: space-between;
     cursor: pointer;

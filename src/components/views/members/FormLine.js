@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Logit from 'logit';
+import Logit from '@steds/logit';
 var logit = Logit(__filename);
 
 const FormLine = props => {
@@ -37,8 +37,6 @@ const FormLine = props => {
   );
 };
 export default styled(FormLine)`
-  margin-top: 5px;
-  padding-top: 5px;
   width: 95%;
   display: flex;
   flex-direction: row;
