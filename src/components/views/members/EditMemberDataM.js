@@ -1,5 +1,5 @@
 import React from 'react';
-import { Member } from '@steds/store';
+import { Member } from 'StEdsStore';
 import AccountMembers from './AccountMembers';
 import SelectRole from './SelectRole';
 import SubscriptionButton from './SubscriptionButton';
@@ -20,7 +20,7 @@ import {
   normalizePhone,
 } from '../../utility/normalizers';
 
-import Logit from '@steds/logit';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const EditMemberData = observer(

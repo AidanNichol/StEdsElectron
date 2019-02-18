@@ -9,7 +9,7 @@ import { membershipListReport } from '../../../reports/membershipListPDF2';
 import { Icon } from '../../utility/Icon';
 import { Panel } from '../../utility/AJNPanel';
 
-import Logit from '@steds/logit';
+import Logit from 'logit';
 var logit = Logit(__filename);
 // const saveChanges = (values)=>{
 //   logit('saveChanges', values);

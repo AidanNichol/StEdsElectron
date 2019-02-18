@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Logit from '@steds/logit';
+import Logit from 'logit';
 var logit = Logit(__filename);
 
 const FormLine = props => {
