@@ -33,7 +33,7 @@ const PaymentsBoxesUnstyled = props => {
       <div onClick={toggleShow} className={'payment-types ' + className + open}>
         <div className={showOptions ? 'show' : 'hide'}>
           {options.map(option => (
-            <div onClick={() => changed(option)}>
+            <div onClick={() => changed(option)} key={option.type}>
               <Icon type={option.type} /> {option.label}
             </div>
           ))}
