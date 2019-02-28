@@ -26,7 +26,7 @@ logit('styled-components', styled);
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 class ReplState {
-  constructor(setdb) {
+  constructor(setdb, bypasslocal = false) {
     db = setdb;
     this.waiting = parseInt(localStorage.getItem('stEdsWaiting')) || 0;
     this.pushed = 0;
@@ -63,10 +63,11 @@ autorun(() => localStorage.setItem('stEdsWaiting', state.waiting), { delay: 300 
 //┃   Listen for changes and start to replicate              ┃
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-emitter.on('dbChanged', data => {
-  state.waiting += 1;
-  pushReplication(data);
-});
+if (!DbSettings.bypasslocal)
+  emitter.on('dbChanged', data => {
+    state.waiting += 1;
+    pushReplication(data);
+  });
 //┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 //┃   Network status has changed.                            ┃
 //┃   Send a notification and update the state.              ┃

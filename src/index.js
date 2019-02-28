@@ -12,8 +12,8 @@ import { remote } from 'electron';
 import { opts } from 'logit';
 import { monitorChanges } from './ducks/dbChangeMonitoringMobx';
 import { monitorReplications } from './ducks/replication-mobx';
-import db from './ducks/bookingsDB';
-import {WS, MS, AS, PS, DS, init} from 'StEdsStore';
+import { db, waitForDB, bypasslocal } from './ducks/bookingsDB';
+import { WS, MS, AS, PS, DS, init } from 'StEdsStore';
 import { router } from './ducks/router-mobx';
 const signin = require('StEdsStore').signinState;
 import Logit from 'logit';
@@ -26,13 +26,10 @@ logit('chrome', process.versions.chrome);
 logit('process', process);
 
 const cntrl = observable({ loading: true });
-// logit('mainlayout', membersLoading, accountsLoading, walksLoading);
-monitorChanges(db);
-// .error(error => {
-//   logit('monitorChanges failed', error);
-// });
+
 const monitorLoading = action(async () => {
-  logit('monitorLoading', 'start');
+  await waitForDB('main');
+  if (!bypasslocal) monitorChanges(db);
   await init(db);
   // await PS.init(db);
   // logit('monitorLoading', 'loaded Summary Doc');
@@ -40,7 +37,7 @@ const monitorLoading = action(async () => {
   runInAction(() => {
     logit('monitorLoading', 'loaded');
     cntrl.loading = false;
-    monitorReplications(db);
+    if (!bypasslocal) monitorReplications(db);
     reLogin();
   });
 });
