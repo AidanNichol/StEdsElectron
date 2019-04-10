@@ -29,7 +29,7 @@ const cntrl = observable({ loading: true });
 
 const monitorLoading = action(async () => {
   await waitForDB('main');
-  if (!bypasslocal) monitorChanges(db);
+  monitorChanges(db);
   await init(db);
   // await PS.init(db);
   // logit('monitorLoading', 'loaded Summary Doc');

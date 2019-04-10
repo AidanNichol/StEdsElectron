@@ -4,12 +4,12 @@ import { observer, inject } from 'mobx-react';
 import mobx from 'mobx';
 import { saveSummary } from '../../ducks/paymentssummary-duck.js';
 import { ShowRecipts } from './PaymentsReceived';
-import {cloneDeep, pickBy, keys} from 'lodash';
-import {format} from 'date-fns/fp';
+import { cloneDeep, pickBy, keys } from 'lodash';
+import { format } from 'date-fns/fp';
 const dispDate = format('dd MMM HH:mm');
 
 var formatISOdate = format("yyyy-MM-dd'T'HH:mm:ss.SSS");
-var getLogTime = ()=>formatISOdate(new Date());
+var getLogTime = () => formatISOdate(new Date());
 
 import { flatten } from 'lodash';
 import fs from 'fs';

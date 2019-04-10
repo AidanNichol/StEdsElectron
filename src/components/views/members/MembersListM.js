@@ -116,6 +116,7 @@ const Memberslist = observer(
               key="name"
               className={sortProp === 'name' ? 'active' : ''}
               onClick={() => setSortProp('name')}
+              visible
             >
               sort by Name
             </TooltipButton>
@@ -123,6 +124,7 @@ const Memberslist = observer(
               key="number"
               className={sortProp === 'id' ? 'active' : ''}
               onClick={() => setSortProp('id')}
+              visible
             >
               sort by Number
             </TooltipButton>
@@ -156,14 +158,15 @@ const Memberslist = observer(
             style={{ minHeight: '100%' }}
           />
 
-          <span className="action-buttons" hidden={editMode}>
+          <span className="action-buttons" hidden={false}>
             {/* <PrintButton  onClick={()=>summaryReport(printFull)} overlay={printFull ? 'F' : 'W'} onContextMenu={togglePrint} tiptext="Print All  Walks PDF" visible/> */}
             <PrintButton
               onClick={() => membershipListReport(allList)}
               placement="right"
               tiptext={`Print Membership List (Sorted by ${sortProp})`}
+              visible
             />
-            {/* <PrintButton report='memberslist' payload={allList} placement='right' tiptext={`Print Membership List (Sorted by ${sortProp})`} /> */}
+            {/* <PrintButton report='memberslist' payload={allList} placement='right' tiptext={`Print Membership List (Sorted by ${sortProp})`} visible/> */}
             <TooltipButton
               icon="user-add"
               onClick={() => createNewMember()}

@@ -1,4 +1,5 @@
 /* global PouchDB */
+import { bypasslocal } from './bookingsDB';
 const React = require('react');
 let db;
 const styled = require('styled-components').default;
@@ -218,6 +219,7 @@ setInterval(pullReplication, 180000); // just in case it's stopped
 //┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 async function monitorReplications(dbset) {
+  if (bypasslocal)return;
   logit('Start Monitoring');
   db = dbset ? dbset : db;
   const remoteCouch = `http://${DbSettings.remotehost}:5984/${DbSettings.remotename}`;

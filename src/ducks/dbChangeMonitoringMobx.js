@@ -1,5 +1,5 @@
 import Logit from 'logit';
-import {WS, MS, AS, PS} from 'StEdsStore';
+import { WS, MS, AS, PS } from 'StEdsStore';
 
 let db;
 
